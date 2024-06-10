@@ -1,0 +1,23 @@
+repos:
+# exclude: ^vendor/
+
+# ---- Pre-commit hooks ---- : Standard hook library
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.1.0
+  hooks:
+  -   id: trailing-whitespace # strip out white spaces at end of lines
+  -   id: end-of-file-fixer # ensure newline present at end of file
+  -   id: check-yaml # checks yaml files for parseable syntax.
+  -   id: check-json # checks json files for parseable syntax
+  -   id: check-added-large-files # check for files above certain size (as likely to be data files)
+      args: ['--maxkb=500']
+  -   id: detect-private-key # detects the presence of private keys.
+  -   id: check-case-conflict # check for files that would conflict in case-insensitive file systems.
+  -   id: check-merge-conflict # check for files that contain merge conflict strings.
+
+# ----- Detect-secrets - Detects high entropy strings that are likely to be passwords.
+-   repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+    -   id: detect-secrets
+        exclude: package.lock.json
