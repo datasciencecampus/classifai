@@ -1,0 +1,37 @@
+[project]
+name = "classifAI"
+description = "General AI Classification Tool"
+authors = [
+    { name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+test = [
+]
+dev = [
+    "pre-commit==3.3.3",
+    "ruff==0.3.0",
+]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+extend-select = ["D", "I", "W"]
+ignore = ["D105", "D107", "D202"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["parliai"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
