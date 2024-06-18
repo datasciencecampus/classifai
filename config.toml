@@ -1,0 +1,6 @@
+[all]
+fields = ["label", "confidence_score"]
+
+[sic-soc]
+endpoint = "/sic-soc/"     # explicit endpoint may not be necessary
+fields = ["job_title", "job_description", "level_of_education", "manage_others", "industry_descr"]
