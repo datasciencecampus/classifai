@@ -9,6 +9,8 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dynamic = ["version"]
 dependencies = [
+    "langchain==0.1.0",
+    "langchain-google-vertexai==0.0.1"
 ]
 
 [build-system]
