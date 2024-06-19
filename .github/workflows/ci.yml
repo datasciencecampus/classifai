@@ -25,10 +25,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
-      # - name: Update pip and install the package
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     python -m pip install ".[test]"
+      - name: Update pip and install the package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ".[test]"
       # - name: Run tests
       #   run: |
       #     python -m pytest tests
