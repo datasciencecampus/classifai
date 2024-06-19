@@ -1,0 +1,18 @@
+{
+    "0001": {"label": "1",
+        "confidence_score": 0.79,
+        "job_title": "Data Scientist",
+        "job_description": "",
+        "level_of_education": "",
+        "manage_others": "",
+        "industry_descr": "",
+        "miscellaneous": "not required"},
+    "0002": {"label": "5",
+        "confidence_score": 0.93,
+        "job_title": "Teacher",
+        "job_description": "",
+        "level_of_education": "",
+        "manage_others": "",
+        "industry_descr": "",
+        "miscellaneous": "not required"}
+}
