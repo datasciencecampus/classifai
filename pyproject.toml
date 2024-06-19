@@ -1,5 +1,5 @@
 [project]
-name = "ClassifAI"
+name = "classifai"
 description = "An AI-assisted flexible tool for different classification tasks."
 authors = [
     { name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk" }
