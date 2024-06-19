@@ -2,9 +2,10 @@
 
 import json
 
-from classifAI import Outputs
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+
+from classifai import Outputs
 
 app = FastAPI()
 tool = Outputs()
