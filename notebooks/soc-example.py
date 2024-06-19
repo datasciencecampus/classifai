@@ -12,7 +12,13 @@ embed.embed_index(
     from_empty=True, file_name="../data/soc-index/soc_title_condensed.txt"
 )
 # %%
-for ent in embed.search_index(query="Data Scientist"):
+for ent in embed.search_index(query=""):
     print(f"{ent['code']}: {ent['title'][:-1]}, Distance: {ent['distance']}")
 
+# %%
+
+for i in range(1000):
+    embed.vector_store.similarity_search_with_score(query="Doctor", k=10)
+    embed.vector_store.similarity_search_with_score(query="Professor", k=10)
+    embed.vector_store.similarity_search_with_score(query="Lawyer", k=10)
 # %%
