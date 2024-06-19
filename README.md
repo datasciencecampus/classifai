@@ -19,7 +19,7 @@ $ python -m pip install --upgrade pip
 $ python -m pip install .
 ```
 
-> \[!NOTE\] If you intend on doing any development work, please install the package as editable and with the `dev` optional dependencies:
+> [!NOTE] If you intend on doing any development work, please install the package as editable and with the `dev` optional dependencies:
 >
 > ``` bash
 > $ python -m pip install -e ".[dev]"
