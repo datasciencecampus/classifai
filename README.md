@@ -44,7 +44,13 @@ Once pre-commits are activated, whenever you commit to this repository a series 
 **NOTE:** Pre-commit hooks execute Python, so it expects a working Python build.
 
 ## Usage
-To follow...
+Development is in its very early stages. You can launch the default API server:
+
+```bash
+$ uvicorn fast-api.main_api:app
+```
+
+Once the local server is started, the following URL - `http://127.0.0.1:8000/soc` - is the endpoint for accessing SOC output data.
 
 ### Workflow
 To follow...
