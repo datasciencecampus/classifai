@@ -1,14 +1,17 @@
 [project]
-name = "classifAI"
-description = "General AI Classification Tool"
+name = "classifai"
+description = "An AI-assisted flexible tool for different classification tasks."
 authors = [
     { name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk" }
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = "==3.10"
+requires-python = ">=3.10"
 dynamic = ["version"]
 dependencies = [
+    "fastapi>=0.111.0",
+    "pandas>=2.0.0",
+    "toml>=0.10.2",
     "pyprojroot==0.3.0",
     "langchain==0.1.0",
     "langchain-google-vertexai==0.0.1",
@@ -24,10 +27,16 @@ build-backend = "setuptools.build_meta"
 
 [project.optional-dependencies]
 test = [
+    "hypothesis>=6.98.6",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-randomly>=3.15.0",
+    # "python-dateutil>=2.9.0",
 ]
 dev = [
     "pre-commit==3.3.3",
     "ruff==0.3.0",
+    "classifai[test]",
 ]
 
 [tool.ruff]
@@ -38,7 +47,7 @@ extend-select = ["D", "I", "W"]
 ignore = ["D105", "D107", "D202"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["parliai"]
+known-first-party = ["classifai"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
