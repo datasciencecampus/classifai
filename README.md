@@ -1,13 +1,31 @@
 <img src="https://github.com/datasciencecampus/awesome-campus/blob/master/ons_dsc_logo.png">
 
-# Repository name
+# ClassifAI
 
 # Introduction
 ## About
-*Describe what this repo contains and what the project is.*
+Leveraging AI to develop a flexible multi-classification tool.
 
 ## Installation
-*Describe technical set-up. Such as the required dependencies.*
+
+You are strongly recommended to install resources into a virtual environment. Project setup can be achieved as follows:
+
+``` bash
+$ git clone https://github.com/datasciencecampus/classifai.git
+$ cd classifai
+$ python -m venv venv
+$ source venv/bin/activate
+$ python -m pip install --upgrade pip
+$ python -m pip install .
+```
+
+> \[!NOTE\] If you intend on doing any development work, please install the package as editable and with the `dev` optional dependencies:
+>
+> ``` bash
+> $ python -m pip install -e ".[dev]"
+> ```
+>
+> Moreover, once you have installed the package, please install the pre-commit hooks. These hooks help us to ensure repository security and a consistent code style.
 
 ### Pre-commit actions
 This repository contains a configuration of pre-commit hooks. These are language agnostic and focussed on repository security (such as detection of passwords and API keys). If approaching this project as a developer, you are encouraged to install and enable `pre-commits` by running the following in your shell:
@@ -26,10 +44,10 @@ Once pre-commits are activated, whenever you commit to this repository a series 
 **NOTE:** Pre-commit hooks execute Python, so it expects a working Python build.
 
 ## Usage
-*Explain how to use the things in the repo.*
+To follow...
 
 ### Workflow
-*You may wish to consider generating a graph to show your project workflow. GitHub markdown provides native support for [mermaid](https://mermaid.js.org/syntax/flowchart.html), an example of which is provided below:*
+To follow...
 
 ```mermaid
 flowchart TD

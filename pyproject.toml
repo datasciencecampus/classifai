@@ -1,0 +1,56 @@
+[project]
+name = "ClassifAI"
+description = "An AI-assisted flexible tool for different classification tasks."
+authors = [
+    { name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+    "fastapi>=0.111.0",
+    "pandas>=2.0.0",
+    "toml>=0.10.2",
+    # "bs4>=0.0.1",
+    # "email-validator>=2.1.0.post1",
+    # "feedparser>=6.0.11",
+    # "google-cloud-secret-manager>=2.19.0",
+    # "langchain-community>=0.0.13",
+    # "langchain-google-vertexai>=0.0.1",
+    # "langchain>=0.1.0",
+    # "notifications-python-client>=9.0.0",
+    # "python-dotenv>=1.0.1",
+    # "toml>=0.10.2",
+    # "tqdm>=4.66.1",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+test = [
+    "hypothesis>=6.98.6",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-randomly>=3.15.0",
+    # "python-dateutil>=2.9.0",
+]
+dev = [
+    "pre-commit==3.3.3",
+    "ruff==0.3.0",
+]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+extend-select = ["D", "I", "W"]
+ignore = ["D105", "D107", "D202"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["classifai"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
