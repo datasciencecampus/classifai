@@ -12,6 +12,8 @@ from classifai import API
 app: FastAPI = FastAPI()
 tool = API()
 
+# TODO: how best to pass input_filepath as argument to user
+
 
 @app.get("/", tags=["default_endpoint"])
 def about():
@@ -25,13 +27,18 @@ def about():
 def soc(data: str = "data/lfs_mock.csv") -> dict:
     """Load SOC output data and filters to required fields.
 
+    Parameters
+    ----------
+    data : str
+        Filepath to input data (currently csv only)
+
     Returns
     -------
     data : dict
         Output JSON with required fields only.
 
     """
-    data = tool.jsonify_input(data)
+    data = tool.jsonify_input()
     data = tool.classify_input(data)
     data = tool.simplify_output(data)
 
