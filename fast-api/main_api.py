@@ -1,18 +1,20 @@
 """Functions to define API endpoint behaviour."""
 
-import json
+import argparse
+import warnings
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from classifai import Outputs
+from classifai import API
 
-app = FastAPI()
-tool = Outputs()
+app: FastAPI = FastAPI()
+tool = API()
 
 
-@app.get("/", tags=["core_endpoint"])
-async def about():
+@app.get("/", tags=["default_endpoint"])
+def about():
     """Access the API documentation in json format."""
     response = RedirectResponse(url="/openapi.json")
 
@@ -20,7 +22,7 @@ async def about():
 
 
 @app.get("/soc", tags=["task_endpoint"])
-async def soc() -> dict:
+def soc(data: str = "data/lfs_mock.csv") -> dict:
     """Load SOC output data and filters to required fields.
 
     Returns
@@ -29,8 +31,28 @@ async def soc() -> dict:
         Output JSON with required fields only.
 
     """
-    with open("data/soc_mock.json") as f:
-        data = json.load(f)
+    data = tool.jsonify_input(data)
+    data = tool.classify_input(data)
     data = tool.simplify_output(data)
 
     return data
+
+
+if __name__ == "__main__":
+    # TODO: implement user task to direct to req'd endpoint
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-t", "--task", required=False, default="soc", type=str
+    )
+    args = vars(parser.parse_args())
+    endpoint = args["task"]
+
+    compatible_tasks = ["soc"]
+    if endpoint in compatible_tasks:
+        print(
+            f"A dedicated endpoint will be available here: 'http://localhost:8000/{endpoint}'"
+        )
+    else:
+        warnings.warn("Task not recognised. Default endpoint available only.")
+
+    uvicorn.run(app)

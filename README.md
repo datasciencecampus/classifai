@@ -52,6 +52,14 @@ $ uvicorn fast-api.main_api:app
 
 Once the local server is started, the following URL - `http://127.0.0.1:8000/soc` - is the endpoint for accessing SOC output data.
 
+Alternatively, a Python command can be used with an optional flag - `-t` or `--task` - to specify the required classification task. Note that this current defaults to the **soc** classification task.
+
+```bash
+$ python fast-api/main_api.py -t soc
+```
+
+The URL for the available endpoint is then exposed on screen.
+
 ### Workflow
 To follow...
 
