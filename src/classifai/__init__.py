@@ -1,5 +1,5 @@
 """Class for pulling on other classes."""
 
-from .api import Outputs
+from .api import API
 
-__all__ = ["Outputs"]
+__all__ = ["API"]
