@@ -1,4 +1,4 @@
-"""Class to embed records."""
+"""Class to embed record."""
 
 import os
 import uuid
