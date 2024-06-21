@@ -1,7 +1,7 @@
 """Notebook to show an example of getting a SOC code."""
 
 # %%
-from classifai.embedding import EmbeddingHandler
+from archive.embedding import EmbeddingHandler
 
 ####  test embedding on handfull examples
 # %%

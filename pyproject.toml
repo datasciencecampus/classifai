@@ -13,11 +13,6 @@ dependencies = [
     "pandas>=2.0.0",
     "toml>=0.10.2",
     "pyprojroot==0.3.0",
-    "langchain==0.1.0",
-    "langchain-google-vertexai==0.0.1",
-    "langchain-openai==0.0.2",
-    "google-cloud-aiplatform==1.38.1",
-    "sentence-transformers==2.3.1",
     "chromadb==0.4.22",
     "google-generativeai",
     "python-dotenv"

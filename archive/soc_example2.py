@@ -16,7 +16,8 @@ genai.configure(api_key=gapikey)
 google_api_key = gapikey
 
 huggingface_ef = embedding_functions.HuggingFaceEmbeddingFunction(
-    api_key="", model_name="sentence-transformers/all-MiniLM-L6-v2"
+    api_key=os.getenv("HUGGINGFACE_API_KEY"),
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
 )
 
 google_ef = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
@@ -32,7 +33,7 @@ client = chromadb.PersistentClient(
 
 collection = client.get_or_create_collection(
     name="my_collection",
-    embedding_function=google_ef,
+    embedding_function=huggingface_ef,
 )
 
 
@@ -47,7 +48,7 @@ def add_documents():
         with open(file_name) as file:
             for line in file:
                 if line:
-                    bits = line.split(",", 1)
+                    bits = line.split(":", 1)
                     docs.append(bits[1].replace("\n", ""))
                     label.append(dict(label=bits[0]))
                     ids.append(str(uuid.uuid3(uuid.NAMESPACE_URL, line)))
