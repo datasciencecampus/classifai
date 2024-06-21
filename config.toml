@@ -1,5 +1,5 @@
 [all]
-fields = ["label", "confidence_score"]
+fields = ["label", "distance"]
 
 [soc]
 endpoint = "/soc/"     # explicit endpoint may not be necessary

@@ -46,7 +46,7 @@ class API:
 
         for entry in data:
             entry["label"] = random.randint(1, 5)
-            entry["confidence_score"] = random.uniform(0, 1)
+            entry["distance"] = random.uniform(0, 1)
 
         return data
 

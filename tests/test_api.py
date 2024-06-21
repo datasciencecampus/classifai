@@ -37,7 +37,7 @@ def test_classify_input():
         "industry_descr",
         "miscellaneous",
         "label",
-        "confidence_score",
+        "distance",
     ]
 
 
@@ -54,7 +54,7 @@ def test_simplify_output():
             "industry_descr": "",
             "miscellaneous": "",
             "label": "5",
-            "confidence_score": 0.79,
+            "distance": 0.79,
         }
     ]
     test_json = tool.simplify_output(test_json)
