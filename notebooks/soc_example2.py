@@ -20,11 +20,13 @@ huggingface_ef = embedding_functions.HuggingFaceEmbeddingFunction(
 )
 
 google_ef = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
-    api_key=google_api_key, task_type="RETRIEVAL_QUERY"
+    api_key=google_api_key,
+    task_type="RETRIEVAL_QUERY",
+    model_name="models/text-embedding-004",
 )
 
 client = chromadb.PersistentClient(
-    path=os.path.join(here(), "data/sic-index/db")
+    path=os.path.join(here(), "data/soc-index/db")
 )
 
 
@@ -39,26 +41,64 @@ def add_documents():
     """Embeds index."""
     file_name = "../data/soc-index/soc_title_condensed.txt"
     docs = []
-    code = []
+    label = []
     ids = []
     if file_name is not None:
         with open(file_name) as file:
             for line in file:
                 if line:
                     bits = line.split(",", 1)
-                    docs.append(bits[1])
-                    code.append(dict(code=bits[0]))
+                    docs.append(bits[1].replace("\n", ""))
+                    label.append(dict(label=bits[0]))
                     ids.append(str(uuid.uuid3(uuid.NAMESPACE_URL, line)))
 
-    collection.add(documents=docs, metadatas=code, ids=ids)
+    collection.add(documents=docs, metadatas=label, ids=ids)
 
 
 # add_documents()
 # %%
+id_column = "id"
+input_columns = ["job_title", "company"]
+input_data = [
+    {
+        "id": "1",
+        "job_title": "Fishing Trawler Captain",
+        "company": "Grimsby Fishing Fleet",
+    },
+    {
+        "id": "2",
+        "job_title": "Anaesthetist",
+        "company": "London General Hospital",
+    },
+]
+
+query_texts = []
+for entry in input_data:
+    query_text = []
+    for key, item in entry.items():
+        if key in input_columns:
+            query_text.append(item)
+    query_texts.append(" ".join(query_text))
+
+# %%
 
 result = collection.query(
-    query_texts=["Doctor", "Professor", "Lawyer"],
-    n_results=10,
+    query_texts=query_texts,
+    n_results=2,
+    include=["documents", "metadatas", "distances"],
 )
-result.get("documents")
+# %%
+my_list = dict()
+for label_list, description_list, distance_list, input_list in zip(
+    result["metadatas"], result["documents"], result["distances"], input_data
+):
+    id = input_list[id_column]
+    for label, description, distance in zip(
+        label_list, description_list, distance_list
+    ):
+        label.update({"description": description[:-1]})
+        label.update({"distance": distance})
+    my_list[input_list[id_column]] = label_list
+# %%
+result["metadatas"]
 # %%
