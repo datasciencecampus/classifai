@@ -5,6 +5,7 @@ from classifai.embedding import EmbeddingHandler
 
 def test_create_query_texts():
     """Test the specified fields for each document are returned as a concatenated string."""
+
     input_data = [
         {"id": 1, "job_title": "statistician", "employer": "ONS"},
         {"id": 2, "job_title": "economist", "employer": "HMT"},
@@ -29,6 +30,7 @@ def test_create_query_texts():
 
 def test_create_query_texts_no_embedded_fields():
     """Test an empty string is returned when no embedded fields are specified."""
+
     input_data = [{"id": 1, "job_title": "statistician", "employer": "ONS"}]
 
     embedded_fields = []
