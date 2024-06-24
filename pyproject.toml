@@ -12,7 +12,6 @@ dependencies = [
     "fastapi>=0.111.0",
     "pandas>=2.0.0",
     "toml>=0.10.2",
-    "pyprojroot==0.3.0",
     "chromadb==0.4.22",
     "google-generativeai",
     "python-dotenv"

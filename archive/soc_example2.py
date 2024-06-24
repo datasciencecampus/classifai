@@ -8,7 +8,6 @@ import chromadb
 import chromadb.utils.embedding_functions as embedding_functions
 import dotenv
 import google.generativeai as genai
-from pyprojroot import here
 
 dotenv.load_dotenv(dotenv.find_dotenv())
 gapikey = os.getenv("GOOGLE_API_KEY")
@@ -26,9 +25,7 @@ google_ef = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
     model_name="models/text-embedding-004",
 )
 
-client = chromadb.PersistentClient(
-    path=os.path.join(here(), "data/soc-index/db")
-)
+client = chromadb.PersistentClient(path="data/soc-index/db")
 
 
 collection = client.get_or_create_collection(
@@ -40,7 +37,7 @@ collection = client.get_or_create_collection(
 # %%
 def add_documents():
     """Embeds index."""
-    file_name = "../data/soc-index/soc_title_condensed.txt"
+    file_name = "data/soc-index/soc_title_condensed.txt"
     docs = []
     label = []
     ids = []

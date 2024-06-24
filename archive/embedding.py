@@ -1,6 +1,5 @@
 """Class to embed record."""
 
-import os
 import uuid
 
 from langchain.docstore.document import Document
@@ -9,7 +8,6 @@ from langchain_community.embeddings import (
     VertexAIEmbeddings,
 )
 from langchain_community.vectorstores import Chroma
-from pyprojroot import here
 
 
 class EmbeddingHandler:
@@ -18,7 +16,7 @@ class EmbeddingHandler:
     def __init__(
         self,
         embedding_model_name: str = "all-MiniLM-L6-v2",  # all-mpnet-base-v2
-        db_dir: str = os.path.join(here(), "data/sic-index/db"),
+        db_dir: str = "data/sic-index/db",
         k_matches: int = 20,
     ):
         """Initialise EmbeddingHandler.
