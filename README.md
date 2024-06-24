@@ -51,6 +51,7 @@ The package allows for different embeddings to be used. Based on your choice API
     ```shell
     HUGGINGFACE_API_KEY="<your key>"
     ```
+This needs to be a `WRITE` API key.
 
 1. Include GCP project API in .env as
     ```shell
