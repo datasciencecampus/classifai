@@ -34,16 +34,16 @@ class EmbeddingHandler:
 
         dotenv.load_dotenv(dotenv.find_dotenv())
 
-        if embedding_model_name.startswith("models/"):
+        if embedding_model_name.startswith("models"):
             self.embedding_function = GoogleGenerativeAiEmbeddingFunction(
                 api_key=os.getenv("GOOGLE_API_KEY"),
-                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                model_name=embedding_model_name,
             )
 
         else:
             self.embedding_function = HuggingFaceEmbeddingFunction(
                 api_key=os.getenv("HUGGINGFACE_API_KEY"),
-                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                model_name=embedding_model_name,
             )
 
         self.db_dir = db_dir
