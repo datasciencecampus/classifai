@@ -1,0 +1,412 @@
+1111: Chief executives and senior officials
+1112: Elected officers and representatives
+1121: Production managers and directors in manufacturing
+1122: Production managers and directors in construction
+1123: Production managers and directors in mining and energy
+1131: Financial managers and directors
+1132: Marketing, sales and advertising directors
+1133: Public relations and communications directors
+1134: Purchasing managers and directors
+1135: Charitable organisation managers and directors
+1136: Human resource managers and directors
+1137: Information technology directors
+1139: Functional managers and directors n.e.c.
+1140: Directors in logistics, warehousing and transport
+1150: Managers and directors in retail and wholesale
+1161: Officers in armed forces
+1162: Senior police officers
+1163: Senior officers in fire, ambulance, prison and related services
+1171: Health services and public health managers and directors
+1172: Social services managers and directors
+1211: Managers and proprietors in agriculture and horticulture
+1212: Managers and proprietors in forestry, fishing and related services
+1221: Hotel and accommodation managers and proprietors
+1222: Restaurant and catering establishment managers and proprietors
+1223: Publicans and managers of licensed premises
+1224: Leisure and sports managers and proprietors
+1225: Travel agency managers and proprietors
+1231: Health care practice managers
+1232: Residential, day and domiciliary care managers and proprietors
+1233: Early education and childcare services proprietors
+1241: Managers in transport and distribution
+1242: Managers in storage and warehousing
+1243: Managers in logistics
+1251: Property, housing and estate managers
+1252: Garage managers and proprietors
+1253: Hairdressing and beauty salon managers and proprietors
+1254: Waste disposal and environmental services managers
+1255: Managers and directors in the creative industries
+1256: Betting shop and gambling establishment managers
+1257: Hire services managers and proprietors
+1258: Directors in consultancy services
+1259: Managers and proprietors in other services n.e.c.
+2111: Chemical scientists
+2112: Biological scientists
+2113: Biochemists and biomedical scientists
+2114: Physical scientists
+2115: Social and humanities scientists
+2119: Natural and social science professionals n.e.c.
+2121: Civil engineers
+2122: Mechanical engineers
+2123: Electrical engineers
+2124: Electronics engineers
+2125: Production and process engineers
+2126: Aerospace engineers
+2127: Engineering project managers and project engineers
+2129: Engineering professionals n.e.c.
+2131: IT project managers
+2132: IT managers
+2133: IT business analysts, architects and systems designers
+2134: Programmers and software development professionals
+2135: Cyber security professionals
+2136: IT quality and testing professionals
+2137: IT network professionals
+2139: Information technology professionals n.e.c.
+2141: Web design professionals
+2142: Graphic and multimedia designers
+2151: Conservation professionals
+2152: Environment professionals
+2161: Research and development (r&d) managers
+2162: Other researchers, unspecified discipline
+2211: Generalist medical practitioners
+2212: Specialist medical practitioners
+2221: Physiotherapists
+2222: Occupational therapists
+2223: Speech and language therapists
+2224: Psychotherapists and cognitive behaviour therapists
+2225: Clinical psychologists
+2226: Other psychologists
+2229: Therapy professionals n.e.c.
+2231: Midwifery nurses
+2232: Registered community nurses
+2233: Registered specialist nurses
+2234: Registered nurse practitioners
+2235: Registered mental health nurses
+2236: Registered children's nurses
+2237: Other registered nursing professionals
+2240: Veterinarians
+2251: Pharmacists
+2252: Optometrists
+2253: Dental practitioners
+2254: Medical radiographers
+2255: Paramedics
+2256: Podiatrists
+2259: Other health professionals n.e.c.
+2311: Higher education teaching professionals
+2312: Further education teaching professionals
+2313: Secondary education teaching professionals
+2314: Primary education teaching professionals
+2315: Nursery education teaching professionals
+2316: Special and additional needs education teaching professionals
+2317: Teachers of english as a foreign language
+2319: Teaching professionals n.e.c.
+2321: Head teachers and principals
+2322: Education managers
+2323: Education advisers and school inspectors
+2324: Early education and childcare services managers
+2329: Other educational professionals n.e.c
+2411: Barristers and judges
+2412: Solicitors and lawyers
+2419: Legal professionals n.e.c.
+2421: Chartered and certified accountants
+2422: Finance and investment analysts and advisers
+2423: Taxation experts
+2431: Management consultants and business analysts
+2432: Marketing and commercial managers
+2433: Actuaries, economists and statisticians
+2434: Business and related research professionals
+2435: Professional/chartered company secretaries
+2439: Business, research and administrative professionals n.e.c.
+2440: Business and financial project management professionals
+2451: Architects
+2452: Chartered architectural technologists, planning officers and consultants
+2453: Quantity surveyors
+2454: Chartered surveyors
+2455: Construction project managers and related professionals
+2461: Social workers
+2462: Probation officers
+2463: Clergy
+2464: Youth work professionals
+2469: Welfare professionals n.e.c.
+2471: Librarians
+2472: Archivists, conservators and curators
+2481: Quality control and planning engineers
+2482: Quality assurance and regulatory professionals
+2483: Environmental health professionals
+2491: Newspaper, periodical and broadcast editors
+2492: Newspaper and periodical broadcast journalists and reporters
+2493: Public relations professionals
+2494: Advertising accounts managers and creative directors
+3111: Laboratory technicians
+3112: Electrical and electronics technicians
+3113: Engineering technicians
+3114: Building and civil engineering technicians
+3115: Quality assurance technicians
+3116: Planning, process and production technicians
+3119: Science, engineering and production technicians n.e.c.
+3120: CAD, drawing and architectural technicians
+3131: IT operations technicians
+3132: IT user support technicians
+3133: Database administrators and web content technicians
+3211: Dispensing opticians
+3212: Pharmaceutical technicians
+3213: Medical and dental technicians
+3214: Complementary health associate professionals
+3219: Health associate professionals n.e.c.
+3221: Youth and community workers
+3222: Child and early years officers
+3223: Housing officers
+3224: Counsellors
+3229: Welfare and housing associate professionals n.e.c.
+3231: Higher level teaching assistants
+3232: Early education and childcare practitioners
+3240: Veterinary nurses
+3311: Non-commissioned officers and other ranks
+3312: Police officers (sergeant and below)
+3313: Fire service officers (watch manager and below)
+3314: Prison service officers (below principal officer)
+3319: Protective service associate professionals n.e.c.
+3411: Artists
+3412: Authors, writers and translators
+3413: Actors, entertainers and presenters
+3414: Dancers and choreographers
+3415: Musicians
+3416: Arts officers, producers and directors
+3417: Photographers, audio-visual and broadcasting equipment operators
+3421: Interior designers
+3422: Clothing, fashion and accessories designers
+3429: Design occupations n.e.c.
+3431: Sports players
+3432: Sports coaches, instructors and officials
+3433: Fitness and wellbeing instructors
+3511: Aircraft pilots and air traffic controllers
+3512: Ship and hovercraft officers
+3520: Legal associate professionals
+3531: Brokers
+3532: Insurance underwriters
+3533: Financial and accounting technicians
+3534: Financial accounts managers
+3541: Estimators, valuers and assessors
+3542: Importers and exporters
+3543: Project support officers
+3544: Data analysts
+3549: Business associate professionals n.e.c.
+3551: Buyers and procurement officers
+3552: Business sales executives
+3553: Merchandisers
+3554: Advertising and marketing associate professionals
+3555: Estate agents and auctioneers
+3556: Sales accounts and business development managers
+3557: Events managers and organisers
+3560: Public services associate professionals
+3571: Human resources and industrial relations officers
+3572: Careers advisers and vocational guidance specialists
+3573: Information technology trainers
+3574: Other vocational and industrial trainers
+3581: Inspectors of standards and regulations
+3582: Health and safety managers and officers
+4111: National government administrative occupations
+4112: Local government administrative occupations
+4113: Officers of non-governmental organisations
+4121: Credit controllers
+4122: Book-keepers, payroll managers and wages clerks
+4123: Bank and post office clerks
+4124: Finance officers
+4129: Financial administrative occupations n.e.c.
+4131: Records clerks and assistants
+4132: Pensions and insurance clerks and assistants
+4133: Stock control clerks and assistants
+4134: Transport and distribution clerks and assistants
+4135: Library clerks and assistants
+4136: Human resources administrative occupations
+4141: Office managers
+4142: Office supervisors
+4143: Customer service managers
+4151: Sales administrators
+4152: Data entry administrators
+4159: Other administrative occupations n.e.c.
+4211: Medical secretaries
+4212: Legal secretaries
+4213: School secretaries
+4214: Company secretaries and administrators
+4215: Personal assistants and other secretaries
+4216: Receptionists
+4217: Typists and related keyboard occupations
+5111: Farmers
+5112: Horticultural trades
+5113: Gardeners and landscape gardeners
+5114: Groundsmen and greenkeepers
+5119: Agricultural and fishing trades n.e.c.
+5211: Sheet metal workers
+5212: Metal plate workers, smiths, moulders and related occupations
+5213: Welding trades
+5214: Pipe fitters
+5221: Metal machining setters and setter-operators
+5222: Tool makers, tool fitters and markers-out
+5223: Metal working production and maintenance fitters
+5224: Precision instrument makers and repairers
+5225: Air-conditioning and refrigeration installers and repairers
+5231: Vehicle technicians, mechanics and electricians
+5232: Vehicle body builders and repairers
+5233: Vehicle paint technicians
+5234: Aircraft maintenance and related trades
+5235: Boat and ship builders and repairers
+5236: Rail and rolling stock builders and repairers
+5241: Electricians and electrical fitters
+5242: Telecoms and related network installers and repairers
+5243: Tv, video and audio servicers and repairers
+5244: Computer system and equipment installers and servicers
+5245: Security system installers and repairers
+5246: Electrical service and maintenance mechanics and repairers
+5249: Electrical and electronic trades n.e.c.
+5250: Skilled metal, electrical and electronic trades supervisors
+5311: Steel erectors
+5312: Stonemasons and related trades
+5313: Bricklayers
+5314: Roofers, roof tilers and slaters
+5315: Plumbers and heating and ventilating installers and repairers
+5316: Carpenters and joiners
+5317: Glaziers, window fabricators and fitters
+5319: Construction and building trades n.e.c.
+5321: Plasterers
+5322: Floorers and wall tilers
+5323: Painters and decorators
+5330: Construction and building trades supervisors
+5411: Upholsterers
+5412: Footwear and leather working trades
+5413: Tailors and dressmakers
+5419: Textiles, garments and related trades n.e.c.
+5421: Pre-press technicians
+5422: Printers
+5423: Print finishing and binding workers
+5431: Butchers
+5432: Bakers and flour confectioners
+5433: Fishmongers and poultry dressers
+5434: Chefs
+5435: Cooks
+5436: Catering and bar managers
+5441: Glass and ceramics makers, decorators and finishers
+5442: Furniture makers and other craft woodworkers
+5443: Florists
+5449: Other skilled trades n.e.c.
+6111: Early education and childcare assistants
+6112: Teaching assistants
+6113: Educational support assistants
+6114: Childminders
+6116: Nannies and au pairs
+6117: Playworkers
+6121: Pest control officers
+6129: Animal care services occupations n.e.c
+6131: Nursing auxiliaries and assistants
+6132: Ambulance staff (excluding paramedics)
+6133: Dental nurses
+6134: Houseparents and residential wardens
+6135: Care workers and home carers
+6136: Senior care workers
+6137: Care escorts
+6138: Undertakers, mortuary and crematorium assistants
+6211: Sports and leisure assistants
+6212: Travel agents
+6213: Air travel assistants
+6214: Rail travel assistants
+6219: Leisure and travel service occupations n.e.c.
+6221: Hairdressers and barbers
+6222: Beauticians and related occupations
+6231: Housekeepers and related occupations
+6232: Caretakers
+6240: Cleaning and housekeeping managers and supervisors
+6250: Bed and breakfast and guest house owners and proprietors
+6311: Police community support officers
+6312: Parking and civil enforcement occupations
+7111: Sales and retail assistants
+7112: Retail cashiers and check-out operators
+7113: Telephone salespersons
+7114: Pharmacy and optical dispensing assistants
+7115: Vehicle and parts salespersons and advisers
+7121: Collector salespersons and credit agents
+7122: Debt, rent and other cash collectors
+7123: Roundspersons and van salespersons
+7124: Market and street traders and assistants
+7125: Visual merchandisers and related occupations
+7129: Sales related occupations n.e.c.
+7131: Shopkeepers and owners - retail and wholesale
+7132: Sales supervisors - retail and wholesale
+7211: Call and contact centre occupations
+7212: Telephonists
+7213: Communication operators
+7214: Market research interviewers
+7219: Customer service occupations n.e.c.
+7220: Customer service supervisors
+8111: Food, drink and tobacco process operatives
+8112: Textile process operatives
+8113: Chemical and related process operatives
+8114: Plastics process operatives
+8115: Metal making and treating process operatives
+8119: Process operatives n.e.c.
+8120: Metal working machine operatives
+8131: Paper and wood machine operatives
+8132: Mining and quarry workers and related operatives
+8133: Energy plant operatives
+8134: Water and sewerage plant operatives
+8135: Printing machine assistants
+8139: Plant and machine operatives n.e.c.
+8141: Assemblers (electrical and electronic products)
+8142: Assemblers (vehicles and metal goods)
+8143: Routine inspectors and testers
+8144: Weighers, graders and sorters
+8145: Tyre, exhaust and windscreen fitters
+8146: Sewing machinists
+8149: Assemblers and routine operatives n.e.c.
+8151: Scaffolders, stagers and riggers
+8152: Road construction operatives
+8153: Rail construction and maintenance operatives
+8159: Construction operatives n.e.c.
+8160: Production, factory and assembly supervisors
+8211: Heavy and large goods vehicle drivers
+8212: Bus and coach drivers
+8213: Taxi and cab drivers and chauffeurs
+8214: Delivery drivers and couriers
+8215: Driving instructors
+8219: Road transport drivers n.e.c.
+8221: Crane drivers
+8222: Fork-lift truck drivers
+8229: Mobile machine drivers and operatives n.e.c.
+8231: Train and tram drivers
+8232: Marine and waterways transport operatives
+8233: Air transport operatives
+8234: Rail transport operatives
+8239: Other drivers and transport operatives n.e.c.
+9111: Farm workers
+9112: Forestry and related workers
+9119: Fishing and other elementary agriculture occupations n.e.c.
+9121: Groundworkers
+9129: Elementary construction occupations n.e.c.
+9131: Industrial cleaning process occupations
+9132: Packers, bottlers, canners and fillers
+9139: Elementary process plant occupations n.e.c.
+9211: Postal workers, mail sorters and messengers
+9219: Elementary administration occupations n.e.c.
+9221: Window cleaners
+9222: Street cleaners
+9223: Cleaners and domestics
+9224: Launderers, dry cleaners and pressers
+9225: Refuse and salvage occupations
+9226: Vehicle valeters and cleaners
+9229: Elementary cleaning occupations n.e.c.
+9231: Security guards and related occupations
+9232: School midday and crossing patrol occupations
+9233: Exam invigilators
+9241: Shelf fillers
+9249: Elementary sales occupations n.e.c.
+9251: Elementary storage supervisors
+9252: Warehouse operatives
+9253: Delivery operatives
+9259: Elementary storage occupations n.e.c.
+9261: Bar and catering supervisors
+9262: Hospital porters
+9263: Kitchen and catering assistants
+9264: Waiters and waitresses
+9265: Bar staff
+9266: Coffee shop workers
+9267: Leisure and theme park attendants
+9269: Other elementary services occupations n.e.c.
