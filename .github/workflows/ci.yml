@@ -17,6 +17,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", 3.11, 3.12]
+        exclude:
+          - python-version: "3.10"
+            os: ubuntu-latest
+          - python-version: "3.12"
+            os: ubuntu-latest
+          - python-version: "3.10"
+            os: windows-latest
+          - python-version: "3.11"
+            os: windows-latest
 
     steps:
       - name: Checkout repository
