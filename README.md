@@ -58,6 +58,32 @@ The package allows for different embeddings to be used. Based on your choice API
     ```
 This is created and found in the credentials API on GCP. You will need to restrict the key to the Generative Language API.
 
+## Usage
+Development is in its very early stages. You can launch the default API server:
+
+```bash
+$ uvicorn fast-api.main_api:app
+```
+
+Once the local server is started, the following URL - `http://127.0.0.1:8000/soc` - is the endpoint for accessing SOC output data.
+
+Alternatively, a Python command can be used with an optional flag - `-t` or `--task` - to specify the required classification task. Note that this current defaults to the **soc** classification task.
+
+```bash
+$ python fast-api/main_api.py -t soc
+```
+
+The URL for the available endpoint is then exposed on screen.
+
+### Workflow
+To follow...
+
+```mermaid
+flowchart TD
+   id1[(Some data)] --> id2(Some processing)
+   id3[(More data)] --> id2
+   id2 --> id4[Some output]
+```
 
 # Data Science Campus
 At the [Data Science Campus](https://datasciencecampus.ons.gov.uk/about-us/) we apply data science, and build skills, for public good across the UK and internationally. Get in touch with the Campus at [datasciencecampus@ons.gov.uk](datasciencecampus@ons.gov.uk).
