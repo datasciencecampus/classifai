@@ -5,11 +5,27 @@ import random  # temp for toy classifier
 
 import toml
 
-config = toml.load("config.toml")
-
 
 class API:
-    """Class of methods controlling input of survey data."""
+    """
+    Class of methods controlling input of survey data.
+
+    Parameters
+    ----------
+    input_filepath : str
+        Relative filepath to input csv data.
+        Defaults to 'data/lfs_mock.csv'
+
+    Notes
+    -----
+    Currently, assumptions are made about the fields in input data and
+    desirable fields in output data. The `classify_input` method is
+    provided temporarily to illustrate the full end-to-end workflow.
+
+    """
+
+    # TODO: consider load_config class method
+    _config = toml.load("config.toml")
 
     def __init__(self, input_filepath: str = "data/lfs_mock.csv"):
         self.input_filepath = input_filepath
@@ -29,8 +45,8 @@ class API:
 
         return data
 
-    @classmethod
-    def classify_input(self, data: dict) -> dict:
+    @staticmethod
+    def classify_input(data: dict) -> dict:
         """Toy classifier pending actual classification module.
 
         Parameters
@@ -50,7 +66,6 @@ class API:
 
         return data
 
-    @classmethod
     def simplify_output(self, data: dict) -> dict:
         """Filter nested fields to those in config template.
 
@@ -65,7 +80,7 @@ class API:
             Filtered and nested dictionary with req'd keys only.
         """
 
-        fields = config["all"]["fields"] + config["soc"]["fields"]
+        fields = self._config["all"]["fields"] + self._config["soc"]["fields"]
         output = {}
         for entry in data:
             output.update({entry["uid"]: {key: entry[key] for key in fields}})
