@@ -44,7 +44,7 @@ def test_create_query_texts_no_embedded_fields():
 
 
 def test_process_output():
-    """Test an empty string is returned when no embedded fields are specified."""
+    """Test the output from the is processed to a JSOn correctly."""
 
     query_result = {
         "ids": [["a", "b"], ["c"]],
