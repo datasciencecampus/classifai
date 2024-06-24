@@ -102,7 +102,7 @@ class EmbeddingHandler:
         Parameters
         ----------
         input_data : list[dict]
-            List of dictionaries with each dictionary representing an entity to classify.
+            List of dictionaries with each dictionary representing an document to classify.
         id_field : str, optional
             The name of the unique id field for each entry, by default "uid".
         embedded_fields : _type_, optional
@@ -145,7 +145,7 @@ class EmbeddingHandler:
         Parameters
         ----------
         input_data : list[dict]
-            List of dictionaries with each dictionary representing an entity to classify.
+            List of dictionaries with each dictionary representing an document to classify.
         embedded_fields : list
             The fields within the input data to embed.
 
@@ -177,7 +177,7 @@ class EmbeddingHandler:
         query_result : dict
             The results of the query to process.
         input_data : list[dict]
-            List of dictionaries with each dictionary representing an entity to classify.
+            List of dictionaries with each dictionary representing an document to classify.
         id_field : str
             The name of the unique ID field.
 

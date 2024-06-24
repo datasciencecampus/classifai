@@ -34,7 +34,7 @@ result = embed.search_index(
 )
 
 result
-
+# %%
 result = embed.search_index(
     input_data=input_data,
     id_field="id",
