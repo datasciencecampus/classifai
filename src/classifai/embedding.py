@@ -197,7 +197,7 @@ class EmbeddingHandler:
             for label, description, distance in zip(
                 label_list, description_list, distance_list
             ):
-                label.update({"description": description[:-1]})
+                label.update({"description": description})
                 label.update({"distance": distance})
             output_dict[input_dict[id_field]] = label_list
         return output_dict
