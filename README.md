@@ -43,18 +43,20 @@ Once pre-commits are activated, whenever you commit to this repository a series 
 
 **NOTE:** Pre-commit hooks execute Python, so it expects a working Python build.
 
-## Usage
-To follow...
+## Authentication
 
-### Workflow
-To follow...
+The package allows for different embeddings to be used. Based on your choice API keys need to be added:
 
-```mermaid
-flowchart TD
-   id1[(Some data)] --> id2(Some processing)
-   id3[(More data)] --> id2
-   id2 --> id4[Some output]
-```
+1. Include personal Hugging Face API key in .env as
+    ```shell
+    HUGGINGFACE_API_KEY="<your key>"
+    ```
+
+1. Include GCP project API in .env as
+    ```shell
+    GOOGLE_API_KEY="<your key>"
+    ```
+This is created and found in the credentials API on GCP. You will need to restrict the key to the Generative Language API.
 
 
 # Data Science Campus
