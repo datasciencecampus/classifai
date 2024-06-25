@@ -76,7 +76,7 @@ $ python fast-api/main_api.py -t soc
 
 The URL for the available endpoint is then exposed on screen.
 
-> [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated by changing the `embedding_model_name` argument (e.g. the latest Google embedding model.)
+> [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)
 
 ### Workflow
 To follow...
