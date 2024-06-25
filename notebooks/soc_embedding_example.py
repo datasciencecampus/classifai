@@ -41,7 +41,7 @@ result = embed.search_index(
     input_data=input_data,
     id_field="id",
     embedded_fields=["job_title"],
-    process_output=False,
+    process_output=True,
 )
 
 result
