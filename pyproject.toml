@@ -11,17 +11,9 @@ dynamic = ["version"]
 dependencies = [
     "fastapi>=0.111.0",
     "toml>=0.10.2",
-    # "bs4>=0.0.1",
-    # "email-validator>=2.1.0.post1",
-    # "feedparser>=6.0.11",
-    # "google-cloud-secret-manager>=2.19.0",
-    # "langchain-community>=0.0.13",
-    # "langchain-google-vertexai>=0.0.1",
-    # "langchain>=0.1.0",
-    # "notifications-python-client>=9.0.0",
-    # "python-dotenv>=1.0.1",
-    # "toml>=0.10.2",
-    # "tqdm>=4.66.1",
+    "chromadb>=0.4.22",
+    "google-generativeai>=0.7.0",
+    "python-dotenv>=1.0.1"
 ]
 
 [build-system]

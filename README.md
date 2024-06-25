@@ -43,6 +43,22 @@ Once pre-commits are activated, whenever you commit to this repository a series 
 
 **NOTE:** Pre-commit hooks execute Python, so it expects a working Python build.
 
+## Authentication
+
+The package allows for different embeddings to be used. Based on your choice API keys need to be added:
+
+1. Include personal Hugging Face API key in .env as
+    ```shell
+    HUGGINGFACE_API_KEY="<your key>"
+    ```
+This needs to be a `WRITE` API key.
+
+1. Include GCP project API in .env as
+    ```shell
+    GOOGLE_API_KEY="<your key>"
+    ```
+This is created and found in the credentials API on GCP. You will need to restrict the key to the Generative Language API.
+
 ## Usage
 Development is in its very early stages. You can launch the default API server:
 
@@ -69,7 +85,6 @@ flowchart TD
    id3[(More data)] --> id2
    id2 --> id4[Some output]
 ```
-
 
 # Data Science Campus
 At the [Data Science Campus](https://datasciencecampus.ons.gov.uk/about-us/) we apply data science, and build skills, for public good across the UK and internationally. Get in touch with the Campus at [datasciencecampus@ons.gov.uk](datasciencecampus@ons.gov.uk).
