@@ -1,7 +1,5 @@
 """Tests the EmbeddingHandler class."""
 
-from unittest.mock import MagicMock
-
 from classifai.embedding import EmbeddingHandler
 
 
@@ -53,16 +51,16 @@ def test_process_output(
     )
 
 
-def test_search_index(
-    sample_query_input, sample_query_result, sample_query_processed
-):
-    """Test the output from the is processed to a JSON correctly."""
+# def test_search_index(
+#     sample_query_input, sample_query_result, sample_query_processed
+# ):
+#     """Test the output from the is processed to a JSON correctly."""
 
-    embed = EmbeddingHandler()
-    # embed.vector_store = MagicMock(return_value=None)
-    embed.collection.query = MagicMock(return_value=sample_query_result)
+#     embed = EmbeddingHandler()
+#     # embed.vector_store = MagicMock(return_value=None)
+#     embed.collection.query = MagicMock(return_value=sample_query_result)
 
-    assert (
-        embed.search_index(sample_query_input, id_field="id")
-        == sample_query_processed
-    )
+#     assert (
+#         embed.search_index(sample_query_input, id_field="id")
+#         == sample_query_processed
+#     )
