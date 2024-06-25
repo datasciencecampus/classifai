@@ -74,7 +74,7 @@ Alternatively, a Python command can be used with an optional flag - `-t` or `--t
 $ python fast-api/main_api.py -t soc
 ```
 
-The URL for the available endpoint is then exposed on screen.
+The URL for the available endpoint is then exposed on screen. Currently, the code processes some sample survey data; this can be updated at `data/example_survey_data.csv`.
 
 > [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)
 
