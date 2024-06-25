@@ -10,12 +10,10 @@ requires-python = ">=3.10"
 dynamic = ["version"]
 dependencies = [
     "fastapi>=0.111.0",
-    "pandas>=2.0.0",
     "toml>=0.10.2",
-    "pyprojroot==0.3.0",
-    "chromadb==0.4.22",
-    "google-generativeai",
-    "python-dotenv"
+    "chromadb>=0.4.22",
+    "google-generativeai>=0.7.0",
+    "python-dotenv>=1.0.1"
 ]
 
 [build-system]

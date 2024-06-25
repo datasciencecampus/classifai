@@ -9,7 +9,6 @@ from chromadb.utils.embedding_functions import (
     GoogleGenerativeAiEmbeddingFunction,
     HuggingFaceEmbeddingFunction,
 )
-from pyprojroot import here
 
 
 class EmbeddingHandler:
@@ -18,8 +17,9 @@ class EmbeddingHandler:
     def __init__(
         self,
         embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",  # models/text-embedding-004
-        db_dir: str = os.path.join(here(), "data/soc-index/db"),
+        db_dir: str = "data/soc-index/db",
         k_matches: int = 3,
+        task_type: str = "CLASSIFICATION",
     ):
         """Initialise EmbeddingHandler.
 
@@ -28,8 +28,12 @@ class EmbeddingHandler:
         embedding_model_name : str, optional
             The model to use for embeddings, by default use the Hugging Face model
             "sentence-transformers/all-MiniLM-L6-v2".
+        db_dir: str, optional
+            The path to the where the database is stored, by default "data/soc-index/db".
         k_matches : int, optional
             The number of nearest matches to retrieve, by default 3.
+        task_type : str, optional
+            The task type if using Google embeddings, by default "CLASSIFICATION".
         """
 
         dotenv.load_dotenv(dotenv.find_dotenv())
@@ -38,6 +42,7 @@ class EmbeddingHandler:
             self.embedding_function = GoogleGenerativeAiEmbeddingFunction(
                 api_key=os.getenv("GOOGLE_API_KEY"),
                 model_name=embedding_model_name,
+                task_type=task_type,
             )
 
         else:
@@ -53,9 +58,7 @@ class EmbeddingHandler:
     def _create_vector_store(self):
         """Initialise Chroma VectorDB on known DB dir."""
 
-        self.vector_store = chromadb.PersistentClient(
-            path=os.path.join(here(), self.db_dir)
-        )
+        self.vector_store = chromadb.PersistentClient(path=self.db_dir)
 
         self.collection = self.vector_store.get_or_create_collection(
             name="my_collection", embedding_function=self.embedding_function

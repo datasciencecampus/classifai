@@ -4,10 +4,10 @@
 from classifai.embedding import EmbeddingHandler
 
 embed = EmbeddingHandler(
-    k_matches=3, embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"
+    k_matches=3, embedding_model_name="models/text-embedding-004"
 )
 
-embed.embed_index(file_name="../data/soc-index/soc_title_condensed.txt")
+embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
 # %%
 
 input_data = [
