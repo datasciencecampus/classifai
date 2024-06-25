@@ -8,7 +8,6 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 from classifai import API
-from classifai.embedding import EmbeddingHandler
 
 app: FastAPI = FastAPI()
 tool = API()
@@ -41,7 +40,6 @@ def soc(data: str = "data/lfs_mock.csv") -> dict:
     """
     data = tool.jsonify_input()
     data = tool.classify_input(data)
-    data = tool.simplify_output(data)
 
     return data
 
@@ -62,11 +60,5 @@ if __name__ == "__main__":
         )
     else:
         warnings.warn("Task not recognised. Default endpoint available only.")
-
-    embed = EmbeddingHandler(
-        k_matches=3, embedding_model_name="models/text-embedding-004"
-    )
-
-    embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
 
     uvicorn.run(app)

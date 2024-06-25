@@ -1,9 +1,10 @@
 """Tools to add API functionality."""
 
 import csv
-import random  # temp for toy classifier
 
 import toml
+
+from classifai.embedding import EmbeddingHandler
 
 
 class API:
@@ -27,7 +28,8 @@ class API:
     # TODO: consider load_config class method
     _config = toml.load("config.toml")
 
-    def __init__(self, input_filepath: str = "data/lfs_mock.csv"):
+    def __init__(self, input_filepath: str = "data/example_survey_data.csv"):
+        self.instantiate_vector_store()
         self.input_filepath = input_filepath
 
     def jsonify_input(self) -> dict:
@@ -45,44 +47,53 @@ class API:
 
         return data
 
-    @staticmethod
-    def classify_input(data: dict) -> dict:
-        """Toy classifier pending actual classification module.
+    def instantiate_vector_store(self):
+        """Connect to vector store."""
+        self.embed = EmbeddingHandler(k_matches=3)
+
+        self.embed.embed_index(
+            file_name="data/soc-index/soc_title_condensed.txt"
+        )
+
+    def classify_input(self, input_data: str):
+        """Classify input data in terms of survey data.
 
         Parameters
         ----------
-        data : dict
-            Dictionary of input survey data.
+        input_data : str
+            Filepath to input survey data.
 
         Returns
         -------
-        data : dict
-            Input dictionary with additional keys.
+        result : dict
+            Dictionary of most closely related roles.
         """
+        result = self.embed.search_index(
+            input_data=input_data,
+            id_field="id",
+            embedded_fields=["job_title", "company"],
+            process_output=True,
+        )
 
-        for entry in data:
-            entry["label"] = random.randint(1, 5)
-            entry["distance"] = random.uniform(0, 1)
+        return result
 
-        return data
+    # def simplify_output(self, data: dict) -> dict:
+    #     """Filter nested fields to those in config template.
 
-    def simplify_output(self, data: dict) -> dict:
-        """Filter nested fields to those in config template.
+    #     Parameters
+    #     ----------
+    #     data : dict
+    #         Classified survey data as dictionary.
 
-        Parameters
-        ----------
-        data : dict
-            Classified survey data as dictionary.
+    #     Returns
+    #     -------
+    #     output : dict
+    #         Filtered and nested dictionary with req'd keys only.
+    #     """
 
-        Returns
-        -------
-        output : dict
-            Filtered and nested dictionary with req'd keys only.
-        """
+    #     fields = self._config["all"]["fields"] + self._config["soc"]["fields"]
+    #     output = {}
+    #     for entry in data:
+    #         output.update({entry["uid"]: {key: entry[key] for key in fields}})
 
-        fields = self._config["all"]["fields"] + self._config["soc"]["fields"]
-        output = {}
-        for entry in data:
-            output.update({entry["uid"]: {key: entry[key] for key in fields}})
-
-        return output
+    #     return output
