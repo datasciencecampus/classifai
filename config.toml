@@ -4,3 +4,6 @@ fields = ["label", "distance"]
 [soc]
 endpoint = "/soc/"     # explicit endpoint may not be necessary
 fields = ["job_title", "job_description", "level_of_education", "manage_others", "industry_descr"]
+
+# [project]
+# embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
