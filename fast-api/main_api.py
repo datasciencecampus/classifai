@@ -24,7 +24,7 @@ def about():
 
 
 @app.get("/soc", tags=["task_endpoint"])
-def soc(data: str = "data/lfs_mock.csv") -> dict:
+def soc(data: str = "data/example_survey_data.csv") -> dict:
     """Load SOC output data and filters to required fields.
 
     Parameters
