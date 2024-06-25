@@ -55,13 +55,15 @@ class API:
             file_name="data/soc-index/soc_title_condensed.txt"
         )
 
-    def classify_input(self, input_data: str):
+    def classify_input(self, input_data: str, embedded_fields: list):
         """Classify input data in terms of survey data.
 
         Parameters
         ----------
         input_data : str
             Filepath to input survey data.
+        embedded_fields : list, optional
+            The list of fields to embed and search against the database, by default None.
 
         Returns
         -------
@@ -69,31 +71,44 @@ class API:
             Dictionary of most closely related roles.
         """
         result = self.embed.search_index(
-            input_data=input_data,
-            id_field="id",
-            embedded_fields=["job_title", "company"],
-            process_output=True,
+            input_data=input_data, embedded_fields=embedded_fields
         )
 
         return result
 
-    # def simplify_output(self, data: dict) -> dict:
-    #     """Filter nested fields to those in config template.
+    @staticmethod
+    def simplify_output(
+        output_data: dict, input_data: list[dict], id_field: str
+    ):
+        """Process the output from the embedding search.
 
-    #     Parameters
-    #     ----------
-    #     data : dict
-    #         Classified survey data as dictionary.
+        Parameters
+        ----------
+        output_data : dict
+            The output from classify input.
+        input_data : list[dict]
+            The input survey data read using jsonify_input.
+        id_field : str
+            The name of the id field.
 
-    #     Returns
-    #     -------
-    #     output : dict
-    #         Filtered and nested dictionary with req'd keys only.
-    #     """
+        Returns
+        -------
+        output data: dict
+            The processed result from the embedding search.
+        """
 
-    #     fields = self._config["all"]["fields"] + self._config["soc"]["fields"]
-    #     output = {}
-    #     for entry in data:
-    #         output.update({entry["uid"]: {key: entry[key] for key in fields}})
+        output_dict = dict()
+        for label_list, description_list, distance_list, input_dict in zip(
+            output_data["metadatas"],
+            output_data["documents"],
+            output_data["distances"],
+            input_data,
+        ):
+            for label, description, distance in zip(
+                label_list, description_list, distance_list
+            ):
+                label.update({"description": description})
+                label.update({"distance": distance})
+            output_dict[input_dict[id_field]] = label_list
 
-    #     return output
+        return output_dict
