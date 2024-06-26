@@ -93,7 +93,7 @@ class API:
 
         Returns
         -------
-        output data: dict
+        output_dict: dict
             The processed result from the embedding search.
         """
 
