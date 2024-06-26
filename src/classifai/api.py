@@ -29,7 +29,6 @@ class API:
     _config = toml.load("config.toml")
 
     def __init__(self, input_filepath: str = "data/example_survey_data.csv"):
-        self.instantiate_vector_store()
         self.input_filepath = input_filepath
 
     def jsonify_input(self) -> dict:
@@ -47,7 +46,7 @@ class API:
 
         return data
 
-    def instantiate_vector_store(self):
+    def _instantiate_vector_store(self):
         """Connect to vector store."""
         self.embed = EmbeddingHandler(k_matches=3)
 
@@ -70,6 +69,7 @@ class API:
         result : dict
             Dictionary of most closely related roles.
         """
+        self._instantiate_vector_store()
         result = self.embed.search_index(
             input_data=input_data, embedded_fields=embedded_fields
         )
