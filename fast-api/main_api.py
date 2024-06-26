@@ -24,7 +24,7 @@ def about():
 
 
 @app.get("/soc", tags=["task_endpoint"])
-def soc(data: str = "data/lfs_mock.csv") -> dict:
+def soc(data: str = "data/example_survey_data.csv") -> dict:
     """Load SOC output data and filters to required fields.
 
     Parameters
@@ -40,7 +40,6 @@ def soc(data: str = "data/lfs_mock.csv") -> dict:
     """
     data = tool.jsonify_input()
     data = tool.classify_input(data)
-    data = tool.simplify_output(data)
 
     return data
 
