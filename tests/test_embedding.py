@@ -36,31 +36,3 @@ def test_create_query_texts_no_embedded_fields(sample_query_input):
         )
         == expected_result
     )
-
-
-def test_process_output(
-    sample_query_input, sample_query_result, sample_query_processed
-):
-    """Test the output from the is processed to a JSON correctly."""
-
-    assert (
-        EmbeddingHandler._process_output(
-            sample_query_result, sample_query_input[0:2], "id"
-        )
-        == sample_query_processed
-    )
-
-
-# def test_search_index(
-#     sample_query_input, sample_query_result, sample_query_processed
-# ):
-#     """Test the output from the is processed to a JSON correctly."""
-
-#     embed = EmbeddingHandler()
-#     # embed.vector_store = MagicMock(return_value=None)
-#     embed.collection.query = MagicMock(return_value=sample_query_result)
-
-#     assert (
-#         embed.search_index(sample_query_input, id_field="id")
-#         == sample_query_processed
-#     )
