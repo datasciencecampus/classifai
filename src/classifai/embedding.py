@@ -106,7 +106,7 @@ class EmbeddingHandler:
             List of dictionaries with each dictionary representing an document to classify.
         id_field : str, optional
             The name of the unique id field for each entry, by default "uid".
-        embedded_fields : list, optional
+        embedded_fields : list[str], optional
             The list of fields to embed and search against the database, by default None.
 
         Returns
@@ -132,20 +132,20 @@ class EmbeddingHandler:
 
     @staticmethod
     def _create_query_texts(
-        input_data: list[dict], embedded_fields: list
-    ) -> list:
+        input_data: list[dict], embedded_fields: list[str]
+    ) -> list[str]:
         """Create a list of strings to embed and query.
 
         Parameters
         ----------
         input_data : list[dict]
             List of dictionaries with each dictionary representing an document to classify.
-        embedded_fields : list
+        embedded_fields : list[str]
             The fields within the input data to embed.
 
         Returns
         -------
-        query_texts: list
+        query_texts: list[str]
             List of strings to embed and query against the database.
         """
 

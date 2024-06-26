@@ -1,5 +1,6 @@
 """Tools to add API functionality."""
 
+# %%
 import csv
 
 import toml
@@ -54,13 +55,15 @@ class API:
             file_name="data/soc-index/soc_title_condensed.txt"
         )
 
-    def classify_input(self, input_data: dict, embedded_fields: list):
+    def classify_input(
+        self, input_data: list[dict], embedded_fields: list
+    ) -> dict:
         """Classify input data in terms of survey data.
 
         Parameters
         ----------
-        input_data : dict
-            Dictionary of input survey data.
+        input_data : list[dict]
+            List of dictionaries of input survey data.
         embedded_fields : list, optional
             The list of fields to embed and search against the database, by default None.
 
@@ -79,7 +82,7 @@ class API:
     @staticmethod
     def simplify_output(
         output_data: dict, input_data: list[dict], id_field: str
-    ):
+    ) -> dict:
         """Process the output from the embedding search.
 
         Parameters
@@ -112,3 +115,6 @@ class API:
             output_dict[input_dict[id_field]] = label_list
 
         return output_dict
+
+
+# %%
