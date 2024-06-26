@@ -5,39 +5,31 @@ from classifai import API
 tool = API(input_filepath="tests/data/lfs_test.csv")
 
 
-def test_jsonify_input():
+def test_jsonify_input(survey_csv):
     """Checks input data transformed to dictionary."""
 
+    tool.input_filepath = survey_csv
     test_json = tool.jsonify_input()
     assert len(test_json) == 1
     assert test_json[0]["job_title"] == "Musician"
 
 
-def test_classify_input():
+def test_classify_input(sample_query_input):
     """Checks classified data transformed correctly."""
 
-    test_json = [
-        {
-            "uid": "0023",
-            "job_title": "lecturer",
-            "job_description": "",
-            "level_of_education": "",
-            "manage_others": "",
-            "industry_descr": "",
-            "miscellaneous": "",
-        }
-    ]
-    test_json = tool.classify_input(test_json)
-    assert list(test_json[0].keys()) == [
-        "uid",
-        "job_title",
-        "job_description",
-        "level_of_education",
-        "manage_others",
-        "industry_descr",
-        "miscellaneous",
-        "label",
-        "distance",
+    classification = tool.classify_input(
+        input_data=sample_query_input, embedded_fields=["job_title", "company"]
+    )
+
+    assert list(classification.keys()) == [
+        "ids",
+        "distances",
+        "metadatas",
+        "embeddings",
+        "documents",
+        "uris",
+        "data",
+        "included",
     ]
 
 

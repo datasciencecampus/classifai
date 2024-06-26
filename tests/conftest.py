@@ -1,5 +1,6 @@
 """Fixtures for the embedding module."""
 
+import pandas as pd
 import pytest
 
 
@@ -73,3 +74,22 @@ def sample_query_processed():
     }
 
     return sample_query_processed
+
+
+@pytest.fixture(scope="session")
+def survey_csv(tmp_path_factory):
+    """Return filepath to temp survey data."""
+
+    path = tmp_path_factory.mktemp("data") / "lfs_test.csv"
+    data = [
+        {
+            "id": "0017",
+            "job_title": "Musician",
+            "company": "Office for National Statistics",
+            "miscellaneous": "I like dogs",
+        }
+    ]
+    df = pd.DataFrame.from_dict(data)
+    df.to_csv(path)
+
+    return path
