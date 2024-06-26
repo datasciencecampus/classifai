@@ -55,13 +55,13 @@ class API:
             file_name="data/soc-index/soc_title_condensed.txt"
         )
 
-    def classify_input(self, input_data: str, embedded_fields: list):
+    def classify_input(self, input_data: dict, embedded_fields: list):
         """Classify input data in terms of survey data.
 
         Parameters
         ----------
-        input_data : str
-            Filepath to input survey data.
+        input_data : dict
+            Dictionary of input survey data.
         embedded_fields : list, optional
             The list of fields to embed and search against the database, by default None.
 
