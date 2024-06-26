@@ -41,21 +41,12 @@ def test_classify_input():
     ]
 
 
-def test_simplify_output():
-    """Checks JSON format simplified correctly."""
+def test_simplify_output(
+    sample_query_input, sample_query_result, sample_query_processed
+):
+    """Test the output from the query is processed to a JSON correctly."""
 
-    test_json = [
-        {
-            "uid": "0023",
-            "job_title": "lecturer",
-            "job_description": "",
-            "level_of_education": "",
-            "manage_others": "",
-            "industry_descr": "",
-            "miscellaneous": "",
-            "label": "5",
-            "distance": 0.79,
-        }
-    ]
-    test_json = tool.simplify_output(test_json)
-    assert list(test_json.keys()) == ["0023"]
+    assert (
+        API.simplify_output(sample_query_result, sample_query_input[0:2], "id")
+        == sample_query_processed
+    )
