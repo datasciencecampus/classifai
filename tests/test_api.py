@@ -44,7 +44,7 @@ def test_classify_input():
 def test_simplify_output(
     sample_query_input, sample_query_result, sample_query_processed
 ):
-    """Test the output from the is processed to a JSON correctly."""
+    """Test the output from the query is processed to a JSON correctly."""
 
     assert (
         API.simplify_output(sample_query_result, sample_query_input[0:2], "id")
