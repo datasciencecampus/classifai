@@ -2,7 +2,7 @@
 
 from classifai import API
 
-tool = API(input_filepath="tests/data/lfs_test.csv")
+tool = API()
 
 
 def test_jsonify_input(survey_csv):
