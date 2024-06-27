@@ -13,19 +13,27 @@ Demonstration notebook for SOC classification.
 #| code-summary: "Code: Import methods and initialise"
 from classifai.embedding import EmbeddingHandler
 from classifai.api import API
+from classifai.doc_utils import print_processed_output
 
 # use default Hugging Face model
 embed = EmbeddingHandler(
-    k_matches=3
+    k_matches=3,
+    embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
+
+embedded_fields=["job_title", "company"]
 ```
 
-## Embed the index
+## Embed the Index
+
+If you have a SOC index already embedded you can skip this step.
 
 ```{python}
 #| code-summary: "Code: Embed the index"
 embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
 ```
+
+# Input the Query Data
 
 ```{python}
 #| code-summary: "Code: Embed the index"
@@ -49,9 +57,11 @@ input_data = [
 
 result = embed.search_index(
     input_data=input_data,
-    embedded_fields=["job_title", "company"],
+    embedded_fields=embedded_fields,
 )
 ```
+
+# Print the Result
 
 ```{python}
 #| code-summary: "Process the output of the embedding search"
@@ -59,16 +69,7 @@ processed_result = API.simplify_output(output_data=result,
                                        input_data=input_data,
                                        id_field="id")
 
-for (t, u), input_document in zip(processed_result.items(), input_data):
-    print("Input:")
-    for v, w in input_document.items():
-        print (f"  {v}: {w}")
-    print('')
-    for index, result_dictionary in enumerate(u):
-        print(f"Search Result {index}")
-        for x, y in result_dictionary.items():
-            print (f"  {x}: {y}")
-    print("")
-    print('===========================================')
-    print("")
+print_processed_output(processed_result,
+                       input_data,
+                       embedded_fields=embedded_fields)
 ```
