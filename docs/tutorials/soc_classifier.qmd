@@ -1,0 +1,74 @@
+---
+title: "SOC classifier"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+Demonstration notebook for SOC classification.
+
+```{python}
+#| code-summary: "Code: Import methods and initialise"
+from classifai.embedding import EmbeddingHandler
+from classifai.api import API
+
+# use default Hugging Face model
+embed = EmbeddingHandler(
+    k_matches=3
+)
+```
+
+## Embed the index
+
+```{python}
+#| code-summary: "Code: Embed the index"
+embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
+```
+
+```{python}
+#| code-summary: "Code: Embed the index"
+input_data = [
+    {
+        "id": "1",
+        "job_title": "Fishing Trawler Captain",
+        "company": "Grimsby Fishing Fleet",
+    },
+    {
+        "id": "2",
+        "job_title": "Anaesthetist",
+        "company": "London General Hospital",
+    },
+    {
+        "id": "3",
+        "job_title": "Operational Researcher",
+        "company": "Department for Environment, Food and Rural Affairs",
+    },
+]
+
+result = embed.search_index(
+    input_data=input_data,
+    embedded_fields=["job_title", "company"],
+)
+```
+
+```{python}
+#| code-summary: "Process the output of the embedding search"
+processed_result = API.simplify_output(output_data=result,
+                                       input_data=input_data,
+                                       id_field="id")
+
+for (t, u), input_document in zip(processed_result.items(), input_data):
+    print("Input:")
+    for v, w in input_document.items():
+        print (f"  {v}: {w}")
+    print('')
+    for index, result_dictionary in enumerate(u):
+        print(f"Search Result {index}")
+        for x, y in result_dictionary.items():
+            print (f"  {x}: {y}")
+    print("")
+    print('===========================================')
+    print("")
+```
