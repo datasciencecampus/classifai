@@ -24,13 +24,8 @@ def about():
 
 
 @app.get("/soc", tags=["task_endpoint"])
-def soc(data: str = "data/lfs_mock.csv") -> dict:
+def soc() -> dict:
     """Load SOC output data and filters to required fields.
-
-    Parameters
-    ----------
-    data : str
-        Filepath to input data (currently csv only)
 
     Returns
     -------
@@ -38,11 +33,16 @@ def soc(data: str = "data/lfs_mock.csv") -> dict:
         Output JSON with required fields only.
 
     """
-    data = tool.jsonify_input()
-    data = tool.classify_input(data)
-    data = tool.simplify_output(data)
+    input_data = tool.jsonify_input()
+    embedding_search_result = tool.classify_input(
+        input_data,
+        embedded_fields=["job_title", "company"],
+    )
+    output_data = tool.simplify_output(
+        embedding_search_result, input_data, id_field="id"
+    )
 
-    return data
+    return output_data
 
 
 if __name__ == "__main__":

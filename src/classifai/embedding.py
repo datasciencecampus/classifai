@@ -96,9 +96,7 @@ class EmbeddingHandler:
     def search_index(
         self,
         input_data: list[dict],
-        id_field="uid",
         embedded_fields=None,
-        process_output=True,
     ) -> dict:
         """Return k document chunks with the highest relevance to the query.
 
@@ -108,16 +106,13 @@ class EmbeddingHandler:
             List of dictionaries with each dictionary representing an document to classify.
         id_field : str, optional
             The name of the unique id field for each entry, by default "uid".
-        embedded_fields : _type_, optional
-            _description_, by default None.
-        process_output : bool, optional
-            Whether to process the output of the embedding search or leave it in its raw
-            format, by default True.
+        embedded_fields : list[str], optional
+            The list of fields to embed and search against the database, by default None.
 
         Returns
         -------
-        dict
-            The unprocessed or processed result from the embedding search.
+        query_result : dict
+            The raw result from the embedding search.
         """
 
         if embedded_fields is None:
@@ -133,28 +128,24 @@ class EmbeddingHandler:
             include=["documents", "metadatas", "distances"],
         )
 
-        # process query results
-        if process_output is True:
-            return self._process_output(query_result, input_data, id_field)
-        else:
-            return query_result
+        return query_result
 
     @staticmethod
     def _create_query_texts(
-        input_data: list[dict], embedded_fields: list
-    ) -> list:
+        input_data: list[dict], embedded_fields: list[str]
+    ) -> list[str]:
         """Create a list of strings to embed and query.
 
         Parameters
         ----------
         input_data : list[dict]
             List of dictionaries with each dictionary representing an document to classify.
-        embedded_fields : list
+        embedded_fields : list[str]
             The fields within the input data to embed.
 
         Returns
         -------
-        query_texts: list
+        query_texts: list[str]
             List of strings to embed and query against the database.
         """
 
@@ -168,39 +159,3 @@ class EmbeddingHandler:
             query_texts.append(" ".join(query_text))
 
         return query_texts
-
-    @staticmethod
-    def _process_output(
-        query_result: dict, input_data: list[dict], id_field: str
-    ) -> dict:
-        """Process the results of the query into a dictionary format.
-
-        Parameters
-        ----------
-        query_result : dict
-            The results of the query to process.
-        input_data : list[dict]
-            List of dictionaries with each dictionary representing an document to classify.
-        id_field : str
-            The name of the unique ID field.
-
-        Returns
-        -------
-        output_dict: dict
-            The results of the embedding search in JSON format.
-        """
-
-        output_dict = dict()
-        for label_list, description_list, distance_list, input_dict in zip(
-            query_result["metadatas"],
-            query_result["documents"],
-            query_result["distances"],
-            input_data,
-        ):
-            for label, description, distance in zip(
-                label_list, description_list, distance_list
-            ):
-                label.update({"description": description})
-                label.update({"distance": distance})
-            output_dict[input_dict[id_field]] = label_list
-        return output_dict

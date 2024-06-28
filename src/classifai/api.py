@@ -1,9 +1,11 @@
 """Tools to add API functionality."""
 
+# %%
 import csv
-import random  # temp for toy classifier
 
 import toml
+
+from classifai.embedding import EmbeddingHandler
 
 
 class API:
@@ -27,7 +29,7 @@ class API:
     # TODO: consider load_config class method
     _config = toml.load("config.toml")
 
-    def __init__(self, input_filepath: str = "data/lfs_mock.csv"):
+    def __init__(self, input_filepath: str = "data/example_survey_data.csv"):
         self.input_filepath = input_filepath
 
     def jsonify_input(self) -> dict:
@@ -45,44 +47,74 @@ class API:
 
         return data
 
+    def _instantiate_vector_store(self):
+        """Connect to vector store."""
+        self.embed = EmbeddingHandler(k_matches=3)
+
+        self.embed.embed_index(
+            file_name="data/soc-index/soc_title_condensed.txt"
+        )
+
+    def classify_input(
+        self, input_data: list[dict], embedded_fields: list
+    ) -> dict:
+        """Classify input data in terms of survey data.
+
+        Parameters
+        ----------
+        input_data : list[dict]
+            List of dictionaries of input survey data.
+        embedded_fields : list, optional
+            The list of fields to embed and search against the database, by default None.
+
+        Returns
+        -------
+        result : dict
+            Dictionary of most closely related roles.
+        """
+        self._instantiate_vector_store()
+        result = self.embed.search_index(
+            input_data=input_data, embedded_fields=embedded_fields
+        )
+
+        return result
+
     @staticmethod
-    def classify_input(data: dict) -> dict:
-        """Toy classifier pending actual classification module.
+    def simplify_output(
+        output_data: dict, input_data: list[dict], id_field: str
+    ) -> dict:
+        """Process the output from the embedding search.
 
         Parameters
         ----------
-        data : dict
-            Dictionary of input survey data.
+        output_data : dict
+            The output from classify input.
+        input_data : list[dict]
+            The input survey data read using jsonify_input.
+        id_field : str
+            The name of the id field.
 
         Returns
         -------
-        data : dict
-            Input dictionary with additional keys.
+        output_dict: dict
+            The processed result from the embedding search.
         """
 
-        for entry in data:
-            entry["label"] = random.randint(1, 5)
-            entry["distance"] = random.uniform(0, 1)
+        output_dict = dict()
+        for label_list, description_list, distance_list, input_dict in zip(
+            output_data["metadatas"],
+            output_data["documents"],
+            output_data["distances"],
+            input_data,
+        ):
+            for label, description, distance in zip(
+                label_list, description_list, distance_list
+            ):
+                label.update({"description": description})
+                label.update({"distance": distance})
+            output_dict[input_dict[id_field]] = label_list
 
-        return data
+        return output_dict
 
-    def simplify_output(self, data: dict) -> dict:
-        """Filter nested fields to those in config template.
 
-        Parameters
-        ----------
-        data : dict
-            Classified survey data as dictionary.
-
-        Returns
-        -------
-        output : dict
-            Filtered and nested dictionary with req'd keys only.
-        """
-
-        fields = self._config["all"]["fields"] + self._config["soc"]["fields"]
-        output = {}
-        for entry in data:
-            output.update({entry["uid"]: {key: entry[key] for key in fields}})
-
-        return output
+# %%
