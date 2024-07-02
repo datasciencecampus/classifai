@@ -14,7 +14,8 @@ dependencies = [
     "chromadb>=0.4.22",
     "google-generativeai>=0.7.0",
     "python-dotenv>=1.0.1",
-    "pandas>=2.2.2"
+    "pandas>=2.2.2",
+    "polars>=1.0.0"
 ]
 
 [build-system]

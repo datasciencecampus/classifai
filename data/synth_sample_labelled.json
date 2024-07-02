@@ -1,0 +1,114 @@
+{
+  "employees": [
+    {
+      "SOC_code": 5236,
+      "SOC_unit_group_title": "Rail and rolling stock builders",
+      "job_title": "Rolling Stock Mechanic",
+      "job_description": "Maintain, repair, and fabricate the mechanical components of trains and other rail vehicles.",
+      "responsibilities": "Repair and replace worn or damaged parts, align wheels and axles, lubricate moving parts, and perform routine inspections to ensure safe operation.",
+      "manage_others": false,
+      "level_of_education": "High School Diploma or Equivalent",
+      "company": "ABC Rail Corporation",
+      "industry_description": "Rail transportation"
+    },
+    {
+      "SOC_code": 3213,
+      "SOC_unit_group_title": "Medical and dental technicians",
+      "job_title": "Dental Laboratory Technician",
+      "job_description": "Create customized dental appliances, such as bridges, crowns, and dentures, using various materials.",
+      "responsibilities": "Prepare models of teeth from impressions, mix and pour materials to create molds, and use specialized equipment to shape and polish the finished products.",
+      "manage_others": false,
+      "level_of_education": "Associate's Degree",
+      "company": "XYZ Dental Laboratory",
+      "industry_description": "Healthcare"
+    },
+    {
+      "SOC_code": 8119,
+      "SOC_unit_group_title": "Process operatives, not elsewhere classified",
+      "job_title": "Assembly Line Worker",
+      "job_description": "Assemble and inspect various products on an assembly line.",
+      "responsibilities": "Follow production instructions, operate machinery to cut, shape, or form materials, and perform quality checks to ensure product specifications are met.",
+      "manage_others": false,
+      "level_of_education": "High School Diploma or Equivalent",
+      "company": "Acme Manufacturing Inc.",
+      "industry_description": "Manufacturing"
+    },
+    {
+      "SOC_code": 5211,
+      "SOC_unit_group_title": "Sheet metal workers",
+      "job_title": "Fabricator",
+      "job_description": "Cut, shape, and assemble sheet metal using various tools and machinery.",
+      "responsibilities": "Follow blueprints to create custom parts, weld seams, and use power tools to cut and shape metal.",
+      "manage_others": false,
+      "level_of_education": "High School Diploma or Equivalent",
+      "company": "Metalcraft Inc.",
+      "industry_description": "Construction"
+    },
+    {
+      "SOC_code": 8151,
+      "SOC_unit_group_title": "Scaffolders, stagers, and riggers",
+      "job_title": "Scaffolder",
+      "job_description": "Erect and dismantle scaffolds for construction projects.",
+      "responsibilities": "Assemble scaffolding components according to blueprints, secure scaffolds with braces and tie rods, and install planking and guardrails.",
+      "manage_others": false,
+      "level_of_education": "High School Diploma or Equivalent",
+      "company": "Construction Co.",
+      "industry_description": "Construction"
+    },
+    {
+      "SOC_code": 2112,
+      "SOC_unit_group_title": "Biological scientists",
+      "job_title": "Biochemist",
+      "job_description": "Research biological substances and processes using various scientific methods.",
+      "responsibilities": "Conduct experiments to study the properties of cells, tissues, and biological molecules, and analyze data to draw conclusions.",
+      "manage_others": true,
+      "level_of_education": "Doctoral Degree",
+      "company": "BioTech Inc.",
+      "industry_description": "Biotechnology"
+    },
+    {
+      "SOC_code": 3560,
+      "SOC_unit_group_title": "Public services associates, all other",
+      "job_title": "Customer Service Representative",
+      "job_description": "Handle customer inquiries and resolve issues related to products or services.",
+      "responsibilities": "Answer phone calls, respond to emails, and assist customers with their needs using a variety of communication channels.",
+      "manage_others": false,
+      "level_of_education": "High School Diploma or Equivalent",
+      "company": "Utility Company",
+      "industry_description": "Utilities"
+    },
+    {
+      "SOC_code": 3213,
+      "SOC_unit_group_title": "Medical and dental technicians",
+      "job_title": "Radiology Technician",
+      "job_description": "Operate imaging equipment to produce diagnostic images for medical professionals.",
+      "responsibilities": "Position patients for imaging, operate X-ray machines, CT scanners, or MRI machines, and ensure patient safety during procedures.",
+      "manage_others": false,
+      "level_of_education": "Associate's Degree",
+      "company": "Medical Center",
+      "industry_description": "Healthcare"
+    },
+    {
+      "SOC_code": 7132,
+      "SOC_unit_group_title": "Sales supervisors, retail and wholesale",
+      "job_title": "Retail Store Manager",
+      "job_description": "Oversee the daily operations of a retail store.",
+      "responsibilities": "Hire and train staff, manage inventory levels, set sales goals, and ensure customer satisfaction.",
+      "manage_others": true,
+      "level_of_education": "Bachelor's Degree",
+      "company": "Retail Chain",
+      "industry_description": "Retail"
+    },
+    {
+      "SOC_code": 9241,
+      "SOC_unit_group_title": "Shelf fillers",
+      "job_title": "Warehouse Worker",
+      "job_description": "Load and unload stock from trucks, place items on shelves, and perform other tasks related to inventory management.",
+      "responsibilities": "Lift heavy boxes, scan barcodes, and use forklifts or pallet jacks to move large quantities of merchandise.",
+      "manage_others": false,
+      "level_of_education": "High School Diploma or Equivalent",
+      "company": "Distribution Center",
+      "industry_description": "Logistics"
+    }
+  ]
+}
