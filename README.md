@@ -78,6 +78,15 @@ The URL for the available endpoint is then exposed on screen. Currently, the cod
 
 > [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)
 
+### Generating synthetic survey data
+Please note that this process requires local installation of Ollama.
+To produce a JSON example of survey data, the following command can
+be used:
+
+```bash
+$ python src/classifai/generate_labelled_synth_data.py
+```
+
 ### Workflow
 To follow...
 
