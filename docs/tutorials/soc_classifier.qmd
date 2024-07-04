@@ -1,0 +1,75 @@
+---
+title: "SOC classifier"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+Demonstration notebook for SOC classification.
+
+```{python}
+#| code-summary: "Code: Import methods and initialise"
+from classifai.embedding import EmbeddingHandler
+from classifai.api import API
+from classifai.doc_utils import print_processed_output
+
+# use default Hugging Face model
+embed = EmbeddingHandler(
+    k_matches=3,
+    embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
+
+embedded_fields=["job_title", "company"]
+```
+
+## Embed the Index
+
+If you have a SOC index already embedded you can skip this step.
+
+```{python}
+#| code-summary: "Code: Embed the index"
+embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
+```
+
+# Input the Query Data
+
+```{python}
+#| code-summary: "Code: Embed the index"
+input_data = [
+    {
+        "id": "1",
+        "job_title": "Fishing Trawler Captain",
+        "company": "Grimsby Fishing Fleet",
+    },
+    {
+        "id": "2",
+        "job_title": "Anaesthetist",
+        "company": "London General Hospital",
+    },
+    {
+        "id": "3",
+        "job_title": "Operational Researcher",
+        "company": "Department for Environment, Food and Rural Affairs",
+    },
+]
+
+result = embed.search_index(
+    input_data=input_data,
+    embedded_fields=embedded_fields,
+)
+```
+
+# Print the Result
+
+```{python}
+#| code-summary: "Process the output of the embedding search"
+processed_result = API.simplify_output(output_data=result,
+                                       input_data=input_data,
+                                       id_field="id")
+
+print_processed_output(processed_result,
+                       input_data,
+                       embedded_fields=embedded_fields)
+```

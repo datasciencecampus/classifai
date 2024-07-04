@@ -5,6 +5,12 @@ outputs/*
 
 ### Contentious file types (can be removed at user discretion) ###
 
+# quarto
+_site/
+/.quarto/
+/docs/reference/
+/docs/tutorials/data
+
 # consider using jupytext and .py files for better version control of notebooks!
 *.ipynb
 
@@ -284,7 +290,7 @@ vignettes/*.pdf
 .Renviron
 
 # pkgdown site
-docs/
+#docs/
 
 # translation temp files
 po/*~
