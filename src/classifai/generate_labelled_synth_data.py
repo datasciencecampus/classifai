@@ -49,7 +49,7 @@ def llm_chain():
 def sample_data(fp: str = "data/SOC2020_coding_index_22-02-24.csv"):
     """Load, slice and sample SOC reference data."""
     df = pd.read_csv(
-        "data/SOC2020_coding_index_22-02-24.csv",
+        fp,
         encoding="cp1252",
         usecols=["SOC 2020", "SOC2020 unit group title"],
     )
