@@ -5,6 +5,7 @@ import uuid
 
 import chromadb
 import dotenv
+import pandas as pd
 from chromadb.utils.embedding_functions import (
     GoogleGenerativeAiEmbeddingFunction,
     HuggingFaceEmbeddingFunction,
@@ -90,6 +91,39 @@ class EmbeddingHandler:
                         docs.append(bits[1].replace("\n", "").strip())
                         label.append(dict(label=bits[0]))
                         ids.append(str(uuid.uuid3(uuid.NAMESPACE_URL, line)))
+
+        self.collection.add(documents=docs, metadatas=label, ids=ids)
+
+    def embed_index_csv(
+        self, file_name: str, label_column: str, embedding_columns: list[str]
+    ):
+        """Read a CSV file and embed it. Each row = one index entry.
+
+        Parameters
+        ----------
+        file_name : str
+            The name of the index file to read.
+        label_column : str
+            The name of the column containing the document label.
+        embedding_columns : list
+            List of columns in the CSV to concatenate and embed.
+        """
+
+        self.vector_store.delete_collection(name="my_collection")
+        self.collection = self.vector_store.create_collection(
+            name="my_collection", embedding_function=self.embedding_function
+        )
+
+        df = pd.read_csv(file_name)
+
+        df["embed_column"] = df[embedding_columns].agg(" ".join, axis=1)
+
+        docs = df["embed_column"].to_list()
+
+        label = []
+        for i in df[label_column]:
+            label.append(dict(label=i))
+        ids = [str(uuid.uuid3(uuid.NAMESPACE_URL, str(i))) for i in label]
 
         self.collection.add(documents=docs, metadatas=label, ids=ids)
 

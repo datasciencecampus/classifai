@@ -18,10 +18,15 @@ from classifai.doc_utils import print_processed_output
 # use default Hugging Face model
 embed = EmbeddingHandler(
     k_matches=3,
-    embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model_name="models/text-embedding-004"
 )
+```
 
-embedded_fields=["job_title", "company"]
+```{python}
+#| code-summary: "Create the SOC index"
+import os
+
+os.system("python src/classifai/soc_index.py")
 ```
 
 ## Embed the Index
@@ -29,14 +34,22 @@ embedded_fields=["job_title", "company"]
 If you have a SOC index already embedded you can skip this step.
 
 ```{python}
-#| code-summary: "Code: Embed the index"
-embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
+#| code-summary: "Code: Embed the index to 4-digits."
+# embed.embed_index(file_name="data/soc-index/soc_6_digit.csv", )
 ```
 
-# Input the Query Data
+```{python}
+#| code-summary: "Code: Embed the 6-digit index. This will take about 10 minutes for `text-embedding-004`."
+embed.embed_index_csv(file_name="data/soc-index/soc_6_digit.csv", label_column="soc_code", embedding_columns=["group_title", "descriptions_job", "descriptions_education"])
+```
+
+## Input the Query Data
 
 ```{python}
-#| code-summary: "Code: Embed the index"
+#| code-summary: "Code: Query the index"
+
+embedded_fields=["job_title", "company"]
+
 input_data = [
     {
         "id": "1",
@@ -61,7 +74,7 @@ result = embed.search_index(
 )
 ```
 
-# Print the Result
+## Print the Result
 
 ```{python}
 #| code-summary: "Process the output of the embedding search"
