@@ -1,0 +1,175 @@
+[
+  {
+    "SOC_code": 2132,
+    "SOC_unit_group_title": "IT Managers",
+    "job_title": "IT Manager",
+    "job_description": "Oversee information technology (IT) operations of an organization. Plan, direct, and coordinate activities in the installation, maintenance, and operation of information systems, programs, and computer networks.",
+    "responsibilities": [
+      "Directing IT strategy and implementing policies",
+      "Managing projects to develop or improve IT infrastructure, applications, or other systems",
+      "Coordinating with other departments or teams to ensure effective use of technology",
+      "Hiring and supervising IT staff",
+      "Ensuring IT security and compliance with relevant regulations"
+    ],
+    "manage_others": true,
+    "level_of_education": "Bachelor's degree or higher in Computer Science, Information Technology, or related field",
+    "company_name": "ABC Corporation",
+    "industry_description": "ABC Corporation is a leading technology company that provides innovative solutions to businesses and organizations. Our IT department plays a crucial role in ensuring the smooth operation of our systems and the success of our clients."
+  },
+  {
+    "SOC_code": 1136,
+    "SOC_unit_group_title": "Human Resources Managers and Directors",
+    "job_title": "Human Resource Manager or Director",
+    "job_description": "Oversee an organization's human resource (HR) operations. Plan, direct, and coordinate HR activities related to recruiting, hiring, training, and development of staff. May oversee the work of subordinate supervisors or team leaders.",
+    "responsibilities": [
+      "Plan, direct, and coordinate HR activities",
+      "Recruiting, hiring, training, and development of staff",
+      "Administer employee benefit programs",
+      "Ensure compliance with employment laws and regulations",
+      "Manage employee relations and address employee issues",
+      "Develop and implement HR policies and procedures"
+    ],
+    "manage_others": true,
+    "level_of_education": "Bachelor's degree or higher, often with a background in human resources or business administration",
+    "company_name": "ABC Corporation",
+    "industry_description": "ABC Corporation is a leading multinational technology company that designs, manufactures, and sells electronic data processing equipment, enterprise software, and related services."
+  },
+  {
+    "SOC_code": 3240,
+    "SOC_unit_group_title": "Veterinary Technicians and Technologists",
+    "job_title": "Veterinary Nurses",
+    "job_description": "Veterinary nurses provide technical support during the diagnosis, treatment, and care of animals under the direction of a veterinarian.",
+    "responsibilities": [
+      "Administer medications and vaccines",
+      "Monitor patients' vital signs",
+      "Prepare animals for surgery",
+      "Assist in diagnostic tests and procedures",
+      "Provide post-operative care"
+    ],
+    "manage_others": false,
+    "level_of_education": "Postsecondary nondegree award",
+    "company_name": "",
+    "industry_description": "Animal Hospitals"
+  },
+  {
+    "SOC_code": 1259,
+    "SOC_unit_group_title": "Managers and proprietors",
+    "job_title": "Managers and proprietors in other services n.e.c.",
+    "job_description": "This unit group covers individuals who hold executive or senior level positions in establishments not elsewhere classified in the North American Industry Classification System (NAICS). These establishments may provide a wide range of services, including but not limited to: business and management consultancy services; employment placement agencies; and other professional, scientific and technical activities.",
+    "responsibilities": [
+      "Directing and coordinating the overall activities of an organization or department.",
+      "Formulating policies and implementing major programmes and projects.",
+      "Providing leadership and guidance to subordinate supervisors and staff.",
+      "Determining the strategy and objectives of the organization.",
+      "Managing financial resources and budgets."
+    ],
+    "manage_others": true,
+    "level_of_education": "Varies depending on the specific industry and establishment",
+    "company_name": "",
+    "industry_description": ""
+  },
+  {
+    "SOC_code": 5443,
+    "SOC_unit_group_title": "Agricultural and Horticultural Workers",
+    "job_title": "Florists",
+    "job_description": "Prepare and sell cut flowers, potted plants, and related supplies. May arrange flowers for display.",
+    "responsibilities": [
+      "Selecting and purchasing fresh flowers and greens",
+      "Arranging and designing floral displays for customers",
+      "Maintaining a clean and attractive shop or greenhouse",
+      "Receiving and processing customer orders",
+      "Handling sales transactions and keeping records"
+    ],
+    "manage_others": false,
+    "level_of_education": "High school diploma or equivalent",
+    "company_name": "",
+    "industry_description": "This industry comprises establishments primarily engaged in growing and harvesting plants and trees to sell as nursery stock. Establishments may also be engaged in landscaping activities, lawn and tree service, or other services related to the care of shrubs, trees, and other vegetation."
+  },
+  {
+    "SOC_code": 9262,
+    "SOC_unit_group_title": "Healthcare Support Occupations",
+    "job_title": "Hospital Porters",
+    "job_description": "Hospital porters transport patients and supplies between departments and rooms using carts or gurneys.",
+    "responsibilities": [
+      "Push wheelchairs or gurneys for patients.",
+      "Transport patients, supplies, and equipment between departments and rooms.",
+      "Help patients move in and out of beds and chairs.",
+      "Maintain cleanliness of patient areas and transport rooms.",
+      "Assist with setting up and breaking down equipment for procedures."
+    ],
+    "manage_others": false,
+    "level_of_education": "High school diploma or equivalent",
+    "company_name": "Example Hospital Inc.",
+    "industry_description": "The Health Care and Social Assistance industry includes establishments and services that provide health care and social assistance for individuals. This industry covers a wide range of services, including hospitals, nursing and residential care facilities, outpatient and ambulatory diagnostic and surgical services, home health care services, emergency and other care services, social assistance services, and community food services."
+  },
+  {
+    "SOC_code": 2322,
+    "SOC_unit_group_title": "Education Managers",
+    "job_title": "Education Manager",
+    "job_description": "Plan, direct, and coordinate educational programs and activities in preschools, elementary and secondary schools, colleges, universities, and other educational institutions.",
+    "responsibilities": [
+      "Developing and implementing educational policies and procedures",
+      "Managing and leading a team of educators or support staff",
+      "Coordinating curriculum development and implementation",
+      "Overseeing budgets and resources for educational programs",
+      "Collaborating with community organizations and stakeholders to enhance educational offerings"
+    ],
+    "manage_others": true,
+    "level_of_education": "Bachelor's degree or higher",
+    "company_name": "XYZ Education Corporation",
+    "industry_description": "The education industry includes establishments that provide educational services. The industry covers schools and universities at all levels as well as educational support services."
+  },
+  {
+    "SOC_code": 2454,
+    "SOC_unit_group_title": "Construction and Real Estate",
+    "job_title": "Chartered Surveyors",
+    "job_description": "Chartered surveyors are responsible for providing expert advice on property and land. They may specialize in various areas such as residential or commercial property, rural or building surveying, or valuation.",
+    "responsibilities": [
+      "Valuing land, property, or buildings for purchase, sale, rental, or insurance purposes",
+      "Preparing reports on the condition of properties and land",
+      "Advising clients on property investment and development",
+      "Negotiating and agreeing terms of property deals",
+      "Inspecting and reporting on the structural condition of buildings and other property",
+      "Providing expert advice on property disputes and legal matters",
+      "Managing property portfolios for clients"
+    ],
+    "manage_others": true,
+    "level_of_education": "Bachelor's degree or higher in a relevant field such as surveying, real estate, or construction",
+    "company_name": "Various companies and firms in the construction and real estate industry",
+    "industry_description": "The construction industry involves the creation of new buildings and structures, while the real estate industry deals with the buying, selling, and renting of property. Chartered surveyors work in both industries, providing expertise on property and land."
+  },
+  {
+    "SOC_code": 2440,
+    "SOC_unit_group_title": "Business and Financial Occupations",
+    "job_title": "Business and Financial Project Management Professionals",
+    "job_description": "Plan, direct, and coordinate activities of projects in business or special industries. Manage project team members and resources to accomplish project goals.",
+    "responsibilities": [
+      "Develop project plans and objectives.",
+      "Identify project requirements and resources.",
+      "Create project schedules and budgets.",
+      "Coordinate with cross-functional teams and stakeholders.",
+      "Monitor project progress and performance.",
+      "Manage risks and issues.",
+      "Report project status to senior management."
+    ],
+    "manage_others": true,
+    "level_of_education": "Bachelor's degree or higher preferably in Business Administration, Management, or related field",
+    "company_name": "ABC Corporation",
+    "industry_description": "ABC Corporation is a leading financial services company that provides investment banking, asset management, and wealth management services to individual and institutional clients."
+  },
+  {
+    "SOC_code": 8142,
+    "SOC_unit_group_title": "Assemblers",
+    "job_title": "Assembler (Vehicles and Metal Goods)",
+    "job_description": "Assemble finished products and process component parts according to blueprints, schematics, or other instructions. Set up and operate their own machines and equipment or supervise and coordinate the activities of production workers.",
+    "responsibilities": [
+      "Assemble finished products and process component parts",
+      "Set up and operate their own machines and equipment",
+      "Supervise and coordinate the activities of production workers"
+    ],
+    "manage_others": false,
+    "level_of_education": "High School Diploma or Equivalent",
+    "company_name": "ABC Manufacturing Corporation",
+    "industry_description": "This industry comprises establishments primarily engaged in manufacturing vehicles and vehicle parts. Establishments in this industry may also manufacture other types of equipment, such as industrial machinery, construction equipment, and mining equipment."
+  }
+]

@@ -1,9 +1,24 @@
 [all]
 fields = ["label", "distance"]
+num_records = 10
 
 [soc]
 endpoint = "/soc/"     # explicit endpoint may not be necessary
 fields = ["job_title", "job_description", "level_of_education", "manage_others", "industry_descr"]
+prompt = """
+Generate a JSON for SOC code {code} and SOC title {title} \
+with the following keys: \
+'job_title': str,
+'job_description': str,
+'responsibilities': list[str],
+'manage_others': bool,
+'level_of_education': str,
+'company_name': str,
+'industry_description': str,
+'SOC_code': int,
+'SOC_unit_group_title': str
+.
+"""
 
 # [project]
 # embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
