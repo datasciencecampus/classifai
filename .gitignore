@@ -2,6 +2,7 @@
 data/*
 outputs/*
 .vscode
+notebooks/*
 
 ### Contentious file types (can be removed at user discretion) ###
 
