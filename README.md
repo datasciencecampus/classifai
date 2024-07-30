@@ -63,18 +63,17 @@ This is created and found in the credentials API on GCP. You will need to restri
 Development is in its very early stages. You can launch the default API server:
 
 ```bash
-$ uvicorn fast-api.main_api:app
+$ uvicorn main:app
 ```
 
-Once the local server is started, the following URL - `http://127.0.0.1:8000/soc` - is the endpoint for accessing SOC output data.
+By default, the URL will redirect to the FastAPI Docs UI to try out different inputs.
 
-Alternatively, a Python command can be used with an optional flag - `-t` or `--task` - to specify the required classification task. Note that this current defaults to the **soc** classification task.
+For programmatic demo, the example survey data is processed to return a JSON. The API server must have been launched, as above. This is only an illustration of functionality at this stage:
 
 ```bash
-$ python fast-api/main_api.py -t soc
+$ python submit.py
 ```
 
-The URL for the available endpoint is then exposed on screen. Currently, the code processes some sample survey data; this can be updated at `data/example_survey_data.csv`.
 
 > [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)
 
