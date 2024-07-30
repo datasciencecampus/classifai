@@ -68,11 +68,13 @@ $ uvicorn main:app
 
 By default, the URL will redirect to the FastAPI Docs UI to try out different inputs.
 
-For programmatic demo, the example survey data is processed to return a JSON. The API server must have been launched, as above. This is only an illustration of functionality at this stage:
+For programmatic demo, a csv file must be passed explicitly as a command flag (`-f` or `--file`). The API server must have been launched, as above. This is only an illustration of functionality at this stage:
 
 ```bash
-$ python submit.py
+$ python submit.py -f data/example_survey_data.csv
 ```
+
+**Note:** Passing an input in the UI will result in very slow response times. Our product is intended for programmatic use.
 
 
 > [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)

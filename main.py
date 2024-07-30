@@ -1,11 +1,17 @@
 """Functions to initiate the API endpoints."""
 
 import csv
+from csv import DictReader
 from io import StringIO
 from typing import Annotated
 
+from cachetools import TTLCache, cached
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import RedirectResponse
+
+cache = TTLCache(
+    maxsize=100, ttl=60
+)  # Cache with a maximum size of 100 items and a TTL of 60 seconds
 
 app = FastAPI(
     title="ONS ClassifAI API",
@@ -19,34 +25,73 @@ app = FastAPI(
 )
 
 
-@app.post("/soc", description="programmatic endpoint")
-def soc(file: Annotated[UploadFile, File(description="User input: csv")]):
-    """Accept user input.
+@cached(cache)
+async def process_input_csv(file: UploadFile) -> DictReader:
+    """Read csv as strings.
 
     Parameters
     ----------
     file : UploadFile
-        User-uploaded csv file.
+        User-provided csv file.
 
     Returns
     -------
-    output_list_json : list[dict]
-        List of dictionaries of (labelled) output data post-processing.
+    csvReader : DictReader[str]
+        Dictionary representation of each csv line.
     """
+
     file_content = file.file.read()
     buffer = StringIO(file_content.decode("utf-8"))
     csvReader = csv.DictReader(buffer)
-    output_list_json = []
 
-    # this is where the processing logic will go
-    for row in csvReader:
-        output_list_json.append(row)
+    return csvReader
+
+
+async def combine_all_input(data: DictReader) -> list[dict]:
+    """Collect every line of dictionary.
+
+    Paramaters
+    ----------
+    data : DictReader[str]
+        Dictionary representation of each csv line.
+
+    Returns
+    -------
+    lines : list of dictionaries.
+    """
+
+    # count = 0
+    lines = []
+    for line in data:
+        # count += 1
+        lines.append(line)
+
+    return lines
+
+
+@app.post("/soc", description="programmatic endpoint")
+async def soc(
+    file: Annotated[UploadFile, File(description="User input: csv")],
+) -> list[dict]:
+    """Label input data using programmatic endpoint.
+
+    Parameters
+    ----------
+    file : UploadFile
+        User-provided csv file.
+
+    output_list_json : list[dict]
+        List of dictionaries of labelled jobs.
+    """
+
+    input = await process_input_csv(file)
+    output_list_json = await combine_all_input(input)
 
     return output_list_json
 
 
 @app.get("/", description="UI accessibility")
-def docs():
+async def docs():
     """Access default page: docs UI."""
 
     start_page = RedirectResponse(url="/docs")

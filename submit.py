@@ -1,12 +1,14 @@
 """Programmatic access to the ClassifAI API."""
 
+import argparse
+
 import requests
 from fastapi import UploadFile
 
 url = "http://127.0.0.1:8000/soc"
 
 
-def run(file: UploadFile = "data/example_survey_data.csv"):
+def run(file: UploadFile):
     """Process data on live API and write to 'outputs' folder.
 
     Parameters
@@ -22,4 +24,10 @@ def run(file: UploadFile = "data/example_survey_data.csv"):
 
 
 if __name__ == "__main__":
-    run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-f", "--file", required=True, type=str, help="Input survey data (csv)"
+    )
+    args = vars(parser.parse_args())
+
+    run(file=args["file"])
