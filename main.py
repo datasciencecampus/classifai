@@ -9,6 +9,9 @@ from cachetools import TTLCache, cached
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import RedirectResponse
 
+from classifai.api import API
+from classifai.embedding import EmbeddingHandler
+
 cache = TTLCache(
     maxsize=100, ttl=60
 )  # Cache with a maximum size of 100 items and a TTL of 60 seconds
@@ -72,7 +75,7 @@ async def combine_all_input(data: DictReader) -> list[dict]:
 @app.post("/soc", description="programmatic endpoint")
 async def soc(
     file: Annotated[UploadFile, File(description="User input: csv")],
-) -> list[dict]:
+) -> dict:
     """Label input data using programmatic endpoint.
 
     Parameters
@@ -80,14 +83,29 @@ async def soc(
     file : UploadFile
         User-provided csv file.
 
-    output_list_json : list[dict]
-        List of dictionaries of labelled jobs.
+    Returns
+    -------
+    processed_result : dict
+        Dictionary of top-k closest roles to input jobs.
     """
 
     input = await process_input_csv(file)
-    output_list_json = await combine_all_input(input)
+    input = await combine_all_input(input)
 
-    return output_list_json
+    embed = EmbeddingHandler(k_matches=3)
+
+    embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
+
+    result = embed.search_index(
+        input_data=input,
+        embedded_fields=["job_title", "company"],
+    )
+
+    processed_result = API.simplify_output(
+        output_data=result, input_data=input, id_field="id"
+    )
+
+    return processed_result
 
 
 @app.get("/", description="UI accessibility")

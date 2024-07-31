@@ -1,6 +1,5 @@
 """Tools to add API functionality."""
 
-# %%
 import csv
 
 import toml
