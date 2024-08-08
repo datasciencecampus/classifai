@@ -30,4 +30,6 @@ The service is flexible and reproducible across numerous other use cases.
 ## Downside
 Getting Google Embeddings (Google Generative AI API) to work in App Engine has been challenging given the need for an API key. What worked: running the `gunicorn` command with the service account flag `--service-account` followed by the app engine service account e-mail AND granting that service account with the Secret Manager Secret Accessor role AND replicating the API key as a Secret (GOOGLE_API_KEY). There are likely to be easier approaches.
 
+Further issue - due to App Engine instances being distributed resources, a volume cannot be mounted as with Cloud Run or GKE. The vector store can be built in a `/tmp` folder but this is deleted as soon as an instance lapses. Consequently, the vector store would have to be rebuilt for every new instance. Alternatively, the vector store could be written separately to Cloud Storage and then ingested by an instance.
+
 ## Additional rationale
