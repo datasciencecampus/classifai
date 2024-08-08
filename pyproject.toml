@@ -9,6 +9,9 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dynamic = ["version"]
 dependencies = [
+    "pyprojroot==0.3.0",
+    "fastapi>=0.111.0",
+    "toml>=0.10.2",
     "astroid>=2.3.3",
     "chromadb>=0.4.22",
     "Click>=7.0",
@@ -19,6 +22,7 @@ dependencies = [
     "h11>=0.9.0",
     "isort>=4.3.21",
     "langchain-community>=0.2.7",
+    "langchain-google-vertexai>=1.0.8",
     "lazy-object-proxy>=1.4.3",
     "mccabe>=0.6.1",
     "pandas>=2.2.2",

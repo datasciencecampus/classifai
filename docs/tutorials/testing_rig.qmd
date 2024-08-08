@@ -1,0 +1,48 @@
+---
+title: "Notebook for testing - still in draft stage"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+```{python}
+#| code-summary: "Code: Import methods"
+import pandas as pd
+from classifai.doc_utils import clean_job_title, clean_job_description
+```
+
+```{python}
+#| code-summary: Preprocess in
+df = pd.read_csv("data/soc-index/soc_6_digit.csv",
+                 usecols=["group_title", "descriptions_job",	"descriptions_education", "soc_code"])
+df["group_title"] = df["group_title"].apply(lambda x: clean_job_title(x))
+df["descriptions_job"] = df.apply(lambda x: clean_job_description(x.group_title, x.descriptions_job), axis=1)
+```
+
+```{python}
+#| code-summary: set embedding model, process query data, process index, set distance metric  (https://docs.trychroma.com/guides)
+tests = [
+  {
+    "embedding_model": "models/text-embedding-004"
+    "embedding_columns": ["descriptions_job", "descriptions_education"],
+    "query_preprocessing":
+    "distance_metric":
+  },
+
+]
+```
+
+```{python}
+#| embed index if embedding model, index, and distance metric all the same
+```
+
+```{python}
+#| perform query
+```
+
+```{python}
+#| process and save output
+```

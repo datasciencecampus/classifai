@@ -17,38 +17,35 @@ from classifai.doc_utils import print_processed_output
 
 # use default Hugging Face model
 embed = EmbeddingHandler(
-    k_matches=3,
-    embedding_model_name="models/text-embedding-004"
+    k_matches=10,
+    #embedding_model_name="models/text-embedding-004"
 )
 ```
 
-```{python}
-#| code-summary: "Create the SOC index"
-import os
-
-os.system("python src/classifai/soc_index.py")
-```
-
-## Embed the Index
+## Embed the index
 
 If you have a SOC index already embedded you can skip this step.
 
 ```{python}
-#| code-summary: "Code: Embed the index to 4-digits."
-# embed.embed_index(file_name="data/soc-index/soc_6_digit.csv", )
+#| code-summary: "Code: Embed the master index to 4-digits."
+embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
 ```
 
 ```{python}
 #| code-summary: "Code: Embed the 6-digit index. This will take about 10 minutes for `text-embedding-004`."
-embed.embed_index_csv(file_name="data/soc-index/soc_6_digit.csv", label_column="soc_code", embedding_columns=["group_title", "descriptions_job", "descriptions_education"])
+import os
+
+#os.system("python src/classifai/soc_index.py")
+
+#embed.embed_index_csv(file="data/soc-index/soc_6_digit.csv", label_column="soc_code", embedding_columns=["group_title"])
 ```
 
-## Input the Query Data
+## Input the query data
 
 ```{python}
 #| code-summary: "Code: Query the index"
 
-embedded_fields=["job_title", "company"]
+embedded_fields=["job_title"]
 
 input_data = [
     {
@@ -66,6 +63,12 @@ input_data = [
         "job_title": "Operational Researcher",
         "company": "Department for Environment, Food and Rural Affairs",
     },
+    {
+        "id": "4",
+        "job_title": "HEO",
+        "company": "Home Office",
+
+    }
 ]
 
 result = embed.search_index(
@@ -74,7 +77,7 @@ result = embed.search_index(
 )
 ```
 
-## Print the Result
+## Print the result from the embedding search
 
 ```{python}
 #| code-summary: "Process the output of the embedding search"
@@ -85,4 +88,26 @@ processed_result = API.simplify_output(output_data=result,
 print_processed_output(processed_result,
                        input_data,
                        embedded_fields=embedded_fields)
+```
+
+## Use LLM to determine the most appropriate result
+
+```{python}
+#| code-summary: "Set up the LLM"
+from classifai.llm import ClassificationLLM
+
+rag_candidates = embed.process_result_for_rag(result)
+classifier = ClassificationLLM(model_name="gemini-pro")
+```
+
+```{python}
+#| code-summary: "Return the results of the LLM"
+for input_document, search_result in zip(input_data, rag_candidates):
+    llm_result = classifier.get_soc_code(
+        input_document["job_title"],
+        None,
+        input_document["company"],
+        search_result,
+    )
+    print(llm_result)
 ```
