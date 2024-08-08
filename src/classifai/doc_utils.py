@@ -1,5 +1,70 @@
 """Utility functions for the Quarto tutorials."""
 
+import re
+
+
+def clean_text(text: str) -> str:
+    """Clean text data for exact matching.
+
+    For example:
+    "Teacher, Statistics" -> "statistics teacher"
+
+    Parameters
+    ----------
+    text : str
+        Unprocessed text data.
+
+    Returns
+    -------
+    text: str
+        Cleaned text data for exact matching.
+    """
+    text = text.split(", ")
+    text = " ".join(text[::-1])
+    text = text.strip().title()
+    return text
+
+
+def clean_job_title(job_title: str) -> str:
+    """Remove the initialism `n.e.c.` from job titles.
+
+    This is for jobs with SOC codes ending in `99` for 6-digit SOC
+    codes.
+
+    Parameters
+    ----------
+    job_title : str
+        The job title to be cleaned.
+
+    Returns
+    -------
+    str
+        Job title free of the initialism.
+    """
+    return re.sub("n.e.c.", "", job_title).strip()
+
+
+def clean_job_description(job_title: str, job_description: str) -> str:
+    """Replace the job description with the job title for 6-digit SOC codes ending in  `99`.
+
+    Parameters
+    ----------
+    job_title : str
+        The job title for a 6-digit SOC code.
+    job_description : str
+        The job description for a 6-digit SOC code.
+
+    Returns
+    -------
+    str
+        The current job description for all jobs with a SOC code not ending in `99` and
+        the job title for jobs with a SOC code ending in `99`.
+    """
+    if "Job holders in this group perform" in job_description:
+        return job_title
+    else:
+        return job_description
+
 
 def print_processed_output(
     processed_result: dict, input_data: list[dict], embedded_fields: list
