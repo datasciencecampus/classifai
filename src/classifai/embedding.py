@@ -1,6 +1,5 @@
 """Class to create an embedding database and query it."""
 
-import math
 import os
 import uuid
 
@@ -11,8 +10,6 @@ from chromadb.utils.embedding_functions import (
     GoogleGenerativeAiEmbeddingFunction,
     HuggingFaceEmbeddingFunction,
 )
-
-from classifai.doc_utils import clean_text
 
 
 class EmbeddingHandler:
@@ -97,56 +94,14 @@ class EmbeddingHandler:
 
         self.collection.add(documents=docs, metadatas=label, ids=ids)
 
-    def embed_master_index(self, file_name):
-        """Embed ASHE_SOC2020_master_index.
-
-        Parameters
-        ----------
-        file_name : str, optional
-            The name of the index file to read. If provided, the
-            file will be read and the entities will be embedded, by default None.
-        """
-
-        self.vector_store.delete_collection(name="my_collection")
-        self.collection = self.vector_store.create_collection(
-            name="my_collection", embedding_function=self.embedding_function
-        )
-
-        docs = []
-        labels = []
-        ids = []
-        if file_name is not None:
-            with open(file_name, encoding="latin-1") as file:
-                for line in file:
-                    if line:
-                        bits = line.split("  ", 1)
-                        docs.append(clean_text(bits[0]).title())
-                        labels.append(
-                            dict(label=bits[1].replace("\n", "").strip())
-                        )
-                        ids.append(str(uuid.uuid3(uuid.NAMESPACE_URL, line)))
-
-        for i in range(math.ceil(len(docs) / 500)):
-            start_index = i * 500
-            end_index = (i + 1) * 500
-
-            self.collection.add(
-                documents=docs[start_index:end_index],
-                metadatas=labels[start_index:end_index],
-                ids=ids[start_index:end_index],
-            )
-
     def embed_index_csv(
-        self,
-        file: str | pd.DataFrame,
-        label_column: str,
-        embedding_columns: list[str],
+        self, file_name: str, label_column: str, embedding_columns: list[str]
     ):
         """Read a CSV file and embed it. Each row = one index entry.
 
         Parameters
         ----------
-        file : str
+        file_name : str
             The name of the index file to read.
         label_column : str
             The name of the column containing the document label.
@@ -159,32 +114,18 @@ class EmbeddingHandler:
             name="my_collection", embedding_function=self.embedding_function
         )
 
-        if isinstance(file, str):
-            df = pd.read_csv(file)
-        else:
-            df = file.copy()
+        df = pd.read_csv(file_name)
 
         df["embed_column"] = df[embedding_columns].agg(" ".join, axis=1)
 
         docs = df["embed_column"].to_list()
 
-        labels = []
+        label = []
         for i in df[label_column]:
-            labels.append(dict(label=i))
-        ids = [
-            str(uuid.uuid3(uuid.NAMESPACE_URL, str(i)))
-            for i in range(len(labels))
-        ]
+            label.append(dict(label=i))
+        ids = [str(uuid.uuid3(uuid.NAMESPACE_URL, str(i))) for i in label]
 
-        for i in range(math.ceil(len(docs) / 500)):
-            start_index = i * 500
-            end_index = (i + 1) * 500
-
-            self.collection.add(
-                documents=docs[start_index:end_index],
-                metadatas=labels[start_index:end_index],
-                ids=ids[start_index:end_index],
-            )
+        self.collection.add(documents=docs, metadatas=label, ids=ids)
 
     def search_index(
         self,
@@ -252,28 +193,3 @@ class EmbeddingHandler:
             query_texts.append(" ".join(query_text))
 
         return query_texts
-
-    @staticmethod
-    def process_result_for_rag(result: dict):
-        """
-        Process the result of the embedding search for rag.
-
-        Parameters
-        ----------
-        result (dict): The raw result of the embedding search.
-
-        Returns
-        -------
-        list: The processed result as a list of strings.
-        """
-        soc_candidate_list_all_results = []
-        for soc_candidates in result["metadatas"]:
-            soc_candidate_list = []
-            for soc_candidate in soc_candidates:
-                soc_candidate_list.append(
-                    f"{soc_candidate['label']}:{soc_candidate['description']}"
-                )
-            soc_candidate_list_all_results.append(
-                "\n".join(soc_candidate_list)
-            )
-        return soc_candidate_list_all_results

@@ -8,7 +8,6 @@ gunicorn>=20.0.4
 h11>=0.9.0
 isort>=4.3.21
 langchain-community>=0.2.7
-langchain-google-vertexai>=1.0.8
 lazy-object-proxy>=1.4.3
 mccabe>=0.6.1
 pandas>=2.2.2
