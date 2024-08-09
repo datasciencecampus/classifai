@@ -76,6 +76,15 @@ $ python submit.py -f data/example_survey_data.csv
 
 **Note:** Passing an input in the UI will result in very slow response times. Our product is intended for programmatic use.
 
+A separate utility class is available to copy the ChromaDB vector store files/cache to a GCS bucket. In future, APP Engine instances will draw from this bucket to avoid having to recreate the vector store (the SOC source input is unlikely to change very often). To copy the current ChromaDB files, the following code can be used programmatically:
+
+```python
+$ from src.classifai.utils import DB_Updater
+$
+$ tool = DB_Updater()
+$ tool.update()
+```
+
 
 > [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)
 
