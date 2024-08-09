@@ -28,6 +28,12 @@ jobs:
             os: windows-latest
 
     steps:
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v0.4.0'
+        with:
+          workload_identity_provider: 'https://iam.googleapis.com/projects/14177695902/locations/global/workloadIdentityPools/classifai-pool/providers/classifai-provider'
+          service_account: '14177695902-compute@developer.gserviceaccount.com'
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
