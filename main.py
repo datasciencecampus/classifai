@@ -5,16 +5,20 @@ from csv import DictReader
 from io import StringIO
 from typing import Annotated
 
-from cachetools import TTLCache, cached
+# from cachetools import TTLCache, cached
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import RedirectResponse
+from google.cloud import storage
 
-from classifai.api import API
-from classifai.embedding import EmbeddingHandler
+from src.classifai.embedding import EmbeddingHandler
+from src.classifai.utils import (
+    process_embedding_search_result,
+    pull_vdb_to_local,
+)
 
-cache = TTLCache(
-    maxsize=100, ttl=60
-)  # Cache with a maximum size of 100 items and a TTL of 60 seconds
+# cache = TTLCache(
+#     maxsize=100, ttl=60
+# )  # Cache with a maximum size of 100 items and a TTL of 60 seconds
 
 app = FastAPI(
     title="ONS ClassifAI API",
@@ -28,8 +32,8 @@ app = FastAPI(
 )
 
 
-@cached(cache)
-async def process_input_csv(file: UploadFile) -> DictReader:
+# @cached(cache)
+async def _process_input_csv(file: UploadFile) -> DictReader:
     """Read csv as strings.
 
     Parameters
@@ -50,7 +54,7 @@ async def process_input_csv(file: UploadFile) -> DictReader:
     return csvReader
 
 
-async def combine_all_input(data: DictReader) -> list[dict]:
+async def _combine_all_input(data: DictReader) -> list[dict]:
     """Collect every line of dictionary.
 
     Paramaters
@@ -63,10 +67,9 @@ async def combine_all_input(data: DictReader) -> list[dict]:
     lines : list of dictionaries.
     """
 
-    # count = 0
     lines = []
     for line in data:
-        # count += 1
+        line = {k: v for k, v in line.items() if k != "id"}
         lines.append(line)
 
     return lines
@@ -89,20 +92,29 @@ async def soc(
         Dictionary of top-k closest roles to input jobs.
     """
 
-    input = await process_input_csv(file)
-    input = await combine_all_input(input)
+    input = await _process_input_csv(file)
+    input = await _combine_all_input(input)
+    input = [f'{x["job_title"]} - {x["company"]}' for x in input]
+    input_size = len(input)
 
-    embed = EmbeddingHandler(k_matches=3)
+    pull_vdb_to_local(client=storage.Client())
 
-    embed.embed_index(file_name="data/soc-index/soc_title_condensed.txt")
+    handler = EmbeddingHandler()
 
-    result = embed.search_index(
-        input_data=input,
-        embedded_fields=["job_title", "company"],
+    query_result = handler.collection.query(
+        query_texts=input,
+        n_results=handler.k_matches,
     )
 
-    processed_result = API.simplify_output(
-        output_data=result, input_data=input, id_field="id"
+    remove_keys = ["metadatas", "embeddings", "uris", "data", "included"]
+
+    for key in remove_keys:
+        del query_result[key]
+
+    query_result["inputs"] = input
+
+    processed_result = process_embedding_search_result(
+        query_result, input_size
     )
 
     return processed_result

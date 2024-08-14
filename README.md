@@ -60,7 +60,9 @@ This needs to be a `WRITE` API key.
 This is created and found in the credentials API on GCP. You will need to restrict the key to the Generative Language API.
 
 ## Usage
-Development is in its very early stages. You can launch the default API server:
+A demo app is deployed using GCP App Engine. The SOC endpoint can be accessed [here]("https://classifai-sandbox.nw.r.appspot.com/").
+
+Development is in its very early stages. You can launch the default API server locally as follows:
 
 ```bash
 $ uvicorn main:app

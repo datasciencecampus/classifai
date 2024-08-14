@@ -2,7 +2,10 @@
 
 import os
 
+import chromadb
+import numpy as np
 from google.cloud import storage
+from google.cloud.secretmanager import SecretManagerServiceClient
 
 
 class DB_Updater:
@@ -11,7 +14,7 @@ class DB_Updater:
     def __init__(
         self,
         storage_client: storage.Client = storage.Client(),
-        local_filepath: str = "data/soc-index",
+        local_filepath: str = "/tmp",
         bucket_name: str = "classifai-app-data",
         bucket_folder: str = "db/",
     ):
@@ -103,3 +106,101 @@ class DB_Updater:
         self.delete_existing_gcs_bucket_folder()
         local_db_files = self.list_all_db_files()
         self.write_local_files_to_gcs_bucket(local_db_files)
+
+
+def get_secret():
+    """Access GCP Secret Manager secret value.
+
+    Returns
+    -------
+    google_api_key : str
+        Secret value.
+    """
+
+    path = "projects/14177695902/secrets"
+    secret = "GOOGLE_API_KEY"  # pragma: allowlist secret
+    name = "/".join((path, secret, "versions", "latest"))
+    client = SecretManagerServiceClient()
+    response = client.access_secret_version(request={"name": name})
+    google_api_key = response.payload.data.decode("UTF-8")
+
+    return google_api_key
+
+
+def pull_vdb_to_local(
+    client: storage.Client,
+    bucket_name: str = "classifai-app-data",
+    prefix: str = "db/",
+    local_dir: str = "/tmp/",
+    vdb_file: str = "chroma.sqlite3",
+):
+    """Pull only sqlite3 database / vector store to local /tmp dir.
+
+    Parameters
+    ----------
+    client : storage.Client
+        GCS client object
+    bucket_name : str
+        GCS bucket name
+        Default: 'classifai-app-data'
+    prefix : str
+        GCS bucket folder
+        Default: 'db/'
+    local_dir : str
+        Location of local/instance temporary directory
+        Default: '/tmp/'
+    vdb_file : str
+        Name and extension of vector database
+        Default: 'chroma.sqlite3'
+    """
+
+    bucket = client.bucket(bucket_name=bucket_name)
+    blobs = bucket.list_blobs(prefix=prefix)
+    for blob in blobs:
+        filename = blob.name.split("/")[-1]
+        if filename == vdb_file:
+            if not os.path.exists(local_dir + prefix):
+                os.mkdir(local_dir + prefix)
+            # Download to local
+            blob.download_to_filename(local_dir + prefix + filename)
+
+
+def process_embedding_search_result(
+    query_result: chromadb.QueryResult, input_size: int
+) -> dict:
+    """Structure embedding search result into JSON format.
+
+    Parameters
+    ----------
+    query_result : chromadb.QueryResult
+        ChromaDB vector search result format
+    input_size : int
+        Number of user samples being processed in request.
+
+    Returns
+    -------
+    processed_result : dict
+        Dictionary format of Chroma DB vector search
+    """
+    processed_result = {
+        query_result["inputs"][x]: {
+            1: {
+                "id": query_result["ids"][x][0],
+                "description": query_result["documents"][x][0],
+                "distance": query_result["distances"][x][0],
+            },
+            2: {
+                "id": query_result["ids"][x][1],
+                "description": query_result["documents"][x][1],
+                "distance": query_result["distances"][x][1],
+            },
+            3: {
+                "id": query_result["ids"][x][2],
+                "description": query_result["documents"][x][2],
+                "distance": query_result["distances"][x][2],
+            },
+        }
+        for x in np.arange(0, input_size)
+    }
+
+    return processed_result

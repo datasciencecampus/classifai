@@ -5,7 +5,8 @@ import argparse
 import requests
 from fastapi import UploadFile
 
-url = "http://127.0.0.1:8000/soc"
+# url = "http://127.0.0.1:8000/soc"
+url = "https://classifai-sandbox.nw.r.appspot.com/soc"
 
 
 def run(file: UploadFile):

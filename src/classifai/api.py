@@ -4,7 +4,7 @@ import csv
 
 import toml
 
-from classifai.embedding import EmbeddingHandler
+from .embedding import EmbeddingHandler
 
 
 class API:
@@ -28,7 +28,7 @@ class API:
     # TODO: consider load_config class method
     _config = toml.load("config.toml")
 
-    def __init__(self, input_filepath: str = "data/example_survey_data.csv"):
+    def __init__(self, input_filepath: str = None):
         self.input_filepath = input_filepath
 
     def jsonify_input(self) -> dict:
@@ -50,9 +50,7 @@ class API:
         """Connect to vector store."""
         self.embed = EmbeddingHandler(k_matches=3)
 
-        self.embed.embed_index(
-            file_name="data/soc-index/soc_title_condensed.txt"
-        )
+        self.embed.embed_index(file_name="/tmp/soc_title_condensed.txt")
 
     def classify_input(
         self, input_data: list[dict], embedded_fields: list

@@ -12,7 +12,8 @@ from chromadb.utils.embedding_functions import (
     HuggingFaceEmbeddingFunction,
 )
 
-from classifai.doc_utils import clean_text
+from .doc_utils import clean_text
+from .utils import get_secret
 
 
 class EmbeddingHandler:
@@ -20,8 +21,8 @@ class EmbeddingHandler:
 
     def __init__(
         self,
-        embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",  # models/text-embedding-004
-        db_dir: str = "data/soc-index/db",
+        embedding_model_name: str = "models/text-embedding-004",  # "sentence-transformers/all-MiniLM-L6-v2"
+        db_dir: str = "/tmp/db",
         k_matches: int = 3,
         task_type: str = "CLASSIFICATION",
     ):
@@ -42,22 +43,35 @@ class EmbeddingHandler:
 
         dotenv.load_dotenv(dotenv.find_dotenv())
 
-        if embedding_model_name.startswith("models"):
+        self.embedding_model_name = embedding_model_name
+        self.task_type = task_type
+        self.db_dir = db_dir
+        self.k_matches = k_matches
+        self.api_key = get_secret()
+
+        if self.embedding_model_name.startswith("models"):
             self.embedding_function = GoogleGenerativeAiEmbeddingFunction(
-                api_key=os.getenv("GOOGLE_API_KEY"),
-                model_name=embedding_model_name,
+                api_key=self.api_key,
+                model_name=self.embedding_model_name,
                 task_type=task_type,
             )
 
         else:
             self.embedding_function = HuggingFaceEmbeddingFunction(
                 api_key=os.getenv("HUGGINGFACE_API_KEY"),
-                model_name=embedding_model_name,
+                model_name=self.embedding_model_name,
             )
 
-        self.db_dir = db_dir
-        self.k_matches = k_matches
-        self._create_vector_store()
+        # self._create_vector_store()
+        self._prime_vector_store()
+
+    def _prime_vector_store(self):
+        """Initialise Chroma VectorDB on known DB dir."""
+        self.vector_store = chromadb.PersistentClient(path=self.db_dir)
+        self.collection = self.vector_store.get_collection(
+            name="classifai-collection",
+            embedding_function=self.embedding_function,
+        )
 
     def _create_vector_store(self):
         """Initialise Chroma VectorDB on known DB dir."""
