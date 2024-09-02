@@ -1,0 +1,281 @@
+id,job_title,company
+1,Astrogeologist,University of Edinburgh
+2,Bioinformatician,Wellcome Sanger Institute
+3,Chartered Surveyor,Royal Institution of Chartered Surveyors
+4,Clinical Psychologist,National Health Service (NHS)
+5,Computer Forensics Expert,Metropolitan Police Service
+6,Data Scientist,Google DeepMind
+7,DNA Sequencer,Oxford Nanopore Technologies
+8,Driller,British Drilling Company
+9,Embryologist,University College London (UCL)
+10,Financial Analyst,Barclays Bank
+11,Genetic Counselor,National Genetics Education and Development Centre (N-GEDC)
+12,Historic Building Inspector,English Heritage
+13,Illustrator,Tate Gallery
+14,Jeweller,Royal School of Jewellery
+15,Librarian,British Library
+16,Marine Biologist,National Oceanography Centre (NOC)
+17,Meteorologist,Met Office
+18,Museum Curator,British Museum
+19,Neonatologist,University College London Hospitals (UCLH)
+20,Nuclear Physicist,STFC Daresbury Laboratory
+21,Ornithologist,Royal Society for the Protection of Birds (RSPB)
+22,Pathologist,University of Cambridge
+23,Pharmacist,Boots UK
+24,Photographer,National Geographic Society
+25,Physical Therapist,NHS
+26,Plant Biologist,Royal Botanic Gardens Kew
+27,Police Officer,Metropolitan Police Service
+28,Radiographer,University Hospitals Birmingham NHS Foundation Trust
+29,Reporter,BBC
+30,Robotics Engineer,Bosch UK
+31,Social Worker,Local Government
+32,Software Developer,Microsoft Research
+33,Spacecraft Technician,European Space Agency (ESA)
+34,Surgeon,Royal Free London Hospital NHS Foundation Trust
+35,Teacher,Department for Education
+36,Theatre Director,National Theatre
+37,Translator,British Council
+38,Veterinarian,Royal Veterinary College
+39,Web Developer,Government Digital Service
+40,Wind Turbine Technician,Siemens Gamesa Renewable Energy UK
+41,X-ray Technologist,University Hospitals Birmingham NHS Foundation Trust
+42,Zoologist,Zoological Society of London
+43,Aeronautical Engineer,Rolls-Royce plc
+44,Architect,Royal Institute of British Architects (RIBA)
+45,Biochemist,University of Oxford
+46,Botanic Garden Curator,Royal Botanic Gardens Edinburgh
+47,Brain Surgeon,National Hospital for Neurology and Neurosurgery
+48,Broadcast Journalist,BBC
+49,Building Services Engineer,Chartered Institution of Building Services Engineers (CIBSE)
+50,Cardiologist,Royal Brompton & Harefield NHS Foundation Trust
+51,Chemical Engineer,Shell UK
+52,Chief Executive,National Lottery Community Fund
+53,Choreographer,Sadler's Wells Theatre
+54,Climate Scientist,Met Office
+55,Computational Biologist,EMBL-European Bioinformatics Institute
+56,Conservator,British Museum
+57,Costume Designer,Royal Opera House
+58,Data Journalist,Guardian News & Media
+59,Dental Hygienist,University of Birmingham
+60,Design Engineer,Rolls-Royce plc
+61,Development Director,British Council
+62,Dermatologist,King's College London NHS Foundation Trust
+63,Digital Content Creator,National Geographic Society UK
+64,Drug Discovery Scientist,GlaxoSmithKline
+65,Ecologist,Royal Society for the Protection of Birds (RSPB)
+66,Electrical Engineer,National Grid
+67,Engineering Manager,Rolls-Royce plc
+68,Environmental Scientist,University of East Anglia
+69,Equity Trader,Barclays Bank
+70,Finance Analyst,HM Treasury
+71,Forensic Anthropologist,Bournemouth University
+72,Freelance Writer,Guardian News & Media
+73,Genetic Technologist,University of Sheffield
+74,Geographer,Royal Geographical Society
+75,Human Rights Lawyer,Amnesty International UK
+76,Immunologist,University College London
+77,Information Security Analyst,Government Digital Service
+78,Interior Designer,Royal Institute of British Architects (RIBA)
+79,Journalist,BBC News
+80,Lab Technician,Public Health England
+81,Landscape Architect,Landscape Institute
+82,Legal Advisor,HM Courts & Tribunals Service
+83,Linguistic Data Scientist,DeepMind
+84,Marine Technologist,National Oceanography Centre (NOC)
+85,Medical Writer,Wellcome Trust
+86,Metallurgist,University of Sheffield
+87,Meteorite Specialist,Natural History Museum London
+88,Microbiologist,Public Health England
+89,Multimedia Designer,British Broadcasting Corporation (BBC)
+90,Neurologist,King's College London NHS Foundation Trust
+91,Network Engineer,BT Group
+92,Nutritionist,University of Reading
+93,Occupational Therapist,NHS
+94,Ornithologist,British Trust for Ornithology
+95,Pathologist,University of Leicester
+96,Physicist,University of Cambridge
+97,Police Detective,Metropolitan Police Service
+98,Primary School Teacher,Department for Education
+99,Product Designer,Royal College of Art
+100,Professor of Chemistry,University of Oxford
+101,Aerospace Engineer,Airbus Defense and Space
+102,Art Director,S4C
+103,Bioinformatics Scientist,Swansea University
+104,Botanical Illustrator,Royal Botanic Garden of Wales
+105,Chartered Accountant,PricewaterhouseCoopers (PwC) Wales
+106,Chief Technology Officer,TechHub Cardiff
+107,Clinical Research Associate,University of Wales Trinity Saint David
+108,Costume Supervisor,Theatre in the Mill
+109,Data Scientist Specialist,Cardiff University
+110,Dental Surgeon,University Dental Hospital of Wales
+111,Environmental Engineer,Cadwyn Environmental Ltd
+112,Forensic Entomologist,Forensic Services Wales
+113,Geophysicist,British Geological Survey
+114,Graphic Artist,Design-it Wales
+115,Human Factors Engineer,Royal Ordnance
+116,Interior Designer,Wales & West Interiors
+117,IT Consultant,Atos IT Solutions and Services
+118,Jewellery Designer,Cardiff School of Jewellery
+119,Legal Counsel,Thomas Carroll Group
+120,Maritime Archaeologist,Welsh Maritime Archaeology Trust
+121,Mathematician,Cardiff University School of Mathematics and Computer Science
+122,Medical Writer,DocBuddy
+123,Metallurgist Engineer,Corus UK
+124,Museum Educator,Amgueddfa Cymru - National Museum Wales
+125,Neuroscientist Research Associate,Swansea University Medical School
+126,Nurse Practitioner,Betsi Cadwaladr University Health Board
+127,Orchestral Conductor,Welsh National Orchestra
+128,Patent Attorney,J A Kemp
+129,Performing Arts Producer,National Theatre Wales
+130,Photographer,Royal Welsh College of Art & Design
+131,Physics Researcher,Cardiff University
+132,Podcast Producer,BBC Cymru Wales
+133,Production Designer,Aardman Animations
+134,Project Manager (Construction),McAlpine Construction
+135,Quality Assurance Engineer,BAE Systems Wales
+136,Registered Dietitian,Cardiff and Vale University Health Board
+137,Research Fellow in Neuroscience,University of Cardiff
+138,Robotics Engineer,Airbus UK
+139,Senior Software Engineer,TechMahindra
+140,Speech Language Therapist,Wales Community Health Council
+141,Structural Engineer,Arup
+142,Teaching Assistant,Cardiff Metropolitan University
+143,Technical Writer,University of Wales Trinity Saint David
+144,Textile Designer,Prince's Trust Cymru
+145,Translator and Interpreter,Welsh Government
+146,User Experience Designer,FutureGov
+147,Video Game Developer,Fusion Games
+148,Web Application Developer,TechCymru
+149,Wildlife Biologist,Royal Society for the Protection of Birds
+150,Writer and Editor,Media Wales
+151,Analytics Data Scientist,Cardiff University
+152,Architect,Rhys Williams Architects
+153,Art Director & Animator,Animations Ltd
+154,Bioinformatics Analyst,Swansea University Medical School
+155,Botanical Illustrator & Conservator,Welsh Botanic Garden Society
+156,Chartered Financial Analyst (CFA),Mercer UK
+157,Chief Innovation Officer,Cardiff Start
+158,Clinical Data Analyst,University of South Wales
+159,Costume Designer,National Theatre Wales
+160,Data Scientist,Welsh Government
+161,Dental Hygienist,Cardiff and Vale University Health Board
+162,Environmental Consultant,Ecosyl
+163,Forensic Odontologist,Gwent Police
+164,Geophysics Researcher,British Geological Survey
+165,Graphic Designer & Photographer,Cardiff School of Creative and Cultural Industries
+166,Human Factors Engineer & Ergonomist,Royal Ordnance
+167,Interior Designer & Project Manager,Wales Interiors
+168,IT Architect,IBM UK
+169,Jewelry Designer & Manufacturer,Cardiff School of Jewellery
+170,Legal Counsel & Solicitor,Thomas Carroll Group
+171,Maritime Archaeologist & Historian,National Museum Wales
+172,Mathematician & Data Scientist,Cardiff University
+173,Medical Writer & Editor,DocBuddy
+174,Metallurgist Engineer & Materials Scientist,Corus UK
+175,Museum Educator & Curator,Amgueddfa Cymru - National Museum Wales
+176,Neuroscientist Research Associate & Neurologist,Swansea University Medical School
+177,Nurse Practitioner & Midwife,Betsi Cadwaladr University Health Board
+178,Orchestral Conductor & Music Director,Welsh National Orchestra
+179,Patent Attorney & Intellectual Property Consultant,J A Kemp
+180,Performing Arts Producer & Director,National Theatre Wales
+181,Actuarial Analyst,Royal Bank of Scotland
+182,Art Director (Film & TV),BBC Scotland
+183,Business Analytics Manager,University of Edinburgh Business School
+184,Chemical Engineer,Aberdeen Asset Management
+185,Chief Information Officer,Glasgow City Council
+186,Computational Scientist,University of Strathclyde
+187,Costume Designer (TV & Film),Scottish Ballet
+188,Data Analytics Consultant,KPMG Scotland
+189,Defence Technology Engineer,Babcock International Group
+190,Director of Marketing,Edinburgh's Hogmanay
+191,Drilling Engineer,Shell UK
+192,Environmental Scientist (Water),Scottish Water
+193,Finance Officer,NHS Scotland
+194,Forensic Accountant,PricewaterhouseCoopers Scotland
+195,Graphic Designer (Branding),McCann Erickson Scotland
+196,Green Energy Engineer,SSE Renewables
+197,Head of Digital Strategy,RBS Digital
+198,Human Resources Manager,Glasgow Caledonian University
+199,Interior Designer & Project Manager,Dallas Peck Interiors
+200,IT Support Specialist,University of St. Andrews
+201,Jewellery Designer,Royal College of Art and Design in Scotland
+202,Legal Advisor,Scottish Power
+203,Maritime Engineer,North Ayrshire Council
+204,Market Research Analyst,Kantar Scotland
+205,Medical Laboratory Scientist,NHS Greater Glasgow and Clyde
+206,Meteorologist & Climatologist,Met Office
+207,Offshore Installation Manager,Wood Group
+208,Oncology Pharmacist,NHS Scotland
+209,Operations Research Analyst,Transport Scotland
+210,Perfusionist,Golden Jubilee National Hospital
+211,Petroleum Engineer,BP Scotland
+212,Product Designer & Developer,Design Innovation Ventures
+213,Project Manager (Construction),Morrison Construction
+214,Protein Chemist,University of Dundee
+215,Quantity Surveyor,Royal Institution of Chartered Surveyors Scotland
+216,Radio Broadcasting Producer,BBC Radio Scotland
+217,Research Scientist (Biotechnology),Aberdeen University
+218,Sales & Marketing Manager (Whisky),Diageo Scotland
+219,Security Consultant,Securitas UK Scotland
+220,Software Engineer (Data Science),University of Edinburgh
+221,Technical Support Analyst,Clydeblowen Housing Association
+222,Technology Manager,Scottish National Gallery
+223,Television Director,STV Scotland
+224,Tour Guide & Historian,Historic Environment Scotland
+225,Transmission Line Engineer,SSE Transmission
+226,Urban Planner,City of Edinburgh Council
+227,Veterinary Surgeon,Royal (Dick) School of Veterinary Studies
+228,Web Developer,Heriot-Watt University
+229,Whisky Distiller & Blender,Glenfiddich Distillery
+230,Wind Turbine Technician,SSE Renewables
+231,Accounting Technician,Deloitte Northern Ireland
+232,Art Conservator,National Museums NI (Ulster Museum)
+233,Assistant Quantity Surveyor,Michael J Lonsdale & Son Ltd
+234,Biochemist,Queen's University Belfast
+235,Building Surveyor,Royal Institution of Chartered Surveyors NI
+236,Business Analyst,Allstate Northern Ireland
+237,Civil Engineer,Farrans Construction Group
+238,Clinical Psychologist,Belfast Health & Social Care Trust
+239,Computer Programmer,Andor Technology Plc
+240,Content Creator (Multimedia),St. Patrick's College Downpatrick
+241,Construction Project Manager,McAleer & Rushen Construction
+242,Concept Artist (Animation),Cartoon Saloon
+243,Costume Designer,Titanic Studios
+244,Data Scientist,Almac Group
+245,Environmental Consultant,AFB Ireland Ltd
+246,Engineering Technician (Mechanical),Moypark Foods
+247,Facilities Manager,Translink Northern Ireland
+248,Forensic Engineer,Police Service of Northern Ireland
+249,Graphic Designer,Carrickmore Design & Print
+250,Heritage Site Interpreter (Tour Guide),National Trust NI
+251,Histopathologist,Royal Victoria Hospital
+252,IT Support Technician,Fujitsu Northern Ireland
+253,Jeweler & Silversmith,Ulster Museum
+254,Legal Executive,HM Courts and Tribunals Service NI
+255,Marine Biologist (Research),Queen's University Belfast
+256,Marketing Manager (Advertising),BBC Northern Ireland
+257,Medical Microbiologist,Royal Victoria Hospital
+258,Metallurgist,ScottishPower Renewables
+259,Meteorologist,Met Office NI (Shoreham)
+260,Military Intelligence Analyst,British Army HQ Northern Ireland
+261,Network Engineer,CISCO Systems Northern Ireland
+262,Nutritional Therapist,Queen's University Belfast
+263,Occupational Health Nurse,Belfast Trust
+264,Operations Research Analyst,NI Water
+265,Ornithologist (Wildlife Biologist),RSPB NI
+266,Pharmacist,Boots Northern Ireland
+267,Physical Therapist (Physiotherapist),Mid Ulster District Council
+268,Plant Breeder,Queen's University Belfast
+269,Product Design Engineer,Northern Ireland Technology Centre
+270,Project Coordinator,Bombardier Aerospace
+271,Public Relations Officer (Marketing),NI Direct
+272,Radiographer,Royal Victoria Hospital
+273,Research Scientist (Biotech),Almac Diagnostics
+274,Sales Manager (Pharmaceuticals),AbbVie
+275,Software Developer (Web Apps),Kainos Group
+276,Technical Writer (Manuals),Farrans Construction Group
+277,Tour Guide & Historian (Game of Thrones),HBO Tours
+278,Transmission Line Technician,SSE Airtricity Northern Ireland
+279,University Lecturer (Computer Science),Ulster University
+280,Vegetation Manager (Forestry),Danske Forest NI

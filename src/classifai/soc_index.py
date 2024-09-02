@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import requests
 
+from classifai.doc_utils import clean_job_description, clean_job_title
+
 
 class SOCCode:
     """Class to process the extended SOC table."""
@@ -180,4 +182,22 @@ if __name__ == "__main__":
     description_df = SOCCode.clean_soc_table(df)
     education_df = SOCCode.create_education_table(df)
     overall_df = SOCCode.join_soc_education_table(description_df, education_df)
+
+    overall_df["group_title"] = overall_df["group_title"].apply(
+        lambda x: clean_job_title(x)
+    )
+    overall_df["descriptions_job"] = overall_df.apply(
+        lambda x: clean_job_description(x.group_title, x.descriptions_job),
+        axis=1,
+    )
     overall_df.to_csv("data/soc-index/soc_6_digit.csv", index=False)
+
+    overall_df_four_digit = overall_df[["unit_group", "soc_code"]].copy()
+    overall_df_four_digit["soc_code"] = overall_df_four_digit[
+        "soc_code"
+    ].apply(lambda x: int(str(x)[0:4]))
+    overall_df_four_digit = overall_df_four_digit.drop_duplicates()
+    overall_df_four_digit["unit_group"] = overall_df_four_digit[
+        "unit_group"
+    ].apply(lambda x: clean_job_title(x))
+    overall_df_four_digit.to_csv("data/soc-index/soc_4_digit.csv", index=False)

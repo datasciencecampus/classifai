@@ -7,7 +7,7 @@ def clean_text(text: str) -> str:
     """Clean text data for exact matching.
 
     For example:
-    "Teacher, Statistics" -> "statistics teacher"
+    "Teacher, Statistics (secondary school)" -> "secondary school statistics teacher"
 
     Parameters
     ----------
@@ -19,10 +19,33 @@ def clean_text(text: str) -> str:
     text: str
         Cleaned text data for exact matching.
     """
-    text = text.split(", ")
-    text = " ".join(text[::-1])
-    text = text.strip().title()
-    return text
+    if text == "":
+        return ""
+
+    if "(" in text:
+        text_in_brackets = text.split("(", 1)[1].split(")")[0]
+        text_in_brackets_processed = text_in_brackets.replace(":", "")
+        text_in_brackets_processed = text_in_brackets_processed.replace(
+            ",", "or"
+        )
+        text_without_brackets = text.replace(f"({text_in_brackets})", "")
+    else:
+        text_in_brackets_processed = ""
+        text_without_brackets = text
+
+    text_without_brackets_processed = text_without_brackets.split(", ")
+    text_without_brackets_processed
+    text_without_brackets_processed = " ".join(
+        text_without_brackets_processed[::-1]
+    )
+
+    text_processed = (
+        f"{text_in_brackets_processed} {text_without_brackets_processed}"
+    )
+    text_processed = re.sub(" +", " ", text_processed)
+    text_processed = text_processed.strip().lower()
+
+    return text_processed
 
 
 def clean_job_title(job_title: str) -> str:

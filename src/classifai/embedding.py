@@ -25,6 +25,8 @@ class EmbeddingHandler:
         db_dir: str = "/tmp/db",
         k_matches: int = 3,
         task_type: str = "CLASSIFICATION",
+        distance_metric: str = "l2",
+        create_vector_store: bool = False,
     ):
         """Initialise EmbeddingHandler.
 
@@ -37,8 +39,12 @@ class EmbeddingHandler:
             The path to the where the database is stored, by default "data/soc-index/db".
         k_matches : int, optional
             The number of nearest matches to retrieve, by default 3.
-        task_type : str, optional
+        task_type: str, optional
             The task type if using Google embeddings, by default "CLASSIFICATION".
+        distance_metric: str, optional
+            The distance metric used for the embedding search, by default "l2". Must be one of: {"l2", "ip", "cosine"}.
+        create_vector_store : bool, optional
+            If True use the _create_vector_store method, by default False.
         """
 
         dotenv.load_dotenv(dotenv.find_dotenv())
@@ -47,6 +53,7 @@ class EmbeddingHandler:
         self.task_type = task_type
         self.db_dir = db_dir
         self.k_matches = k_matches
+        self.distance_metric = distance_metric
         self.api_key = get_secret()
 
         if self.embedding_model_name.startswith("models"):
@@ -62,8 +69,10 @@ class EmbeddingHandler:
                 model_name=self.embedding_model_name,
             )
 
-        # self._create_vector_store()
-        self._prime_vector_store()
+        if create_vector_store is True:
+            self._create_vector_store()
+        else:
+            self._prime_vector_store()
 
     def _prime_vector_store(self):
         """Initialise Chroma VectorDB on known DB dir."""
@@ -71,6 +80,7 @@ class EmbeddingHandler:
         self.collection = self.vector_store.get_collection(
             name="classifai-collection",
             embedding_function=self.embedding_function,
+            metadata={"hnsw:space": self.distance_metric},
         )
 
     def _create_vector_store(self):
@@ -79,7 +89,9 @@ class EmbeddingHandler:
         self.vector_store = chromadb.PersistentClient(path=self.db_dir)
 
         self.collection = self.vector_store.get_or_create_collection(
-            name="my_collection", embedding_function=self.embedding_function
+            name="my_collection",
+            embedding_function=self.embedding_function,
+            metadata={"hnsw:space": self.distance_metric},
         )
 
     def embed_index(self, file_name: str = None):
@@ -94,7 +106,9 @@ class EmbeddingHandler:
 
         self.vector_store.delete_collection(name="my_collection")
         self.collection = self.vector_store.create_collection(
-            name="my_collection", embedding_function=self.embedding_function
+            name="my_collection",
+            embedding_function=self.embedding_function,
+            metadata={"hnsw:space": self.distance_metric},
         )
 
         docs = []
@@ -123,7 +137,9 @@ class EmbeddingHandler:
 
         self.vector_store.delete_collection(name="my_collection")
         self.collection = self.vector_store.create_collection(
-            name="my_collection", embedding_function=self.embedding_function
+            name="my_collection",
+            embedding_function=self.embedding_function,
+            metadata={"hnsw:space": self.distance_metric},
         )
 
         docs = []
@@ -170,7 +186,9 @@ class EmbeddingHandler:
 
         self.vector_store.delete_collection(name="my_collection")
         self.collection = self.vector_store.create_collection(
-            name="my_collection", embedding_function=self.embedding_function
+            name="my_collection",
+            embedding_function=self.embedding_function,
+            metadata={"hnsw:space": self.distance_metric},
         )
 
         if isinstance(file, str):
