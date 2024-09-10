@@ -3,6 +3,8 @@ data/*
 outputs/*
 .vscode
 notebooks/*
+terraform.tfstate.*
+*.tfvars
 
 ### Contentious file types (can be removed at user discretion) ###
 
