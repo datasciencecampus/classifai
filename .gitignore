@@ -19,10 +19,10 @@ _site/
 
 *.Rproj
 
-*.html
+#*.html
 *.pdf
 *.zip
-*.csv
+#*.csv
 *.pkl
 *.rds
 *.rda

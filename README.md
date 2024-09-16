@@ -11,18 +11,18 @@ Leveraging AI to develop a flexible multi-classification tool.
 You are strongly recommended to install resources into a virtual environment. Project setup can be achieved as follows:
 
 ``` bash
-$ git clone https://github.com/datasciencecampus/classifai.git
-$ cd classifai
-$ python -m venv venv
-$ source venv/bin/activate
-$ python -m pip install --upgrade pip
-$ python -m pip install .
+git clone https://github.com/datasciencecampus/classifai.git
+cd classifai
+python -m venv venv
+source venv/bin/activate # source venv/Scripts/activate on Windows
+python -m pip install --upgrade pip
+python -m pip install .
 ```
 
 > [!NOTE] If you intend on doing any development work, please install the package as editable and with the `dev` optional dependencies:
 >
 > ``` bash
-> $ python -m pip install -e ".[dev]"
+> python -m pip install -e ".[dev]"
 > ```
 >
 > Moreover, once you have installed the package, please install the pre-commit hooks. These hooks help us to ensure repository security and a consistent code style.
@@ -60,12 +60,15 @@ This needs to be a `WRITE` API key.
 This is created and found in the credentials API on GCP. You will need to restrict the key to the Generative Language API.
 
 ## Usage
-A demo app is deployed using GCP App Engine. The SOC endpoint can be accessed [here]("https://classifai-sandbox.nw.r.appspot.com/").
+
+### REST API
+
+A demo of the REST API is deployed using GCP App Engine. The SOC endpoint can be accessed [here]("https://classifai-sandbox.nw.r.appspot.com/").
 
 Development is in its very early stages. You can launch the default API server locally as follows:
 
 ```bash
-$ uvicorn main:app
+uvicorn main:app
 ```
 
 By default, the URL will redirect to the FastAPI Docs UI to try out different inputs.
@@ -73,7 +76,7 @@ By default, the URL will redirect to the FastAPI Docs UI to try out different in
 For programmatic demo, a csv file must be passed explicitly as a command flag (`-f` or `--file`). The API server must have been launched, as above. This is only an illustration of functionality at this stage:
 
 ```bash
-$ python submit.py -f data/example_survey_data.csv
+python submit.py -f data/example_survey_data.csv
 ```
 
 **Note:** Passing an input in the UI will result in very slow response times. Our product is intended for programmatic use.
@@ -81,14 +84,24 @@ $ python submit.py -f data/example_survey_data.csv
 A separate utility class is available to copy the ChromaDB vector store files/cache to a GCS bucket. In future, APP Engine instances will draw from this bucket to avoid having to recreate the vector store (the SOC source input is unlikely to change very often). To copy the current ChromaDB files, the following code can be used programmatically:
 
 ```python
-$ from src.classifai.utils import DB_Updater
-$
-$ tool = DB_Updater()
-$ tool.update()
+from src.classifai.utils import DB_Updater
+
+tool = DB_Updater()
+tool.update()
 ```
 
 
 > [!CAUTION] HuggingFace-hosted embeddings are used by default. However, the EmbeddingHandler object can be updated (for now) by changing the `embedding_model_name` argument in the class `__init__` (e.g. the latest Google embedding model.)
+
+### Web user interface
+
+Alongside the microservice, we are developing a single-page web application to allow colleagues to interactively classify data, assisted by the LLM microservice.
+
+The app is currently not deployed. To run the app locally, enter
+
+```bash
+python -m flask --app flask_ui/app.py run
+```
 
 ### Generating synthetic survey data
 Please note that this process requires local installation of Ollama.
@@ -96,7 +109,7 @@ To produce a JSON example of survey data, the following command can
 be used:
 
 ```bash
-$ python src/classifai/generate_labelled_synth_data.py
+python src/classifai/generate_labelled_synth_data.py
 ```
 
 ### Workflow

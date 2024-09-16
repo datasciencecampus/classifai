@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+}
+
+.main-content {
+    display: flex;
+    margin-top: 20px;
+}
+
+.job-list {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.job-details {
+    flex: 1;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.action-buttons {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+#assign-code {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+#uncodable {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
+
+#see-more-results {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+}
+
+#soc-results {
+    margin-top: 20px;
+}
+
+#soc-results-table {
+    width: 100%;
+}
+
+#soc-results-table td, #soc-results-table th {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+#soc-results-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
+.file-upload {
+    margin-bottom: 20px;
+}
+
+#job-table {
+    width: 100%;
+}
+
+#job-table tbody tr {
+    cursor: pointer;
+}
+
+#job-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+table.dataTable tbody tr.selected {
+    background-color: #b0bed9 !important;
+}
