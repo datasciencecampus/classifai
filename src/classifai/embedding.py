@@ -35,13 +35,13 @@ class EmbeddingHandler:
         embedding_model_name : str, optional
             The model to use for embeddings, by default use the Hugging Face model
             "sentence-transformers/all-MiniLM-L6-v2".
-        db_dir: str, optional
+        db_dir : str, optional
             The path to the where the database is stored, by default "data/soc-index/db".
         k_matches : int, optional
             The number of nearest matches to retrieve, by default 3.
         task_type: str, optional
             The task type if using Google embeddings, by default "CLASSIFICATION".
-        distance_metric: str, optional
+        distance_metric : str, optional
             The distance metric used for the embedding search, by default "l2". Must be one of: {"l2", "ip", "cosine"}.
         create_vector_store : bool, optional
             If True use the _create_vector_store method, by default False.
@@ -208,9 +208,9 @@ class EmbeddingHandler:
             for i in range(len(labels))
         ]
 
-        for i in range(math.ceil(len(docs) / 500)):
-            start_index = i * 500
-            end_index = (i + 1) * 500
+        for i in range(math.ceil(len(docs) / 100)):
+            start_index = i * 100
+            end_index = (i + 1) * 100
 
             self.collection.add(
                 documents=docs[start_index:end_index],

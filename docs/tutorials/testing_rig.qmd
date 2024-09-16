@@ -9,34 +9,85 @@ jupyter: python3
 ---
 
 ```{python}
-#| code-summary: convert input data to JSON
-
-import csv
-from datetime import datetime
-import json
-import os
-import pandas as pd
-
-from classifai.llm import ClassificationLLM
-from classifai.embedding import EmbeddingHandler
-
-def read_csv_to_dict_list(file_path):
-    with open(file_path, mode='r', newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        dict_list = [row for row in reader]
-    return dict_list
-
-file_path = 'data/example_survey_data.csv'
-input_data = read_csv_to_dict_list(file_path)
+#| code-summary: Import modules
+from classifai.testing_rig_functions import *
 ```
 
 ```{python}
-#| code-summary: set up the test parameters
+#| code-summary: Read in the test data
+
+'''
+Ensure that you have executed `python src/classifai/soc_index.py` previously.
+
+Test are based on the first 4 digits of the code i.e. if the LLM provides a
+6-digit SOC code which is incorrect but the first 4 digits are correct then
+this is considered a true positive.
+'''
+
+input_data_filepath = 'data/example_survey_data.csv'
+input_data = read_csv_to_dict_list(file_path=input_data_filepath)
+```
+
+```{python}
+#| code-summary: Set up the test parameters
 
 tests = [
   {
+    "test_name": "test_1",
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-    "number_of_retrievals": 2,
+    "number_of_retrievals": 20,
+    "embedding_index_file": "soc_6_digit.csv",
+    "embedding_columns_index": ["group_title"],
+    "label_column_index": "soc_code",
+    "distance_metric": "l2",
+    "llm": "gemini-1.0-pro",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["job_title", "company"],
+    "label_column_dataset": "soc_code"
+  },
+  {
+    "test_name": "test_2",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "number_of_retrievals": 20,
+    "embedding_index_file": "soc_6_digit.csv",
+    "embedding_columns_index": ["descriptions_job"],
+    "label_column_index": "soc_code",
+    "distance_metric": "l2",
+    "llm": "gemini-1.0-pro",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["job_title", "company"],
+    "label_column_dataset": "soc_code"
+  },
+  {
+    "test_name": "test_3",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "number_of_retrievals": 20,
+    "embedding_index_file": "soc_6_digit.csv",
+    "embedding_columns_index": ["group_title", "descriptions_education"],
+    "label_column_index": "soc_code",
+    "distance_metric": "l2",
+    "llm": "gemini-1.0-pro",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["job_title", "company"],
+    "label_column_dataset": "soc_code"
+  },
+  {
+    "test_name": "test_4",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "number_of_retrievals": 20,
+    "embedding_index_file": "soc_6_digit.csv",
+    "embedding_columns_index": ["descriptions_job", "descriptions_education"],
+    "label_column_index": "soc_code",
+    "distance_metric": "l2",
+    "llm": "gemini-1.0-pro",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["job_title", "company"],
+    "label_column_dataset": "soc_code"
+  },
+  {
+    "test_name": "test_5",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "number_of_retrievals": 20,
     "embedding_index_file": "soc_4_digit.csv",
     "embedding_columns_index": ["unit_group"],
     "label_column_index": "soc_code",
@@ -47,129 +98,36 @@ tests = [
     "label_column_dataset": "soc_code"
   },
 ]
-
-# todo: interate through all of the test set ups
-test = tests[0]
 ```
 
 ```{python}
-#| code-summary: set up the results table
+#| code-summary: Run each test
 
-result_table = pd.read_csv(file_path)
-result_table[["top_retrieval_accuracy", f"top_{test['number_of_retrievals']}_retrievals_accuracy", "top_llm_accuracy", "top_llm_confidence"]] = 0
-```
+for test in tests:
 
-```{python}
-#| code-summary: create a folder to save results and save the metadata
+  result_table = create_result_table(test_parameters=test, input_data_filepath=input_data_filepath)
 
-# Create a folder to save the results
-current_datetime = datetime.now()
-formatted_datetime = current_datetime.strftime("%Y%m%d_%H%M%S")
-folder_name = f"outputs/{formatted_datetime}"
-os.mkdir(folder_name)
+  # Create a folder to save the results
+  folder_name = create_output_folder(test_parameters=test)
 
-with open(f"{folder_name}/metadata.json", "w") as outfile:
-    json.dump(tests[0], outfile)
-```
+  # Embed the index
+  embed = create_embedding_index(test_parameters=test)
 
-```{python}
-#| code-summary: embed the index
-# ensure that you have executed `python src/classifai/soc_index.py` previously
-embed = EmbeddingHandler(
-    embedding_model_name = test["embedding_model"],
-    k_matches = test["number_of_retrievals"],
-    distance_metric = test["distance_metric"],
-    create_vector_store=True
-)
+  # Get the retrieval results
+  result, processed_result = search_embedding_index(test_parameters=test, input_data=input_data, embed=embed, folder_name=folder_name)
 
-if test["embedding_index_file"][-3] == "txt":
-  embed.embed_master_index(file_name=f"data/soc-index/{test['embedding_index_file']}")
-else:
-  embed.embed_index_csv(file=f"data/soc-index/{test['embedding_index_file']}", label_column=test["label_column_index"], embedding_columns=test["embedding_columns_index"])
-```
+  # Add the retrieval results to table
+  result_table = add_retrieval_results_to_table(test_parameters=test, result_table=result_table, processed_result=processed_result)
 
-```{python}
-#| code-summary: get the retrieval results
+  # Set up the LLM and candidates
+  rag_candidates, classifier = set_up_llm(test_parameters=test, embed=embed, result=result)
 
-from classifai.api import API
+  # Return the results of the LLM
+  llm_result_dict = get_llm_results(input_data=input_data, rag_candidates=rag_candidates, classifier=classifier, folder_name=folder_name)
 
-result = embed.search_index(
-    input_data=input_data,
-    embedded_fields=test["embedding_columns_dataset"],
-)
+  # Add LLM results to table
+  result_table = add_llm_results_to_table(test_parameters=test, result_table=result_table, llm_result_dict=llm_result_dict, folder_name=folder_name)
 
-processed_result = API.simplify_output(output_data=result,
-                                       input_data=input_data,
-                                       id_field="id")
-
-with open(f"{folder_name}/processed_retrieval.json", "w") as outfile:
-    json.dump(processed_result, outfile)
-```
-
-```{python}
-#| code-summary: process the retrieval results
-
-for index in range(len(result_table)):
-  id = result_table.loc[index, test["id_column_dataset"]]
-
-  # top retrieval accuracy
-  if int(processed_result[str(id)][0]['label']) == int(result_table.loc[index, test["label_column_dataset"]]):
-    result_table.loc[index, "top_retrieval_accuracy"] = 1
-
-  # top k retrieval accuracy
-  for retrieval_result in processed_result[str(id)]:
-    if int(retrieval_result['label'])  == int(result_table.loc[index, test["label_column_dataset"]]):
-      result_table.loc[index, f"top_{test['number_of_retrievals']}_retrievals_accuracy"] = 1
-```
-
-```{python}
-#| code-summary: set up the LLM
-
-
-
-rag_candidates = embed.process_result_for_rag(result)
-classifier = ClassificationLLM(model_name=test["llm"])
-```
-
-```{python}
-#| code-summary: Return the results of the LLM
-
-llm_result_dict = {}
-for input_document, search_result in zip(input_data, rag_candidates):
-    result_list = []
-    llm_result = classifier.get_soc_code(
-        input_document["job_title"],
-        None,
-        input_document["company"],
-        search_result,
-    )
-    for result in llm_result.soc_candidates:
-      result_list.append({result.soc_code:result.likelihood})
-    llm_result_dict[input_document["id"]] = result_list
-
-with open(f"{folder_name}/processed_llm_results.json", "w") as outfile:
-    json.dump(llm_result_dict, outfile)
-```
-
-```{python}
-#| code-summary: add LLM results to table
-
-for index in range(len(result_table)):
-  id = result_table.loc[index, test["id_column_dataset"]]
-
-  # top retrieval accuracy
-  if int(list(llm_result_dict[str(id)][0].keys())[0]) == int(result_table.loc[index, test["label_column_dataset"]]):
-    result_table.loc[index, "top_llm_accuracy"] = 1
-
-  # top retrieval confidence
-  result_table.loc[index, "top_llm_confidence"] = list(llm_result_dict[str(id)][0].values())[0]
-
-result_table.to_csv(f"{folder_name}/accuracy.csv")
-```
-
-```{python}
-#| code-summary: save accuracy summary results
-
-accuracy_summary = result_table[["top_retrieval_accuracy", f"top_{test['number_of_retrievals']}_retrievals_accuracy", "top_llm_accuracy", "top_llm_confidence"]].sum(axis=0) / 20
-accuracy_summary.to_csv(f"{folder_name}/accuracy_summary.csv")
+  # Create accuracy summary table
+  create_accuracy_summary_table(test_parameters=test, result_table=result_table, folder_name=folder_name)
 ```
