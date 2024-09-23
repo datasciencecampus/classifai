@@ -6,6 +6,9 @@
 ## About
 Leveraging AI to develop a flexible multi-classification tool.
 
+## Demo API
+A demo of the endpoints provided in this project can be accessed in the browser (approved users only and on ONS VPN or approved IPs) [here](https://classifai-sandbox.nw.r.appspot.com/). We currently use a low-spec instance so processing is relatively slow and there is a cold-start after inactivity. You can currently test the embedding search classification by passing a small .csv file with columns **id** e.g. '1', **job_title** e.g. 'Teacher', **company** e.g. 'Derwent School'.
+
 ## Installation
 
 You are strongly recommended to install resources into a virtual environment. Project setup can be achieved as follows:
