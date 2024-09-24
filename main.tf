@@ -3,14 +3,20 @@
 # `terraform state rm <RESOURCE.MEMBER>`
 
 
-##################
-# FIREWALL RULES #
-##################
+#############################
+# APP ENGINE FIREWALL RULES #
+#############################
 
 data "google_secret_manager_secret_version" "ej_ip" {
   provider = google-beta
   project = var.project_id
   secret  = "ej_ip"      # pragma: allowlist secret
+  version = "latest"
+}
+data "google_secret_manager_secret_version" "mw_ip" {
+  provider = google-beta
+  project = var.project_id
+  secret  = "mw_ip"      # pragma: allowlist secret
   version = "latest"
 }
 data "google_secret_manager_secret_version" "ons_vpn_1" {
@@ -59,6 +65,13 @@ resource "google_app_engine_firewall_rule" "ej_ip" {
   action       = "ALLOW"
   source_range = data.google_secret_manager_secret_version.ej_ip.secret_data
   description = data.google_secret_manager_secret_version.ej_ip.secret
+}
+resource "google_app_engine_firewall_rule" "mw_ip" {
+  project      = var.project_id
+  priority     = 5
+  action       = "ALLOW"
+  source_range = data.google_secret_manager_secret_version.mw_ip.secret_data
+  description = data.google_secret_manager_secret_version.mw_ip.secret
 }
 
 
