@@ -206,6 +206,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+*.env
+*.venv
 env/
 venv/
 ENV/
@@ -332,3 +334,5 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,r,python
+*credentials.json
+credentials.json
