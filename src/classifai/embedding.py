@@ -80,7 +80,6 @@ class EmbeddingHandler:
         self.collection = self.vector_store.get_collection(
             name="classifai-collection",
             embedding_function=self.embedding_function,
-            metadata={"hnsw:space": self.distance_metric},
         )
 
     def _create_vector_store(self):

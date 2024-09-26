@@ -69,7 +69,7 @@ async def _combine_all_input(data: DictReader) -> list[dict]:
 
     lines = []
     for line in data:
-        line = {k: v for k, v in line.items() if k != "id"}
+        line = {k: v for k, v in line.items()}
         lines.append(line)
 
     return lines
@@ -94,15 +94,16 @@ async def soc(
 
     input = await _process_input_csv(file)
     input = await _combine_all_input(input)
-    input = [f'{x["job_title"]} - {x["company"]}' for x in input]
-    input_size = len(input)
+    input_desc = [f'{x["job_title"]} - {x["company"]}' for x in input]
+    # int required for indexing later
+    input_ids = [int(x["id"]) for x in input]
 
     pull_vdb_to_local(client=storage.Client())
 
     handler = EmbeddingHandler()
 
     query_result = handler.collection.query(
-        query_texts=input,
+        query_texts=input_desc,
         n_results=handler.k_matches,
     )
 
@@ -111,11 +112,10 @@ async def soc(
     for key in remove_keys:
         del query_result[key]
 
-    query_result["inputs"] = input
+    query_result["inputs"] = input_desc
+    query_result["input_ids"] = input_ids
 
-    processed_result = process_embedding_search_result(
-        query_result, input_size
-    )
+    processed_result = process_embedding_search_result(query_result)
 
     return processed_result
 

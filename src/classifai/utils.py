@@ -3,7 +3,6 @@
 import os
 
 import chromadb
-import numpy as np
 from google.cloud import storage
 from google.cloud.secretmanager import SecretManagerServiceClient
 
@@ -166,7 +165,7 @@ def pull_vdb_to_local(
 
 
 def process_embedding_search_result(
-    query_result: chromadb.QueryResult, input_size: int
+    query_result: chromadb.QueryResult,
 ) -> dict:
     """Structure embedding search result into JSON format.
 
@@ -174,33 +173,28 @@ def process_embedding_search_result(
     ----------
     query_result : chromadb.QueryResult
         ChromaDB vector search result format
-    input_size : int
-        Number of user samples being processed in request.
 
     Returns
     -------
     processed_result : dict
         Dictionary format of Chroma DB vector search
     """
+
     processed_result = {
-        query_result["inputs"][x]: {
-            1: {
-                "id": query_result["ids"][x][0],
-                "description": query_result["documents"][x][0],
-                "distance": query_result["distances"][x][0],
-            },
-            2: {
-                "id": query_result["ids"][x][1],
-                "description": query_result["documents"][x][1],
-                "distance": query_result["distances"][x][1],
-            },
-            3: {
-                "id": query_result["ids"][x][2],
-                "description": query_result["documents"][x][2],
-                "distance": query_result["distances"][x][2],
-            },
-        }
-        for x in np.arange(0, input_size)
+        "data": [
+            {
+                "input_id": input_id,
+                "response": [
+                    {
+                        "soc": soc,
+                        "description": query_result["documents"][i][j],
+                        "distance": query_result["distances"][i][j],
+                    }
+                    for j, soc in enumerate(query_result["ids"][i])
+                ],
+            }
+            for i, input_id in enumerate(query_result["input_ids"])
+        ]
     }
 
     return processed_result
