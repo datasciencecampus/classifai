@@ -28,31 +28,55 @@ jobs:
             os: windows-latest
 
     steps:
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0.4.0'
+      with:
+        workload_identity_provider: 'https://iam.googleapis.com/projects/14177695902/locations/global/workloadIdentityPools/classifai-pool/providers/classifai-provider'
+        service_account: 'workload-identity-pool@classifai-sandbox.iam.gserviceaccount.com'
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
+    - name: Update pip and install the package
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install ".[test]"
+    - name: Run tests
+      run: |
+        python -m pytest tests
+    - name: Install and run linters
+      if:  |
+          matrix.python-version == 3.11 &&
+          matrix.os == 'ubuntu-latest'
+      run: |
+        python -m pip install ".[dev]"
+        python -m ruff check .
+        python -m ruff format --check .
+
+
+  deploy:
+    name: Deploy to App Engine
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - uses: 'actions/checkout@v4'
+
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0.4.0'
+        uses: 'google-github-actions/auth@v2'
         with:
-          workload_identity_provider: 'https://iam.googleapis.com/projects/14177695902/locations/global/workloadIdentityPools/classifai-pool/providers/classifai-provider'
-          service_account: 'workload-identity-pool@classifai-sandbox.iam.gserviceaccount.com'
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+          project_id: 'classifai-sandbox'
+          workload_identity_provider: 'projects/14177695902/locations/global/workloadIdentityPools/classifai-wip/providers/classifai-provider'   # pragma: allowlist secret
+          service_account: 'wip-service-account@classifai-sandbox.iam.gserviceaccount.com'
+
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-appengine@v2'
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-      - name: Update pip and install the package
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install ".[test]"
-      - name: Run tests
-        run: |
-          python -m pytest tests
-      - name: Install and run linters
-        if:  |
-            matrix.python-version == 3.11 &&
-            matrix.os == 'ubuntu-latest'
-        run: |
-          python -m pip install ".[dev]"
-          python -m ruff check .
-          python -m ruff format --check .
+          project_id: 'classifai-sandbox'

@@ -19,3 +19,6 @@
 __pycache__/
 # Ignored by the build system
 /setup.cf
+
+terraform.*
+*.tf

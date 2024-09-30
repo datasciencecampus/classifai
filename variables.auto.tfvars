@@ -3,6 +3,8 @@ project_id = "classifai-sandbox"
 account_id = "14177695902"
 region = "europe-west"
 zone = "europe-west-2"
+github_org_name = "datasciencecampus"
+github_repo_name = "classifAI"
 
 support_email = "edward.jackson@ons.gov.uk"
 application_title = "ClassifAI"
@@ -20,8 +22,8 @@ iap_open = [
 iap_conditions = {
     "ethan.moss@ons.gov.uk" = {
         "title" = "Allow for a few hours",
-        "description" = "Revoke access at 3pm on 2024-09-06",
-        "expression" = "request.time < timestamp(\"2024-09-06T15:00:00Z\")"},
+        "description" = "Revoke access at 3pm on 2024-09-30",
+        "expression" = "request.time < timestamp(\"2024-09-30T15:00:00Z\")"},
 }
 
 # iam roles
@@ -65,9 +67,17 @@ compute_engine_service_account_roles = [
         "roles/iap.settingsAdmin",
         "roles/monitoring.editor",
         "roles/iam.serviceAccountUser",
-        "roles/iap.tunnelResourceAccessor"
-        # "roles/editor"  # default has many excess permissions
+        "roles/iap.tunnelResourceAccessor",
+        #"roles/editor"  # default has many excess permissions
     ]
+
+wip_service_account_roles = [
+    "roles/iam.workloadIdentityUser",
+    "roles/appengine.deployer",
+    "roles/storage.objectViewer",
+    "roles/storage.objectCreator",
+    "roles/editor",
+]
 
 services = [
     "aiplatform.googleapis.com",

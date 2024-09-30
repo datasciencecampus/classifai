@@ -147,6 +147,55 @@ resource "google_project_iam_member" "compute_engine_default_service_account" {
 }
 
 
+################################
+# WORKLOAD IDENTITY FEDERATION #
+################################
+
+# Create a GCP Workload Identity Pool
+resource "google_iam_workload_identity_pool" "pool" {
+    project = "classifai-sandbox"
+    workload_identity_pool_id = "classifai-wip"
+}
+
+# Create a GCP Workload Identity Provider
+resource "google_iam_workload_identity_pool_provider" "provider" {
+    project = google_iam_workload_identity_pool.pool.project
+    workload_identity_pool_provider_id = "classifai-provider"
+    workload_identity_pool_id = google_iam_workload_identity_pool.pool.workload_identity_pool_id
+    attribute_mapping = {
+        "google.subject" = "assertion.sub"
+        "attribute.aud" = "assertion.aud"
+        "attribute.actor" = "assertion.actor"
+        "attribute.repository" = "assertion.repository"
+    }
+    oidc {
+        issuer_uri = "https://token.actions.githubusercontent.com"
+    }
+    attribute_condition = "assertion.repository_owner=='${var.github_org_name}'"
+}
+
+# Create a GCP IAM service account
+resource "google_service_account" "service_account" {
+    account_id   = "wip-service-account"
+    project      = google_iam_workload_identity_pool.pool.project
+}
+
+# Assign Workload Identity User role to the service account
+resource "google_project_iam_member" "iam_member" {
+    project = google_iam_workload_identity_pool.pool.project
+    for_each = toset(var.wip_service_account_roles)
+    role    = each.value
+    member  = "serviceAccount:${google_service_account.service_account.email}"
+}
+
+resource "google_service_account_iam_member" "gha-sv-account-wif-tokencreator-iam-member" {
+  service_account_id = google_service_account.service_account.id
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "principalSet://iam.googleapis.com/projects/${var.account_id}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.pool.workload_identity_pool_id}/attribute.repository/${var.github_org_name}/${var.github_repo_name}"
+}
+
+
+
 #######################################################################
 # SERVICE AGENTS ARE CREATED AUTOMATICALLY WHEN APIS ARE ACTIVATED ####
 # THEY ARE GENERATED HERE ONLY BECAUSE OF A DESTRUCTIVE PRIOR COMMAND #

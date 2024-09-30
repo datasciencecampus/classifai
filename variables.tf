@@ -19,6 +19,16 @@ variable "zone" {
   type        = string
   nullable    = false
 }
+variable "github_org_name" {
+  description = "GitHub organisation name."
+  type = string
+  nullable = false
+}
+variable "github_repo_name" {
+  description = "GitHub repository name."
+  type = string
+  nullable = false
+}
 
 # iap
 variable "support_email" {
@@ -69,6 +79,13 @@ variable "app_engine_service_account_roles" {
   type = list(string)
   nullable = false
 }
+
+variable "wip_service_account_roles" {
+  description = "List of roles"
+  type = list(string)
+  nullable = false
+}
+
 variable "services" {
   type = list(string)
 }
