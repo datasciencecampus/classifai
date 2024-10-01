@@ -3,6 +3,40 @@
 import re
 
 
+def clean_business_description(text: str) -> str:
+    """Clean the descriptions of businesses for SIC classification.
+
+    Parameters
+    ----------
+    text : str
+        The text to be cleaned.
+
+    Returns
+    -------
+    text : str
+        The clean description of a business.
+    """
+    # Define regex patterns for the possessive form
+    possessive_pattern = r"\b(\w+)\s+s\b"  # children's, women's, etc.
+
+    # Apply possessive pattern
+    text = re.sub(possessive_pattern, r"\1's", text)
+
+    # Define regex pattern for multiple spaces
+    multiple_spaces_pattern = r"\s+"
+
+    # Replace multiple spaces with a single space
+    text = re.sub(multiple_spaces_pattern, " ", text)
+
+    # Define regex pattern for words separated by a comma but no space
+    no_space_after_comma = r",(?!\s)"
+
+    # Put a space between words separated by a comma
+    text = re.sub(no_space_after_comma, ", ", text)
+
+    return text
+
+
 def clean_text(text: str) -> str:
     """Clean text data for exact matching.
 

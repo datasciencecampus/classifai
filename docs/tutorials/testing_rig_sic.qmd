@@ -1,0 +1,75 @@
+---
+title: "Notebook for testing - still in draft stage"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+```{python}
+#| code-summary: Import modules
+from classifai.testing_rig_functions import *
+```
+
+```{python}
+#| code-summary: Read in the test data
+
+input_data_filepath = 'data/example_sic_20.csv'
+input_data = read_csv_to_dict_list(file_path=input_data_filepath)
+```
+
+```{python}
+#| code-summary: Set up the test parameters
+
+tests = [
+  {
+    "test_name": "sic_copilot_synthetic",
+    "classification_type": "sic",
+    "number_of_digit_classification": 4,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "number_of_retrievals": 20,
+    "embedding_index_file": "sic_4d_condensed.txt",
+    "embedding_columns_index": None,
+    "label_column_index": None,
+    "distance_metric": "l2",
+    "llm": "gemini-1.0-pro",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["industry_descr"],
+    "label_column_dataset": "sic_code"
+  },
+]
+```
+
+```{python}
+#| code-summary: Run each test
+
+for test in tests:
+
+  result_table = create_result_table(test_parameters=test, input_data_filepath=input_data_filepath)
+
+  # Create a folder to save the results
+  folder_name = create_output_folder(test_parameters=test)
+
+  # Embed the index
+  embed = create_embedding_index(test_parameters=test)
+
+  # Get the retrieval results
+  result, processed_result = search_embedding_index(test_parameters=test, input_data=input_data, embed=embed, folder_name=folder_name)
+
+  # Add the retrieval results to table
+  result_table = add_retrieval_results_to_table(test_parameters=test, result_table=result_table, processed_result=processed_result)
+
+  # Set up the LLM and candidates
+  rag_candidates, classifier = set_up_llm(test_parameters=test, embed=embed, result=result)
+
+  # Return the results of the LLM
+  llm_result_dict = get_llm_results(test_parameters=test, input_data=input_data, rag_candidates=rag_candidates, classifier=classifier, folder_name=folder_name)
+
+  # Add LLM results to table
+  result_table = add_llm_results_to_table(test_parameters=test, result_table=result_table, llm_result_dict=llm_result_dict, folder_name=folder_name)
+
+  # Create accuracy summary table
+  create_accuracy_summary_table(test_parameters=test, result_table=result_table, folder_name=folder_name)
+```

@@ -6,7 +6,6 @@ import os
 from datetime import datetime
 
 import pandas as pd
-from pydantic import ValidationError
 
 from classifai.api import API
 from classifai.embedding import EmbeddingHandler
@@ -118,18 +117,33 @@ def create_embedding_index(test_parameters: dict) -> EmbeddingHandler:
         create_vector_store=True,
     )
 
-    if test_parameters["embedding_index_file"][-3] == "txt":
-        embed.embed_master_index(
-            file_name=f"data/soc-index/{test_parameters['embedding_index_file']}"
-        )
-    else:
-        embed.embed_index_csv(
-            file=f"data/soc-index/{test_parameters['embedding_index_file']}",
-            label_column=test_parameters["label_column_index"],
-            embedding_columns=test_parameters["embedding_columns_index"],
-        )
+    try:
+        if test_parameters["classification_type"] == "soc":
+            file_name = (
+                f"data/soc-index/{test_parameters['embedding_index_file']}"
+            )
+        else:
+            file_name = (
+                f"data/sic-index/{test_parameters['embedding_index_file']}"
+            )
 
-    return embed
+        if file_name[-3:] == "csv":
+            embed.embed_index_csv(
+                file=file_name,
+                label_column=test_parameters["label_column_index"],
+                embedding_columns=test_parameters["embedding_columns_index"],
+            )
+
+        elif test_parameters["classification_type"] == "soc":
+            embed.embed_master_index(file_name=file_name)
+        else:
+            embed.embed_index(file_name=file_name)
+
+        return embed
+    except ValueError:
+        print(
+            "Maximum number of calls to API reached. Terminating embedding procedure."
+        )
 
 
 def search_embedding_index(
@@ -197,12 +211,14 @@ def add_retrieval_results_to_table(
 
         # top retrieval accuracy
         if (
-            str(processed_result[str(id)][0]["label"])[0:4]
+            str(processed_result[str(id)][0]["label"])[
+                0 : test_parameters["number_of_digit_classification"]
+            ]
             == str(
                 result_table.loc[
                     index, test_parameters["label_column_dataset"]
                 ]
-            )[0:4]
+            )[0 : test_parameters["number_of_digit_classification"]]
         ):
             result_table.loc[index, "top_retrieval_accuracy"] = 1
 
@@ -214,12 +230,14 @@ def add_retrieval_results_to_table(
         # top k retrieval accuracy
         for retrieval_result in processed_result[str(id)]:
             if (
-                str(retrieval_result["label"])[0:4]
+                str(retrieval_result["label"])[
+                    0 : test_parameters["number_of_digit_classification"]
+                ]
                 == str(
                     result_table.loc[
                         index, test_parameters["label_column_dataset"]
                     ]
-                )[0:4]
+                )[0 : test_parameters["number_of_digit_classification"]]
             ):
                 result_table.loc[
                     index,
@@ -257,6 +275,7 @@ def set_up_llm(
 
 
 def get_llm_results(
+    test_parameters: dict,
     input_data: list[dict],
     rag_candidates: list,
     classifier: ClassificationLLM,
@@ -266,6 +285,8 @@ def get_llm_results(
 
     Parameters
     ----------
+    test_parameters : dict
+        Dictionary of test parameters.
     input_data: list[dict]
         List of dictionaries of the test data.
     rag_candidates : list
@@ -284,15 +305,25 @@ def get_llm_results(
     for input_document, search_result in zip(input_data, rag_candidates):
         result_list = []
         try:
-            llm_result = classifier.get_soc_code(
-                input_document["job_title"],
-                None,
-                input_document["company"],
-                search_result,
-            )
-            for result in llm_result.soc_candidates:
-                result_list.append({result.soc_code: result.likelihood})
-        except ValidationError:
+            if test_parameters["classification_type"] == "soc":
+                llm_result = classifier.get_soc_code(
+                    input_document["job_title"],
+                    None,
+                    input_document["company"],
+                    search_result,
+                )
+            else:
+                llm_result = classifier.get_sic_code(
+                    input_document["industry_descr"],
+                    input_document["job_title"],
+                    input_document["job_description"],
+                    search_result,
+                )
+            for result in llm_result.candidates:
+                result_list.append({result.code: result.likelihood})
+
+        # Use bare except as the error type seems to change.
+        except:  # noqa
             result_list.append({"Error": 0.0})
 
         llm_result_dict[input_document["id"]] = result_list
@@ -335,12 +366,14 @@ def add_llm_results_to_table(
 
         # top LLM accuracy
         if (
-            str(list(llm_result_dict[str(id)][0].keys())[0])[0:4]
+            str(list(llm_result_dict[str(id)][0].keys())[0])[
+                0 : test_parameters["number_of_digit_classification"]
+            ]
             == str(
                 result_table.loc[
                     index, test_parameters["label_column_dataset"]
                 ]
-            )[0:4]
+            )[0 : test_parameters["number_of_digit_classification"]]
         ):
             result_table.loc[index, "top_llm_accuracy"] = 1
 

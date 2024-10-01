@@ -1,0 +1,73 @@
+---
+title: "Notebook for testing - still in draft stage"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+```{python}
+#| code-summary: Import modules
+import pandas as pd
+import time
+
+from classifai.testing_rig_functions import *
+from classifai.doc_utils import clean_business_description
+
+```
+
+```{python}
+#| code-summary: Read in the test data
+# Ensure that you have executed `python src/classifai/sic_index.py` previously
+
+# Pre-process the data
+unprocessed_data = pd.read_csv("data/example_bus_desc.csv")
+unprocessed_data["bus_desc"] = unprocessed_data["bus_desc"].apply(lambda x: clean_business_description(x))
+unprocessed_data.to_csv("data/example_bus_desc_processed.csv", index=False)
+
+# Read in input data
+input_data_filepath = 'data/example_bus_desc_processed.csv'
+input_data = read_csv_to_dict_list(file_path=input_data_filepath)
+```
+
+```{python}
+#| code-summary: Set up the test parameters
+
+tests = [
+  {
+    "test_name": "sic_survey_5_digit",
+    "classification_type": "sic",
+    "number_of_digit_classification": 5,
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "number_of_retrievals": 20,
+    "embedding_index_file": "sic_5_digit.csv",
+    "embedding_columns_index": ["description"],
+    "label_column_index": "sic_code",
+    "distance_metric": "l2",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["bus_desc"],
+    "label_column_dataset": "sic_code"
+  }
+]
+```
+
+```{python}
+#| code-summary: Run each test
+
+for test in tests:
+
+  result_table = create_result_table(test_parameters=test, input_data_filepath=input_data_filepath)
+
+  # Create a folder to save the results
+  folder_name = create_output_folder(test_parameters=test)
+
+  # Embed the index
+  embed = create_embedding_index(test_parameters=test)
+
+  if embed is None:
+    break
+
+  # Get the retrieval results
+  result, processed_result = search_embedding_index(test_parameters=test, input_data=input_data, embed=embed, folder_name=folder_name)

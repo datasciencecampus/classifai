@@ -34,6 +34,8 @@ input_data = read_csv_to_dict_list(file_path=input_data_filepath)
 tests = [
   {
     "test_name": "test_1",
+    "classification_type": "soc",
+    "number_of_digit_classification": 4,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "number_of_retrievals": 20,
     "embedding_index_file": "soc_6_digit.csv",
@@ -47,6 +49,8 @@ tests = [
   },
   {
     "test_name": "test_2",
+    "classification_type": "soc",
+    "number_of_digit_classification": 4,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "number_of_retrievals": 20,
     "embedding_index_file": "soc_6_digit.csv",
@@ -60,6 +64,8 @@ tests = [
   },
   {
     "test_name": "test_3",
+    "classification_type": "soc",
+    "number_of_digit_classification": 4,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "number_of_retrievals": 20,
     "embedding_index_file": "soc_6_digit.csv",
@@ -73,6 +79,8 @@ tests = [
   },
   {
     "test_name": "test_4",
+    "classification_type": "soc",
+    "number_of_digit_classification": 4,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "number_of_retrievals": 20,
     "embedding_index_file": "soc_6_digit.csv",
@@ -86,6 +94,8 @@ tests = [
   },
   {
     "test_name": "test_5",
+    "classification_type": "soc",
+    "number_of_digit_classification": 4,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "number_of_retrievals": 20,
     "embedding_index_file": "soc_4_digit.csv",
@@ -123,7 +133,7 @@ for test in tests:
   rag_candidates, classifier = set_up_llm(test_parameters=test, embed=embed, result=result)
 
   # Return the results of the LLM
-  llm_result_dict = get_llm_results(input_data=input_data, rag_candidates=rag_candidates, classifier=classifier, folder_name=folder_name)
+  llm_result_dict = get_llm_results(test_parameters=test, input_data=input_data, rag_candidates=rag_candidates, classifier=classifier, folder_name=folder_name)
 
   # Add LLM results to table
   result_table = add_llm_results_to_table(test_parameters=test, result_table=result_table, llm_result_dict=llm_result_dict, folder_name=folder_name)

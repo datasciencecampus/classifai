@@ -140,6 +140,7 @@ def test_add_retrieval_results_to_table():
             "id_column_dataset": "id",
             "label_column_dataset": "label_column_dataset",
             "number_of_retrievals": 2,
+            "number_of_digit_classification": 4,
         },
         result_table,
         processed_result,
@@ -189,6 +190,7 @@ def test_add_llm_results_to_table(mock_to_csv):
         {
             "id_column_dataset": "id",
             "label_column_dataset": "label_column_dataset",
+            "number_of_digit_classification": 4,
         },
         result_table,
         llm_result_dict,

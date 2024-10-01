@@ -5,41 +5,41 @@ from typing import List
 from pydantic import BaseModel, Field
 
 
-class SocCandidate(BaseModel):
+class SicSocCandidate(BaseModel):
     """
-    Represents a candidate SOC code based on provided job title and description.
+    Represents a candidate SIC/SOC code based on provided job title and description.
 
     Attributes
     ----------
-        soc_code (str): Plausible SOC code based on the provided job title and
+        code (str): Plausible SIC/SOC code based on the provided job title and
             description.
-        soc_descriptive (str): Descriptive label of the SOC category associated
-            with soc_code.
-        likelihood (float): Likelihood of this soc_code with a value between 0 and 100.
+        descriptive (str): Descriptive label of the SIC/SOC category associated
+            with code.
+        likelihood (float): Likelihood of this code with a value between 0 and 100.
     """
 
-    soc_code: str = Field(
-        description="Plausible SOC code based on provided job title and description."
+    code: str = Field(
+        description="Plausible SIC/SOC code based on provided job title and description."
     )
-    soc_descriptive: str = Field(
-        description="Descriptive label of the SOC category associated with soc_code."
+    descriptive: str = Field(
+        description="Descriptive label of the SIC/SOC category associated with code."
     )
     likelihood: float = Field(
-        description="Likelihood of this soc_code with value between 0 and 100."
+        description="Likelihood of this code with value between 0 and 100."
     )
 
 
-class SocResponse(BaseModel):
-    """Represents a response model for SOC code assignment.
+class SicSocResponse(BaseModel):
+    """Represents a response model for SIC/SOC code assignment.
 
     Attributes
     ----------
-        soc_candidates (List[SocCandidate]): List of possible or alternative SOC
+        candidates (List[SicSocCandidate]): List of possible or alternative SIC/SOC
             codes that may be applicable with their descriptive label and estimated
             likelihood.
     """
 
-    soc_candidates: List[SocCandidate] = Field(
-        description="""List of possible or alternative SOC codes that may be applicable
+    candidates: List[SicSocCandidate] = Field(
+        description="""List of possible or alternative SIC/SOC codes that may be applicable
         with their descriptive label and estimated likelihood."""
     )

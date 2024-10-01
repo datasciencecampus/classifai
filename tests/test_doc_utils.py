@@ -1,10 +1,49 @@
 """Tests for the doc_utils module."""
 
 from classifai.doc_utils import (
+    clean_business_description,
     clean_job_description,
     clean_job_title,
     clean_text,
 )
+
+"""Tests for clean_business_description."""
+
+
+def test_clean_business_description_possessive():
+    """Test clean_business_description function with possessive form."""
+    text = "children's clothing"
+    expected_result = "children's clothing"
+    assert clean_business_description(text) == expected_result
+
+
+def test_clean_business_description_multiple_spaces():
+    """Test clean_business_description function with multiple spaces."""
+    text = "   clean    business   description   "
+    expected_result = " clean business description "
+    assert clean_business_description(text) == expected_result
+
+
+def test_clean_business_description_no_space_comma():
+    """Test clean_business_description function to put spaces between words."""
+    text = "   clean    business,description   "
+    expected_result = " clean business, description "
+    assert clean_business_description(text) == expected_result
+
+
+def test_clean_business_description_empty_string():
+    """Test clean_business_description function with an empty string."""
+    text = ""
+    expected_result = ""
+    assert clean_business_description(text) == expected_result
+
+
+def test_clean_business_description_no_changes():
+    """Test clean_business_description function with no changes needed."""
+    text = "clean business description"
+    expected_result = "clean business description"
+    assert clean_business_description(text) == expected_result
+
 
 """Tests for clean_text."""
 
