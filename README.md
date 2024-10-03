@@ -106,6 +106,11 @@ The app is currently not deployed. To run the app locally, enter
 python -m flask --app flask_ui/app.py run
 ```
 
+### Utilities
+**setup_vector_store()**
+A utility is available to trigger a job to create a ChromaDB collection for either the **sic** or **soc** task. The collection is created in a tmp folder locally and automatically pushed to a GCS bucket.
+
+
 ### Generating synthetic survey data
 Please note that this process requires local installation of Ollama.
 To produce a JSON example of survey data, the following command can

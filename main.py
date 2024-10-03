@@ -75,11 +75,18 @@ async def _combine_all_input(data: DictReader) -> list[dict]:
     return lines
 
 
-@app.post("/soc", description="programmatic endpoint")
+@app.post("/sic", description="SIC programmatic endpoint")
+async def sic() -> str:
+    """Label input data using SOC programmatic endpoint."""
+    # awaiting code
+    return "This is the SIC endpoint"
+
+
+@app.post("/soc", description="SOC programmatic endpoint")
 async def soc(
     file: Annotated[UploadFile, File(description="User input: csv")],
 ) -> dict:
-    """Label input data using programmatic endpoint.
+    """Label input data using SOC programmatic endpoint.
 
     Parameters
     ----------

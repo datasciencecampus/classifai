@@ -1,8 +1,12 @@
 """ClassifAI utility classes and functions."""
 
 import os
+from pathlib import Path
+from shutil import rmtree
 
 import chromadb
+import chromadb.utils.embedding_functions as embedding_functions
+import pandas as pd
 from google.cloud import storage
 from google.cloud.secretmanager import SecretManagerServiceClient
 
@@ -198,3 +202,72 @@ def process_embedding_search_result(
     }
 
     return processed_result
+
+
+def setup_vector_store(classification: str):
+    """Create new vector store collection in cloud bucket.
+
+    Parameters
+    ----------
+    classification : string
+        Classification task: (required) Current options being 'sic' or 'soc'
+
+    Raises
+    ------
+    TypeError
+        Raised if unrecognised classification task is entered.
+    """
+
+    google_api_key = get_secret()
+
+    if classification == "sic":
+        input = pd.read_csv("gs://classifai-app-data/sic_5_digit.csv")
+        input = input[["sic_code", "description"]]
+
+    elif classification == "soc":
+        input = pd.read_csv(
+            "gs://classifai-app-data/soc_title_condensed.txt", sep=": "
+        )
+
+    else:
+        raise TypeError(
+            "You must declare a classification type: currently 'sic' or 'soc' are acceptable values."
+        )
+
+    input.columns = ["id", "description"]
+
+    task_type = "CLASSIFICATION"
+
+    documents = input["description"].to_list()
+    ids = input["id"].to_list()
+
+    db_loc = "/tmp/db"
+    db_loc_path = Path(db_loc)
+    for folder in db_loc_path.glob("*"):
+        if folder.is_dir():
+            rmtree(folder)
+            print("Deleted previous collection cache.")
+
+    chroma_client = chromadb.PersistentClient(path=db_loc)
+    collection_name = "classifai-collection"
+
+    try:
+        chroma_client.delete_collection(collection_name)
+        print("Previous ChromaDB collection deleted.")
+    except ValueError:
+        pass
+
+    model_name = "models/text-embedding-004"
+    embedding_function = (
+        embedding_functions.GoogleGenerativeAiEmbeddingFunction(
+            api_key=google_api_key, model_name=model_name, task_type=task_type
+        )
+    )
+    collection = chroma_client.create_collection(
+        name=collection_name, embedding_function=embedding_function
+    )
+
+    collection.add(ids=[str(id) for id in ids], documents=documents)
+
+    updater = DB_Updater(bucket_folder=f"{classification}_db/")
+    updater.update()
