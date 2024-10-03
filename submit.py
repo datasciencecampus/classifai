@@ -1,12 +1,20 @@
 """Programmatic access to the ClassifAI API."""
 
 import argparse
+import os
 
-import requests
+from dotenv import load_dotenv
 from fastapi import UploadFile
+from gcp_iap_auth.user import User, UserIAPClient
 
-# url = "http://127.0.0.1:8000/soc"
-url = "https://classifai-sandbox.nw.r.appspot.com/soc"
+load_dotenv()
+
+OAUTH_CLIENT_ID = os.getenv("OAUTH_CLIENT_ID")
+OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET")
+
+APP_URL = os.getenv("APP_URL")
+
+CREDENTIAL_PATH = os.getenv("CREDENTIAL_PATH")
 
 
 def run(file: UploadFile):
@@ -17,9 +25,21 @@ def run(file: UploadFile):
     file : UploadFile
         User-input csv data.
     """
+    user = User(
+        oauth_client_id=OAUTH_CLIENT_ID,
+        oauth_client_secret=OAUTH_CLIENT_SECRET,
+        credentials_path=CREDENTIAL_PATH,
+    )
+
+    iap_client = UserIAPClient(user=user)
 
     files = {"file": open(file, "rb")}
-    response = requests.post(url, files=files)
+
+    response = iap_client.request(
+        url=APP_URL,
+        method="POST",
+        files=files,
+    )
     with open("outputs/example.json", "w") as f:
         f.write(response.text)
 

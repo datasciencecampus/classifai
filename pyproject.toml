@@ -39,7 +39,8 @@ dependencies = [
     "uvicorn>=0.11.2",
     "websockets>=8.1",
     "wrapt>=1.11.2",
-    "Flask>=3.0.3"
+    "Flask>=3.0.3",
+    "gcp_iap_auth @ git+https://github.com/datasciencecampus/gcp-iap-auth.git",
 ]
 
 

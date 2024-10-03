@@ -26,6 +26,8 @@ jobs:
             os: windows-latest
           - python-version: "3.11"
             os: windows-latest
+          - python-version: "3.12"
+            os: windows-latest
 
     steps:
     - id: 'auth'
@@ -42,7 +44,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: "pip"
     - name: Update pip and install the package
+      env:
+        IAP_TOKEN: ${{ secrets.IAP_PACKAGE_PAT}}
       run: |
+        git config --global url."https://${IAP_TOKEN}@github".insteadOf https://github
         python -m pip install --upgrade pip
         python -m pip install ".[test]"
     - name: Run tests

@@ -1,0 +1,39 @@
+---
+title: "How to use the web app"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+> All commands are run from the project root directory unless otherwise mentioned
+
+## Set up authentication
+* In the Google cloud project, navigate to 'API' -> 'Credentials' 
+  (searching for 'credentials' will find it) and generate an 'OAuth 2 client ID' with type
+  'Desktop'
+* Copy the client ID and the client secret
+* 'Allow-list' the client ID with the app (check the details for this)
+* Create or add to a `.env` file in the root directory, with the following lines:
+    - OAUTH_CLIENT_ID=<client-id>
+    - OAUTH_CLIENT_SECRET=<client-secret>
+    - PORT=4444
+    - APP_URL=https://classifai-sandbox.nw.r.appspot.com/soc
+    - CREDENTIAL_PATH=./credentials.json
+
+## Run the app
+* Ensure that the local installation of the project is up to date `python -m pip install -e .`
+* If running the app more than once, navigate to 'Delete browsing data' on the browser menu
+  and delete cookies and data (no need to delete history)
+* From the terminal, run `python -m flask --app flask_ui/app.py run` and navigate to 
+  [127.0.0.1](http://127.0.0.1:5000)
+* Click 'Choose a file' and upload `classifai/flask_ui/jobs_data.csv`
+* You should be redirected to a login page the first time you do this
+* After logging in, you need to shut the login browser window and then press enter in the
+  terminal
+* After a few seconds the SOC results should update
+* If you've run this more than once and you want to test the login page again, just delete
+  or rename `credentials.json` in the root directory: `mv credentials.json _credentials.json`.
+  This will cause the Oauth system to reauthenticate.
