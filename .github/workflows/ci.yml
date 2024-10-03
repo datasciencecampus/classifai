@@ -60,7 +60,6 @@ jobs:
 
   deploy:
     name: Deploy to App Engine
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
