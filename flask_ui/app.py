@@ -7,21 +7,37 @@ python -m flask --app flask_ui/app.py run
 
 import io
 import json
+import logging
 import os
 
+import google.cloud.logging
 import pandas as pd
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, send_from_directory
-from gcp_iap_auth.user import User, UserIAPClient
 
-load_dotenv()
+# from gcp_iap_auth.user import User, UserIAPClient
 
-OAUTH_CLIENT_ID = os.getenv("OAUTH_CLIENT_ID")
-OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET")
+env_type = os.getenv("ENV_TYPE", default="dev")
 
-API_URL = os.getenv("APP_URL")
+if env_type == "dev":
+    logger = google.cloud.logging.Client()
+    logger.setup_logging()
+    OAUTH_CLIENT_ID = "NA"
+    OAUTH_CLIENT_SECRET = "NA"  # pragma: allowlist secret
+    API_URL = os.getenv("API_URL")
+    CREDENTIAL_PATH = "NA"
+    logging.info("Loaded global variables in dev")
+elif env_type == "local":
+    from gcp_iap_auth.user import User, UserIAPClient
 
-CREDENTIAL_PATH = os.getenv("CREDENTIAL_PATH")
+    logging.basicConfig(encoding="utf-8", level=logging.INFO)
+    load_dotenv()
+    OAUTH_CLIENT_ID = os.getenv("OAUTH_CLIENT_ID")
+    OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET")
+    API_URL = os.getenv("API_URL")
+    CREDENTIAL_PATH = os.getenv("CREDENTIAL_PATH")
+    logging.info("Loaded global variables in local")
+
 
 app = Flask(__name__)
 
@@ -34,6 +50,8 @@ def get_json_results_from_api(file: str) -> str:
     file : UploadFile
         User-input csv data.
     """
+    logging.info("Getting the results from the API")
+
     user = User(
         oauth_client_id=OAUTH_CLIENT_ID,
         oauth_client_secret=OAUTH_CLIENT_SECRET,
@@ -71,6 +89,7 @@ def index():
     -------
         html: Page
     """
+    logging.info("Serving the application")
     return render_template("index.html")
 
 
@@ -94,8 +113,10 @@ def predict_soc():
 
     Returns
     -------
-        json: mocked SOC results
+        json: SOC results
     """
+    logging.info("Getting SOC codes")
+
     jobs = request.json
     # print(jobs)
     jobs_df = pd.DataFrame(jobs)
@@ -106,7 +127,29 @@ def predict_soc():
     csv_buffer = io.StringIO()
     jobs_df.to_csv(csv_buffer, index=False)
     jobs_csv = csv_buffer.getvalue()
-    # print(jobs_csv)
 
-    response = get_json_results_from_api(jobs_csv)
+    if env_type == "local":
+        response = get_json_results_from_api(jobs_csv)
+    else:
+        mocked_results = {
+            "data": [
+                {
+                    "input_id": id,
+                    "response": [
+                        {
+                            "label": "1234",
+                            "description": "worker",
+                            "distance": 0.5,
+                        }
+                    ]
+                    * 4,
+                }
+                for id in jobs_df["id"]
+            ]
+        }
+        response = jsonify(mocked_results)
     return response
+
+
+# if __name__ == "__main__":
+#     app.run()
