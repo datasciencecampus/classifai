@@ -1,8 +1,8 @@
 """ClassifAI utility classes and functions."""
 
 import os
+import shutil
 from pathlib import Path
-from shutil import rmtree
 
 import chromadb
 import chromadb.utils.embedding_functions as embedding_functions
@@ -66,18 +66,17 @@ class DB_Updater:
         """
 
         all_filepaths_to_copy = []
-        ext_local_filepath = f"{self.local_filepath}/db"
-        for layer1_el in os.listdir(ext_local_filepath):
+        for layer1_el in os.listdir(self.local_filepath):
             if "." in layer1_el:
                 all_filepaths_to_copy.append(
-                    f"{ext_local_filepath}/{layer1_el}"
+                    f"{self.local_filepath}/{layer1_el}"
                 )
             else:
                 for layer2_el in os.listdir(
-                    f"{ext_local_filepath}/{layer1_el}"
+                    f"{self.local_filepath}/{layer1_el}"
                 ):
                     all_filepaths_to_copy.append(
-                        f"{ext_local_filepath}/{layer1_el}/{layer2_el}"
+                        f"{self.local_filepath}/{layer1_el}/{layer2_el}"
                     )
 
         print("Local DB files collected.")
@@ -99,7 +98,9 @@ class DB_Updater:
         bucket = self.storage_client.bucket("classifai-app-data")
 
         for entry in all_filepaths_to_copy:
-            blob = bucket.blob(entry.split(f"{self.local_filepath}/")[1])
+            blob = bucket.blob(
+                self.bucket_folder + entry.split(f"{self.local_filepath}/")[1]
+            )
             blob.upload_from_filename(entry)
 
         print("DB files successfully written to GCS bucket.")
@@ -157,13 +158,20 @@ def pull_vdb_to_local(
         Default: 'chroma.sqlite3'
     """
 
+    # refresh local folder destination
+    try:
+        shutil.rmtree(local_dir + prefix)
+        print("Deleted previous collection cache.")
+    except OSError:
+        pass
+
+    os.mkdir(local_dir + prefix)
+
     bucket = client.bucket(bucket_name=bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
     for blob in blobs:
         filename = blob.name.split("/")[-1]
         if filename == vdb_file:
-            if not os.path.exists(local_dir + prefix):
-                os.mkdir(local_dir + prefix)
             # Download to local
             blob.download_to_filename(local_dir + prefix + filename)
 
@@ -183,18 +191,17 @@ def process_embedding_search_result(
     processed_result : dict
         Dictionary format of Chroma DB vector search
     """
-
     processed_result = {
         "data": [
             {
                 "input_id": input_id,
                 "response": [
                     {
-                        "soc": soc,
+                        "label": classification,
                         "description": query_result["documents"][i][j],
                         "distance": query_result["distances"][i][j],
                     }
-                    for j, soc in enumerate(query_result["ids"][i])
+                    for j, classification in enumerate(query_result["ids"][i])
                 ],
             }
             for i, input_id in enumerate(query_result["input_ids"])
@@ -204,7 +211,7 @@ def process_embedding_search_result(
     return processed_result
 
 
-def setup_vector_store(classification: str):
+def setup_vector_store(classification: str, distance_metric: str = "l2"):
     """Create new vector store collection in cloud bucket.
 
     Parameters
@@ -241,19 +248,21 @@ def setup_vector_store(classification: str):
     documents = input["description"].to_list()
     ids = input["id"].to_list()
 
+    # clean out local tmp sub-folder
     db_loc = "/tmp/db"
     db_loc_path = Path(db_loc)
     for folder in db_loc_path.glob("*"):
         if folder.is_dir():
-            rmtree(folder)
+            shutil.rmtree(folder)
             print("Deleted previous collection cache.")
 
+    # create client
     chroma_client = chromadb.PersistentClient(path=db_loc)
     collection_name = "classifai-collection"
 
     try:
         chroma_client.delete_collection(collection_name)
-        print("Previous ChromaDB collection deleted.")
+        print("Existing ChromaDB collection deleted.")
     except ValueError:
         pass
 
@@ -263,11 +272,16 @@ def setup_vector_store(classification: str):
             api_key=google_api_key, model_name=model_name, task_type=task_type
         )
     )
-    collection = chroma_client.create_collection(
-        name=collection_name, embedding_function=embedding_function
-    )
 
+    print("Creating new collection locally")
+    collection = chroma_client.get_or_create_collection(
+        name=collection_name,
+        embedding_function=embedding_function,
+        metadata={"hnsw:space": distance_metric},
+    )
     collection.add(ids=[str(id) for id in ids], documents=documents)
 
-    updater = DB_Updater(bucket_folder=f"{classification}_db/")
+    updater = DB_Updater(
+        local_filepath=db_loc, bucket_folder=f"{classification}_db/"
+    )
     updater.update()

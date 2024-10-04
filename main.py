@@ -76,10 +76,44 @@ async def _combine_all_input(data: DictReader) -> list[dict]:
 
 
 @app.post("/sic", description="SIC programmatic endpoint")
-async def sic() -> str:
-    """Label input data using SOC programmatic endpoint."""
-    # awaiting code
-    return "This is the SIC endpoint"
+async def sic(
+    file: Annotated[UploadFile, File(description="User input: csv")],
+) -> dict:
+    """Label input data using SIC programmatic endpoint.
+
+    Parameters
+    ----------
+    file : UploadFile
+        User-provided csv file.
+
+    Returns
+    -------
+    processed_result : dict
+        Dictionary of top-k closest roles to input jobs.
+    """
+
+    input = await _process_input_csv(file)
+    input = await _combine_all_input(input)
+    input_desc = [f'{x["industry_descr"]}' for x in input]
+    input_ids = [int(x["id"]) for x in input]
+
+    pull_vdb_to_local(client=storage.Client(), prefix="sic_db/")
+    handler = EmbeddingHandler(
+        vdb_name="classifai-collection", db_dir="/tmp/sic_db"
+    )
+
+    query_result = handler.collection.query(
+        query_texts=input_desc,
+        n_results=handler.k_matches,
+    )
+
+    query_result["input_ids"] = input_ids
+
+    processed_result = process_embedding_search_result(
+        query_result=query_result
+    )
+
+    return processed_result
 
 
 @app.post("/soc", description="SOC programmatic endpoint")
@@ -102,27 +136,23 @@ async def soc(
     input = await _process_input_csv(file)
     input = await _combine_all_input(input)
     input_desc = [f'{x["job_title"]} - {x["company"]}' for x in input]
-    # int required for indexing later
     input_ids = [int(x["id"]) for x in input]
 
-    pull_vdb_to_local(client=storage.Client())
-
-    handler = EmbeddingHandler()
+    pull_vdb_to_local(client=storage.Client(), prefix="soc_db/")
+    handler = EmbeddingHandler(
+        vdb_name="classifai-collection", db_dir="/tmp/soc_db"
+    )
 
     query_result = handler.collection.query(
         query_texts=input_desc,
         n_results=handler.k_matches,
     )
 
-    remove_keys = ["metadatas", "embeddings", "uris", "data", "included"]
-
-    for key in remove_keys:
-        del query_result[key]
-
-    query_result["inputs"] = input_desc
     query_result["input_ids"] = input_ids
 
-    processed_result = process_embedding_search_result(query_result)
+    processed_result = process_embedding_search_result(
+        query_result=query_result
+    )
 
     return processed_result
 

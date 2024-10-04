@@ -26,7 +26,7 @@ class EmbeddingHandler:
         k_matches: int = 3,
         task_type: str = "CLASSIFICATION",
         distance_metric: str = "l2",
-        create_vector_store: bool = False,
+        vdb_name: str = "default_collection",
     ):
         """Initialise EmbeddingHandler.
 
@@ -43,8 +43,8 @@ class EmbeddingHandler:
             The task type if using Google embeddings, by default "CLASSIFICATION".
         distance_metric : str, optional
             The distance metric used for the embedding search, by default "l2". Must be one of: {"l2", "ip", "cosine"}.
-        create_vector_store : bool, optional
-            If True use the _create_vector_store method, by default False.
+        vdb_name : str, optional
+            Name given to ChromaDB collection.
         """
 
         dotenv.load_dotenv(dotenv.find_dotenv())
@@ -55,6 +55,7 @@ class EmbeddingHandler:
         self.k_matches = k_matches
         self.distance_metric = distance_metric
         self.api_key = get_secret()
+        self.vdb_name = vdb_name
 
         if self.embedding_model_name.startswith("models"):
             self.embedding_function = GoogleGenerativeAiEmbeddingFunction(
@@ -69,10 +70,7 @@ class EmbeddingHandler:
                 model_name=self.embedding_model_name,
             )
 
-        if create_vector_store is True:
-            self._create_vector_store()
-        else:
-            self._prime_vector_store()
+        self._create_vector_store()
 
     def _prime_vector_store(self):
         """Initialise Chroma VectorDB on known DB dir."""
@@ -88,7 +86,7 @@ class EmbeddingHandler:
         self.vector_store = chromadb.PersistentClient(path=self.db_dir)
 
         self.collection = self.vector_store.get_or_create_collection(
-            name="my_collection",
+            name=self.vdb_name,
             embedding_function=self.embedding_function,
             metadata={"hnsw:space": self.distance_metric},
         )
@@ -103,9 +101,9 @@ class EmbeddingHandler:
             file will be read and the entities will be embedded, by default None.
         """
 
-        self.vector_store.delete_collection(name="my_collection")
+        self.vector_store.delete_collection(name=self.vdb_name)
         self.collection = self.vector_store.create_collection(
-            name="my_collection",
+            name=self.vdb_name,
             embedding_function=self.embedding_function,
             metadata={"hnsw:space": self.distance_metric},
         )
@@ -134,9 +132,9 @@ class EmbeddingHandler:
             file will be read and the entities will be embedded, by default None.
         """
 
-        self.vector_store.delete_collection(name="my_collection")
+        self.vector_store.delete_collection(name=self.vdb_name)
         self.collection = self.vector_store.create_collection(
-            name="my_collection",
+            name=self.vdb_name,
             embedding_function=self.embedding_function,
             metadata={"hnsw:space": self.distance_metric},
         )
@@ -183,9 +181,9 @@ class EmbeddingHandler:
             List of columns in the CSV to concatenate and embed.
         """
 
-        self.vector_store.delete_collection(name="my_collection")
-        self.collection = self.vector_store.create_collection(
-            name="my_collection",
+        self.vector_store.delete_collection(name=self.vdb_name)
+        self.collection = self.vector_store.get_or_create_collection(
+            name=self.vdb_name,
             embedding_function=self.embedding_function,
             metadata={"hnsw:space": self.distance_metric},
         )

@@ -76,6 +76,8 @@ uvicorn main:app
 
 By default, the URL will redirect to the FastAPI Docs UI to try out different inputs.
 
+Note that the vector store for the selected endpoint (SIC or SOC currently) will be imported to a tmp folder (`tmp/soc_db` or `tmp/sic_db`) from the corresponding GCS bucket.
+
 For programmatic demo, a csv file must be passed explicitly as a command flag (`-f` or `--file`). The API server must have been launched, as above. This is only an illustration of functionality at this stage:
 
 ```bash
@@ -106,10 +108,13 @@ The app is currently not deployed. To run the app locally, enter
 python -m flask --app flask_ui/app.py run
 ```
 
-### Utilities
-**setup_vector_store()**
-A utility is available to trigger a job to create a ChromaDB collection for either the **sic** or **soc** task. The collection is created in a tmp folder locally and automatically pushed to a GCS bucket.
+### Refreshing vector store in GCS Bucket
+A utility is available to trigger a job to create a ChromaDB collection for either the **sic** or **soc** task. The collection is created in a tmp folder (`tmp/db/`) locally and automatically pushed to a GCS bucket.
 
+```python
+from src.classifai.utils import setup_vector_store
+setup_vector_store("sic") # or "soc"
+```
 
 ### Generating synthetic survey data
 Please note that this process requires local installation of Ollama.
