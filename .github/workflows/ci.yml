@@ -61,27 +61,3 @@ jobs:
         python -m pip install ".[dev]"
         python -m ruff check .
         python -m ruff format --check .
-
-
-  deploy:
-    name: Deploy to App Engine
-    runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
-    steps:
-      - uses: 'actions/checkout@v4'
-
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          project_id: 'classifai-sandbox'
-          workload_identity_provider: 'projects/14177695902/locations/global/workloadIdentityPools/classifai-wip/providers/classifai-provider'   # pragma: allowlist secret
-          service_account: 'wip-service-account@classifai-sandbox.iam.gserviceaccount.com'
-
-      - id: 'deploy'
-        uses: 'google-github-actions/deploy-appengine@v2'
-        with:
-          project_id: 'classifai-sandbox'

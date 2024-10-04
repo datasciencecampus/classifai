@@ -1,0 +1,11 @@
+steps:
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy", "app.yaml"]
+
+timeout: '600s'
+
+options:
+ logging: CLOUD_LOGGING_ONLY
+ env:
+  - PROJECT_ID=$PROJECT_ID
+  - _IMAGE=$_IMAGE
