@@ -1,0 +1,21 @@
+id,industry_descr,job_title,job_description,sic_code
+1,Vehicle Manufacturing,Automotive Engineer,Designs and develops motor vehicles,2910
+2,Newspaper Publishing,Newspaper Editor,Oversees the content and layout of newspapers,5813
+3,TV Broadcasting,TV Producer,Manages the production of television programs,6020
+4,Pharmaceutical Production,Pharmaceutical Scientist,Develops and tests new medications,2120
+5,Residential Construction,Construction Manager,Oversees residential building projects,4120
+6,Software Development,Software Developer,Creates and maintains software applications,5829
+7,Electronics Manufacturing,Electronics Engineer,Designs and tests electronic components,2611
+8,Clothing Wholesale,Wholesale Manager,Manages the distribution of clothing and footwear,4642
+9,Financial Services,Leasing Consultant,Advises clients on financial leasing options,6491
+10,Real Estate Services,Real Estate Agent,Assists clients in buying and selling properties,6831
+11,Legal Services,Lawyer,Provides legal advice and representation,6910
+12,Accounting Services,Accountant,Manages financial records and audits,6920
+13,Architectural Services,Architect,Designs buildings and oversees construction projects,7111
+14,Engineering Consultancy,Civil Engineer,Plans and designs infrastructure projects,7112
+15,Market Research,Market Research Analyst,Conducts research to understand market trends,7320
+16,Advertising Services,Advertising Executive,Develops and manages advertising campaigns,7311
+17,Healthcare Administration,Hospital Administrator,Oversees hospital operations and management,8610
+18,Primary Education,Primary School Teacher,Teaches young children in primary schools,8520
+19,Public Relations,PR Specialist,Manages public relations and communication strategies,7021
+20,Travel Services,Travel Agent,Plans and arranges travel itineraries for clients,7911

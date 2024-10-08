@@ -10,10 +10,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Statistical Occupation Classification (SOC) Coding Tool</h1>
-        <p>This tool allows you to sort and code survey responses by SOC code.</p>
+        <h1>Statistical Classification (SIC/SOC) Coding Tool</h1>
+        <p>This tool allows you to sort and code survey responses by SIC/SOC code.</p>
         <p>Select a response to the occupation survey on the left, and see more details from the survey on the right.</p>
-        <p>At bottom right, you can choose from SOC codes returned by the semantic embedding tool.</p>
+        <p>At bottom right, you can choose from codes returned by the semantic embedding tool.</p>
 
         <div class="file-upload">
             <input type="file" id="csv-file" accept=".csv">
@@ -25,8 +25,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Job title</th>
-                            <th>Job description</th>
+                            <th>industry_descr</th>
                         </tr>
                     </thead>
                     <tbody id="job-list-body">
@@ -41,12 +40,12 @@
                 <div class="action-buttons">
                     <button id="assign-code">Assign code</button>
                     <button id="uncodable">Un-codable</button>
-                    <button id="see-more-results">See more results</button>
+                    <button id="fetch-results">Search</button>
                 </div>
-                <div id="soc-results">
-                    <h3>Top SOC results:</h3>
-                    <table id="soc-results-table">
-                        <!-- SOC code results will be displayed here -->
+                <div id="code-results">
+                    <h3>Top results:</h3>
+                    <table id="code-results-table">
+                        <!-- code results will be displayed here -->
                     </table>
                 </div>
             </div>

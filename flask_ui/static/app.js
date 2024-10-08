@@ -6,18 +6,17 @@ document.addEventListener('DOMContentLoaded', function() {
         select: 'single',
         columns: [
             { data: 'id' },
-            { data: 'title' },
-            { data: 'description' }
+            { data: 'industry_descr' },
         ]
     });
     // const jobListBody = document.getElementById('job-list-body');
     const jobDetailsContent = document.getElementById('job-details-content');
 
     let jobs = [];
-    let socResultsData = {};
-    const socResultsDataTable = $('#soc-results-table').DataTable({
+    let codeResultsData = {};
+    const codeResultsDataTable = $('#code-results-table').DataTable({
         columns: [
-            { data: 'soc', title: 'SOC code' },
+            { data: 'label', title: 'SIC code' },
             { data: 'description', title: 'Description' },
             { data: 'distance', title: 'Distance' },
         ],
@@ -29,13 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadSavedData() {
         const savedData = localStorage.getItem('jobsData');
-        const savedSocResults = localStorage.getItem('socResultsData');
+        const savedcodeResults = localStorage.getItem('codeResultsData');
         if (savedData) {
             jobs = JSON.parse(savedData);
             updateJobTable(jobs);
         }
-        if (savedSocResults) {
-            socResultsData = JSON.parse(savedSocResults);
+        if (savedcodeResults) {
+            codeResultsData = JSON.parse(savedcodeResults);
         }
     }
 
@@ -56,11 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(results.data);
                 jobs = results.data.map((row, index) => ({
                     id: index + 1,
-                    title: row.title.trim(),
-                    description: row.description.trim(),
-                    wage: parseFloat(row.wage.trim()),
-                    supervision: row.supervision.trim(),
-                    employer: row.employer.trim(),
+                    industry_descr: row.industry_descr.trim(),
+                    job_title: row.job_title.trim(),//parseFloat(row.wage.trim()),
+                    job_description: row.job_description.trim(),
+                    sic_code: row.sic_code.trim(),
                 }));
                 console.log(jobs);
 
@@ -68,20 +66,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('jobsData', JSON.stringify(jobs));
                 updateJobTable(jobs);
 
-                // Send jobs data to backend for SOC code prediction
-                fetchSocResults(jobs);
+                // Send jobs data to backend for code prediction
+                // fetchcodeResults(jobs);
             }
         });
     }
 
+    // Get the button element
+    const SearchButton = document.getElementById('fetch-results');
 
-    function fetchSocResults(jobsData) {
+    // Add click event listener to the button
+    SearchButton.addEventListener('click', handleSearchClick);
+
+    function handleSearchClick(event) {
         // Show loading indicator
-        socResultsDataTable.clear().draw();
-        socResultsDataTable.row
-        .add({soc: 'Loading...', description: 'Please wait', distance: ''}).draw();
+        codeResultsDataTable.clear().draw();
+        codeResultsDataTable.row
+        .add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
+        function delayedJob() {
+            fetchcodeResults(jobs);
+        }
+        setTimeout(delayedJob,2000);
+    }
 
-        fetch('/predict_soc', {
+    function fetchcodeResults(jobsData) {
+        // Show loading indicator
+        codeResultsDataTable.clear().draw();
+        codeResultsDataTable.row
+        .add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
+
+        fetch('/predict_sic', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,9 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(response_json => {
             console.log(JSON.stringify(response_json.data));
-            socResultsData = response_json.data;
-            localStorage.setItem('socResultsData', JSON.stringify(response_json.data));
-            updateSocResultsTable(); // Redraw results table when fetch completes
+            codeResultsData = response_json.data;
+            localStorage.setItem('codeResultsData', JSON.stringify(response_json.data));
+            updateCodeResultsTable(); // Redraw results table when fetch completes
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -104,8 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         jobTable.clear();
         jobTable.rows.add(jobsData.map(job => ({
             id: job.id,
-            title: job.title,
-            description: job.description
+            industry_descr: job.industry_descr
         }))).draw();
 
         $('#job-table tbody').off('click', 'tr').on('click', 'tr', function() {
@@ -115,47 +128,42 @@ document.addEventListener('DOMContentLoaded', function() {
             showJobDetails(fullJobData);
         });
 
-        // Restore selected row
-        const selectedJobId = localStorage.getItem('selectedJobId');
-        if (selectedJobId) {
-            const row = jobTable.row((idx, data) => data.id === parseInt(selectedJobId));
-            if (row.length) {
-                row.select();
-                const fullJobData = jobs.find(job => job.id === parseInt(selectedJobId));
-                showJobDetails(fullJobData);
-            }
-        }
+        // // Restore selected row
+        // const selectedJobId = localStorage.getItem('selectedJobId');
+        // if (selectedJobId) {
+        //     const row = jobTable.row((idx, data) => data.id === parseInt(selectedJobId));
+        //     if (row.length) {
+        //         row.select();
+        //         const fullJobData = jobs.find(job => job.id === parseInt(selectedJobId));
+        //         showJobDetails(fullJobData);
+        //     }
+        // }
     }
 
     function showJobDetails(job) {
         jobDetailsContent.innerHTML = `
-            <h2>${job.title}</h2>
-            <p><strong>Description:</strong> ${job.description}</p>
-            <p><strong>Wage:</strong> ${job.wage.toLocaleString('en-UK', { style: 'currency', currency: 'GBP' })}</p>
-            <p><strong>Supervisory responsibilities:</strong> ${job.supervision}</p>
-            <p><strong>Employer:</strong> ${job.employer}</p>
-
+            <h2>${job.industry_descr}</h2>
         `;
-        showSocResults(job.id);
+        showCodeResults(job.id);
     }
 
-    function showSocResults(jobId) {
-        const results = socResultsData.find(item => item.input_id === jobId);
+    function showCodeResults(jobId) {
+        const results = codeResultsData.find(item => item.input_id === jobId);
         if (results && results.response) {
             results.response.forEach(row => {
                 row.distance = parseFloat(row.distance).toFixed(2);
             })
-            socResultsDataTable.clear().rows.add(results.response).draw();
+            codeResultsDataTable.clear().rows.add(results.response).draw();
         } else {
-            socResultsDataTable.clear().draw();
+            codeResultsDataTable.clear().draw();
         }
     }
 
-    // Update Soc Results table when the fetch completes
-    function updateSocResultsTable() {
+    // Update code Results table when the fetch completes
+    function updateCodeResultsTable() {
         const selectedJobId = localStorage.getItem('selectedJobId');
         if (selectedJobId) {
-            showSocResults(parseInt(selectedJobId));
+            showCodeResults(parseInt(selectedJobId));
         }
     }
 });

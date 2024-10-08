@@ -42,13 +42,15 @@ elif env_type == "local":
 app = Flask(__name__)
 
 
-def get_json_results_from_api(file: str) -> str:
+def api_call_with_auth(file: str, url: str) -> str:
     """Process data on live API and return response as string.
 
     Parameters
     ----------
     file : UploadFile
         User-input csv data.
+    url: str
+        The URL of the API endpoint
     """
     logging.info("Getting the results from the API")
 
@@ -62,8 +64,9 @@ def get_json_results_from_api(file: str) -> str:
 
     files = {"file": file}
 
+    print(files)
     response = iap_client.request(
-        url=API_URL,
+        url=url,
         method="POST",
         files=files,
     )
@@ -107,9 +110,31 @@ def serve_file(path):
     return send_from_directory(".", path)
 
 
+@app.route("/predict_sic", methods=["POST"])
+def predict_sic():
+    """Retrieve the JSON of SIC code results.
+
+    Returns
+    -------
+        json: SIC results
+    """
+    logging.info("Getting SIC codes")
+    input_json = request.json
+    input_df = pd.DataFrame(input_json)
+    csv_buffer = io.StringIO()
+    input_df.to_csv(csv_buffer, index=False)
+    # jobs_csv = csv_buffer.getvalue()
+
+    if env_type == "local":
+        return send_from_directory("static", "mock_sic_response.json")
+        # response = api_call_with_auth(jobs_csv,f"{API_URL}/sic")
+    else:
+        return send_from_directory("static", "mock_sic_response.json")
+
+
 @app.route("/predict_soc", methods=["POST"])
 def predict_soc():
-    """Retrieve the JSON of SOC code results (mocked).
+    """Retrieve the JSON of SOC code results.
 
     Returns
     -------
@@ -119,17 +144,17 @@ def predict_soc():
 
     jobs = request.json
     # print(jobs)
-    jobs_df = pd.DataFrame(jobs)
-    jobs_df = jobs_df.rename(
+    input_df = pd.DataFrame(jobs)
+    input_df = input_df.rename(
         columns=dict(title="job_title", employer="company")
     )
-    jobs_df = jobs_df.drop(columns=["wage", "description", "supervision"])
+    input_df = input_df.drop(columns=["wage", "description", "supervision"])
     csv_buffer = io.StringIO()
-    jobs_df.to_csv(csv_buffer, index=False)
+    input_df.to_csv(csv_buffer, index=False)
     jobs_csv = csv_buffer.getvalue()
 
     if env_type == "local":
-        response = get_json_results_from_api(jobs_csv)
+        response = api_call_with_auth(jobs_csv, f"{API_URL}/soc")
     else:
         mocked_results = {
             "data": [
@@ -144,7 +169,7 @@ def predict_soc():
                     ]
                     * 4,
                 }
-                for id in jobs_df["id"]
+                for id in input_df["id"]
             ]
         }
         response = jsonify(mocked_results)
