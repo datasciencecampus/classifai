@@ -30,6 +30,7 @@ tests = [
     "number_of_digit_classification": 4,
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "number_of_retrievals": 20,
+    "load_existing_index": False,
     "embedding_index_file": "sic_4d_condensed.txt",
     "embedding_columns_index": None,
     "label_column_index": None,

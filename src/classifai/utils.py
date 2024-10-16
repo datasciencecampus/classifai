@@ -197,11 +197,13 @@ def process_embedding_search_result(
                 "input_id": input_id,
                 "response": [
                     {
-                        "label": classification,
-                        "description": query_result["documents"][i][j],
+                        "label": query_result["metadatas"][i][j]["label"],
+                        "description": description,
                         "distance": query_result["distances"][i][j],
                     }
-                    for j, classification in enumerate(query_result["ids"][i])
+                    for j, description in enumerate(
+                        query_result["documents"][i]
+                    )
                 ],
             }
             for i, input_id in enumerate(query_result["input_ids"])
@@ -217,7 +219,8 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
     Parameters
     ----------
     classification : string
-        Classification task: (required) Current options being 'sic' or 'soc'
+        Classification task: (required) Current options being 'sic_5_digit',
+        'sic_5_digit_extended', or 'soc'
 
     Raises
     ------
@@ -227,9 +230,11 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
 
     google_api_key = get_secret()
 
-    if classification == "sic":
+    if classification == "sic_5_digit":
         input = pd.read_csv("gs://classifai-app-data/sic_5_digit.csv")
-        input = input[["sic_code", "description"]]
+
+    elif classification == "sic_5_digit_extended":
+        input = pd.read_csv("gs://classifai-app-data/sic_5_digit_extended.csv")
 
     elif classification == "soc":
         input = pd.read_csv(
@@ -238,15 +243,26 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
 
     else:
         raise TypeError(
-            "You must declare a classification type: currently 'sic' or 'soc' are acceptable values."
+            "You must declare a classification type: currently 'sic_5_digit', 'sic_5_digit_extended', or 'soc' are acceptable values."
         )
+    input.reset_index(inplace=True)
 
-    input.columns = ["id", "description"]
+    input.rename(
+        columns={
+            "index": "id",
+            "sic_code": "label",
+            "soc_code": "label",
+        },
+        inplace=True,
+    )
 
     task_type = "CLASSIFICATION"
 
     documents = input["description"].to_list()
-    ids = input["id"].to_list()
+    ids = input["id"].astype(str).to_list()
+    metadata = [
+        {"hnsw": distance_metric, "label": label} for label in input["label"]
+    ]
 
     # clean out local tmp sub-folder
     db_loc = "/tmp/db"
@@ -277,9 +293,9 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
     collection = chroma_client.get_or_create_collection(
         name=collection_name,
         embedding_function=embedding_function,
-        metadata={"hnsw:space": distance_metric},
     )
-    collection.add(ids=[str(id) for id in ids], documents=documents)
+
+    collection.add(ids=ids, documents=documents, metadatas=metadata)
 
     updater = DB_Updater(
         local_filepath=db_loc, bucket_folder=f"{classification}_db/"

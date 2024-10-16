@@ -114,36 +114,41 @@ def create_embedding_index(test_parameters: dict) -> EmbeddingHandler:
         embedding_model_name=test_parameters["embedding_model"],
         k_matches=test_parameters["number_of_retrievals"],
         distance_metric=test_parameters["distance_metric"],
-        create_vector_store=True,
+        db_dir="data",
     )
-
-    try:
-        if test_parameters["classification_type"] == "soc":
-            file_name = (
-                f"data/soc-index/{test_parameters['embedding_index_file']}"
-            )
-        else:
-            file_name = (
-                f"data/sic-index/{test_parameters['embedding_index_file']}"
-            )
-
-        if file_name[-3:] == "csv":
-            embed.embed_index_csv(
-                file=file_name,
-                label_column=test_parameters["label_column_index"],
-                embedding_columns=test_parameters["embedding_columns_index"],
-            )
-
-        elif test_parameters["classification_type"] == "soc":
-            embed.embed_master_index(file_name=file_name)
-        else:
-            embed.embed_index(file_name=file_name)
-
+    if test_parameters["load_existing_index"] is True:
         return embed
-    except ValueError:
-        print(
-            "Maximum number of calls to API reached. Terminating embedding procedure."
-        )
+
+    else:
+        try:
+            if test_parameters["classification_type"] == "soc":
+                file_name = (
+                    f"data/soc-index/{test_parameters['embedding_index_file']}"
+                )
+            else:
+                file_name = (
+                    f"data/sic-index/{test_parameters['embedding_index_file']}"
+                )
+
+            if file_name[-3:] == "csv":
+                embed.embed_index_csv(
+                    file=file_name,
+                    label_column=test_parameters["label_column_index"],
+                    embedding_columns=test_parameters[
+                        "embedding_columns_index"
+                    ],
+                )
+
+            elif test_parameters["classification_type"] == "soc":
+                embed.embed_master_index(file_name=file_name)
+            else:
+                embed.embed_index(file_name=file_name)
+
+            return embed
+        except ValueError:
+            print(
+                "Maximum number of calls to API reached. Terminating embedding procedure."
+            )
 
 
 def search_embedding_index(

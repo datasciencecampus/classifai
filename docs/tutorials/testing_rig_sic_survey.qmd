@@ -16,6 +16,22 @@ import time
 from classifai.testing_rig_functions import *
 from classifai.doc_utils import clean_business_description
 
+'''
+  {
+    "test_name": "sic_survey_5_digit_extended",
+    "classification_type": "sic",
+    "number_of_digit_classification": 5,
+    "embedding_model": "models/text-embedding-004",
+    "number_of_retrievals": 20,
+    "embedding_index_file": "sic_5_digit_extended.csv",
+    "embedding_columns_index": ["description"],
+    "label_column_index": "sic_code",
+    "distance_metric": "l2",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["bus_desc"],
+    "label_column_dataset": "sic_code"
+  }
+'''
 ```
 
 ```{python}
@@ -34,17 +50,32 @@ input_data = read_csv_to_dict_list(file_path=input_data_filepath)
 
 ```{python}
 #| code-summary: Set up the test parameters
+'''
+{
+    "test_name": "sic_survey_5_digit_extended",
+    "classification_type": "sic",
+    "number_of_digit_classification": 5,
+    "embedding_model": "models/text-embedding-004",
+    "number_of_retrievals": 20,
+    "load_existing_index": False,
+    "embedding_index_file": "sic_5_digit_extended.csv",
+    "embedding_columns_index": ["description"],
+    "label_column_index": "sic_code",
+    "distance_metric": "l2",
+    "id_column_dataset": "id",
+    "embedding_columns_dataset": ["bus_desc"],
+    "label_column_dataset": "sic_code"
+  }
+'''
 
 tests = [
   {
-    "test_name": "sic_survey_5_digit",
+    "test_name": "sic_survey_5_digit_extended",
     "classification_type": "sic",
     "number_of_digit_classification": 5,
-    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_model": "models/text-embedding-004",
     "number_of_retrievals": 20,
-    "embedding_index_file": "sic_5_digit.csv",
-    "embedding_columns_index": ["description"],
-    "label_column_index": "sic_code",
+    "load_existing_index": True,
     "distance_metric": "l2",
     "id_column_dataset": "id",
     "embedding_columns_dataset": ["bus_desc"],

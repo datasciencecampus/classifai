@@ -97,9 +97,11 @@ async def sic(
     input_desc = [f'{x["industry_descr"]}' for x in input]
     input_ids = [int(x["id"]) for x in input]
 
-    pull_vdb_to_local(client=storage.Client(), prefix="sic_db/")
+    pull_vdb_to_local(
+        client=storage.Client(), prefix="sic_5_digit_extended_db/"
+    )
     handler = EmbeddingHandler(
-        vdb_name="classifai-collection", db_dir="/tmp/sic_db"
+        vdb_name="classifai-collection", db_dir="/tmp/sic_5_digit_extended_db"
     )
 
     query_result = handler.collection.query(
