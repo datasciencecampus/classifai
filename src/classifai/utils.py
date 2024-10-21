@@ -197,7 +197,7 @@ def process_embedding_search_result(
                 "input_id": input_id,
                 "response": [
                     {
-                        "label": query_result["metadatas"][i][j]["label"],
+                        "label": query_result["ids"][i][j],
                         "description": description,
                         "distance": query_result["distances"][i][j],
                     }
