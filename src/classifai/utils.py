@@ -197,7 +197,7 @@ def process_embedding_search_result(
                 "input_id": input_id,
                 "response": [
                     {
-                        "label": query_result["ids"][i][j],
+                        "label": query_result["metadatas"][i][j]["label"],
                         "description": description,
                         "distance": query_result["distances"][i][j],
                     }
@@ -238,8 +238,11 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
 
     elif classification == "soc":
         input = pd.read_csv(
-            "gs://classifai-app-data/soc_title_condensed.txt", sep=": "
+            "gs://classifai-app-data/soc_title_condensed.txt",
+            sep=": ",
+            header=None,
         )
+        input.columns = ["soc_code", "description"]
 
     else:
         raise TypeError(
