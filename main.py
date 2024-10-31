@@ -78,6 +78,7 @@ async def _combine_all_input(data: DictReader) -> list[dict]:
 @app.post("/sic", description="SIC programmatic endpoint")
 async def sic(
     file: Annotated[UploadFile, File(description="User input: csv")],
+    n_results: int = 20,
 ) -> dict:
     """Label input data using SIC programmatic endpoint.
 
@@ -85,11 +86,13 @@ async def sic(
     ----------
     file : UploadFile
         User-provided csv file.
+    n_results: int
+        The number of results to return per query
 
     Returns
     -------
     processed_result : dict
-        Dictionary of top-k closest roles to input jobs.
+        Dictionary of top n closest roles to input jobs.
     """
 
     input = await _process_input_csv(file)
@@ -101,7 +104,9 @@ async def sic(
         client=storage.Client(), prefix="sic_5_digit_extended_db/"
     )
     handler = EmbeddingHandler(
-        vdb_name="classifai-collection", db_dir="/tmp/sic_5_digit_extended_db"
+        vdb_name="classifai-collection",
+        db_dir="/tmp/sic_5_digit_extended_db",
+        k_matches=n_results,
     )
 
     query_result = handler.collection.query(
