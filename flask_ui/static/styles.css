@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    line-height: 1.6;
+    line-height: 1.0;
     margin: 0;
     padding: 20px;
     background-color: #f4f4f4;
@@ -58,7 +58,7 @@ button {
     cursor: pointer;
 }
 
-#assign-code {
+#assign-result {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -111,5 +111,5 @@ button {
 }
 
 table.dataTable tbody tr.selected {
-    background-color: #b0bed9 !important;
+    background-color: #89a3d7 !important;
 }
