@@ -5,7 +5,6 @@ from csv import DictReader
 from io import StringIO
 from typing import Annotated
 
-# from cachetools import TTLCache, cached
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import RedirectResponse
 from google.cloud import storage
@@ -15,10 +14,6 @@ from src.classifai.utils import (
     process_embedding_search_result,
     pull_vdb_to_local,
 )
-
-# cache = TTLCache(
-#     maxsize=100, ttl=60
-# )  # Cache with a maximum size of 100 items and a TTL of 60 seconds
 
 app = FastAPI(
     title="ONS ClassifAI API",
@@ -32,8 +27,7 @@ app = FastAPI(
 )
 
 
-# @cached(cache)
-async def _process_input_csv(file: UploadFile) -> DictReader:
+def _process_input_csv(file: UploadFile) -> DictReader:
     """Read csv as strings.
 
     Parameters
@@ -54,7 +48,7 @@ async def _process_input_csv(file: UploadFile) -> DictReader:
     return csvReader
 
 
-async def _combine_all_input(data: DictReader) -> list[dict]:
+def _combine_all_input(data: DictReader) -> list[dict]:
     """Collect every line of dictionary.
 
     Paramaters
@@ -76,7 +70,7 @@ async def _combine_all_input(data: DictReader) -> list[dict]:
 
 
 @app.post("/sic", description="SIC programmatic endpoint")
-async def sic(
+def sic(
     file: Annotated[UploadFile, File(description="User input: csv")],
     n_results: int = 20,
 ) -> dict:
@@ -95,10 +89,10 @@ async def sic(
         Dictionary of top n closest roles to input jobs.
     """
 
-    input = await _process_input_csv(file)
-    input = await _combine_all_input(input)
+    input = _process_input_csv(file)
+    input = _combine_all_input(input)
     input_desc = [f'{x["industry_descr"]}' for x in input]
-    input_ids = [int(x["id"]) for x in input]
+    input_ids = [x["id"] for x in input]
 
     pull_vdb_to_local(
         client=storage.Client(), prefix="sic_5_digit_extended_db/"
@@ -124,7 +118,7 @@ async def sic(
 
 
 @app.post("/soc", description="SOC programmatic endpoint")
-async def soc(
+def soc(
     file: Annotated[UploadFile, File(description="User input: csv")],
 ) -> dict:
     """Label input data using SOC programmatic endpoint.
@@ -140,10 +134,10 @@ async def soc(
         Dictionary of top-k closest roles to input jobs.
     """
 
-    input = await _process_input_csv(file)
-    input = await _combine_all_input(input)
+    input = _process_input_csv(file)
+    input = _combine_all_input(input)
     input_desc = [f'{x["job_title"]} - {x["company"]}' for x in input]
-    input_ids = [int(x["id"]) for x in input]
+    input_ids = [x["id"] for x in input]
 
     pull_vdb_to_local(client=storage.Client(), prefix="soc_db/")
     handler = EmbeddingHandler(
@@ -165,7 +159,7 @@ async def soc(
 
 
 @app.get("/", description="UI accessibility")
-async def docs():
+def docs():
     """Access default page: docs UI."""
 
     start_page = RedirectResponse(url="/docs")

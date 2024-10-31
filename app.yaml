@@ -3,15 +3,13 @@ instance_class: F4_1G
 env: standard
 service: default
 
-# 4 concurrent worker processes max, global IP with fixed port
-entrypoint: gunicorn --worker-class uvicorn.workers.UvicornWorker --workers 4 --bind=0.0.0.0:8080 main:app
+entrypoint: gunicorn -b 0.0.0.0:8080 -w 8 -k uvicorn.workers.UvicornWorker main:app
 
 automatic_scaling:
   min_instances: 0
-  max_instances: 2
+  max_instances: 5
 
-# handlers:
-# - url: /soc
-#   static_dir: data
-#   secure: always
-#   script: auto
+# team to decide between frontend (auto scale) and backend (manual/basic scale) container instances
+# basic_scaling:
+#   max_instances: 5
+#   idle_timeout: 120s
