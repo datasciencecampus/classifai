@@ -200,6 +200,7 @@ def process_embedding_search_result(
                         "label": query_result["metadatas"][i][j]["label"],
                         "description": description,
                         "distance": query_result["distances"][i][j],
+                        "rank": j + 1,
                     }
                     for j, description in enumerate(
                         query_result["documents"][i]
