@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             label: "*",
             description: "uncodable",
             distance: 9.99,
+            rank: 9999,
         }
         if (selectedJobId) {
             store.dispatch(assignResult(selectedJobId, uncodableResult));

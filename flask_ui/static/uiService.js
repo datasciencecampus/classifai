@@ -35,7 +35,7 @@ export function initTables() {
                 { data: 'distance', title: 'Distance' },
             ],
             order: [[2, 'asc']],
-            pageLength: 10,
+            pageLength: 15,
             lengthChange: false,
             searching: false,
             columnDefs: [{targets: [0,2], width: '20%'}]
