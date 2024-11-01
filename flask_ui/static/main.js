@@ -4,8 +4,8 @@
  */
 // main.js
 import { reducer, createStore } from './state.js';
-import { ACTION_TYPES, loadJobs, updateResults, selectJob, selectResult, assignResult } from './actions.js';
-import { loadSavedData, handleFileSelect, fetchResults } from './dataService.js';
+import { ACTION_TYPES, loadJobs, updateResults, clearAll, selectJob, selectResult, assignResult } from './actions.js';
+import { loadSavedData, handleFileSelect, fetchResults, downloadCSV } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
 
 // Create the store
@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
         populateJobTable(state.jobs, jobTable);
         jobTable.row(state.selectedJobId).select();
     });
+    const unsubscribeClearAll = store.subscribe(ACTION_TYPES.CLEAR_ALL, (state,action) =>{
+        console.log('Clearing all and reloading the page.');
+        window.location.reload();
+    });
 
     // Update state (and listeners) with reloaded data after refresh
     store.dispatch(loadJobs(jobs));
@@ -60,6 +64,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const jobTableBody = document.getElementById('job-table').querySelector('tbody');
     const resultsTableBody = document.getElementById('results-table').querySelector('tbody');
     const assignResultButton = document.getElementById('assign-result');
+    const assignUncodableButton = document.getElementById('assign-uncodable');
+    const clearButton = document.getElementById('clear-all');
+    const downloadButton = document.getElementById('downloadButton');
+
+    // Download event (doesn't affect state)
+    downloadButton.addEventListener('click', () => {
+        downloadCSV(store.getState().jobs,"results.csv");
+    });
 
     // File chooser event
     fileInput.addEventListener('change', async (event) => {
@@ -71,10 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
     searchButton.addEventListener('click', async () => {
         resultsDataTable.clear().draw();
         resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
-        setTimeout(async () => {
-            const newResultsData = await fetchResults(store.getState().jobs);
-            store.dispatch(updateResults(newResultsData));
-        }, 1000);
+        const newResultsData = await fetchResults(store.getState().jobs);
+        store.dispatch(updateResults(newResultsData));
     });
 
     // Select job table row event
@@ -105,4 +115,23 @@ document.addEventListener('DOMContentLoaded', function() {
             store.dispatch(assignResult(state.selectedJobId, state.selectedResult));
         }
     });
+
+    // Assign uncodable event
+    assignUncodableButton.addEventListener('click', () => {
+        const selectedJobId = store.getState().selectedJobId;
+        const uncodableResult = {
+            label: "*",
+            description: "uncodable",
+            distance: 9.99,
+        }
+        if (selectedJobId) {
+            store.dispatch(assignResult(selectedJobId, uncodableResult));
+        }
+    });
+
+    clearButton.addEventListener('click', () =>{
+        if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+            store.dispatch(clearAll());
+        }
+    })
 });

@@ -95,3 +95,39 @@ export function getResultsForJob(jobId,resultsData) {
 
     return null;
 }
+
+/**
+ * Download the data as a CSV
+ * @param {Array} data
+ * @param {string} filename
+ */
+export function downloadCSV(data, filename = 'download.csv') {
+    // Convert JSON to CSV using Papa Parse
+    const csv = Papa.unparse(data,{
+        header: true,
+        delimiter: ",",
+    });
+
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+    // Create download link
+    const link = document.createElement('a');
+
+    // Create the URL for our blob
+    const url = URL.createObjectURL(blob);
+
+    // Set link properties
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+
+    // Append link to body (required for Firefox)
+    document.body.appendChild(link);
+
+    // Trigger download
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}

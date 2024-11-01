@@ -7,6 +7,7 @@ export const ACTION_TYPES = {
     UPDATE_RESULTS: 'UPDATE_RESULTS',
     SELECT_RESULT: 'SELECT_RESULT',
     ASSIGN_RESULT: 'ASSIGN_RESULT',
+    CLEAR_ALL: 'CLEAR_ALL',
 };
 
 // Action Creators
@@ -22,6 +23,17 @@ export const loadJobs = (jobs) => {
     return {
         type: ACTION_TYPES.LOAD_JOBS,
         payload: jobs,
+    };
+};
+
+/**
+ * Creates an action to clear all
+ * @returns {Object} Action object
+ */
+export const clearAll = () => {
+    localStorage.clear();
+    return {
+        type: ACTION_TYPES.CLEAR_ALL
     };
 };
 

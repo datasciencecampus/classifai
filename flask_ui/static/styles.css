@@ -18,10 +18,24 @@ h1 {
     color: #333;
 }
 
+.table-title{
+    padding: 5px;
+}
+
 .main-content {
     display: flex;
     margin-top: 10px;
 }
+
+.file-upload {
+    background-color: white;
+    flex: 1;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 10px;
+    align-items: 'stretch';
+}
+
 
 .job-list {
     flex: 1;
@@ -34,7 +48,7 @@ h1 {
 
 .job-details p {
     font-size: 10px;
-    line-height: 1.2;
+    line-height: 1.0;
 }
 
 table {
@@ -69,7 +83,19 @@ button {
     border: none;
 }
 
-#uncodable {
+#assign-uncodable {
+    background-color: #f4a536;
+    color: white;
+    border: none;
+}
+
+#downloadButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+#clear-all {
     background-color: #f44336;
     color: white;
     border: none;
@@ -91,19 +117,15 @@ button {
     background-color: #ffffff;
 }
 
-#results-table td, #soc-results-table th {
+#results-table td, #results-table th {
     padding: 8px;
     border: 1px solid #ddd;
 }
 
-#results-table tr:nth-child(even) {
+/* #results-table tr:nth-child(even) {
     background-color: #f2f2f2;
-}
+} */
 
-
-.file-upload {
-    margin-bottom: 20px;
-}
 
 #job-table {
     width: 100%;

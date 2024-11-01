@@ -18,6 +18,8 @@ export function reducer(state, action) {
         return { ...state, resultsData: action.payload };
       case ACTION_TYPES.SELECT_RESULT:
         return { ...state, selectedResult: action.payload };
+      case ACTION_TYPES.CLEAR_ALL:
+        return initialState;
       case ACTION_TYPES.ASSIGN_RESULT:
         return {
             ...state,

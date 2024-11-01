@@ -18,7 +18,10 @@ export function initTables() {
                 { data: 'id', title: 'ID' },
                 { data: 'industry_description', title: 'Industry Description' },
                 { data: 'sic_code', title: 'SIC Code' }
-            ]
+            ],
+            order: [[0,'asc']],
+            pageLength: 25,
+            lengthChange: false,
         }
     );
 
@@ -34,7 +37,8 @@ export function initTables() {
             order: [[2, 'asc']],
             pageLength: 10,
             lengthChange: false,
-            searching: false
+            searching: false,
+            columnDefs: [{targets: [0,2], width: '20%'}]
         }
     );
 
@@ -61,7 +65,7 @@ export function populateJobTable(jobsData, jobTable) {
  */
 export function showJobDetails(job) {
     const jobDetailsContent = document.getElementById('job-details');
-    jobDetailsContent.innerHTML = `<h2>${job.industry_description}</h2>
+    jobDetailsContent.innerHTML = `<h2>${job.industry_description || 'Select a row...'}</h2>
     <p>Assigned code: ${job.sic_code || 'None'}</p>
     <p>Assigned description: ${job.sic_code_description || 'None'}</p>`;
 }
