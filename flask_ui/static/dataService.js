@@ -33,7 +33,7 @@ export async function handleFileSelect(event) {
             complete: (results) => {
                 const jobs = results.data.map((row, index) => {
                     const job = {
-                        id: parseInt(row[0].trim()),
+                        id: row[0].trim(),
                         industry_description: row[1].trim(),
                         industry_description_orig: row[1].trim(),
                         sic_code: '',

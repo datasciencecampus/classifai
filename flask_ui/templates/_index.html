@@ -1,0 +1,46 @@
+
+{% extends "base.html" %}
+
+{% block title %}Statistical Classification (SIC/SOC) Coding Tool{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/2.0.4/css/select.dataTables.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+{% endblock %}
+
+{% block body %}
+<!--div class="container"-->
+    <p>This tool allows you to sort and code survey responses by SIC/SOC code. Select a response to the occupation survey on the left, and see more details from the survey on the right. At bottom right, you can choose from codes returned by the semantic embedding tool.</p>
+
+    <div class="main-content">
+        <div class="job-list">
+            <div class="file-upload">
+                <input type="file" id="csv-file" accept=".csv">
+            </div>
+            <table id="job-table">
+                <!--Job entries will be inserted here-->
+            </table>
+        </div>
+        <div id="results">
+            <div id="job-details">
+                <!-- Selected job details will be displayed here -->
+            </div>
+            <div class="action-buttons">
+                <button id="assign-result">Assign code</button>
+                <button id="uncodable">Un-codable</button>
+                <button id="fetch-results">Search</button>
+            </div>
+            <h3>Results:</h3>
+            <table id="results-table">
+                <!-- code results will be displayed here -->
+            </table>
+        </div>
+    </div>
+<!--/div-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.3/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/select/2.0.4/js/dataTables.select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script type='module' src="{{ url_for('static', filename='main.js') }}"></script>
+{% endblock %}

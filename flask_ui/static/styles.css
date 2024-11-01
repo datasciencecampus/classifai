@@ -20,7 +20,7 @@ h1 {
 
 .main-content {
     display: flex;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .job-list {
@@ -30,6 +30,11 @@ h1 {
 
 .job-details {
     flex: 1;
+}
+
+.job-details p {
+    font-size: 10px;
+    line-height: 1.2;
 }
 
 table {
@@ -76,20 +81,22 @@ button {
     border: none;
 }
 
-#soc-results {
-    margin-top: 20px;
+#results {
+    /* margin-top: 20px; */
+    flex: 1;
 }
 
-#soc-results-table {
+#results-table {
     width: 100%;
+    background-color: #ffffff;
 }
 
-#soc-results-table td, #soc-results-table th {
+#results-table td, #soc-results-table th {
     padding: 8px;
     border: 1px solid #ddd;
 }
 
-#soc-results-table tr:nth-child(even) {
+#results-table tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
@@ -100,6 +107,7 @@ button {
 
 #job-table {
     width: 100%;
+    background-color: white
 }
 
 #job-table tbody tr {

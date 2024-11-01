@@ -32,7 +32,7 @@ export function initTables() {
                 { data: 'distance', title: 'Distance' },
             ],
             order: [[2, 'asc']],
-            pageLength: 5,
+            pageLength: 10,
             lengthChange: false,
             searching: false
         }
@@ -60,8 +60,10 @@ export function populateJobTable(jobsData, jobTable) {
  * @param {Object} job - The job object to display.
  */
 export function showJobDetails(job) {
-    const jobDetailsContent = document.getElementById('job-details-content');
-    jobDetailsContent.innerHTML = `<h2>${job.industry_descr}</h2>`;
+    const jobDetailsContent = document.getElementById('job-details');
+    jobDetailsContent.innerHTML = `<h2>${job.industry_description}</h2>
+    <p>Assigned code: ${job.sic_code || 'None'}</p>
+    <p>Assigned description: ${job.sic_code_description || 'None'}</p>`;
 }
 
 /**

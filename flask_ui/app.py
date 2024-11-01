@@ -169,7 +169,7 @@ def index():
         html: Page
     """
     logging.info("Serving the application")
-    return render_template("index.html")
+    return render_template("_index.html")
 
 
 @app.route("/<path:path>")
