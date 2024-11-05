@@ -21,8 +21,6 @@ export function loadSavedData() {
  * @returns {Promise<Array>} A promise that resolves to an array of parsed job objects.
  */
 export async function handleFileSelect(event) {
-    localStorage.removeItem('jobsData');
-    localStorage.removeItem('selectedJobId');
     const file = event.target.files[0];
 
     return new Promise((resolve, reject) => {
@@ -46,7 +44,6 @@ export async function handleFileSelect(event) {
                     }
                     return job;
                 });
-                localStorage.setItem('jobsData', JSON.stringify(jobs));
                 resolve(jobs);
             }
         });

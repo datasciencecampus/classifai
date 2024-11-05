@@ -77,6 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
     fileInput.addEventListener('change', async (event) => {
         const newJobs = await handleFileSelect(event);
         store.dispatch(loadJobs(newJobs));
+        fileInput.value = '';
+    });
+    // Backup in case file chooser 'change' event doesn't fire
+    fileInput.addEventListener('click', () => {
+        fileInput.value = '';
     });
 
     // Click search button event

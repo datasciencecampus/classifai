@@ -18,7 +18,7 @@ export const ACTION_TYPES = {
  * @returns {Object} Action object
  */
 export const loadJobs = (jobs) => {
-
+    localStorage.removeItem('selectedJobId');
     localStorage.setItem('jobsData', JSON.stringify(jobs));
     return {
         type: ACTION_TYPES.LOAD_JOBS,
