@@ -197,12 +197,6 @@ def predict_sic():
     logging.info("Getting SIC codes")
     input_json = request.json
     input_df = pd.DataFrame(input_json)
-    input_df = input_df.rename(
-        columns=dict(industry_description="industry_descr")
-    )
-    input_df["id"] = (
-        pd.to_numeric(input_df["id"], errors="coerce").fillna(0).astype(int)
-    )
     csv_buffer = io.StringIO()
     input_df.to_csv(csv_buffer, index=False)
 

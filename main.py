@@ -48,27 +48,6 @@ def _process_input_csv(file: UploadFile) -> DictReader:
     return csvReader
 
 
-def _combine_all_input(data: DictReader) -> list[dict]:
-    """Collect every line of dictionary.
-
-    Paramaters
-    ----------
-    data : DictReader[str]
-        Dictionary representation of each csv line.
-
-    Returns
-    -------
-    lines : list of dictionaries.
-    """
-
-    lines = []
-    for line in data:
-        line = {k: v for k, v in line.items()}
-        lines.append(line)
-
-    return lines
-
-
 @app.post("/sic", description="SIC programmatic endpoint")
 def sic(
     file: Annotated[UploadFile, File(description="User input: csv")],
@@ -89,9 +68,8 @@ def sic(
         Dictionary of top n closest roles to input jobs.
     """
 
-    input = _process_input_csv(file)
-    input = _combine_all_input(input)
-    input_desc = [f'{x["industry_descr"]}' for x in input]
+    input = list(_process_input_csv(file))
+    input_desc = [f'{x["industry_description"]}' for x in input]
     input_ids = [x["id"] for x in input]
 
     pull_vdb_to_local(
@@ -134,8 +112,7 @@ def soc(
         Dictionary of top-k closest roles to input jobs.
     """
 
-    input = _process_input_csv(file)
-    input = _combine_all_input(input)
+    input = list(_process_input_csv(file))
     input_desc = [f'{x["job_title"]} - {x["company"]}' for x in input]
     input_ids = [x["id"] for x in input]
 
