@@ -14,7 +14,14 @@ import google.cloud.logging
 import pandas as pd
 import requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import (
+    Flask,
+    jsonify,
+    make_response,
+    render_template,
+    request,
+    send_from_directory,
+)
 from google.cloud import secretmanager
 
 env_type = os.getenv("ENV_TYPE", default="local-noauth")
@@ -169,7 +176,11 @@ def index():
         html: Page
     """
     logging.info("Serving the application")
-    return render_template("_index.html")
+    response = make_response(render_template("_index.html"))
+    response.headers.set(
+        "Cache-control", "must-revalidate, max-age=86400"
+    )  # 24 hours
+    return response
 
 
 @app.route("/<path:path>")
