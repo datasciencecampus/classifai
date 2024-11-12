@@ -13,7 +13,6 @@ import os
 import google.cloud.logging
 import pandas as pd
 import requests
-from dotenv import load_dotenv
 from flask import (
     Flask,
     jsonify,
@@ -22,9 +21,14 @@ from flask import (
     request,
     send_from_directory,
 )
+from google.auth.transport.requests import Request
 from google.cloud import secretmanager
+from google.oauth2 import id_token
 
-env_type = os.getenv("ENV_TYPE", default="local-noauth")
+env_type = os.getenv("ENV_TYPE", default="dev")
+API_URL = os.getenv(
+    "API_URL", default="https://classifai-sandbox.nw.r.appspot.com"
+)
 
 print(f"Environment type: {env_type}")
 
@@ -50,49 +54,16 @@ def access_secret_version(resource_id):
     return response.payload.data.decode("UTF-8")
 
 
-if env_type == "dev":
-    logger = google.cloud.logging.Client()
-    logger.setup_logging()
+def _obtain_oidc_token(oauth_client_id):
+    """Obtain OIDC authentication token."""
 
-    OAUTH_CLIENT_ID = "NA"
-    OAUTH_CLIENT_SECRET = "NA"  # pragma: allowlist secret
-    API_URL = "https://classifai-sandbox.nw.r.appspot.com"
-    CREDENTIAL_PATH = "./credentials.json"
-    logging.info("Loaded global variables in dev")
-if env_type == "dev-noauth":
-    logger = google.cloud.logging.Client()
-    logger.setup_logging()
+    open_id_connect_token = id_token.fetch_id_token(Request(), oauth_client_id)
+    headers = {"Authorization": "Bearer {}".format(open_id_connect_token)}
 
-    API_URL = "https://classifai-sandbox.nw.r.appspot.com"
-    CREDENTIAL_PATH = "./credentials.json"
-    logging.info("Loaded global variables in dev-noauth")
-elif env_type == "local":
-    from gcp_iap_auth.user import User, UserIAPClient
-
-    logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    load_dotenv()
-    OAUTH_CLIENT_ID = access_secret_version(
-        "projects/14177695902/secrets/FLASK_CLIENT_ID/versions/1"  # pragma: allowlist secret
-    )  # pragma: allowlist secret
-    OAUTH_CLIENT_SECRET = access_secret_version(
-        "projects/14177695902/secrets/FLASK_CLIENT_SECRET/versions/1"  # pragma: allowlist secret
-    )  # pragma: allowlist secret
-    API_URL = "https://classifai-sandbox.nw.r.appspot.com"
-    CREDENTIAL_PATH = "./credentials.json"
-    logging.info("Loaded global variables in local")
-elif env_type == "local-noauth":
-    logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    load_dotenv()
-
-    API_URL = "https://classifai-sandbox.nw.r.appspot.com"
-    CREDENTIAL_PATH = "./credentials.json"
-    logging.info("Loaded global variables in local-noauth")
+    return headers
 
 
-app = Flask(__name__)
-
-
-def api_call_with_auth(file: str, url: str) -> str:
+def api_call_with_auth(file: str, url: str, headers: dict) -> str:
     """Process data on live API and return response as string.
 
     Parameters
@@ -104,54 +75,11 @@ def api_call_with_auth(file: str, url: str) -> str:
     """
     logging.info("Getting the results from the API")
 
-    user = User(
-        oauth_client_id=OAUTH_CLIENT_ID,
-        oauth_client_secret=OAUTH_CLIENT_SECRET,
-        credentials_path=CREDENTIAL_PATH,
-    )
-
-    iap_client = UserIAPClient(user=user)
-
     files = {"file": file}
 
     # print(files)
-    response = iap_client.request(
-        url=url,
-        method="POST",
-        files=files,
-    )
-
-    json_string = str(response.text)
-
-    try:
-        # Parse the JSON string into a Python dictionary
-        input_json = json.loads(json_string)
-
-        # Return the JSON
-        return input_json
-
-    except json.JSONDecodeError:
-        return jsonify({"error": "Invalid JSON format"}), 400
-
-
-def api_call_no_auth(file: str, url: str) -> str:
-    """Process data on live API and return response as string.
-
-    Parameters
-    ----------
-    file : UploadFile
-        User-input csv data.
-    url: str
-        The URL of the API endpoint
-    """
-    logging.info("Getting the results from the API w'out auth")
-
-    files = {"file": file}
-
     response = requests.request(
-        url=url,
-        method="POST",
-        files=files,
+        url=url, method="POST", files=files, headers=headers
     )
 
     json_string = str(response.text)
@@ -165,6 +93,25 @@ def api_call_no_auth(file: str, url: str) -> str:
 
     except json.JSONDecodeError:
         return jsonify({"error": "Invalid JSON format"}), 400
+
+
+if env_type == "local":
+    logging.basicConfig(encoding="utf-8", level=logging.INFO)
+    # this is currently incomplete...
+    creds = access_secret_version(
+        "projects/14177695902/secrets/auth-credentials/versions/latest"  # pragma: allowlist secret
+    )  # pragma: allowlist secret
+    with open("./credentials.json", "w") as f:
+        f.write(creds)
+elif env_type == "dev":
+    logger = google.cloud.logging.Client()
+    logger.setup_logging()
+    OAUTH_CLIENT_ID = access_secret_version(
+        "projects/14177695902/secrets/app_oauth_client_id/versions/latest"  # pragma: allowlist secret
+    )
+
+
+app = Flask(__name__)
 
 
 @app.route("/")
@@ -211,59 +158,15 @@ def predict_sic():
     csv_buffer = io.StringIO()
     input_df.to_csv(csv_buffer, index=False)
 
-    if env_type == "local":
+    if env_type == "dev":
         jobs_csv = csv_buffer.getvalue()
-        return api_call_with_auth(jobs_csv, f"{API_URL}/sic")
-    elif env_type in ["dev-noauth", "local-noauth"]:
-        jobs_csv = csv_buffer.getvalue()
-        response = api_call_no_auth(jobs_csv, f"{API_URL}/sic")
-        return response
+        return api_call_with_auth(
+            jobs_csv,
+            f"{API_URL}/sic",
+            headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
+        )
     else:
         return send_from_directory("static", "mock_sic_response.json")
-
-
-@app.route("/predict_soc", methods=["POST"])
-def predict_soc():
-    """Retrieve the JSON of SOC code results.
-
-    Returns
-    -------
-        json: SOC results
-    """
-    logging.info("Getting SOC codes")
-
-    jobs = request.json
-    # print(jobs)
-    input_df = pd.DataFrame(jobs)
-    input_df = input_df.rename(
-        columns=dict(title="job_title", employer="company")
-    )
-    input_df = input_df.drop(columns=["wage", "description", "supervision"])
-    csv_buffer = io.StringIO()
-    input_df.to_csv(csv_buffer, index=False)
-    jobs_csv = csv_buffer.getvalue()
-
-    if env_type == "local":
-        response = api_call_with_auth(jobs_csv, f"{API_URL}/soc")
-    else:
-        mocked_results = {
-            "data": [
-                {
-                    "input_id": id,
-                    "response": [
-                        {
-                            "label": "1234",
-                            "description": "worker",
-                            "distance": 0.5,
-                        }
-                    ]
-                    * 4,
-                }
-                for id in input_df["id"]
-            ]
-        }
-        response = jsonify(mocked_results)
-    return response
 
 
 # if __name__ == "__main__":

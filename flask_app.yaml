@@ -16,5 +16,5 @@ handlers:
   script: auto
 
 env_variables:
-  ENV_TYPE: dev-noauth
+  ENV_TYPE: dev
   API_URL: https://classifai-sandbox.nw.r.appspot.com
