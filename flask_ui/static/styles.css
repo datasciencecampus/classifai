@@ -143,3 +143,24 @@ button {
 table.dataTable tbody tr.selected {
     background-color: #89a3d7 !important;
 }
+
+.job-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.edit-input {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    margin-right: 1rem;
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-btn, .ok-btn, .cancel-btn {
+    padding: 0.5rem 1rem;
+}

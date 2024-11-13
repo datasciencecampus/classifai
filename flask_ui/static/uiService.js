@@ -62,13 +62,86 @@ export function populateJobTable(jobsData, jobTable) {
 /**
  * Displays job details in the UI above the results table.
  * @param {Object} job - The job object to display.
+ * @param {Function} onSave - Callback function when saving edited description
  */
-export function showJobDetails(job) {
+export function showJobDetails(job, onSave) {
     const jobDetailsContent = document.getElementById('job-details');
-    jobDetailsContent.innerHTML = `<h2>${job.industry_description || 'Select a row...'}</h2>
-    <p>Assigned code: ${job.sic_code || 'None'}</p>
-    <p>Assigned description: ${job.sic_code_description || 'None'}</p>`;
+
+    // Flag to track if we're in edit mode
+    let isEditing = false;
+
+    function createViewMode(job) {
+        return `
+            <div class="job-header">
+                <h2>${job.industry_description || 'Select a row...'}</h2>
+                ${job.industry_description ? `
+                    <button class="edit-btn" id="edit-button">Edit</button>
+                ` : ''}
+            </div>
+            <p>Assigned code: ${job.sic_code || 'None'}</p>
+            <p>Assigned description: ${job.sic_code_description || 'None'}</p>
+        `;
+    }
+
+    function createEditMode(job) {
+        return `
+            <div class="job-header">
+                <input
+                    type="text"
+                    id="edit-description"
+                    value="${job.industry_description || ''}"
+                    class="edit-input"
+                >
+                <div class="edit-buttons">
+                    <button class="ok-btn" id="ok-button">Ok</button>
+                    <button class="cancel-btn" id="cancel-button">Cancel</button>
+                </div>
+            </div>
+            <p>Assigned code: ${job.sic_code || 'None'}</p>
+            <p>Assigned description: ${job.sic_code_description || 'None'}</p>
+        `;
+    }
+
+    function render(job) {
+        jobDetailsContent.innerHTML = isEditing ? createEditMode(job) : createViewMode(job);
+
+        if (isEditing) {
+            // Add event listeners for edit mode
+            const okButton = document.getElementById('ok-button');
+            const cancelButton = document.getElementById('cancel-button');
+            const inputField = document.getElementById('edit-description');
+
+            okButton.addEventListener('click', () => {
+                const newDescription = inputField.value.trim();
+                if (newDescription !== job.industry_description) {
+                    job = { ...job, industry_description: newDescription};
+                    // Call the provided callback with updated value
+                    onSave(job);
+                }
+                isEditing = false;
+                render(job);
+            });
+
+            cancelButton.addEventListener('click', () => {
+                isEditing = false;
+                render(job);
+            });
+        } else {
+            // Add event listener for view mode
+            const editButton = document.getElementById('edit-button');
+            if (editButton) {
+                editButton.addEventListener('click', () => {
+                    isEditing = true;
+                    render(job);
+                });
+            }
+        }
+    }
+
+    // Initial render
+    render(job);
 }
+
 
 /**
  * Updates the code results table for the currently selected job.

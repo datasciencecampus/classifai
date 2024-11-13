@@ -4,7 +4,7 @@
  */
 // main.js
 import { reducer, createStore } from './state.js';
-import { ACTION_TYPES, loadJobs, updateResults, clearAll, selectJob, selectResult, assignResult } from './actions.js';
+import { ACTION_TYPES, loadJobs, updateResults, clearAll, selectJob, selectResult, assignResult, editJobDescription } from './actions.js';
 import { loadSavedData, handleFileSelect, fetchResults, downloadCSV } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
 
@@ -27,7 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Change selected job on:', action.type)
         updateResultsTable(state.selectedJobId,state.resultsData,resultsDataTable);
         const job = state.jobs.find(job => job.id === state.selectedJobId);
-        showJobDetails(job);
+        showJobDetails(job, (updatedJob) => { // State update function for when user clicks save
+            store.dispatch(editJobDescription(updatedJob));
+        });
     });
     const unsubscribeUpdateResults = store.subscribe(ACTION_TYPES.UPDATE_RESULTS, (state,action) => {
         console.log('Update results table on:', action.type)
@@ -37,12 +39,18 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Assigning code:', action.type);
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
         populateJobTable(state.jobs, jobTable);
-        jobTable.row(state.selectedJobId).select();
+        //jobTable.row(state.selectedJobId).select();
     });
     const unsubscribeClearAll = store.subscribe(ACTION_TYPES.CLEAR_ALL, (state,action) =>{
         console.log('Clearing all and reloading the page.');
         window.location.reload();
     });
+    const unsubscribeEditJobDescription = store.subscribe(ACTION_TYPES.EDIT_JOB_DESCRIPTION, (state,action) =>{
+        console.log('Edit job details.')
+        localStorage.setItem('jobsData',JSON.stringify(state.jobs));
+        populateJobTable(state.jobs,jobTable);
+        //jobTable.row(state.selectedJobId).select();
+    })
 
     // Update state (and listeners) with reloaded data after refresh
     store.dispatch(loadJobs(jobs));
@@ -135,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Clear All event
     clearButton.addEventListener('click', () =>{
         if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
             store.dispatch(clearAll());

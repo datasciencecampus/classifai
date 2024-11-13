@@ -10,7 +10,6 @@ import json
 import logging
 import os
 
-import google.cloud.logging
 import pandas as pd
 import requests
 from flask import (
@@ -104,8 +103,9 @@ if env_type == "local":
     with open("./credentials.json", "w") as f:
         f.write(creds)
 elif env_type == "dev":
-    logger = google.cloud.logging.Client()
-    logger.setup_logging()
+    # logger = google.cloud.logging.Client()
+    # logger.setup_logging()
+    logging.basicConfig(encoding="utf-8", level=logging.INFO)
     OAUTH_CLIENT_ID = access_secret_version(
         "projects/14177695902/secrets/app_oauth_client_id/versions/latest"  # pragma: allowlist secret
     )

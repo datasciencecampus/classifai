@@ -20,6 +20,15 @@ export function reducer(state, action) {
         return { ...state, selectedResult: action.payload };
       case ACTION_TYPES.CLEAR_ALL:
         return initialState;
+      case ACTION_TYPES.EDIT_JOB_DESCRIPTION:
+        return {
+            ...state,
+            jobs: state.jobs.map(job =>
+               job.id === action.payload.id
+                  ? action.payload
+                  : job
+                  )
+            };
       case ACTION_TYPES.ASSIGN_RESULT:
         return {
             ...state,

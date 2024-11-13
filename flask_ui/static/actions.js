@@ -8,6 +8,7 @@ export const ACTION_TYPES = {
     SELECT_RESULT: 'SELECT_RESULT',
     ASSIGN_RESULT: 'ASSIGN_RESULT',
     CLEAR_ALL: 'CLEAR_ALL',
+    EDIT_JOB_DESCRIPTION: 'EDIT_JOB_DESCRIPTION',
 };
 
 // Action Creators
@@ -85,4 +86,15 @@ export const updateResults = (resultsData) => {
 export const assignResult = (jobId, result) => ({
     type: ACTION_TYPES.ASSIGN_RESULT,
     payload: { jobId, result }
+});
+
+
+/**
+ *
+ * @param {int} job - the new job record
+ * @returns
+ */
+export const editJobDescription = (job) => ({
+    type: ACTION_TYPES.EDIT_JOB_DESCRIPTION,
+    payload: job,
 });
