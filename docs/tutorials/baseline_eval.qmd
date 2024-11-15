@@ -1,0 +1,211 @@
+---
+title: "Notebook illustrating baseline classifAI evaluation"
+execute:
+  warning: False
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+```{python}
+import json
+import pandas as pd
+
+from google.cloud import storage
+from classifai.evaluation import SICAssignmentEvaluator, MethodComparison
+from classifai.embedding import EmbeddingHandler
+from classifai.gcp_data_getters import (
+    download_csv_from_gcp, download_excel_from_gcp
+)
+from classifai.utils import (
+    process_embedding_search_result,
+    pull_vdb_to_local
+)
+```
+# Generate baseline classifAI results
+
+Currently, baseline method involves loading and querying existing ChromaDB database using a simple kNN search.
+
+## Datasets used for evaluation
+There are two datasets that we have ingested to GCP for evaluation.
+- `evaluation_set.xlsx` contains validated manually coded lables for 310 business descriptions
+- `coding_df.csv` contains results for 1,369 business descriptions generated last year using existing process
+
+The first one is used to calculate mean rank of the correct SIC code.
+The second dataset is used to compare outputs from classifAI and G-Code.
+
+## Estimate mean rank of the correct answer
+
+Define metadata parameters
+```{python}
+metadata = {
+    "evaluation_type": "mean_rank",
+    "classification_type": "sic",
+    "classifai_method": "baseline_embedding_search",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "k_matches": 50
+    }
+```
+Read in manually coded and validated evaluation set. You will need to run `gcloud auth application-default login` to reauthenticate.
+```{python}
+evaluation_set = download_excel_from_gcp(bucket_name='classifai-prod-data-ingest', blob_name='evaluation_set.xlsx')
+```
+
+Prepare evaluation set for quering with Chroma DB.
+```{python}
+evaluation_set["industry_descr"] = evaluation_set["desc_raw"].apply(lambda x: x.lower())
+input_desc = [f'{row["industry_descr"]}' for ix,row in evaluation_set.iterrows()]
+input_ids = [int(row["bus_id"]) for ix,row in evaluation_set.iterrows()]
+
+pull_vdb_to_local(
+        client=storage.Client(), prefix="sic_5_digit_extended_db/"
+    )
+
+handler = EmbeddingHandler(
+        vdb_name="classifai-collection", db_dir="/tmp/sic_5_digit_extended_db",
+        k_matches = 50
+    )
+
+query_result = handler.collection.query(
+        query_texts=input_desc,
+
+        n_results=handler.k_matches,
+    )
+```
+
+Process baseline method outputs
+```{python}
+query_result["input_ids"] = input_ids
+
+processed_result = process_embedding_search_result(
+        query_result=query_result
+    )
+
+# with open("data/eval_set.json", "w") as f:
+#     json.dump(processed_result, f)
+```
+
+```{python}
+evaluator = SICAssignmentEvaluator()
+evaluator.load_classifai_results(processed_result)
+```
+
+Prep evaluation_set
+```{python}
+confirm_mask = evaluation_set["updated_sic_5d"] == "Correct"
+evaluation_set.loc[confirm_mask, "updated_sic_5d"] = evaluation_set["sic_5d"]
+```
+
+Produce evaluation report
+```{python}
+eval_result = evaluator.evaluate_rankings(
+        evaluation_set,
+        id_column='bus_id',
+        correct_code_column='updated_sic_5d',
+        description_column='industry_descr'
+    )
+
+report = evaluator.generate_evaluation_report(eval_result)
+print(report)
+```
+### Investigate skipped and missed cases
+```{python}
+not_found = evaluator.find_missed_cases(
+    test_data=evaluation_set,
+    id_column='bus_id',
+    correct_code_column='updated_sic_5d',
+    description_column='industry_descr'
+)
+```
+
+Look at missed and skipped cases
+```{python}
+missed_cases, skipped_cases = not_found
+```
+Output results, full results stored in `processed_result` as well as skipped and missed cases are optional.
+
+In the example below, we save everything.
+```{python}
+SICAssignmentEvaluator.save_eval_result(metadata=metadata, processed_result=processed_result,eval_result=eval_result, skipped_cases=skipped_cases, missed_cases=missed_cases)
+```
+
+ ## Compare classifAI results to G-Code
+Define metadata parameters
+```{python}
+metadata = {
+    "evaluation_type": "g-code_comparison",
+    "classification_type": "sic",
+    "classifai_method": "baseline_embedding_search",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "k_matches": 5
+    }
+```
+ Now we will compare autocoded G-Code SIC codes with baseline classifAI outputs.
+ ```{python}
+ comparator = MethodComparison()
+ ```
+### Get G-Code results and run them through ChromaDB search (e.g. baseline classifAI method)
+ ```{python}
+coded_df = download_csv_from_gcp(bucket_name='classifai-prod-data-ingest', blob_name='coding_df.csv', file_path = '/tmp/coded_df')
+g_coded_df = coded_df[coded_df["source_type"] == "G-Code"]
+g_coded_df["industry_descr"] = g_coded_df["desc"].apply(lambda x: x.lower())
+g_coded_df[['bus_id', 'sic_5d']] = g_coded_df[['bus_id', 'sic_5d']].astype(int)
+
+```
+```{python}
+input_desc = [f'{row["industry_descr"]}' for ix,row in g_coded_df.iterrows()]
+input_ids = [int(row["bus_id"]) for ix,row in g_coded_df.iterrows()]
+
+pull_vdb_to_local(
+        client=storage.Client(), prefix="sic_5_digit_extended_db/"
+    )
+
+handler = EmbeddingHandler(
+        vdb_name="classifai-collection", db_dir="/tmp/sic_5_digit_extended_db",
+        k_matches = 5
+    )
+
+query_result = handler.collection.query(
+        query_texts=input_desc,
+
+        n_results=handler.k_matches,
+    )
+```
+```{python}
+query_result["input_ids"] = input_ids
+
+processed_result = process_embedding_search_result(
+        query_result=query_result
+    )
+
+# with open("data/g_coded_set.json", "w") as f:
+#     json.dump(processed_result, f)
+```
+### Compare G-Code and baseline classifAI results
+```{python}
+comparator.load_classifai_results(processed_result)
+comparator.load_g_code_results(
+    g_coded_df,
+    code_column='sic_5d',
+    id_column='bus_id'
+)
+ ```
+ ```{python}
+results = comparator.compare_methods()
+report = comparator.generate_report(results)
+print("\nComparison Report:")
+print(report)
+ ```
+ ```{python}
+ comparator.plot_confusion_matrix(results)
+ ```
+ ```{python}
+ # Access specific metrics
+print(f"\nExact match (top 1): {results.exact_match_top1:.2%}")
+print(f"2-digit match (top 5): {results.digit2_match_top5:.2%}")
+ ```
+Save outputs. Saving full query results is optional.
+```{python}
+comparator.save_comparison_result(metadata=metadata, processed_result=processed_result,comparison_result=results, save_confusion_matrix=True)
+```
