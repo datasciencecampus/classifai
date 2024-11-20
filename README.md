@@ -66,7 +66,12 @@ This is created and found in the credentials API on GCP. You will need to restri
 
 ### REST API
 
-A demo of the REST API is deployed using GCP App Engine. The SOC endpoint can be accessed [here]("https://classifai-sandbox.nw.r.appspot.com/").
+REST APIs are deployed using GCP App Engine:
+- [UAT FastAPI]("https://classifai-sandbox.nw.r.appspot.com/")
+- [UAT Flask*]("https://fastapi-dot-classifai-sandbox.nw.r.appspot.com/")
+- [DEV FastAPI]("https://dev-fastapi-dot-classifai-sandbox.nw.r.appspot.com/")
+- [DEV Flask]("https://dev-flaskapp-dot-classifai-sandbox.nw.r.appspot.com/")
+\* currently the default ALPHA app for User Acceptance Testing
 
 Development is in its very early stages. You can launch the default API server locally as follows:
 
