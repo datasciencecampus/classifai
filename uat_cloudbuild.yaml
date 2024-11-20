@@ -1,8 +1,9 @@
+# build containers for UAT services
 steps:
 - name: "gcr.io/cloud-builders/gcloud"
-  args: ["app", "deploy", "app.yaml"]
+  args: ["app", "deploy", "uat_app.yaml"]
 - name: "gcr.io/cloud-builders/gcloud"
-  args: ["app", "deploy", "flask_app.yaml"]
+  args: ["app", "deploy", "uat_flask_app.yaml"]
 
 timeout: '600s'
 
