@@ -112,23 +112,27 @@ class DB_Updater:
         self.write_local_files_to_gcs_bucket(local_db_files)
 
 
-def get_secret():
+def get_secret(secret_name: str):
     """Access GCP Secret Manager secret value.
+
+    Parameters
+    ----------
+    secret_name : string
+        Name of secret to access.
 
     Returns
     -------
-    google_api_key : str
+    secrets : json
         Secret value.
     """
 
-    path = "projects/14177695902/secrets"
-    secret = "GOOGLE_API_KEY"  # pragma: allowlist secret
-    name = "/".join((path, secret, "versions", "latest"))
+    path = "projects/classifai-sandbox/secrets"
+    name = "/".join((path, secret_name, "versions", "latest"))
     client = SecretManagerServiceClient()
     response = client.access_secret_version(request={"name": name})
-    google_api_key = response.payload.data.decode("UTF-8")
+    secret_value = response.payload.data.decode("UTF-8")
 
-    return google_api_key
+    return secret_value
 
 
 def pull_vdb_to_local(
@@ -229,7 +233,7 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
         Raised if unrecognised classification task is entered.
     """
 
-    google_api_key = get_secret()
+    google_api_key = get_secret("GOOGLE_API_KEY")
 
     if classification == "sic_5_digit":
         input = pd.read_csv("gs://classifai-app-data/sic_5_digit.csv")

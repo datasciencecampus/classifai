@@ -21,8 +21,9 @@ from flask import (
     send_from_directory,
 )
 from google.auth.transport.requests import Request
-from google.cloud import secretmanager
 from google.oauth2 import id_token
+
+from classifai.utils import get_secret
 
 env_type = os.getenv("ENV_TYPE", default="dev")
 API_URL = os.getenv(
@@ -32,33 +33,11 @@ API_URL = os.getenv(
 print(f"Environment type: {env_type}")
 
 
-def access_secret_version(resource_id):
-    """
-    Access the payload for the given secret version if one exists.
-
-    The version can be a version number as a string (e.g. "5") or an alias (e.g. "latest").
-    """
-    # Create a client
-    client = secretmanager.SecretManagerServiceClient()
-
-    # Initialize request argument(s)
-    request = secretmanager.AccessSecretVersionRequest(
-        name=resource_id,
-    )
-
-    # Make the request
-    response = client.access_secret_version(request=request)
-
-    # Handle the response
-    return response.payload.data.decode("UTF-8")
-
-
 def _obtain_oidc_token(oauth_client_id):
     """Obtain OIDC authentication token."""
 
     open_id_connect_token = id_token.fetch_id_token(Request(), oauth_client_id)
     headers = {"Authorization": "Bearer {}".format(open_id_connect_token)}
-
     return headers
 
 
@@ -76,7 +55,6 @@ def api_call_with_auth(file: str, url: str, headers: dict) -> str:
 
     files = {"file": file}
 
-    # print(files)
     response = requests.request(
         url=url, method="POST", files=files, headers=headers
     )
@@ -97,18 +75,14 @@ def api_call_with_auth(file: str, url: str, headers: dict) -> str:
 if env_type == "local":
     logging.basicConfig(encoding="utf-8", level=logging.INFO)
     # this is currently incomplete...
-    creds = access_secret_version(
-        "projects/14177695902/secrets/auth-credentials/versions/latest"  # pragma: allowlist secret
-    )  # pragma: allowlist secret
+    creds = get_secret("auth-credentials")
     with open("./credentials.json", "w") as f:
         f.write(creds)
 elif env_type == "dev":
     # logger = google.cloud.logging.Client()
     # logger.setup_logging()
     logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    OAUTH_CLIENT_ID = access_secret_version(
-        "projects/14177695902/secrets/app_oauth_client_id/versions/latest"  # pragma: allowlist secret
-    )
+    OAUTH_CLIENT_ID = get_secret("app_oauth_client_id")
 
 
 app = Flask(__name__)
@@ -167,7 +141,3 @@ def predict_sic():
         )
     else:
         return send_from_directory("static", "mock_sic_response.json")
-
-
-# if __name__ == "__main__":
-#     app.run()
