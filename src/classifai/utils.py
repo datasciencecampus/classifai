@@ -18,7 +18,6 @@ class DB_Updater:
         self,
         storage_client: storage.Client = storage.Client(),
         local_filepath: str = "/tmp",
-        bucket_name: str = "classifai-app-data",
         bucket_folder: str = "db/",
     ):
         """Initialise DB_Updater class.
@@ -37,8 +36,9 @@ class DB_Updater:
 
         self.storage_client = storage_client
         self.local_filepath = local_filepath
-        self.bucket_name = bucket_name
         self.bucket_folder = bucket_folder
+
+        self.bucket_name = get_secret("APP_DATA_BUCKET")
 
     def delete_existing_gcs_bucket_folder(self):
         """Delete previous db and files.
@@ -95,7 +95,7 @@ class DB_Updater:
             folder layer (DB cache files).
         """
 
-        bucket = self.storage_client.bucket("classifai-app-data")
+        bucket = self.storage_client.bucket(self.bucket_name)
 
         for entry in all_filepaths_to_copy:
             blob = bucket.blob(
@@ -112,21 +112,26 @@ class DB_Updater:
         self.write_local_files_to_gcs_bucket(local_db_files)
 
 
-def get_secret(secret_name: str):
+def get_secret(secret_name: str, project_id: str = "classifai-sandbox"):
     """Access GCP Secret Manager secret value.
 
     Parameters
     ----------
     secret_name : string
         Name of secret to access.
+    project_id : string
+        GCP project name.
 
     Returns
     -------
-    secrets : json
+    secrets : str|json
         Secret value.
     """
 
-    path = "projects/classifai-sandbox/secrets"
+    env_var_project_id = os.getenv("PROJECT_ID")
+    if env_var_project_id:
+        project_id = env_var_project_id
+    path = f"projects/{project_id}/secrets"
     name = "/".join((path, secret_name, "versions", "latest"))
     client = SecretManagerServiceClient()
     response = client.access_secret_version(request={"name": name})
@@ -137,7 +142,6 @@ def get_secret(secret_name: str):
 
 def pull_vdb_to_local(
     client: storage.Client,
-    bucket_name: str = "classifai-app-data",
     prefix: str = "db/",
     local_dir: str = "/tmp/",
     vdb_file: str = "chroma.sqlite3",
@@ -148,9 +152,6 @@ def pull_vdb_to_local(
     ----------
     client : storage.Client
         GCS client object
-    bucket_name : str
-        GCS bucket name
-        Default: 'classifai-app-data'
     prefix : str
         GCS bucket folder
         Default: 'db/'
@@ -171,6 +172,7 @@ def pull_vdb_to_local(
 
     os.mkdir(local_dir + prefix)
 
+    bucket_name = get_secret("APP_DATA_BUCKET")
     bucket = client.bucket(bucket_name=bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
     for blob in blobs:
@@ -234,16 +236,17 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
     """
 
     google_api_key = get_secret("GOOGLE_API_KEY")
+    app_data_bucket = get_secret("APP_DATA_BUCKET")
 
     if classification == "sic_5_digit":
-        input = pd.read_csv("gs://classifai-app-data/sic_5_digit.csv")
+        input = pd.read_csv(f"gs://{app_data_bucket}/sic_5_digit.csv")
 
     elif classification == "sic_5_digit_extended":
-        input = pd.read_csv("gs://classifai-app-data/sic_5_digit_extended.csv")
+        input = pd.read_csv(f"gs://{app_data_bucket}/sic_5_digit_extended.csv")
 
     elif classification == "soc":
         input = pd.read_csv(
-            "gs://classifai-app-data/soc_title_condensed.txt",
+            f"gs://{app_data_bucket}/soc_title_condensed.txt",
             sep=": ",
             header=None,
         )
