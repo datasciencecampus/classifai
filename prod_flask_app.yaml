@@ -1,0 +1,20 @@
+runtime: python311
+instance_class: F2
+env: standard
+service: flaskapp     # PROD Flask service
+
+entrypoint: gunicorn -t 60 -b 0.0.0.0:8080 flask_ui.app:app
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+
+handlers:
+- url: /static
+  static_dir: flask_ui/static
+- url: /.*
+  script: auto
+
+env_variables:
+  ENV_TYPE: dev
+  API_URL: https://ons-dsc-classifai-prod.nw.r.appspot.com
