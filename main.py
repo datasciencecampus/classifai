@@ -72,12 +72,10 @@ def sic(
     input_desc = [f'{x["industry_description"]}' for x in input]
     input_ids = [x["id"] for x in input]
 
-    pull_vdb_to_local(
-        client=storage.Client(), prefix="sic_5_digit_extended_db/"
-    )
+    pull_vdb_to_local(client=storage.Client(), prefix="sic_knowledge_base_db/")
     handler = EmbeddingHandler(
         vdb_name="classifai-collection",
-        db_dir="/tmp/sic_5_digit_extended_db",
+        db_dir="/tmp/sic_knowledge_base_db",
         k_matches=n_results,
     )
 

@@ -204,6 +204,7 @@ def process_embedding_search_result(
                 "response": [
                     {
                         "label": query_result["metadatas"][i][j]["label"],
+                        "bridge": query_result["metadatas"][i][j]["bridge"],
                         "description": description,
                         "distance": query_result["distances"][i][j],
                         "rank": j + 1,
