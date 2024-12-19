@@ -39,7 +39,7 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v0.4.0'
       with:
-        workload_identity_provider: 'https://iam.googleapis.com/projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/classifai-prod-wip/providers/wip-provider'
+        workload_identity_provider: 'https://iam.googleapis.com/projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/classifai-pool/providers/classifai-provider'
         service_account: 'workload-identity-pool@${{ env.PROJECT_ID }}.iam.gserviceaccount.com'
     - name: Checkout repository
       uses: actions/checkout@v4
