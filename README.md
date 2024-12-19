@@ -71,7 +71,7 @@ REST APIs are deployed using GCP App Engine. Development is in its early stages.
 
 [**UAT**](https://preview-dot-ons-dsc-classifai-prod.nw.r.appspot.com) - a user-acceptance testing app for users to evaluate the latest functionality
 
-[**DEV**]((https://dev-flask-dot-ons-dsc-classifai-prod.nw.r.appspot.com)) - a working app for developers to implement and evaluate new features and functionality
+[**DEV**](https://dev-flask-dot-ons-dsc-classifai-prod.nw.r.appspot.com) - a working app for developers to implement and evaluate new features and functionality
 
 The project workflow for progressing functionality, including the branch merges and deployment triggers can be summarised as follows:
 
