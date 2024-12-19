@@ -1,0 +1,16 @@
+runtime: python311
+instance_class: F4_1G
+env: standard
+service: dev-fastapi    # DEV FastAPI service
+
+entrypoint: gunicorn -b 0.0.0.0:8080 -w 8 -k uvicorn.workers.UvicornWorker main:app
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+
+vpc_access_connector:
+  name: projects/ons-dsc-classifai-prod/locations/europe-west2/connectors/vpc-connector
+
+env_variables:
+  PROJECT_ID: ons-dsc-classifai-prod

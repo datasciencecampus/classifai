@@ -26,9 +26,8 @@ from google.oauth2 import id_token
 from classifai.utils import get_secret
 
 env_type = os.getenv("ENV_TYPE", default="dev")
-API_URL = os.getenv(
-    "API_URL", default="https://classifai-sandbox.nw.r.appspot.com"
-)
+API_URL = os.getenv("API_URL")
+PROJECT_ID = os.getenv("PROJECT_ID")
 
 print(f"Environment type: {env_type}")
 
@@ -75,14 +74,14 @@ def api_call_with_auth(file: str, url: str, headers: dict) -> str:
 if env_type == "local":
     logging.basicConfig(encoding="utf-8", level=logging.INFO)
     # this is currently incomplete...
-    creds = get_secret("auth-credentials")
+    creds = get_secret("auth-credentials", project_id=PROJECT_ID)
     with open("./credentials.json", "w") as f:
         f.write(creds)
 elif env_type == "dev":
     # logger = google.cloud.logging.Client()
     # logger.setup_logging()
     logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    OAUTH_CLIENT_ID = get_secret("app_oauth_client_id")
+    OAUTH_CLIENT_ID = get_secret("app_oauth_client_id", project_id=PROJECT_ID)
 
 
 app = Flask(__name__)
