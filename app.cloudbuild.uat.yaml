@@ -1,0 +1,14 @@
+# build containers for UAT services
+steps:
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy", "app.fastapi.uat.yaml", "--version", "deployed"]
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy", "app.flask.uat.yaml", "--version", "deployed"]
+
+timeout: '1200s'
+
+options:
+ logging: CLOUD_LOGGING_ONLY
+ env:
+  - PROJECT_ID=$_PROJECT_ID
+  - _IMAGE=$_IMAGE

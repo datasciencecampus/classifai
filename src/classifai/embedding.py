@@ -54,7 +54,9 @@ class EmbeddingHandler:
         self.db_dir = db_dir
         self.k_matches = k_matches
         self.distance_metric = distance_metric
-        self.api_key = get_secret("GOOGLE_API_KEY")
+        self.api_key = get_secret(
+            "GOOGLE_API_KEY", project_id=os.getenv("PROJECT_ID")
+        )
         self.vdb_name = vdb_name
 
         if self.embedding_model_name.startswith("models"):

@@ -38,7 +38,9 @@ class DB_Updater:
         self.local_filepath = local_filepath
         self.bucket_folder = bucket_folder
 
-        self.bucket_name = get_secret("APP_DATA_BUCKET")
+        self.bucket_name = get_secret(
+            "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
+        )
 
     def delete_existing_gcs_bucket_folder(self):
         """Delete previous db and files.
@@ -172,7 +174,9 @@ def pull_vdb_to_local(
 
     os.mkdir(local_dir + prefix)
 
-    bucket_name = get_secret("APP_DATA_BUCKET")
+    bucket_name = get_secret(
+        "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
+    )
     bucket = client.bucket(bucket_name=bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
     for blob in blobs:
@@ -236,8 +240,12 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
         Raised if unrecognised classification task is entered.
     """
 
-    google_api_key = get_secret("GOOGLE_API_KEY")
-    app_data_bucket = get_secret("APP_DATA_BUCKET")
+    google_api_key = get_secret(
+        "GOOGLE_API_KEY", project_id=os.getenv("PROJECT_ID")
+    )
+    app_data_bucket = get_secret(
+        "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
+    )
 
     if classification == "sic_5_digit":
         input = pd.read_csv(f"gs://{app_data_bucket}/sic_5_digit.csv")

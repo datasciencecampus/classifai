@@ -1,0 +1,14 @@
+# build containers for PROD services
+steps:
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy", "app.fastapi.prod.yaml", "--version", "deployed"]
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy", "app.flask.prod.yaml", "--version", "deployed"]
+
+timeout: '1200s'
+
+options:
+ logging: CLOUD_LOGGING_ONLY
+ env:
+  - PROJECT_ID=$_PROJECT_ID
+  - _IMAGE=$_IMAGE
