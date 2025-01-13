@@ -253,6 +253,9 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
     elif classification == "sic_5_digit_extended":
         input = pd.read_csv(f"gs://{app_data_bucket}/sic_5_digit_extended.csv")
 
+    elif classification == "sic_knowledge_base":
+        input = pd.read_csv(f"gs://{app_data_bucket}/sic_knowledge_base.csv")
+
     elif classification == "soc":
         input = pd.read_csv(
             f"gs://{app_data_bucket}/soc_title_condensed.txt",
@@ -263,7 +266,7 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
 
     else:
         raise TypeError(
-            "You must declare a classification type: currently 'sic_5_digit', 'sic_5_digit_extended', or 'soc' are acceptable values."
+            "You must declare a classification type: currently 'sic_5_digit', 'sic_5_digit_extended', 'sic_knowledge_base' or 'soc' are acceptable values."
         )
     input.reset_index(inplace=True)
 
@@ -280,8 +283,10 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
 
     documents = input["description"].to_list()
     ids = input["id"].astype(str).to_list()
+
     metadata = [
-        {"hnsw": distance_metric, "label": label} for label in input["label"]
+        {"hnsw": distance_metric, "label": label, "bridge": bridge}
+        for label, bridge in zip(input["label"], input["bridge"])
     ]
 
     # clean out local tmp sub-folder
