@@ -13,14 +13,15 @@ import json
 import pandas as pd
 
 from google.cloud import storage
-from classifai.evaluation import SICAssignmentEvaluator, MethodComparison
+from classifai.evaluation import SICAssignmentEvaluator, MethodComparison, LabelAccuracy
 from classifai.embedding import EmbeddingHandler
 from classifai.gcp_data_getters import (
     download_csv_from_gcp, download_excel_from_gcp
 )
 from classifai.utils import (
     process_embedding_search_result,
-    pull_vdb_to_local
+    pull_vdb_to_local,
+    flatten_json_to_wide_df
 )
 ```
 # Generate baseline classifAI results
@@ -43,6 +44,7 @@ metadata = {
     "evaluation_type": "mean_rank",
     "classification_type": "sic",
     "classifai_method": "baseline_embedding_search",
+    "knowledge_base": "sic_5_digit_combined",
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "k_matches": 50
     }
@@ -51,7 +53,11 @@ Read in manually coded and validated evaluation set. You will need to run `gclou
 ```{python}
 evaluation_set = download_excel_from_gcp(bucket_name='classifai-prod-data-ingest', blob_name='evaluation_set.xlsx')
 ```
-
+Prep evaluation_set
+```{python}
+confirm_mask = evaluation_set["updated_sic_5d"] == "Correct"
+evaluation_set.loc[confirm_mask, "updated_sic_5d"] = evaluation_set["sic_5d"]
+```
 Prepare evaluation set for quering with Chroma DB.
 ```{python}
 evaluation_set["industry_descr"] = evaluation_set["desc_raw"].apply(lambda x: x.lower())
@@ -89,12 +95,6 @@ processed_result = process_embedding_search_result(
 ```{python}
 evaluator = SICAssignmentEvaluator()
 evaluator.load_classifai_results(processed_result)
-```
-
-Prep evaluation_set
-```{python}
-confirm_mask = evaluation_set["updated_sic_5d"] == "Correct"
-evaluation_set.loc[confirm_mask, "updated_sic_5d"] = evaluation_set["sic_5d"]
 ```
 
 Produce evaluation report
@@ -137,6 +137,7 @@ metadata = {
     "evaluation_type": "g-code_comparison",
     "classification_type": "sic",
     "classifai_method": "baseline_embedding_search",
+    "knowledge_base": "sic_5_digit_combined",
     "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
     "k_matches": 5
     }
@@ -208,4 +209,33 @@ print(f"2-digit match (top 5): {results.digit2_match_top5:.2%}")
 Save outputs. Saving full query results is optional.
 ```{python}
 comparator.save_comparison_result(metadata=metadata, processed_result=processed_result,comparison_result=results, save_confusion_matrix=True)
+```
+### Measure classifAI accuracy
+```{python}
+with open("data/eval_set.json", "rb") as f:
+    classifai_result = json.load(f)
+```
+Merge evaluation set with classifai
+```{python}
+classifai_result_df = flatten_json_to_wide_df(classifai_result, top_k = 2)
+combined_df = evaluation_set.merge(classifai_result_df, left_on="bus_id", right_on="input_id", how="inner")
+combined_df["score_1"] = 1 - combined_df["distance_1"]
+combined_df["score_2"] = 1 - combined_df["distance_2"]
+
+```
+```{python}
+analyzer = LabelAccuracy(combined_df,
+id_col="bus_id",
+desc_col="desc_processed",
+model_label_cols=["label_1", "label_2"],
+model_score_cols=["score_1", "score_2"],
+clerical_label_cols=["sic_5d", "updated_sic_5d"])
+print(f"Overall accuracy: {analyzer.get_accuracy():.1f}%")
+analyzer.plot_threshold_curves()
+```
+```{python}
+stats = analyzer.get_summary_stats()
+print("\nSummary Statistics:")
+for key, value in stats.items():
+    print(f"{key}: {value:.1f}")
 ```

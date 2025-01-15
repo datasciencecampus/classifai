@@ -3,6 +3,7 @@
 import os
 import shutil
 from pathlib import Path
+from typing import Dict, List
 
 import chromadb
 import chromadb.utils.embedding_functions as embedding_functions
@@ -326,3 +327,28 @@ def setup_vector_store(classification: str, distance_metric: str = "l2"):
         local_filepath=db_loc, bucket_folder=f"{classification}_db/"
     )
     updater.update()
+
+
+def flatten_json_to_wide_df(data: List[Dict], top_k: int = 5) -> pd.DataFrame:
+    """Initialise list to store flattened records."""
+    records = []
+
+    for item in data["data"]:
+        record = {"input_id": item["input_id"]}
+
+        # Take only top k responses
+        responses = item["response"][:top_k]
+
+        # Add columns for each rank
+        for i, resp in enumerate(responses, 1):
+            record.update(
+                {
+                    f"label_{i}": resp["label"],
+                    f"desc_{i}": resp["description"],
+                    f"distance_{i}": resp["distance"],
+                }
+            )
+
+        records.append(record)
+
+    return pd.DataFrame(records)
