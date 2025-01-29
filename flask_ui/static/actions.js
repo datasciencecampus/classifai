@@ -9,6 +9,7 @@ export const ACTION_TYPES = {
     ASSIGN_RESULT: 'ASSIGN_RESULT',
     CLEAR_ALL: 'CLEAR_ALL',
     EDIT_JOB_DESCRIPTION: 'EDIT_JOB_DESCRIPTION',
+    UPDATE_ONE_RESULT: 'UPDATE_ONE_RESULT',
 };
 
 // Action Creators
@@ -78,7 +79,7 @@ export const updateResults = (resultsData) => {
 };
 
 /**
- *
+ * Creates an action to assign the result to the jobsData
  * @param {int} jobId - The id of the job row being written to
  * @param {Object} result - The result
  * @returns
@@ -88,10 +89,22 @@ export const assignResult = (jobId, result) => ({
     payload: { jobId, result }
 });
 
+/**
+ * Creates an action to update the results list for one record
+ *
+ * @param {Object} resultSet - the result from the API call with slots: input_id (str) and response (Array)
+ * @returns {Object} Action object
+ */
+export const updateOneResult = (resultSet) => {
+    return {
+        type: ACTION_TYPES.UPDATE_ONE_RESULT,
+        payload: resultSet,
+    };
+};
 
 /**
- *
- * @param {int} job - the new job record
+ * Creates an action to assign the edited job description to the jobsData
+ * @param {object} job - the new job record
  * @returns
  */
 export const editJobDescription = (job) => ({

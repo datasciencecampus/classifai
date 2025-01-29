@@ -6,17 +6,20 @@
         {
           "label": "29100",
           "description": "Manufacture of motor vehicles",
-          "distance": 0.13770510256290436
+          "distance": 0.138,
+          "rank": 1
         },
         {
           "label": "30400",
           "description": "Manufacture of military fighting vehicles",
-          "distance": 0.38053643703460693
+          "distance": 0.381,
+          "rank": 2
         },
         {
           "label": "29201",
           "description": "Manufacture of bodies (coachwork) for motor vehicles (except caravans)",
-          "distance": 0.39080408215522766
+          "distance": 0.391,
+          "rank": 3
         }
       ]
     },
@@ -26,17 +29,20 @@
         {
           "label": "58130",
           "description": "Publishing of newspapers",
-          "distance": 0.12389913201332092
+          "distance": 0.1238,
+          "rank": 1
         },
         {
           "label": "18110",
           "description": "Printing of newspapers",
-          "distance": 0.27571287751197815
+          "distance": 0.275,
+          "rank": 2
         },
         {
           "label": "58142",
           "description": "Publishing of consumer, business and professional journals and periodicals",
-          "distance": 0.441324919462204
+          "distance": 0.44,
+          "rank": 3
         }
       ]
     },
@@ -46,17 +52,20 @@
         {
           "label": "60200",
           "description": "Television programming and broadcasting activities",
-          "distance": 0.23402580618858337
+          "distance": 0.23402580618858337,
+          "rank": 1
         },
         {
           "label": "60100",
           "description": "Radio broadcasting",
-          "distance": 0.35314127802848816
+          "distance": 0.35314127802848816,
+          "rank": 2
         },
         {
           "label": "59133",
           "description": "Television programme distribution activities",
-          "distance": 0.4568539261817932
+          "distance": 0.4568539261817932,
+          "rank": 3
         }
       ]
     },
@@ -66,17 +75,20 @@
         {
           "label": "21200",
           "description": "Manufacture of pharmaceutical preparations",
-          "distance": 0.18853797018527985
+          "distance": 0.18853797018527985,
+          "rank": 1
         },
         {
           "label": "21100",
           "description": "Manufacture of basic pharmaceutical products",
-          "distance": 0.30906862020492554
+          "distance": 0.30906862020492554,
+          "rank": 2
         },
         {
           "label": "20200",
           "description": "Manufacture of pesticides and other agrochemical products",
-          "distance": 0.5063206553459167
+          "distance": 0.5063206553459167,
+          "rank": 3
         }
       ]
     },
@@ -86,17 +98,20 @@
         {
           "label": "41202",
           "description": "Construction of domestic buildings",
-          "distance": 0.27657774090766907
+          "distance": 0.27657774090766907,
+          "rank": 1
         },
         {
           "label": "41200",
           "description": "Construction of residential and non-residential buildings",
-          "distance": 0.2782213091850281
+          "distance": 0.2782213091850281,
+          "rank": 2
         },
         {
           "label": "41201",
           "description": "Construction of commercial buildings",
-          "distance": 0.5771486163139343
+          "distance": 0.5771486163139343,
+          "rank": 3
         }
       ]
     },
@@ -106,17 +121,20 @@
         {
           "label": "62012",
           "description": "Business and domestic software development",
-          "distance": 0.3726169168949127
+          "distance": 0.3726169168949127,
+          "rank": 1
         },
         {
           "label": "62010",
           "description": "Computer programming activities",
-          "distance": 0.6244093179702759
+          "distance": 0.6244093179702759,
+          "rank": 2
         },
         {
           "label": "41100",
           "description": "Development of building projects",
-          "distance": 0.675464391708374
+          "distance": 0.675464391708374,
+          "rank": 3
         }
       ]
     },
@@ -126,17 +144,20 @@
         {
           "label": "26110",
           "description": "Manufacture of electronic components",
-          "distance": 0.2273070067167282
+          "distance": 0.2273070067167282,
+          "rank": 1
         },
         {
           "label": "26400",
           "description": "Manufacture of consumer electronics",
-          "distance": 0.2935294806957245
+          "distance": 0.2935294806957245,
+          "rank": 2
         },
         {
           "label": "26512",
           "description": "Manufacture of electronic industrial process control equipment",
-          "distance": 0.42284131050109863
+          "distance": 0.42284131050109863,
+          "rank": 3
         }
       ]
     },
@@ -146,17 +167,20 @@
         {
           "label": "46420",
           "description": "Wholesale of clothing and footwear",
-          "distance": 0.22209742665290833
+          "distance": 0.22209742665290833,
+          "rank": 1
         },
         {
           "label": "46410",
           "description": "Wholesale of textiles",
-          "distance": 0.3076080083847046
+          "distance": 0.3076080083847046,
+          "rank": 2
         },
         {
           "label": "46480",
           "description": "Wholesale of watches and jewellery",
-          "distance": 0.46944284439086914
+          "distance": 0.46944284439086914,
+          "rank": 3
         }
       ]
     },
@@ -166,17 +190,20 @@
         {
           "label": "64990",
           "description": "Other financial service activities, except insurance and pension funding, nec",
-          "distance": 0.462483286857605
+          "distance": 0.462483286857605,
+          "rank": 1
         },
         {
           "label": "64205",
           "description": "Activities of financial services holding companies",
-          "distance": 0.46477141976356506
+          "distance": 0.46477141976356506,
+          "rank": 2
         },
         {
           "label": "64999",
           "description": "Other financial service activities, except insurance and pension funding, (not including security dealing on own account and factoring) nec",
-          "distance": 0.507314920425415
+          "distance": 0.507314920425415,
+          "rank": 3
         }
       ]
     },
@@ -186,17 +213,20 @@
         {
           "label": "68310",
           "description": "Real estate agencies",
-          "distance": 0.3596525192260742
+          "distance": 0.3596525192260742,
+          "rank": 1
         },
         {
           "label": "68100",
           "description": "Buying and selling of own real estate",
-          "distance": 0.4900931715965271
+          "distance": 0.4900931715965271,
+          "rank": 2
         },
         {
           "label": "68320",
           "description": "Management of real estate on a fee or contract basis",
-          "distance": 0.49207308888435364
+          "distance": 0.49207308888435364,
+          "rank": 3
         }
       ]
     },
@@ -206,17 +236,20 @@
         {
           "label": "69102",
           "description": "Solicitors",
-          "distance": 0.4241405427455902
+          "distance": 0.4241405427455902,
+          "rank": 1
         },
         {
           "label": "69100",
           "description": "Legal activities",
-          "distance": 0.43949294090270996
+          "distance": 0.43949294090270996,
+          "rank": 2
         },
         {
           "label": "69101",
           "description": "Barristers at law",
-          "distance": 0.5142244696617126
+          "distance": 0.5142244696617126,
+          "rank": 3
         }
       ]
     },
@@ -226,17 +259,20 @@
         {
           "label": "69200",
           "description": "Accounting, bookkeeping and auditing activities; tax consultancy",
-          "distance": 0.33553004264831543
+          "distance": 0.33553004264831543,
+          "rank": 1
         },
         {
           "label": "69201",
           "description": "Accounting, and auditing activities",
-          "distance": 0.4330365061759949
+          "distance": 0.4330365061759949,
+          "rank": 2
         },
         {
           "label": "69203",
           "description": "Tax consultancy",
-          "distance": 0.5535249710083008
+          "distance": 0.5535249710083008,
+          "rank": 3
         }
       ]
     },
@@ -246,17 +282,20 @@
         {
           "label": "71111",
           "description": "Architectural activities",
-          "distance": 0.40514451265335083
+          "distance": 0.40514451265335083,
+          "rank": 1
         },
         {
           "label": "71110",
           "description": "Architectural activities",
-          "distance": 0.40514451265335083
+          "distance": 0.40514451265335083,
+          "rank": 2
         },
         {
           "label": "71120",
           "description": "Engineering activities and related technical consultancy",
-          "distance": 0.6549221277236938
+          "distance": 0.6549221277236938,
+          "rank": 3
         }
       ]
     },
@@ -266,17 +305,20 @@
         {
           "label": "71120",
           "description": "Engineering activities and related technical consultancy",
-          "distance": 0.28515681624412537
+          "distance": 0.28515681624412537,
+          "rank": 1
         },
         {
           "label": "71122",
           "description": "Engineering related scientific and technical consulting activities",
-          "distance": 0.34171128273010254
+          "distance": 0.34171128273010254,
+          "rank": 2
         },
         {
           "label": "69203",
           "description": "Tax consultancy",
-          "distance": 0.5614588260650635
+          "distance": 0.5614588260650635,
+          "rank": 3
         }
       ]
     },
@@ -286,17 +328,20 @@
         {
           "label": "73200",
           "description": "Market research and public opinion polling",
-          "distance": 0.3540880084037781
+          "distance": 0.3540880084037781,
+          "rank": 1
         },
         {
           "label": "72200",
           "description": "Research and experimental development on social sciences and humanities",
-          "distance": 0.7621814608573914
+          "distance": 0.7621814608573914,
+          "rank": 2
         },
         {
           "label": "72110",
           "description": "Research and experimental development on biotechnology",
-          "distance": 0.8032161593437195
+          "distance": 0.8032161593437195,
+          "rank": 3
         }
       ]
     },
@@ -306,17 +351,20 @@
         {
           "label": "73110",
           "description": "Advertising agencies",
-          "distance": 0.3950697183609009
+          "distance": 0.3950697183609009,
+          "rank": 1
         },
         {
           "label": "18130",
           "description": "Pre-press and pre-media services",
-          "distance": 0.6653947830200195
+          "distance": 0.6653947830200195,
+          "rank": 2
         },
         {
           "label": "70210",
           "description": "Public relations and communication activities",
-          "distance": 0.7767049074172974
+          "distance": 0.7767049074172974,
+          "rank": 3
         }
       ]
     },
@@ -326,17 +374,20 @@
         {
           "label": "84120",
           "description": "Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",
-          "distance": 0.7318533062934875
+          "distance": 0.7318533062934875,
+          "rank": 1
         },
         {
           "label": "86101",
           "description": "Hospital activities",
-          "distance": 0.7847638130187988
+          "distance": 0.7847638130187988,
+          "rank": 2
         },
         {
           "label": "86100",
           "description": "Hospital activities",
-          "distance": 0.7847638130187988
+          "distance": 0.7847638130187988,
+          "rank": 3
         }
       ]
     },
@@ -346,17 +397,20 @@
         {
           "label": "85200",
           "description": "Primary education",
-          "distance": 0.02378331869840622
+          "distance": 0.02378331869840622,
+          "rank": 1
         },
         {
           "label": "85100",
           "description": "Pre-primary education",
-          "distance": 0.26944872736930847
+          "distance": 0.26944872736930847,
+          "rank": 2
         },
         {
           "label": "85310",
           "description": "General secondary education",
-          "distance": 0.5246955156326294
+          "distance": 0.5246955156326294,
+          "rank": 3
         }
       ]
     },
@@ -366,17 +420,20 @@
         {
           "label": "70210",
           "description": "Public relations and communication activities",
-          "distance": 0.2408844232559204
+          "distance": 0.2408844232559204,
+          "rank": 1
         },
         {
           "label": "73200",
           "description": "Market research and public opinion polling",
-          "distance": 0.6087720990180969
+          "distance": 0.6087720990180969,
+          "rank": 2
         },
         {
           "label": "60100",
           "description": "Radio broadcasting",
-          "distance": 0.6938304901123047
+          "distance": 0.6938304901123047,
+          "rank": 3
         }
       ]
     },
@@ -386,17 +443,20 @@
         {
           "label": "79110",
           "description": "Travel agency activities",
-          "distance": 0.4501720070838928
+          "distance": 0.4501720070838928,
+          "rank": 1
         },
         {
           "label": "79909",
           "description": "Other reservation service and related activities (not including activities of tourist guides)",
-          "distance": 0.501284122467041
+          "distance": 0.501284122467041,
+          "rank": 2
         },
         {
           "label": "79900",
           "description": "Other reservation service and related activities",
-          "distance": 0.5233516693115234
+          "distance": 0.5233516693115234,
+          "rank": 3
         }
       ]
     }

@@ -3,20 +3,17 @@
  * @description Main entry point for the SIC/SOC Coding Tool application.
  */
 // main.js
-import { reducer, createStore } from './state.js';
-import { ACTION_TYPES, loadJobs, updateResults, clearAll, selectJob, selectResult, assignResult, editJobDescription } from './actions.js';
-import { loadSavedData, handleFileSelect, fetchResults, downloadCSV } from './dataService.js';
+import { store } from './state.js';
+import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, updateOneResult } from './actions.js';
+import { fetchResults, autocode, handleFileSelect, downloadCSV } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
-
-// Create the store
-const store = createStore(reducer);
 
 document.addEventListener('DOMContentLoaded', function() {
 
     // Initialise page objects
     const { jobTable, resultsDataTable } = initTables();
-    // Re-load data on page refresh
-    const { jobs, resultsData, selectedJobId, result } = loadSavedData();
+    // To access the app state
+    // store.getState().{jobs|resultsData|selectedJobId|selectedResult}
 
     // Subscribe to store changes
     const unsubscribeLoadJobs = store.subscribe(ACTION_TYPES.LOAD_JOBS, (state,action) => {
@@ -41,25 +38,29 @@ document.addEventListener('DOMContentLoaded', function() {
         populateJobTable(state.jobs, jobTable);
         //jobTable.row(state.selectedJobId).select();
     });
-    const unsubscribeClearAll = store.subscribe(ACTION_TYPES.CLEAR_ALL, (state,action) =>{
-        console.log('Clearing all and reloading the page.');
-        window.location.reload();
-    });
     const unsubscribeEditJobDescription = store.subscribe(ACTION_TYPES.EDIT_JOB_DESCRIPTION, (state,action) =>{
         console.log('Edit job details.')
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
         populateJobTable(state.jobs,jobTable);
         //jobTable.row(state.selectedJobId).select();
     })
+    const unsubscribeClearAll = store.subscribe(ACTION_TYPES.CLEAR_ALL, (state,action) =>{
+        console.log('Clearing all and reloading the page.');
+        window.location.reload();
+    });
+    const unsubscribeUpdateOneResult = store.subscribe(ACTION_TYPES.UPDATE_ONE_RESULT, (state, action) =>{
+        localStorage.setItem('resultsData', JSON.stringify(state.resultsData));
+        updateResultsTable(state.selectedJobId, state.resultsData, resultsDataTable);
+    })
 
     // Update state (and listeners) with reloaded data after refresh
-    store.dispatch(loadJobs(jobs));
-    store.dispatch(updateResults(resultsData));
-    if (selectedJobId !== null) {
-        store.dispatch(selectJob(selectedJobId));
+    store.dispatch(loadJobs(store.getState().jobs));
+    store.dispatch(updateResults(store.getState().resultsData));
+    if (store.getState().selectedJobId !== null) {
+        store.dispatch(selectJob(store.getState().selectedJobId));
     }
-    if (result && result !== null) {
-        store.dispatch(selectResult(result));
+    if (store.getState().selectedResult && store.getState().selectedResult !== null) {
+        store.dispatch(selectResult(store.getState().selectedResult));
     }
 
     /*
@@ -68,29 +69,57 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Get page elements for events
     const fileInput = document.getElementById('csv-file');
+    const clearButton = document.getElementById('clear-all');
+    const downloadButton = document.getElementById('downloadButton');
     const searchButton = document.getElementById('fetch-results');
     const jobTableBody = document.getElementById('job-table').querySelector('tbody');
     const resultsTableBody = document.getElementById('results-table').querySelector('tbody');
     const assignResultButton = document.getElementById('assign-result');
     const assignUncodableButton = document.getElementById('assign-uncodable');
-    const clearButton = document.getElementById('clear-all');
-    const downloadButton = document.getElementById('downloadButton');
+
+    // Autocode event
+    const autocodeMaxDistance = document.getElementById('autocode-max-distance');
+    const autocodeMinDiff = document.getElementById('autocode-min-diff');
+    const autocodeButton = document.getElementById('autocode-btn');
+    autocodeButton.addEventListener('click', async () => {
+        autocodeButton.disabled = true;
+        try {
+            const maxDistance = parseFloat(autocodeMaxDistance.value);
+            const minDiff = parseFloat(autocodeMinDiff.value);
+            console.log('Autocoding with',maxDistance,'and',minDiff);
+            const newJobs = await Promise.resolve(
+                autocode(store.getState().jobs, store.getState().resultsData, maxDistance, minDiff)
+            );
+            console.log('New jobs data length',newJobs.length);
+            store.dispatch(loadJobs(newJobs));
+        } finally {
+            autocodeButton.disabled = false;
+        }
+    });
+
+    // File input event
+    fileInput.addEventListener('change', async (event) => {
+        const newJobs = await handleFileSelect(event);
+        store.dispatch(loadJobs(newJobs));
+        fileInput.value = '';
+    });
+
+    // Backup in case file chooser 'change' event doesn't fire
+    fileInput.addEventListener('click', () => {
+        fileInput.value = '';
+    });
 
     // Download event (doesn't affect state)
     downloadButton.addEventListener('click', () => {
         downloadCSV(store.getState().jobs,"results.csv");
     });
 
-    // File chooser event
-    fileInput.addEventListener('change', async (event) => {
-        const newJobs = await handleFileSelect(event);
-        store.dispatch(loadJobs(newJobs));
-        fileInput.value = '';
-    });
-    // Backup in case file chooser 'change' event doesn't fire
-    fileInput.addEventListener('click', () => {
-        fileInput.value = '';
-    });
+    // Clear All event
+    clearButton.addEventListener('click', () =>{
+        if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+            store.dispatch(clearAll());
+        }
+    })
 
     // Click search button event
     searchButton.addEventListener('click', async () => {
@@ -143,10 +172,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Clear All event
-    clearButton.addEventListener('click', () =>{
-        if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
-            store.dispatch(clearAll());
-        }
-    })
 });

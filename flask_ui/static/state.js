@@ -3,6 +3,36 @@
 import { ACTION_TYPES } from './actions.js';
 
 /**
+ * The initial state of the application
+ */
+const initialState = {
+  jobs: [],
+  selectedJobId: null,
+  resultsData: [],
+  selectedResult: {},
+};
+
+
+/**
+ * Utility function for upsert in Array
+ * @param {Array} data - Data Array with each record having an 'id' (or other comparison field - see `matchFunction`)
+ * @param {Object} newRecord - New record to update or insert
+ * @param {function} matchFunction - Function determining fields to compare on
+ * @returns {Array} updated data
+ */
+const upsertRecord = (data, newRecord, matchFunction = (a,b) => a.id === b.id) => {
+  let found = false;
+  const updated = data.map(record => {
+      if (matchFunction(record, newRecord)) {
+          found = true;
+          return newRecord;
+      }
+      return record;
+  });
+  return found ? updated : [...updated, newRecord];
+};
+
+/**
  * Reducer function to handle state changes based on actions
  * @param {Object} state - Current state
  * @param {Object} action - Action object
@@ -20,14 +50,22 @@ export function reducer(state, action) {
         return { ...state, selectedResult: action.payload };
       case ACTION_TYPES.CLEAR_ALL:
         return initialState;
+      case ACTION_TYPES.UPDATE_ONE_RESULT:
+        return {
+          ...state,
+          resultsData: upsertRecord(
+            state.resultsData,
+            action.payload,
+            (result, newresult) => result.input_id === newresult.input_id,
+          )
+        };
       case ACTION_TYPES.EDIT_JOB_DESCRIPTION:
         return {
             ...state,
-            jobs: state.jobs.map(job =>
-               job.id === action.payload.id
-                  ? action.payload
-                  : job
-                  )
+            jobs: upsertRecord(
+              state.jobs,
+              action.payload,
+            )
             };
       case ACTION_TYPES.ASSIGN_RESULT:
         return {
@@ -48,22 +86,35 @@ export function reducer(state, action) {
     }
 }
 
+/**
+ * @typedef {Object} AppState
+ * @property {Array} jobs - Array of job objects
+ * @property {Array} resultsData - Array of results data
+ * @property {string|null} selectedJobId - ID of selected job or null
+ * @property {Object} selectedResult - Currently selected result object
+ */
 
 /**
- * Initial state of the application
- * @typedef {Object} State
- * @property {Array} jobs - List of job objects
- * @property {number|null} selectedJobId - ID of the currently selected job
- * @property {Object} resultsData - SIC code results for jobs
+ * Loads application state from localStorage.
+ *
+ * Returns initial state object with empty values if localStorage is empty
+ * or if there's an error parsing the stored data.
+ *
+ * @returns {AppState} The application state loaded from localStorage
  */
-const initialState = {
-    jobs: [],
-    selectedJobId: null,
-    resultsData: [],
-    selectedResult: {},
-};
-
-export { initialState };
+const loadStateFromStorage = () => {
+  try {
+      return {
+          jobs: JSON.parse(localStorage.getItem('jobsData')) || [],
+          resultsData: JSON.parse(localStorage.getItem('resultsData')) || [],
+          selectedJobId: JSON.parse(localStorage.getItem('selectedJobId')) || null,
+          selectedResult: JSON.parse(localStorage.getItem('selectedResult')) || {},
+      };
+  } catch (e) {
+      console.error('Error loading state:', e);
+      return initialState;
+  }
+}
 
 /**
  * Creates a store with the given reducer function
@@ -71,7 +122,7 @@ export { initialState };
  * @returns {Object} Store object with getState, dispatch, and subscribe methods
  */
  export function createStore(reducer) {
-    let state = initialState;
+    let state = loadStateFromStorage();
     let listeners = new Map();
 
     const getState = () => state;
@@ -103,3 +154,6 @@ export { initialState };
 
     return { getState, dispatch, subscribe };
 }
+
+
+export const store = createStore(reducer);

@@ -27,6 +27,7 @@ from classifai.utils import get_secret
 env_type = os.getenv("ENV_TYPE", default="dev")
 API_URL = os.getenv("API_URL")
 PROJECT_ID = os.getenv("PROJECT_ID")
+config = dotenv_values(".env")
 
 
 print(f"Environment type: {env_type}")
@@ -174,6 +175,7 @@ def predict_sic():
 
     elif env_type == "local":
         logging.info("Calling LOCAL fastapi server")
+        # return send_from_directory("static", "mock_sic_response.json")
         return api_call_no_auth(
             json_request_body,
             f"{API_URL}/sic",

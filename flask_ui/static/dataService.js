@@ -3,17 +3,6 @@
  * @description Provides data management functions for the SIC/SOC Coding Tool.
  */
 
-/**
- * Loads saved data from localStorage.
- * @returns {{jobs: Array, resultsData: Array, selectedJobId: string, selectedResult: Object}} The saved jobs and code results data.
- */
-export function loadSavedData() {
-    const jobs = JSON.parse(localStorage.getItem('jobsData')) || [];
-    const resultsData = JSON.parse(localStorage.getItem('resultsData')) || [];
-    const selectedJobId = JSON.parse(localStorage.getItem('selectedJobId')) || null;
-    const selectedResult = JSON.parse(localStorage.getItem('selectedResult')) || {};
-    return { jobs, resultsData, selectedJobId, selectedResult };
-}
 
 /**
  * Handles file selection and parses CSV data.
@@ -127,4 +116,53 @@ export function downloadCSV(data, filename = 'download.csv') {
     // Clean up
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+}
+
+
+/**
+ * Autocodes jobs data using API results where confidence thresholds are met.
+ * Only processes records that haven't already been coded (sic_code is empty).
+ * Uses rank 1 and 2 responses to determine confidence.
+ * @param {Array} jobsData - Array of job records with industry descriptions
+ * @param {Array} resultsData - API response with ranked coding suggestions
+ * @param {number} maxDistance - Maximum acceptable distance for rank 1 response
+ * @param {number} minDiff - Required distance gap between rank 1 and 2 responses
+ * @param {boolean} ignoreAssigned - If true, skip records with existing sic_code
+ * @returns {Array} Updated jobsData with automatic codes applied where criteria met
+ */
+export function autocode(jobsData, resultsData, maxDistance=0.5, minDiff=0.05,ignoreAssigned=true) {
+    // Create a map for quick lookups {"1":[responses],"2":[responses],...}
+    const resultMap = Object.fromEntries(
+        resultsData.map(r => [r.input_id, r.response])
+    );
+
+    // Loop through jobs data
+    return jobsData.map(job => {
+        // If already coded, don't update
+        if (job.sic_code && ignoreAssigned) return job;
+
+        const responses = resultMap[job.id];
+        // If responses is zero length, don't update
+        if (!responses?.length) return job;
+
+        const top = responses.find(r => r.rank === 1);
+        // If there is no rank-1 result or
+        // the rank-1 result has distance > threshold, don't update
+        if (!top || top.distance > maxDistance) return job;
+
+        const second = responses.find(r => r.rank === 2);
+        // If there is no rank-2 result or
+        // the difference between rank-1 and rank-2 distance is greater than minDiff
+        // update
+        if (!second || (second.distance - top.distance) >= minDiff) {
+            return {...job,
+                sic_code: top.label.toString(),
+                sic_code_description: top.description,
+                sic_code_rank: top.rank.toString(),
+                sic_code_score: top.distance.toString()
+            };
+        }
+        // Else don't update
+        return job;
+    });
 }
