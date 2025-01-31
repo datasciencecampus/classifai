@@ -12,6 +12,12 @@ export const ACTION_TYPES = {
     UPDATE_ONE_RESULT: 'UPDATE_ONE_RESULT',
 };
 
+export const uncodableResult = {
+    label: "*",
+    description: "uncodable",
+    distance: 9.99,
+    rank: 9999,
+}
 // Action Creators
 
 /**
@@ -59,6 +65,7 @@ export const selectJob = (jobId) => {
  */
  export const selectResult = (selectedResult) => {
     localStorage.setItem('selectedResult', JSON.stringify(selectedResult));
+    console.log('Selected code:',selectedResult.label);
     return {
         type: ACTION_TYPES.SELECT_RESULT,
         payload: selectedResult,

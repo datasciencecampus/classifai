@@ -3,13 +3,15 @@
  * @description Provides UI-related functions for the SIC/SOC Coding Tool.
  */
 import { getResultsForJob } from './dataService.js';
+import {selectJob, selectResult, assignResult, uncodableResult} from './actions.js'
 
 /**
  * Initializes DataTables for jobs and code results.
+ * @param {Object} store - A store object for state management
  * @returns {{jobTable: DataTables.Api, resultsDataTable: DataTables.Api}} The
  * initialized DataTables.
  */
-export function initTables() {
+export function initTables(store) {
     const jobTable = new DataTable(
         document.getElementById('job-table'),
         {
@@ -42,6 +44,123 @@ export function initTables() {
         }
     );
 
+    // Make table tabbable
+    jobTable.table().node().setAttribute('tabindex', '0');
+    resultsDataTable.table().node().setAttribute('tabindex', '0');
+
+    jobTable.on('order', function () {
+        // This will show: "Ordering on column 1 (asc)", for example
+        const order = jobTable.order();
+
+        console.log(
+            'Ordering on column ' + order[0][0] + ' (' + order[0][1] + ')'
+        );
+    });
+
+    // Handle keyboard events
+    jobTable.on('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'j' || event.key === 'J') {
+            console.log(jobTable.row('.selected').index());
+            const currentRowIndex = jobTable.row('.selected').index();
+            const visibleRows = jobTable.rows({order: 'current'}).indexes();
+            const currentPosition = visibleRows.indexOf(currentRowIndex);
+            const nextPosition = event.shiftKey ? currentPosition - 1 : currentPosition + 1;
+            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
+                jobTable.row(visibleRows[nextPosition]).select();
+                const rowData = jobTable.row(visibleRows[nextPosition]).data();
+                store.dispatch(selectJob(rowData.id));
+            }
+        } else if (event.key === 'ArrowUp' || event.key === 'k' || event.key === 'K') {
+            console.log(jobTable.row('.selected').index());
+            const currentRowIndex = jobTable.row('.selected').index();
+            const visibleRows = jobTable.rows({order: 'current'}).indexes();
+            const currentPosition = visibleRows.indexOf(currentRowIndex);
+            const nextPosition = currentPosition - 1;
+            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
+                jobTable.row(visibleRows[nextPosition]).select();
+                const rowData = jobTable.row(visibleRows[nextPosition]).data();
+                store.dispatch(selectJob(rowData.id));
+            }
+        } else if (event.key === 'ArrowRight' || event.key === 'h' || event.key === 'H' || event.key === 'l' || event.key === 'L') {
+            resultsDataTable.row(0).select();
+            resultsDataTable.table().node().focus();
+        } else if (event.key === 'y' || event.key === 'Y') {
+            const state = store.getState();
+            if (state.selectedJobId && state.selectedResult.label) {
+                store.dispatch(assignResult(state.selectedJobId, state.selectedResult));
+            }
+        }  else if (event.key === 'u' || event.key === 'U') {
+            const selectedJobId = store.getState().selectedJobId;
+            if (selectedJobId) {
+                store.dispatch(assignResult(selectedJobId, uncodableResult));
+            }
+        }else if (event.key === 'n' || event.key === 'N') {
+            const clearData = {
+                label: null,
+                description: null,
+                distance: null,
+                rank: null,
+            }
+            store.dispatch(assignResult(store.getState().selectedJobId,clearData));
+        }
+    });
+
+    resultsDataTable.on('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'j' || event.key === 'J') {
+            // const currentRowIndex = resultsDataTable.row('.selected').index('current');
+            // const nextIndex = event.shiftKey ? currentRowIndex - 1 : currentRowIndex + 1;
+            // resultsDataTable.row(nextIndex).select();
+            // const rowData = resultsDataTable.row(nextIndex).data();
+            // store.dispatch(selectResult(rowData));
+            console.log(resultsDataTable.row('.selected').index());
+            const currentRowIndex = resultsDataTable.row('.selected').index();
+            const visibleRows = resultsDataTable.rows({order: 'current'}).indexes();
+            const currentPosition = visibleRows.indexOf(currentRowIndex);
+            const nextPosition = event.shiftKey ? currentPosition - 1 : currentPosition + 1;
+            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
+                resultsDataTable.row(visibleRows[nextPosition]).select();
+                const rowData = resultsDataTable.row(visibleRows[nextPosition]).data();
+                store.dispatch(selectResult(rowData));
+            }
+        } else if (event.key === 'ArrowUp' || event.key === 'k' || event.key === 'K') {
+            console.log(resultsDataTable.row('.selected').index());
+            const currentRowIndex = resultsDataTable.row('.selected').index();
+            const visibleRows = resultsDataTable.rows({order: 'current'}).indexes();
+            const currentPosition = visibleRows.indexOf(currentRowIndex);
+            const nextPosition = currentPosition - 1;
+            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
+                resultsDataTable.row(visibleRows[nextPosition]).select();
+                const rowData = resultsDataTable.row(visibleRows[nextPosition]).data();
+                store.dispatch(selectResult(rowData));
+            }
+        } else if (event.key === 'ArrowLeft' || event.key === 'h' || event.key === 'H' || event.key === 'l' || event.key === 'L') {
+            jobTable.row('.selected').select();
+            jobTable.table().node().focus();
+        }  else if (event.key === 'y' || event.key === 'Y') {
+            const state = store.getState();
+            if (state.selectedJobId && state.selectedResult.label) {
+                store.dispatch(assignResult(state.selectedJobId, state.selectedResult));
+            }
+        }  else if (event.key === 'u' || event.key === 'U') {
+            const selectedJobId = store.getState().selectedJobId;
+            if (selectedJobId) {
+                store.dispatch(assignResult(selectedJobId, uncodableResult));
+            }
+        }
+    });
+
+    // Handle click events
+    jobTable.on('click', 'tbody tr', function() {
+        // jobTable.row(this).select();
+        // jobTable.table().node().focus();
+        const rowData = jobTable.row(this).data();
+        store.dispatch(selectJob(rowData.id));
+    });
+    resultsDataTable.on('click', 'tbody tr', function() {
+        const rowData = resultsDataTable.row(this).data() || {};
+        store.dispatch(selectResult(rowData));
+    });
+
     return { jobTable, resultsDataTable };
 }
 
@@ -72,20 +191,15 @@ export function showJobDetails(job, onSave) {
 
     function createViewMode(job) {
         return `
-            <div class="job-header">
                 <h2>${job.industry_description || 'Select a row...'}</h2>
                 ${job.industry_description ? `
                     <button class="edit-btn" id="edit-button">Edit</button>
                 ` : ''}
-            </div>
-            <p>Assigned code: ${job.sic_code || 'None'}</p>
-            <p>Assigned description: ${job.sic_code_description || 'None'}</p>
         `;
     }
 
     function createEditMode(job) {
         return `
-            <div class="job-header">
                 <input
                     type="text"
                     id="edit-description"
@@ -96,9 +210,6 @@ export function showJobDetails(job, onSave) {
                     <button class="ok-btn" id="ok-button">Ok</button>
                     <button class="cancel-btn" id="cancel-button">Cancel</button>
                 </div>
-            </div>
-            <p>Assigned code: ${job.sic_code || 'None'}</p>
-            <p>Assigned description: ${job.sic_code_description || 'None'}</p>
         `;
     }
 

@@ -9,6 +9,7 @@ import json
 import logging
 import os
 
+import google.cloud.logging
 import requests
 from dotenv import dotenv_values
 from flask import (
@@ -25,13 +26,30 @@ from google.oauth2 import id_token
 from classifai.utils import get_secret
 
 env_type = os.getenv("ENV_TYPE", default="dev")
-API_URL = os.getenv("API_URL")
-PROJECT_ID = os.getenv("PROJECT_ID")
-config = dotenv_values(".env")
-
+api_type = os.getenv("API_TYPE", default="live")
 
 print(f"Environment type: {env_type}")
-print(f"API Url: {API_URL}")
+print(f"API type: {api_type}")
+
+if env_type == "local":
+    config = dotenv_values(".env")
+    logging.basicConfig(encoding="utf-8", level=logging.INFO)
+    OAUTH_CLIENT_ID = config.get("OAUTH_CLIENT_ID")
+    API_URL = (
+        "http://127.0.0.1:8000"
+        if api_type == "local"
+        else config.get("API_URL")
+    )
+    logging.info(f"API URL: {API_URL}")
+
+elif env_type == "dev":
+    logger = google.cloud.logging.Client()
+    logger.setup_logging()
+    assert api_type == "live", "Live frontend doesn't work with local backend"
+    API_URL = os.getenv("API_URL")
+    logging.info(f"API URL: {API_URL}")
+    PROJECT_ID = os.getenv("PROJECT_ID")
+    OAUTH_CLIENT_ID = get_secret("app_oauth_client_id", project_id=PROJECT_ID)
 
 
 def _obtain_oidc_token(oauth_client_id):
@@ -99,18 +117,6 @@ def api_call_with_auth(data: dict, url: str, headers: dict) -> str:
         return jsonify({"error": "Invalid JSON format"}), 400
 
 
-if env_type == "local":
-    config = dotenv_values(".env")
-    logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    OAUTH_CLIENT_ID = config.get("OAUTH_CLIENT_ID")
-
-elif env_type == "dev":
-    # logger = google.cloud.logging.Client()
-    # logger.setup_logging()
-    logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    OAUTH_CLIENT_ID = get_secret("app_oauth_client_id", project_id=PROJECT_ID)
-
-
 app = Flask(__name__)
 
 
@@ -165,7 +171,7 @@ def predict_sic():
     }  # correctly formatted for fastapi request
 
     # if in 'dev' env_type call real api with auth, if in 'local' env_type call localhost api with no auth
-    if env_type == "dev":
+    if api_type == "live":
         logging.info("Calling LIVE fastapi server")
         return api_call_with_auth(
             json_request_body,
@@ -173,7 +179,7 @@ def predict_sic():
             headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
         )
 
-    elif env_type == "local":
+    elif api_type == "local":
         logging.info("Calling LOCAL fastapi server")
         # return send_from_directory("static", "mock_sic_response.json")
         return api_call_no_auth(
@@ -181,6 +187,6 @@ def predict_sic():
             f"{API_URL}/sic",
         )
 
-    else:
+    else:  # api_type == 'mock'
         logging.info("Returning mock api data")
         return send_from_directory("static", "mock_sic_response.json")

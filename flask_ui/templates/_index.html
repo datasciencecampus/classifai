@@ -33,6 +33,47 @@
 </div>
 <section id="instructions" class="ons-tabs__panel">
     <p>This tool allows you to sort and code survey responses by SIC code. Select a response to the occupation survey on the left, and see more details from the survey on the right. At bottom right, you can choose from codes returned by the semantic embedding tool.</p>
+    <br>
+    <p>The tool has a set of keyboard shortcuts for efficient coding.</p>
+    <table id="shortcuts-table" class="ons-table ons-table--">
+        <caption class="ons-table__caption"> Keyboard shortcuts </caption>
+        <thead class="ons-table__head">
+          <tr class="ons-table__row">
+            <th scope="col" class="ons-table__header">
+              <span class="ons-table__header-text">Key combination</span>
+            </th>
+            <th scope="col" class="ons-table__header">
+              <span class="ons-table__header-text">Action</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="ons-table__body">
+          <tr class="ons-table__row">
+            <td class="ons-table__cell"> ENTER OR ARROW-DOWN OR 'J' </td>
+            <td class="ons-table__cell"> Move down one record/result. </td>
+          </tr>
+          <tr class="ons-table__row">
+            <td class="ons-table__cell"> SHIFT+ENTER OR ARROW-UP OR 'K' </td>
+            <td class="ons-table__cell"> Move up one record/result. </td>
+          </tr>
+          <tr class="ons-table__row">
+            <td class="ons-table__cell"> ARROW-LEFT/RIGHT OR 'H' OR 'L' </td>
+            <td class="ons-table__cell"> Switch focus between records and results tables. </td>
+          </tr>
+          <tr class="ons-table__row">
+            <td class="ons-table__cell"> 'Y' </td>
+            <td class="ons-table__cell"> Assign selected result to record. </td>
+          </tr>
+          <tr class="ons-table__row">
+            <td class="ons-table__cell"> 'U' </td>
+            <td class="ons-table__cell"> Assign uncodable to record. </td>
+          </tr>
+          <tr class="ons-table__row">
+            <td class="ons-table__cell"> 'N' </td>
+            <td class="ons-table__cell"> Clear assignment from record. </td>
+          </tr>
+        </tbody>
+      </table>
 </section>
 <section id="upload" class="ons-tabs__panel">
     <div>
@@ -77,7 +118,6 @@
                 <button id="assign-uncodable">Un-codable</button>
                 <button id="fetch-results">Search</button>
             </div>
-            <h3 class="table-title">Results:</h3>
             <table id="results-table">
                 <!-- code results will be displayed here -->
             </table>

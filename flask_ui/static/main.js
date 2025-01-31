@@ -4,24 +4,23 @@
  */
 // main.js
 import { store } from './state.js';
-import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, updateOneResult } from './actions.js';
+import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult } from './actions.js';
 import { fetchResults, autocode, handleFileSelect, downloadCSV } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
 
     // Initialise page objects
-    const { jobTable, resultsDataTable } = initTables();
+    const { jobTable, resultsDataTable } = initTables(store);
     // To access the app state
     // store.getState().{jobs|resultsData|selectedJobId|selectedResult}
 
     // Subscribe to store changes
     const unsubscribeLoadJobs = store.subscribe(ACTION_TYPES.LOAD_JOBS, (state,action) => {
-        console.log('Update job table on:', action.type)
+        console.log('Update job table');
         populateJobTable(state.jobs, jobTable);
     });
     const unsubscribeSelectJob = store.subscribe(ACTION_TYPES.SELECT_JOB, (state,action) => {
-        console.log('Change selected job on:', action.type)
         updateResultsTable(state.selectedJobId,state.resultsData,resultsDataTable);
         const job = state.jobs.find(job => job.id === state.selectedJobId);
         showJobDetails(job, (updatedJob) => { // State update function for when user clicks save
@@ -29,21 +28,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     const unsubscribeUpdateResults = store.subscribe(ACTION_TYPES.UPDATE_RESULTS, (state,action) => {
-        console.log('Update results table on:', action.type)
+        console.log('Update results table');
         updateResultsTable(state.selectedJobId,state.resultsData,resultsDataTable);
     });
     const unsubscribeAssignResult = store.subscribe(ACTION_TYPES.ASSIGN_RESULT, (state, action) => {
         console.log('Assigning code:', action.type);
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
         populateJobTable(state.jobs, jobTable);
-        //jobTable.row(state.selectedJobId).select();
+        jobTable.row((idx,data) => data.id === state.selectedJobId).select();
+        // jobTable.row('.selected').select();
+        jobTable.table().node().focus();
     });
     const unsubscribeEditJobDescription = store.subscribe(ACTION_TYPES.EDIT_JOB_DESCRIPTION, (state,action) =>{
         console.log('Edit job details.')
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
         populateJobTable(state.jobs,jobTable);
-        //jobTable.row(state.selectedJobId).select();
-    })
+        jobTable.row((idx,data) => data.id === state.selectedJobId).select();
+        // jobTable.row('.selected').select();
+        jobTable.table().node().focus();
+    });
     const unsubscribeClearAll = store.subscribe(ACTION_TYPES.CLEAR_ALL, (state,action) =>{
         console.log('Clearing all and reloading the page.');
         window.location.reload();
@@ -51,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeUpdateOneResult = store.subscribe(ACTION_TYPES.UPDATE_ONE_RESULT, (state, action) =>{
         localStorage.setItem('resultsData', JSON.stringify(state.resultsData));
         updateResultsTable(state.selectedJobId, state.resultsData, resultsDataTable);
-    })
+    });
 
     // Update state (and listeners) with reloaded data after refresh
     store.dispatch(loadJobs(store.getState().jobs));
@@ -72,8 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearButton = document.getElementById('clear-all');
     const downloadButton = document.getElementById('downloadButton');
     const searchButton = document.getElementById('fetch-results');
-    const jobTableBody = document.getElementById('job-table').querySelector('tbody');
-    const resultsTableBody = document.getElementById('results-table').querySelector('tbody');
     const assignResultButton = document.getElementById('assign-result');
     const assignUncodableButton = document.getElementById('assign-uncodable');
 
@@ -129,27 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
         store.dispatch(updateResults(newResultsData));
     });
 
-    // Select job table row event
-    jobTableBody.addEventListener('click', (event) => {
-        const row = event.target.closest('tr');
-        if (row) {
-            const rowData = jobTable.row(row).data();
-            store.dispatch(selectJob(rowData.id));
-        }
-    });
-
-    // Select results table row event
-    resultsTableBody.addEventListener('click', (event) => {
-        const row = event.target.closest('tr');
-        if (row) {
-            const rowData = resultsDataTable.row(row).data() || {};
-            if (rowData) {
-                console.log('Selected code:',rowData.label)
-                store.dispatch(selectResult(rowData));
-            }
-        }
-    });
-
     // Assign result event
     assignResultButton.addEventListener('click', () => {
         const state = store.getState();
@@ -161,12 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Assign uncodable event
     assignUncodableButton.addEventListener('click', () => {
         const selectedJobId = store.getState().selectedJobId;
-        const uncodableResult = {
-            label: "*",
-            description: "uncodable",
-            distance: 9.99,
-            rank: 9999,
-        }
         if (selectedJobId) {
             store.dispatch(assignResult(selectedJobId, uncodableResult));
         }
