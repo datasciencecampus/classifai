@@ -188,7 +188,7 @@ def pull_vdb_to_local(
 
 
 def process_embedding_search_result(
-    query_result: chromadb.QueryResult,
+    query_result: chromadb.QueryResult, include_bridge: bool
 ) -> dict:
     """Structure embedding search result into JSON format.
 
@@ -209,7 +209,9 @@ def process_embedding_search_result(
                 "response": [
                     {
                         "label": query_result["metadatas"][i][j]["label"],
-                        "bridge": query_result["metadatas"][i][j]["bridge"],
+                        "bridge": query_result["metadatas"][i][j]["bridge"]
+                        if include_bridge
+                        else "",
                         "description": description,
                         "distance": query_result["distances"][i][j],
                         "rank": j + 1,

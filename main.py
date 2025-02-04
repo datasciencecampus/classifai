@@ -26,31 +26,27 @@ app = FastAPI(
 
 
 ### pydantic model classes that work with FastAPI to type check the input to the API
-
-
-class SICEntry(BaseModel):
-    """Model for a single SIC code row, includes 'id' and 'industry_description' which are expected as str type."""
+# Model for a single SOC/SIC row entry
+class ClassifaiEntry(BaseModel):
+    """Model for a single row of data (SOC or SIC row etc), includes 'id' and 'description' which are expected as str type."""
 
     id: str = Field(examples=["1"])
-    industry_description: str = Field(
-        description="User string input that describing industry",
-        examples=[
-            "A butchers business",
-        ],
+    description: str = Field(
+        description="User string describing occupation or industry",
+        examples=["A butcher's shop"],
     )
 
 
-class SICData(BaseModel):
-    """Pydantic object which contains list of many SICEntry pydantic models."""
+# Model for a collection of SIC/SOC entries
+class ClassifaiData(BaseModel):
+    """Pydantic object which contains list of many SOC/SIC Classifai Entry pydantic models."""
 
-    entries: list[SICEntry] = Field(
-        description="array of SIC Entries to be classified"
+    entries: list[ClassifaiEntry] = Field(
+        description="array of SOC/SIC Entries to be classified"
     )
 
 
-### pydantic model classes that work with FastAPI to type check the output of the API
-
-
+### pydantic model classes that work with FastAPI to type check the output of the API - same for SIC and SOC
 class ResultEntry(BaseModel):
     """model for single vdb entry."""
 
@@ -74,9 +70,58 @@ class ResultsResponseBody(BaseModel):
     data: list[ResultsList]
 
 
+@app.post("/soc", description="SOC programmatic endpoint")
+def soc(
+    data: ClassifaiData,
+    n_results: Annotated[
+        int,
+        Query(
+            description="The number of results to return per SOC row.",
+        ),
+    ] = 20,
+) -> ResultsResponseBody:
+    """Label input data using SOC programmatic endpoint.
+
+    Parameters
+    ----------
+    data: ClassifaiData
+        user provided JSON array, contains many ClassifaiEntry json objects which are {'id': str, 'description': str}
+    n_results: int
+        The number of results to return per query
+
+    Returns
+    -------
+    ResultsResponseBody : ResultsResponseBody :: Modelled as a Pydantic response object which provides example json and type checking
+        Dictionary (Pydantic Object) of top n closest codes to input roles.
+    """
+
+    input_ids = [x.id for x in data.entries]
+    input_desc = [x.description for x in data.entries]
+
+    pull_vdb_to_local(client=storage.Client(), prefix="soc_knowledge_base_db/")
+    handler = EmbeddingHandler(
+        vdb_name="classifai-collection",
+        db_dir="/tmp/soc_knowledge_base_db",
+        k_matches=n_results,
+    )
+
+    query_result = handler.collection.query(
+        query_texts=input_desc,
+        n_results=handler.k_matches,
+    )
+
+    query_result["input_ids"] = input_ids
+
+    processed_result = process_embedding_search_result(
+        query_result=query_result, include_bridge=False
+    )
+
+    return processed_result
+
+
 @app.post("/sic", description="SIC programmatic endpoint")
 def sic(
-    data: SICData,
+    data: ClassifaiData,
     n_results: Annotated[
         int,
         Query(
@@ -88,19 +133,19 @@ def sic(
 
     Parameters
     ----------
-    data: SICData
-        user provided JSON array, contains many SICEntry json objects which are {'id': str, 'industry_description': str}
+    data: ClassifaiData
+        user provided JSON array, contains many ClassifaiEntry json objects which are {'id': str, 'description': str}
     n_results: int
         The number of results to return per query
 
     Returns
     -------
-    processed_result : SICResponseBody :: Modelled as a Pydantic response object which provides example json and type checking
-        Dictionary (Pydantic Object) of top n closest roles to input jobs.
+    ResultsResponseBody : ResultsResponseBody :: Modelled as a Pydantic response object which provides example json and type checking
+        Dictionary (Pydantic Object) of top n closest codes to input roles.
     """
 
     input_ids = [x.id for x in data.entries]
-    input_desc = [x.industry_description for x in data.entries]
+    input_desc = [x.description for x in data.entries]
 
     pull_vdb_to_local(client=storage.Client(), prefix="sic_knowledge_base_db/")
     handler = EmbeddingHandler(
@@ -117,7 +162,7 @@ def sic(
     query_result["input_ids"] = input_ids
 
     processed_result = process_embedding_search_result(
-        query_result=query_result
+        query_result=query_result, include_bridge=True
     )
 
     return processed_result

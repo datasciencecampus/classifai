@@ -150,6 +150,48 @@ def serve_file(path):
     return send_from_directory(".", path)
 
 
+# endpoint for predicting SOC codes
+@app.route("/predict_soc", methods=["POST"])
+def predict_soc():
+    """Retrieve the JSON of SOC code results.
+
+    Returns
+    -------
+        json: SOC results
+    """
+    logging.info("Getting SOC codes")
+
+    # getting the users uploaded ['id, 'description']
+    input_json = request.json
+    input_json = [
+        {key: d[key] for key in ["id", "description"]} for d in input_json
+    ]  # extracting the necessary keys
+    json_request_body = {
+        "entries": input_json
+    }  # correctly formatted for fastapi request
+
+    # if in 'live' api_type call real api with auth, if in 'local' api_type call localhost api with no auth
+    if api_type == "live":
+        logging.info("Calling LIVE fastapi server")
+        return api_call_with_auth(
+            json_request_body,
+            f"{API_URL}/soc",
+            headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
+        )
+
+    elif api_type == "local":
+        logging.info("Calling LOCAL fastapi server")
+        return api_call_no_auth(
+            json_request_body,
+            f"{API_URL}/soc",
+        )
+
+    else:  # api_type == 'mock'
+        logging.info("Returning mock api data")
+        return send_from_directory("static", "mock_soc_response.json")
+
+
+# endpoint for predicting SIC codes
 @app.route("/predict_sic", methods=["POST"])
 def predict_sic():
     """Retrieve the JSON of SIC code results.
@@ -160,17 +202,16 @@ def predict_sic():
     """
     logging.info("Getting SIC codes")
 
-    # getting the users uploaded ['id, 'industry_description']
+    # getting the users uploaded ['id, 'description']
     input_json = request.json
     input_json = [
-        {key: d[key] for key in ["id", "industry_description"]}
-        for d in input_json
+        {key: d[key] for key in ["id", "description"]} for d in input_json
     ]  # extracting the necessary keys
     json_request_body = {
         "entries": input_json
     }  # correctly formatted for fastapi request
 
-    # if in 'dev' env_type call real api with auth, if in 'local' env_type call localhost api with no auth
+    # if in 'live' api_type call real api with auth, if in 'local' api_type call localhost api with no auth
     if api_type == "live":
         logging.info("Calling LIVE fastapi server")
         return api_call_with_auth(
