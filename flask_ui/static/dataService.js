@@ -21,12 +21,12 @@ export async function handleFileSelect(event) {
                 const jobs = results.data.map((row, index) => {
                     const job = {
                         id: row[0].trim(),
-                        industry_description: row[1].trim(),
-                        industry_description_orig: row[1].trim(),
-                        sic_code: '',
-                        sic_code_description: '',
-                        sic_code_score: '',
-                        sic_code_rank: ''
+                        description: row[1].trim(),
+                        description_orig: row[1].trim(),
+                        code: '',
+                        code_description: '',
+                        code_score: '',
+                        code_rank: ''
                     };
                     for (let i = 2; i < row.length; i++) {
                         job[`col${i-1}`] = row[i].trim();
@@ -42,11 +42,12 @@ export async function handleFileSelect(event) {
 /**
  * Fetches code results from the server.
  * @param {Array} jobsData - The array of job objects.
+ * @param {string} endpoint - The endpoint to query (default '/predict_soc')
  * @returns {Promise<Object>} A promise that resolves to the fetched code results data.
  */
-export async function fetchResults(jobsData) {
+export async function fetchResults(jobsData, endpoint='/predict_soc') {
     try {
-        const response = await fetch('/predict_sic', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(jobsData),
@@ -139,7 +140,7 @@ export function autocode(jobsData, resultsData, maxDistance=0.5, minDiff=0.05,ig
     // Loop through jobs data
     return jobsData.map(job => {
         // If already coded, don't update
-        if (job.sic_code && ignoreAssigned) return job;
+        if (job.code && ignoreAssigned) return job;
 
         const responses = resultMap[job.id];
         // If responses is zero length, don't update
@@ -156,10 +157,10 @@ export function autocode(jobsData, resultsData, maxDistance=0.5, minDiff=0.05,ig
         // update
         if (!second || (second.distance - top.distance) >= minDiff) {
             return {...job,
-                sic_code: top.label.toString(),
-                sic_code_description: top.description,
-                sic_code_rank: top.rank.toString(),
-                sic_code_score: top.distance.toString()
+                code: top.label.toString(),
+                code_description: top.description,
+                code_rank: top.rank.toString(),
+                code_score: top.distance.toString()
             };
         }
         // Else don't update

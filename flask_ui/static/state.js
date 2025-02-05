@@ -73,10 +73,10 @@ export function reducer(state, action) {
             jobs: state.jobs.map(job =>
                 job.id === action.payload.jobId
                     ? { ...job,
-                        sic_code: action.payload.result.label,
-                        sic_code_description: action.payload.result.description,
-                        sic_code_score: action.payload.result.distance,
-                        sic_code_rank: action.payload.result.rank,
+                        code: action.payload.result.label,
+                        code_description: action.payload.result.description,
+                        code_score: action.payload.result.distance,
+                        code_rank: action.payload.result.rank,
                     }
                     : job
             )

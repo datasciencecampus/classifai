@@ -18,8 +18,8 @@ export function initTables(store) {
             select: 'single',
             columns: [
                 { data: 'id', title: 'ID' },
-                { data: 'industry_description', title: 'Industry Description' },
-                { data: 'sic_code', title: 'SIC Code' }
+                { data: 'description', title: 'Description' },
+                { data: 'code', title: 'Code' }
             ],
             order: [[0,'asc']],
             pageLength: 25,
@@ -32,7 +32,7 @@ export function initTables(store) {
         {
             select: 'single',
             columns: [
-                { data: 'label', title: 'SIC code' },
+                { data: 'label', title: 'Code' },
                 { data: 'description', title: 'Description' },
                 { data: 'distance', title: 'Distance' },
             ],
@@ -107,11 +107,6 @@ export function initTables(store) {
 
     resultsDataTable.on('keydown', function(event) {
         if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'j' || event.key === 'J') {
-            // const currentRowIndex = resultsDataTable.row('.selected').index('current');
-            // const nextIndex = event.shiftKey ? currentRowIndex - 1 : currentRowIndex + 1;
-            // resultsDataTable.row(nextIndex).select();
-            // const rowData = resultsDataTable.row(nextIndex).data();
-            // store.dispatch(selectResult(rowData));
             console.log(resultsDataTable.row('.selected').index());
             const currentRowIndex = resultsDataTable.row('.selected').index();
             const visibleRows = resultsDataTable.rows({order: 'current'}).indexes();
@@ -173,8 +168,8 @@ export function populateJobTable(jobsData, jobTable) {
     jobTable.clear();
     jobTable.rows.add(jobsData.map(job => ({
         id: job.id,
-        industry_description: job.industry_description,
-        sic_code: job.sic_code
+        description: job.description,
+        code: job.code
     }))).draw(false);
 }
 
@@ -191,8 +186,8 @@ export function showJobDetails(job, onSave) {
 
     function createViewMode(job) {
         return `
-                <h2>${job.industry_description || 'Select a row...'}</h2>
-                ${job.industry_description ? `
+                <h2>${job.description || 'Select a row...'}</h2>
+                ${job.description ? `
                     <button class="edit-btn" id="edit-button">Edit</button>
                 ` : ''}
         `;
@@ -203,7 +198,7 @@ export function showJobDetails(job, onSave) {
                 <input
                     type="text"
                     id="edit-description"
-                    value="${job.industry_description || ''}"
+                    value="${job.description || ''}"
                     class="edit-input"
                 >
                 <div class="edit-buttons">
@@ -224,8 +219,8 @@ export function showJobDetails(job, onSave) {
 
             okButton.addEventListener('click', () => {
                 const newDescription = inputField.value.trim();
-                if (newDescription !== job.industry_description) {
-                    job = { ...job, industry_description: newDescription};
+                if (newDescription !== job.description) {
+                    job = { ...job, description: newDescription};
                     // Call the provided callback with updated value
                     onSave(job);
                 }

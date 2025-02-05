@@ -3,7 +3,7 @@ instance_class: F2
 env: standard
 service: dev-flask     # DEV Flask service
 
-entrypoint: gunicorn -t 60 -b 0.0.0.0:8080 flask_ui.app:app
+entrypoint: gunicorn -t 300 -b 0.0.0.0:8080 flask_ui.app:app
 
 automatic_scaling:
   min_instances: 0

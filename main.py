@@ -50,7 +50,7 @@ class ClassifaiData(BaseModel):
 class ResultEntry(BaseModel):
     """model for single vdb entry."""
 
-    label: int
+    label: str
     bridge: str
     description: str
     distance: float

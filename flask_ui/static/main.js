@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     searchButton.addEventListener('click', async () => {
         resultsDataTable.clear().draw();
         resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
-        const newResultsData = await fetchResults(store.getState().jobs);
+        const newResultsData = await fetchResults(store.getState().jobs,'/predict_soc');
         store.dispatch(updateResults(newResultsData));
     });
 
