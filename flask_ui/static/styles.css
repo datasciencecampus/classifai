@@ -107,6 +107,12 @@ button {
     border: none;
 }
 
+#fetch-one-result {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+}
+
 #results {
     /* margin-top: 20px; */
     flex: 1;

@@ -6,8 +6,8 @@ service: uat-fastapi    # UAT FastAPI service
 entrypoint: gunicorn -b 0.0.0.0:8080 -w 8 -k uvicorn.workers.UvicornWorker main:app
 
 automatic_scaling:
-  min_instances: 0
-  max_instances: 5
+  min_instances: 1
+  max_instances: 12
 
 vpc_access_connector:
   name: projects/ons-dsc-classifai-prod/locations/europe-west2/connectors/vpc-connector

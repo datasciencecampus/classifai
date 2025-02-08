@@ -148,8 +148,10 @@ def pull_vdb_to_local(
     prefix: str = "db/",
     local_dir: str = "/tmp/",
     vdb_file: str = "chroma.sqlite3",
+    bucket_name: str | None = None,
+    force_refresh: bool = False,
 ):
-    """Pull only sqlite3 database / vector store to local /tmp dir.
+    """Pull sqlite3 database / vector store to local /tmp dir.
 
     Parameters
     ----------
@@ -164,27 +166,42 @@ def pull_vdb_to_local(
     vdb_file : str
         Name and extension of vector database
         Default: 'chroma.sqlite3'
+    bucket_name : str | None
+        Name of GCS bucket. If None, fetched from secrets
+        Default: None
+    force_refresh : bool
+        Whether to delete and re-fetch if database exists
+        Default: False
+
+    Examples
+    --------
+    >>> client = storage.Client()
+    >>> pull_vdb_to_local(client, force_refresh=False)
     """
+    local_path = Path(local_dir) / prefix
+    db_path = local_path / vdb_file
 
-    # refresh local folder destination
-    try:
-        shutil.rmtree(local_dir + prefix)
+    if not force_refresh and db_path.exists():
+        return
+
+    if local_path.exists():
+        shutil.rmtree(local_path)
         print("Deleted previous collection cache.")
-    except OSError:
-        pass
 
-    os.mkdir(local_dir + prefix)
+    local_path.mkdir(parents=True)
 
-    bucket_name = get_secret(
-        "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
-    )
+    if not bucket_name:
+        bucket_name = get_secret(
+            "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
+        )
+
     bucket = client.bucket(bucket_name=bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
+
     for blob in blobs:
-        filename = blob.name.split("/")[-1]
+        filename = Path(blob.name).name
         if filename == vdb_file:
-            # Download to local
-            blob.download_to_filename(local_dir + prefix + filename)
+            blob.download_to_filename(str(db_path))
 
 
 def process_embedding_search_result(

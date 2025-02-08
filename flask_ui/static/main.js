@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeSelectJob = store.subscribe(ACTION_TYPES.SELECT_JOB, (state,action) => {
         updateResultsTable(state.selectedJobId,state.resultsData,resultsDataTable);
         const job = state.jobs.find(job => job.id === state.selectedJobId);
-        showJobDetails(job, (updatedJob) => { // State update function for when user clicks save
+        showJobDetails(job, (updatedJob) => { // State update callback for when user clicks save
             store.dispatch(editJobDescription(updatedJob));
         });
     });
@@ -102,12 +102,18 @@ document.addEventListener('DOMContentLoaded', function() {
     fileInput.addEventListener('change', async (event) => {
         const newJobs = await handleFileSelect(event);
         store.dispatch(loadJobs(newJobs));
-        fileInput.value = '';
+        setTimeout(() => {fileInput.value = ''},2000);
+
+        // Search immediately on file load
+        resultsDataTable.clear().draw();
+        resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
+        const newResultsData = await fetchResults(newJobs,'/predict_soc');
+        store.dispatch(updateResults(newResultsData));
     });
 
     // Backup in case file chooser 'change' event doesn't fire
     fileInput.addEventListener('click', () => {
-        fileInput.value = '';
+        setTimeout(() => {fileInput.value = ''},2000);
     });
 
     // Download event (doesn't affect state)
@@ -144,6 +150,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedJobId) {
             store.dispatch(assignResult(selectedJobId, uncodableResult));
         }
+    });
+
+    // Click 'Get 1 result' button event
+    const updateOneResultButton = document.getElementById('fetch-one-result');
+    updateOneResultButton.addEventListener('click', async () => {
+        resultsDataTable.clear().draw();
+        resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
+        const currentJob = store.getState().jobs.find(job => job.id === store.getState().selectedJobId);
+        const [newOneResult] = await fetchResults([currentJob]);
+        store.dispatch(updateOneResult(newOneResult));
     });
 
 });
