@@ -145,30 +145,26 @@ def get_secret(secret_name: str, project_id: str = "classifai-sandbox"):
 
 def pull_vdb_to_local(
     client: storage.Client,
+    bucket_name: str | None = None,
     prefix: str = "db/",
     local_dir: str = "/tmp/",
-    vdb_file: str = "chroma.sqlite3",
-    bucket_name: str | None = None,
     force_refresh: bool = False,
 ):
-    """Pull sqlite3 database / vector store to local /tmp dir.
+    """Pull contents of folder on GCS bucket to local dir.
 
     Parameters
     ----------
     client : storage.Client
         GCS client object
+    bucket_name : str | None
+        Name of GCS bucket. If None, fetched from secrets
+        Default: None
     prefix : str
         GCS bucket folder
         Default: 'db/'
     local_dir : str
         Location of local/instance temporary directory
         Default: '/tmp/'
-    vdb_file : str
-        Name and extension of vector database
-        Default: 'chroma.sqlite3'
-    bucket_name : str | None
-        Name of GCS bucket. If None, fetched from secrets
-        Default: None
     force_refresh : bool
         Whether to delete and re-fetch if database exists
         Default: False
@@ -178,30 +174,34 @@ def pull_vdb_to_local(
     >>> client = storage.Client()
     >>> pull_vdb_to_local(client, force_refresh=False)
     """
-    local_path = Path(local_dir) / prefix
-    db_path = local_path / vdb_file
-
-    if not force_refresh and db_path.exists():
-        return
-
-    if local_path.exists():
-        shutil.rmtree(local_path)
-        print("Deleted previous collection cache.")
-
-    local_path.mkdir(parents=True)
-
-    if not bucket_name:
+    if bucket_name is None:
         bucket_name = get_secret(
             "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
         )
 
-    bucket = client.bucket(bucket_name=bucket_name)
+    local_path = Path(local_dir)
+    target_dir = local_path / prefix
+
+    if target_dir.exists() and not force_refresh:
+        return
+
+    if target_dir.exists():
+        shutil.rmtree(target_dir)
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    bucket = client.bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=prefix)
 
     for blob in blobs:
-        filename = Path(blob.name).name
-        if filename == vdb_file:
-            blob.download_to_filename(str(db_path))
+        if blob.name.endswith("/"):
+            continue
+
+        relative_path = Path(blob.name).relative_to(prefix)
+        local_file = target_dir / relative_path
+        local_file.parent.mkdir(parents=True, exist_ok=True)
+
+        blob.download_to_filename(str(local_file))
 
 
 def process_embedding_search_result(

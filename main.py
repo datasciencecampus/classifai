@@ -1,6 +1,7 @@
 """Functions to initiate the API endpoints."""
 
 import os
+from pathlib import Path
 from typing import Annotated
 
 from dotenv import dotenv_values
@@ -24,7 +25,7 @@ if api_type == "live":
         "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
     )
 else:
-    DB_DIR = "data/db/"
+    DB_DIR = "data/db"
     config = dotenv_values(".env")
     BUCKET_NAME = config["BUCKET_NAME"]
 
@@ -43,13 +44,13 @@ app = FastAPI(
 pull_vdb_to_local(
     client=storage.Client(),
     local_dir=DB_DIR,
-    prefix="sic_knowledge_base_db/",
+    prefix="sic_knowledge_base_db",
     bucket_name=BUCKET_NAME,
 )
 pull_vdb_to_local(
     client=storage.Client(),
     local_dir=DB_DIR,
-    prefix="soc_knowledge_base_db_OLD/",
+    prefix="soc_knowledge_base_db_OLD",
     bucket_name=BUCKET_NAME,
 )
 
@@ -129,7 +130,7 @@ def soc(
 
     handler = EmbeddingHandler(
         vdb_name="classifai-collection",
-        db_dir=os.path.join(DB_DIR, "soc_knowledge_base_db_OLD"),
+        db_dir=str(Path(DB_DIR) / "soc_knowledge_base_db_OLD"),
         k_matches=n_results,
     )
 
@@ -177,7 +178,7 @@ def sic(
 
     handler = EmbeddingHandler(
         vdb_name="classifai-collection",
-        db_dir=os.path.join(DB_DIR, "sic_knowledge_base_db"),
+        db_dir=str(Path(DB_DIR) / "sic_knowledge_base_db"),
         k_matches=n_results,
     )
 
