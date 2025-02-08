@@ -49,7 +49,7 @@ pull_vdb_to_local(
 pull_vdb_to_local(
     client=storage.Client(),
     local_dir=DB_DIR,
-    prefix="soc_knowledge_base_db/",
+    prefix="soc_knowledge_base_db_OLD/",
     bucket_name=BUCKET_NAME,
 )
 
@@ -129,7 +129,7 @@ def soc(
 
     handler = EmbeddingHandler(
         vdb_name="classifai-collection",
-        db_dir=os.path.join(DB_DIR, "soc_knowledge_base_db"),
+        db_dir=os.path.join(DB_DIR, "soc_knowledge_base_db_OLD"),
         k_matches=n_results,
     )
 

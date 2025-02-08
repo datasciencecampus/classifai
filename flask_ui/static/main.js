@@ -5,7 +5,7 @@
 // main.js
 import { store } from './state.js';
 import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult } from './actions.js';
-import { fetchResults, autocode, handleFileSelect, downloadCSV } from './dataService.js';
+import { fetchResults, autocode, handleFileSelect, handleFixedWidthFileSelect, downloadCSV, downloadFixedWidthFile } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     */
 
     // Get page elements for events
-    const fileInput = document.getElementById('csv-file');
+    const fileInput = document.getElementById('input-file');
     const clearButton = document.getElementById('clear-all');
     const downloadButton = document.getElementById('downloadButton');
     const searchButton = document.getElementById('fetch-results');
@@ -100,7 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // File input event
     fileInput.addEventListener('change', async (event) => {
-        const newJobs = await handleFileSelect(event);
+        const newJobs = await handleFixedWidthFileSelect(event);
+        //const newJobs = await handleFileSelect(event);
         store.dispatch(loadJobs(newJobs));
         setTimeout(() => {fileInput.value = ''},2000);
 
@@ -118,7 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Download event (doesn't affect state)
     downloadButton.addEventListener('click', () => {
-        downloadCSV(store.getState().jobs,"results.csv");
+        downloadFixedWidthFile(store.getState().jobs, "results.txt");
+        //downloadCSV(store.getState().jobs,"results.csv");
     });
 
     // Clear All event

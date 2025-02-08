@@ -9,6 +9,55 @@
  * @param {Event} event - The file input change event.
  * @returns {Promise<Array>} A promise that resolves to an array of parsed job objects.
  */
+
+
+export async function handleFixedWidthFileSelect(event) {
+
+    const file = event.target.files[0];
+
+    return new Promise((resolve, reject) => {
+        //immeditely reject if theres no file or something wrong with the file
+        if (!file) {
+            reject(new Error("No file selected"));
+        }
+
+        //filereader to read in the file
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            //get the individual lines an discard any empty lines
+            const lines = event.target.result.split('\n').filter(line => line.trim() !== '');
+            //for each line do:
+            const jobs = lines.map((row) => {
+
+                //parse out the id
+                //parse out the description and trim any excess whitespace
+                const job = {
+                    id: row.substring(0,7),
+                    description: row.substring(7,49).trim(),
+                    description_orig: row.substring(7,49).trim(),
+                    code: '',
+                    code_description: '',
+                    code_score: '',
+                    code_rank: ''
+                }
+
+                //store remaining string beyond character 49 in job['excess'] IF it exists
+                if (row.length > 49){
+                    if (row.substring(49).trim() !== '') {
+                        job['excess'] = row.substring(49).trim()
+                    }
+                }
+                return job;
+            });
+            //return the data
+            resolve(jobs);
+        };
+
+        reader.onerror = (error) => reject(error);
+        reader.readAsText(file);
+    });
+}
+
 export async function handleFileSelect(event) {
     const file = event.target.files[0];
 
@@ -82,6 +131,68 @@ export function getResultsForJob(jobId,resultsData) {
 
     return null;
 }
+
+
+/**
+ * Download the data as a Fixed Width File
+ * @param {Array} data
+ * @param {string} filename
+ */
+export function downloadFixedWidthFile(data, filename = 'download.txt') {
+
+    //set the fields we want to extract from the table object and asign a width for each one in the fieldWidths object
+    const fieldsInOrder = ['id', 'description', 'description_orig', 'code', 'code_description', 'code_score','code_rank']
+    const fieldWidths = {
+        id: 7,
+        description: 42,
+        description_orig: 42,
+        code: 5,
+        code_description: 42,
+        code_score: 5,
+        code_rank: 5
+    };
+
+    //for each row in the data table process them to the string format and join the row strings with '\n'
+    const txt = data.map(row => {
+
+        //for each field/column in the row join them to one another with necessary padding
+        const stringifiedRow = fieldsInOrder.map(field => {
+
+            //get actual value at for that column/field and pad or truncate the string value to the asigned width for that
+            const value = row[field]!=null ? String(row[field]) : "Null";
+            const width = fieldWidths[field];
+            return value.length > width ? value.substring(0,width) : value.padEnd(width, ' ');
+        }).join('')
+
+        return stringifiedRow
+    }).join('\n')
+
+
+    // Create a Blob containing the text data
+    const blob = new Blob([txt], { type: 'text/csv;charset=utf-8;' });
+
+
+    // Create download link
+    const link = document.createElement('a');
+
+    // Create the URL for our blob
+    const url = URL.createObjectURL(blob);
+
+    // Set link properties
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+
+    // Append link to body (required for Firefox)
+    document.body.appendChild(link);
+
+    // Trigger download
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
 
 /**
  * Download the data as a CSV
