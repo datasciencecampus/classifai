@@ -10,4 +10,5 @@ automatic_scaling:
   max_instances: 12
 
 env_variables:
+  API_TYPE: live
   PROJECT_ID: classifai-sandbox

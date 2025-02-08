@@ -18,4 +18,5 @@ handlers:
 env_variables:
   PROJECT_ID: classifai-sandbox
   ENV_TYPE: dev
+  API_TYPE: live
   API_URL: https://dev-fastapi-dot-classifai-sandbox.nw.r.appspot.com
