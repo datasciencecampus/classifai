@@ -1,33 +1,31 @@
 """Functions to initiate the API endpoints."""
 
-import os
+import logging
 from pathlib import Path
 from typing import Annotated
 
-from dotenv import dotenv_values
+from dotenv import find_dotenv, load_dotenv
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 from google.cloud import storage
 from pydantic import BaseModel, Field
 
+from src.classifai.config import Config
 from src.classifai.embedding import EmbeddingHandler
 from src.classifai.utils import (
-    get_secret,
     process_embedding_search_result,
     pull_vdb_to_local,
 )
 
-api_type = os.getenv("API_TYPE", default="live")
+load_dotenv(find_dotenv())
+config = Config("API")
+config.setup_logging()
 
-if api_type == "live":
-    DB_DIR = "/tmp/"
-    BUCKET_NAME = get_secret(
-        "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
-    )
-else:
-    DB_DIR = "data/db"
-    config = dotenv_values(".env")
-    BUCKET_NAME = config["BUCKET_NAME"]
+if not config.validate():
+    logging.error("Invalid configuration. Exiting.")
+    import sys
+
+    sys.exit(1)
 
 
 app = FastAPI(
@@ -43,15 +41,15 @@ app = FastAPI(
 
 pull_vdb_to_local(
     client=storage.Client(),
-    local_dir=DB_DIR,
+    local_dir=config.db_dir,
     prefix="sic_knowledge_base_db",
-    bucket_name=BUCKET_NAME,
+    bucket_name=config.bucket_name,
 )
 pull_vdb_to_local(
     client=storage.Client(),
-    local_dir=DB_DIR,
+    local_dir=config.db_dir,
     prefix="soc_knowledge_base_db_OLD",
-    bucket_name=BUCKET_NAME,
+    bucket_name=config.bucket_name,
 )
 
 
@@ -130,8 +128,9 @@ def soc(
 
     handler = EmbeddingHandler(
         vdb_name="classifai-collection",
-        db_dir=str(Path(DB_DIR) / "soc_knowledge_base_db_OLD"),
+        db_dir=str(Path(config.db_dir) / "soc_knowledge_base_db_OLD"),
         k_matches=n_results,
+        api_key=config.embedding_api_key,
     )
 
     query_result = handler.collection.query(
@@ -178,8 +177,9 @@ def sic(
 
     handler = EmbeddingHandler(
         vdb_name="classifai-collection",
-        db_dir=str(Path(DB_DIR) / "sic_knowledge_base_db"),
+        db_dir=str(Path(config.db_dir) / "sic_knowledge_base_db"),
         k_matches=n_results,
+        api_key=config.embedding_api_key,
     )
 
     query_result = handler.collection.query(

@@ -7,11 +7,9 @@ python -m flask --app flask_ui/app.py run
 
 import json
 import logging
-import os
 
-import google.cloud.logging
 import requests
-from dotenv import dotenv_values
+from dotenv import find_dotenv, load_dotenv
 from flask import (
     Flask,
     jsonify,
@@ -23,33 +21,19 @@ from flask import (
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 
-from classifai.utils import get_secret
+from src.classifai.config import Config
 
-env_type = os.getenv("ENV_TYPE", default="dev")
-api_type = os.getenv("API_TYPE", default="live")
+load_dotenv(find_dotenv())
+config = Config("UI")
+config.setup_logging()
 
-print(f"Environment type: {env_type}")
-print(f"API type: {api_type}")
+logging.info(f"API URL: {config.api_url}")
 
-if env_type == "local":
-    config = dotenv_values(".env")
-    logging.basicConfig(encoding="utf-8", level=logging.INFO)
-    OAUTH_CLIENT_ID = config.get("OAUTH_CLIENT_ID")
-    API_URL = (
-        "http://127.0.0.1:8000"
-        if api_type == "local"
-        else config.get("API_URL")
-    )
-    logging.info(f"API URL: {API_URL}")
+if not config.validate():
+    logging.error("Invalid configuration. Exiting.")
+    import sys
 
-elif env_type == "dev":
-    logger = google.cloud.logging.Client()
-    logger.setup_logging()
-    assert api_type == "live", "Live frontend doesn't work with local backend"
-    API_URL = os.getenv("API_URL")
-    logging.info(f"API URL: {API_URL}")
-    PROJECT_ID = os.getenv("PROJECT_ID")
-    OAUTH_CLIENT_ID = get_secret("app_oauth_client_id", project_id=PROJECT_ID)
+    sys.exit(1)
 
 
 def _obtain_oidc_token(oauth_client_id):
@@ -191,26 +175,26 @@ def predict_soc():
     }  # correctly formatted for fastapi request
 
     # if in 'live' api_type call real api with auth, if in 'local' api_type call localhost api with no auth
-    if api_type == "live":
+    if config.api_type == "live":
         logging.info("Calling LIVE fastapi server")
 
         # 324-QUICKFIX-removing asterisk labelled entries from ranking
         return remove_asterisk_labels(
             api_call_with_auth(
                 json_request_body,
-                f"{API_URL}/soc",
-                headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
+                f"{config.api_url}/soc",
+                headers=_obtain_oidc_token(config.oauth_client_id),
             )
         )
 
-    elif api_type == "local":
+    elif config.api_type == "local":
         logging.info("Calling LOCAL fastapi server")
 
         # 324-QUICKFIX-removing asterisk labelled entries from ranking
         return remove_asterisk_labels(
             api_call_no_auth(
                 json_request_body,
-                f"{API_URL}/soc",
+                f"{config.api_url}/soc",
             )
         )
 
@@ -240,20 +224,20 @@ def predict_sic():
     }  # correctly formatted for fastapi request
 
     # if in 'live' api_type call real api with auth, if in 'local' api_type call localhost api with no auth
-    if api_type == "live":
+    if config.api_type == "live":
         logging.info("Calling LIVE fastapi server")
         return api_call_with_auth(
             json_request_body,
-            f"{API_URL}/sic",
-            headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
+            f"{config.api_url}/sic",
+            headers=_obtain_oidc_token(config.oauth_client_id),
         )
 
-    elif api_type == "local":
+    elif config.api_type == "local":
         logging.info("Calling LOCAL fastapi server")
         # return send_from_directory("static", "mock_sic_response.json")
         return api_call_no_auth(
             json_request_body,
-            f"{API_URL}/sic",
+            f"{config.api_url}/sic",
         )
 
     else:  # api_type == 'mock'

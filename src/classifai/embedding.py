@@ -24,6 +24,7 @@ class EmbeddingHandler:
         embedding_model_name: str = "models/text-embedding-004",  # "sentence-transformers/all-MiniLM-L6-v2"
         db_dir: str = "/tmp/db",
         k_matches: int = 3,
+        api_key: str | None = None,
         task_type: str = "CLASSIFICATION",
         distance_metric: str = "l2",
         vdb_name: str = "default_collection",
@@ -39,6 +40,8 @@ class EmbeddingHandler:
             The path to the where the database is stored, by default "data/soc-index/db".
         k_matches : int, optional
             The number of nearest matches to retrieve, by default 3.
+        api_key: str, optional
+            The API key for the embedding model. If None, get from Google secrets.
         task_type: str, optional
             The task type if using Google embeddings, by default "CLASSIFICATION".
         distance_metric : str, optional
@@ -54,8 +57,12 @@ class EmbeddingHandler:
         self.db_dir = db_dir
         self.k_matches = k_matches
         self.distance_metric = distance_metric
-        self.api_key = get_secret(
-            "GOOGLE_API_KEY", project_id=os.getenv("PROJECT_ID")
+        self.api_key = (
+            api_key
+            if api_key is not None
+            else get_secret(
+                "GOOGLE_API_KEY", project_id=os.getenv("PROJECT_ID")
+            )
         )
         self.vdb_name = vdb_name
 
