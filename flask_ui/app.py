@@ -117,6 +117,26 @@ def api_call_with_auth(data: dict, url: str, headers: dict) -> str:
         return jsonify({"error": "Invalid JSON format"}), 400
 
 
+def remove_asterisk_labels(data):
+    """Remove any ranked soc codes from the ranking.
+
+    Parameters
+    ----------
+    data: dict
+        the json object / python dict returned by a succeful call to FastAPI SIC or SOC endpoint
+    """
+
+    # for each rows returned ranking, iterate through the ranking and remove ranked items where the label value is *
+    for entry in data["data"]:
+        entry["response"] = [
+            response
+            for response in entry["response"]
+            if response["label"] != "*"
+        ]
+
+    return data
+
+
 app = Flask(__name__)
 
 
@@ -173,17 +193,25 @@ def predict_soc():
     # if in 'live' api_type call real api with auth, if in 'local' api_type call localhost api with no auth
     if api_type == "live":
         logging.info("Calling LIVE fastapi server")
-        return api_call_with_auth(
-            json_request_body,
-            f"{API_URL}/soc",
-            headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
+
+        # 324-QUICKFIX-removing asterisk labelled entries from ranking
+        return remove_asterisk_labels(
+            api_call_with_auth(
+                json_request_body,
+                f"{API_URL}/soc",
+                headers=_obtain_oidc_token(OAUTH_CLIENT_ID),
+            )
         )
 
     elif api_type == "local":
         logging.info("Calling LOCAL fastapi server")
-        return api_call_no_auth(
-            json_request_body,
-            f"{API_URL}/soc",
+
+        # 324-QUICKFIX-removing asterisk labelled entries from ranking
+        return remove_asterisk_labels(
+            api_call_no_auth(
+                json_request_body,
+                f"{API_URL}/soc",
+            )
         )
 
     else:  # api_type == 'mock'
