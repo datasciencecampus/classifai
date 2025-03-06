@@ -1,8 +1,35 @@
+
 /**
  * @file dataService.js
  * @description Provides data management functions for the SIC/SOC Coding Tool.
  */
 
+
+
+/**
+ * Updated version of upsertRecord that accepts array of new records (backwards compatible)
+ * @param {Array} data
+ * @param {Array|Object} newRecords - array of new records. Will accept single record and convert to array
+ * @param {function} getKey - a function determining name of id field
+ * @returns {Array}
+ */
+ export function upsertRecords(data, newRecords, getKey = record => record?.id) {
+    if (!Array.isArray(newRecords)) {
+        newRecords = [newRecords];
+    }
+
+    const recordMap = new Map(
+        data.filter(record => record && getKey(record) !== undefined)
+            .map(record => [getKey(record), record])
+    );
+
+    newRecords.filter(record => record && getKey(record) !== undefined)
+        .forEach(newRecord => {
+            recordMap.set(getKey(newRecord), newRecord);
+        });
+
+    return [...recordMap.values()];
+}
 
 /**
  * Handles file selection and parses CSV data.
@@ -17,7 +44,7 @@ export async function handleFixedWidthFileSelect(event) {
 
     return new Promise((resolve, reject) => {
         //immeditely reject if theres no file or something wrong with the file
-        if (!file) {
+       if (!file) {
             reject(new Error("No file selected"));
         }
 
@@ -87,28 +114,89 @@ export async function handleFileSelect(event) {
         });
     });
 }
+/**
+* Batches an array into chunks of a given size
+* @param {Array} jobsData - The array of job objects
+* @param {int} chunkSize - The size of each chunk
+* @returns {Array} Array of arrays, each with length chunkSize
+* NOTE:
+* If the final chunk would be < chunkSize, the chunk will contain whatever items
+* are left in the array
+*/
+function batchData(jobsData, chunkSize=20) {
+    const chunkedData = [];
+    for (let i = 0; i < jobsData.length; i += chunkSize) {
+        chunkedData.push(jobsData.slice(i, i + chunkSize));
+    };
+    return chunkedData;
+};
+
+// Delay function to be used after receiving an error from the server
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+/**
+ * Constructs a standardized mock response array for resultsData.
+ * For each input object in the original request, creates a corresponding fake response
+ * object with the original ID and a message.
+ *
+ * @param {Array} inputArray - Array of input objects, each containing an 'id' property
+ * @param {object} [messageRecord] - Optional custom error message
+ * @returns {Array} Array of error response objects, each containing:
+ *                         - input_id: The original ID from the input object
+ *                         - response: Array containing a single error message object
+ */
+export function constructMockResponse(inputArray,messageRecord={label: 'Loading...', description: 'Please wait',distance:0}) {
+    return inputArray.map(item => ({
+      input_id: item.id,
+      response: [messageRecord]
+    }));
+  }
 
 /**
  * Fetches code results from the server.
  * @param {Array} jobsData - The array of job objects.
+ * @param {function} updateCallback - Function of (responseData,index) to run on each fetched result
  * @param {string} endpoint - The endpoint to query (default '/predict_soc')
- * @returns {Promise<Object>} A promise that resolves to the fetched code results data.
+ * @param {int} chunkSize - Size of batches
+ * @param {int} retries - Number of retries to attempt
+ *
+ * First sorts the array in alphabetical order, then sets the localstorage to reflect.
+ *
+ * Then calls batchData to batch the jobsData array into chunks, then iterates
+ * through each chunk and fetches the return, updating 'resultsData' with the result.
+ *
+ * Retry functionality is implemented in each call to the endpoint, trying up until 5
+ * times to ensure a succesful response, otherwise continuing through to the next chunk
  */
-export async function fetchResults(jobsData, endpoint='/predict_soc') {
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(jobsData),
-        });
-        const responseJson = await response.json();
-        localStorage.setItem('resultsData', JSON.stringify(responseJson.data));
-        return responseJson.data;
-    } catch (error) {
-        console.error('Error:', error);
-        return {};
-    }
-}
+export async function fetchResults(jobsData, updateCallback,endpoint='/predict_soc',chunkSize=20,retries=5) {
+    const chunkedData = batchData(jobsData, chunkSize);
+    const failMessage = {label: 'Error', description: 'API call failed. Please click Re-search above',distance:0}
+    chunkLoop: for (const [index, chunk] of chunkedData.entries()) {
+        attemptLoop: for (let attempt = 1; attempt <=retries; attempt ++) {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(chunk),
+            });
+            if (response.status === 200) {
+                let responseJson = await response.json();
+                let responseData = responseJson?.data;
+                updateCallback(responseData,index);
+                console.log('Successfully processed chunk', index);
+                continue chunkLoop;
+            } else {
+                console.error(`Attempt ${attempt} of chunk ${index} failed:`, response.status);
+                await delay(4000); // Waiting 4000 ms before continuing
+                };
+            };
+            let failJson = constructMockResponse(chunk,failMessage);
+            updateCallback(failJson,index);
+            console.error('All attempts failed on chunk', index);
+        };
+    };
 
 /**
  * Gets SIC/SOC results for a specific job.

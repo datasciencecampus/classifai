@@ -5,7 +5,7 @@
 // main.js
 import { store } from './state.js';
 import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult } from './actions.js';
-import { fetchResults, autocode, handleFileSelect, handleFixedWidthFileSelect, downloadCSV, downloadFixedWidthFile } from './dataService.js';
+import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -101,15 +101,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // File input event
     fileInput.addEventListener('change', async (event) => {
         const newJobs = await handleFixedWidthFileSelect(event);
-        //const newJobs = await handleFileSelect(event);
+        newJobs.sort((a, b) => a.description.localeCompare(b.description));
+        localStorage.setItem('jobsData', JSON.stringify(newJobs));
+
         store.dispatch(loadJobs(newJobs));
         setTimeout(() => {fileInput.value = ''},2000);
 
         // Search immediately on file load
-        resultsDataTable.clear().draw();
-        resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
-        const newResultsData = await fetchResults(newJobs,'/predict_soc');
-        store.dispatch(updateResults(newResultsData));
+        const loadingMessageResultsData = constructMockResponse(newJobs);
+        store.dispatch(updateResults(loadingMessageResultsData));
+
+        const updateCallback = (responseData,index) => {
+            let currentResultsData = store.getState().resultsData;
+            let newResultsData = upsertRecords(currentResultsData,responseData,record => record?.input_id);
+            store.dispatch(updateResults(newResultsData));
+        };
+        fetchResults(newJobs,updateCallback,'/predict_soc',20,5);
     });
 
     // Backup in case file chooser 'change' event doesn't fire
@@ -132,10 +139,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Click search button event
     searchButton.addEventListener('click', async () => {
-        resultsDataTable.clear().draw();
-        resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
-        const newResultsData = await fetchResults(store.getState().jobs,'/predict_soc');
-        store.dispatch(updateResults(newResultsData));
+        const loadingMessageResultsData = constructMockResponse(store.getState().jobs);
+        store.dispatch(updateResults(loadingMessageResultsData));
+        const updateCallback = (responseData,index) => {
+            let currentResultsData = store.getState().resultsData;
+            let newResultsData = upsertRecords(currentResultsData,responseData,record => record?.input_id);
+            store.dispatch(updateResults(newResultsData));
+        };
+        fetchResults(store.getState().jobs,
+            updateCallback,
+            '/predict_soc',
+            20,
+            5,
+            );
     });
 
     // Assign result event
@@ -157,11 +173,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Click 'Get 1 result' button event
     const updateOneResultButton = document.getElementById('fetch-one-result');
     updateOneResultButton.addEventListener('click', async () => {
-        resultsDataTable.clear().draw();
-        resultsDataTable.row.add({label: 'Loading...', description: 'Please wait', distance: ''}).draw();
         const currentJob = store.getState().jobs.find(job => job.id === store.getState().selectedJobId);
-        const [newOneResult] = await fetchResults([currentJob]);
-        store.dispatch(updateOneResult(newOneResult));
+        const loadingMessageCurrentResult = constructMockResponse([currentJob]);
+        store.dispatch(updateOneResult(loadingMessageCurrentResult));
+        const updateCallback = (responseData,index) => {
+            let [newOneResult] = responseData;
+            store.dispatch(updateOneResult(newOneResult));
+        };
+        fetchResults([currentJob],updateCallback);
     });
 
 });

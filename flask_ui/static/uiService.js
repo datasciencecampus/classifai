@@ -21,9 +21,10 @@ export function initTables(store) {
                 { data: 'description', title: 'Description' },
                 { data: 'code', title: 'Code' }
             ],
-            order: [[0,'asc']],
-            pageLength: 25,
-            lengthChange: false,
+            order: [[1,'asc']],
+            paging: false,
+            scrollY: '50vh',
+            scrollCollapse: true,
         }
     );
 
@@ -37,9 +38,9 @@ export function initTables(store) {
                 { data: 'distance', title: 'Distance' },
             ],
             order: [[2, 'asc']],
-            pageLength: 15,
-            lengthChange: false,
-            searching: false,
+            paging: false,
+            scrollCollapse: true,
+            scrollY: '50vh',
             columnDefs: [{targets: [0,2], width: '20%'}]
         }
     );

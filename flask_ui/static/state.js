@@ -1,6 +1,7 @@
 // state.js
 
 import { ACTION_TYPES } from './actions.js';
+import { upsertRecords } from './dataService.js';
 
 /**
  * The initial state of the application
@@ -12,25 +13,6 @@ const initialState = {
   selectedResult: {},
 };
 
-
-/**
- * Utility function for upsert in Array
- * @param {Array} data - Data Array with each record having an 'id' (or other comparison field - see `matchFunction`)
- * @param {Object} newRecord - New record to update or insert
- * @param {function} matchFunction - Function determining fields to compare on
- * @returns {Array} updated data
- */
-const upsertRecord = (data, newRecord, matchFunction = (a,b) => a.id === b.id) => {
-  let found = false;
-  const updated = data.map(record => {
-      if (matchFunction(record, newRecord)) {
-          found = true;
-          return newRecord;
-      }
-      return record;
-  });
-  return found ? updated : [...updated, newRecord];
-};
 
 /**
  * Reducer function to handle state changes based on actions
@@ -53,16 +35,16 @@ export function reducer(state, action) {
       case ACTION_TYPES.UPDATE_ONE_RESULT:
         return {
           ...state,
-          resultsData: upsertRecord(
+          resultsData: upsertRecords(
             state.resultsData,
             action.payload,
-            (result, newresult) => result.input_id === newresult.input_id,
+            result => result?.input_id,
           )
         };
       case ACTION_TYPES.EDIT_JOB_DESCRIPTION:
         return {
             ...state,
-            jobs: upsertRecord(
+            jobs: upsertRecords(
               state.jobs,
               action.payload,
             )
