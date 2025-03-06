@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Annotated
 
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from google.cloud import storage
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from src.classifai.config import Config
 from src.classifai.embedding import EmbeddingHandler
@@ -90,6 +90,17 @@ class ResultsList(BaseModel):
 
     input_id: str
     response: list[ResultEntry]
+
+    @validator("response")
+    def check_zero_length_response(cls, v):
+        """Check for empty results list and throw HTTPException response to client."""
+
+        if len(v) == 0:
+            raise HTTPException(
+                status_code=503,
+                detail="Length of response body is zero. FastAPI Backend Fault.",
+            )
+        return v
 
 
 class ResultsResponseBody(BaseModel):

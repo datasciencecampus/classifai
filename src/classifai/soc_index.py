@@ -22,12 +22,12 @@ class SOCCode:
         Returns
         -------
         float
-            The processed SOC code. Returns NaN if the SOC code cannot be processed.
+            The processed SOC code. Returns nan if the SOC code cannot be processed.
         """
         try:
             return int(str(soc_code).replace("/", ""))
         except ValueError:
-            return np.NaN
+            return np.nan
 
     @staticmethod
     def create_education_table(soc_df: pd.DataFrame) -> pd.DataFrame:

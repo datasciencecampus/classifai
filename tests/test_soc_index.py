@@ -47,12 +47,12 @@ def test_soc_index_length():
     ("input_value", "expected_value"),
     [
         ("4547/282722", 4547282722),
-        ("Elected officers and representatives", np.NaN),
-        ("262612871a", np.NaN),
+        ("Elected officers and representatives", np.nan),
+        ("262612871a", np.nan),
     ],
 )
 def test_process_soc_code(input_value, expected_value):
-    """Test SOC codes are processed correctly or NaN is returned."""
+    """Test SOC codes are processed correctly or nan is returned."""
 
     output_value = SOCCode.process_soc_code(input_value)
     assert (output_value == expected_value) or (output_value is expected_value)
@@ -81,9 +81,9 @@ def test_join_soc_education_table(soc_df_clean, soc_df_education):
     output_df = pd.DataFrame(
         dict(
             major_group=["Skilled Trades", "Skilled Trades", "Skilled Trades"],
-            sub_major_group=[np.NaN, "Agriculture", "Agriculture"],
-            minor_group=[np.NaN, np.NaN, np.NaN],
-            unit_group=[np.NaN, "Agriculture", "Agriculture & Related"],
+            sub_major_group=[np.nan, "Agriculture", "Agriculture"],
+            minor_group=[np.nan, np.nan, np.nan],
+            unit_group=[np.nan, "Agriculture", "Agriculture & Related"],
             group_title=[
                 "Skilled Trades",
                 "Agriculture",
@@ -94,7 +94,7 @@ def test_join_soc_education_table(soc_df_clean, soc_df_education):
                 "Agriculture is...",
                 "Agriculture & Related is...",
             ],
-            descriptions_education=[np.NaN, "GCSEs", np.NaN],
+            descriptions_education=[np.nan, "GCSEs", np.nan],
             soc_code=[6615, 152523, 626322],
         )
     )
