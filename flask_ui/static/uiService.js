@@ -5,6 +5,7 @@
 import { getResultsForJob } from './dataService.js';
 import {selectJob, selectResult, assignResult, uncodableResult} from './actions.js'
 
+
 /**
  * Initializes DataTables for jobs and code results.
  * @param {Object} store - A store object for state management
@@ -62,45 +63,32 @@ export function initTables(store) {
     jobTable.on('keydown', function(event) {
         if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'j' || event.key === 'J') {
             console.log(jobTable.row('.selected').index());
-            const currentRowIndex = jobTable.row('.selected').index();
-            const visibleRows = jobTable.rows({order: 'current'}).indexes();
-            const currentPosition = visibleRows.indexOf(currentRowIndex);
-            const nextPosition = event.shiftKey ? currentPosition - 1 : currentPosition + 1;
-            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
-                jobTable.row(visibleRows[nextPosition]).select();
-                const rowData = jobTable.row(visibleRows[nextPosition]).data();
-                store.dispatch(selectJob(rowData.id));
-            }
+            incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
         } else if (event.key === 'ArrowUp' || event.key === 'k' || event.key === 'K') {
-            console.log(jobTable.row('.selected').index());
-            const currentRowIndex = jobTable.row('.selected').index();
-            const visibleRows = jobTable.rows({order: 'current'}).indexes();
-            const currentPosition = visibleRows.indexOf(currentRowIndex);
-            const nextPosition = currentPosition - 1;
-            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
-                jobTable.row(visibleRows[nextPosition]).select();
-                const rowData = jobTable.row(visibleRows[nextPosition]).data();
-                store.dispatch(selectJob(rowData.id));
-            }
+            incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)), -1);
         } else if (event.key === 'ArrowRight' || event.key === 'h' || event.key === 'H' || event.key === 'l' || event.key === 'L') {
             resultsDataTable.row(0).select();
             resultsDataTable.table().node().focus();
         } else if (event.key === 'y' || event.key === 'Y') {
             const state = store.getState();
             if (state.selectedJobId && state.selectedResult.label) {
-                store.dispatch(assignResult(state.selectedJobId, state.selectedResult));
-            }
+                const jobID = state.selectedJobId;
+                const result = state.selectedResult;
+                store.dispatch(assignResult(jobID, result));
+                incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+           }
         }  else if (event.key === 'u' || event.key === 'U') {
             const selectedJobId = store.getState().selectedJobId;
             if (selectedJobId) {
                 store.dispatch(assignResult(selectedJobId, uncodableResult));
             }
+            incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
         }else if (event.key === 'n' || event.key === 'N') {
             const clearData = {
-                label: null,
-                description: null,
-                distance: null,
-                rank: null,
+                label: "",
+                description: "",
+                distance: "",
+                rank: "",
             }
             store.dispatch(assignResult(store.getState().selectedJobId,clearData));
         }
@@ -108,43 +96,28 @@ export function initTables(store) {
 
     resultsDataTable.on('keydown', function(event) {
         if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'j' || event.key === 'J') {
-            console.log(resultsDataTable.row('.selected').index());
-            const currentRowIndex = resultsDataTable.row('.selected').index();
-            const visibleRows = resultsDataTable.rows({order: 'current'}).indexes();
-            const currentPosition = visibleRows.indexOf(currentRowIndex);
-            const nextPosition = event.shiftKey ? currentPosition - 1 : currentPosition + 1;
-            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
-                resultsDataTable.row(visibleRows[nextPosition]).select();
-                const rowData = resultsDataTable.row(visibleRows[nextPosition]).data();
-                store.dispatch(selectResult(rowData));
-            }
+            incrementDataTable(resultsDataTable,(rowData) => store.dispatch(selectResult(rowData)));
         } else if (event.key === 'ArrowUp' || event.key === 'k' || event.key === 'K') {
-            console.log(resultsDataTable.row('.selected').index());
-            const currentRowIndex = resultsDataTable.row('.selected').index();
-            const visibleRows = resultsDataTable.rows({order: 'current'}).indexes();
-            const currentPosition = visibleRows.indexOf(currentRowIndex);
-            const nextPosition = currentPosition - 1;
-            if (nextPosition >= 0 && nextPosition < visibleRows.length) {
-                resultsDataTable.row(visibleRows[nextPosition]).select();
-                const rowData = resultsDataTable.row(visibleRows[nextPosition]).data();
-                store.dispatch(selectResult(rowData));
-            }
+            incrementDataTable(resultsDataTable,(rowData) => store.dispatch(selectResult(rowData)), -1);
         } else if (event.key === 'ArrowLeft' || event.key === 'h' || event.key === 'H' || event.key === 'l' || event.key === 'L') {
             jobTable.row('.selected').select();
             jobTable.table().node().focus();
         }  else if (event.key === 'y' || event.key === 'Y') {
             const state = store.getState();
             if (state.selectedJobId && state.selectedResult.label) {
-                store.dispatch(assignResult(state.selectedJobId, state.selectedResult));
+                const jobID = state.selectedJobId;
+                const result = state.selectedResult;
+                store.dispatch(assignResult(jobID, result));
+                incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
             }
         }  else if (event.key === 'u' || event.key === 'U') {
             const selectedJobId = store.getState().selectedJobId;
             if (selectedJobId) {
                 store.dispatch(assignResult(selectedJobId, uncodableResult));
+                incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
             }
         }
     });
-
     // Handle click events
     jobTable.on('click', 'tbody tr', function() {
         // jobTable.row(this).select();
@@ -164,9 +137,24 @@ export function initTables(store) {
  * Updates the job table with new data.
  * @param {Array} jobsData - The array of job objects.
  * @param {DataTables.Api} jobTable - The job DataTable instance.
+ *
+ * Checks for a flag in 'hideCodedRows', creating a new array with the coded
+ * rows removed if true.
  */
-export function populateJobTable(jobsData, jobTable) {
+export function populateJobTable(jobsData, jobTable, hideCodedRows) {
     jobTable.clear();
+    if (hideCodedRows == true) {
+        let newJobsData = []
+        for (let job of jobsData) {
+            if (String(job.code).length > 0) {
+                continue;
+            }
+            else {
+                newJobsData.push(job);
+            };
+        };
+        jobsData = newJobsData;
+    };
     jobTable.rows.add(jobsData.map(job => ({
         id: job.id,
         description: job.description,
@@ -282,4 +270,22 @@ export function updateResultsTable(selectedJobId,resultsData,resultsDataTable) {
         console.error('Error in updateResultsTable:', error);
         resultsDataTable.clear().draw();
     }
+}
+/**
+* Procedure which increments the selection on the jobTable datatable
+*
+* @param {DataTables.Api} dataTable - The datatable instance
+* @param {function} updateCallback - The state management callback. Function of 'rowData'
+* @param {int} nRowsDown - the number of rows to move down (negative to move up)
+*/
+export function incrementDataTable(dataTable, updateCallback,nRowsDown=1) {
+        const currentRowIndex = dataTable.row('.selected').index();
+        const visibleRows = dataTable.rows({order: 'current'}).indexes();
+        const currentPosition = visibleRows.indexOf(currentRowIndex);
+        const nextPosition = currentPosition + nRowsDown;
+        if (nextPosition >= 0 && nextPosition < visibleRows.length) {
+            dataTable.row(visibleRows[nextPosition]).select();
+            const rowData = dataTable.row(visibleRows[nextPosition]).data();
+            updateCallback(rowData);
+         }
 }

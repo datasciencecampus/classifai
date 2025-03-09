@@ -4,9 +4,9 @@
  */
 // main.js
 import { store } from './state.js';
-import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult } from './actions.js';
+import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult, toggleCodedRows } from './actions.js';
 import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile } from './dataService.js';
-import { initTables, populateJobTable, updateResultsTable, showJobDetails } from './uiService.js';
+import { initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -15,10 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // To access the app state
     // store.getState().{jobs|resultsData|selectedJobId|selectedResult}
 
+    const unsubscribeToggleCodedRows = store.subscribe(ACTION_TYPES.TOGGLE_CODED_ROWS, (state, action) => {
+        console.log('Toggling coded rows');
+        populateJobTable(state.jobs, jobTable, state.hideCoded)
+    });
     // Subscribe to store changes
     const unsubscribeLoadJobs = store.subscribe(ACTION_TYPES.LOAD_JOBS, (state,action) => {
         console.log('Update job table');
-        populateJobTable(state.jobs, jobTable);
+        populateJobTable(state.jobs, jobTable, state.hideCoded);
     });
     const unsubscribeSelectJob = store.subscribe(ACTION_TYPES.SELECT_JOB, (state,action) => {
         updateResultsTable(state.selectedJobId,state.resultsData,resultsDataTable);
@@ -34,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeAssignResult = store.subscribe(ACTION_TYPES.ASSIGN_RESULT, (state, action) => {
         console.log('Assigning code:', action.type);
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
-        populateJobTable(state.jobs, jobTable);
+        populateJobTable(state.jobs, jobTable, state.hideCoded);
         jobTable.row((idx,data) => data.id === state.selectedJobId).select();
         // jobTable.row('.selected').select();
         jobTable.table().node().focus();
@@ -42,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeEditJobDescription = store.subscribe(ACTION_TYPES.EDIT_JOB_DESCRIPTION, (state,action) =>{
         console.log('Edit job details.')
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
-        populateJobTable(state.jobs,jobTable);
+        populateJobTable(state.jobs, jobTable, state.hideCoded);
         jobTable.row((idx,data) => data.id === state.selectedJobId).select();
         // jobTable.row('.selected').select();
         jobTable.table().node().focus();
@@ -77,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchButton = document.getElementById('fetch-results');
     const assignResultButton = document.getElementById('assign-result');
     const assignUncodableButton = document.getElementById('assign-uncodable');
+    const toggleCodedRowsButton = document.getElementById('toggle-coded-rows');
 
     // Autocode event
     const autocodeMaxDistance = document.getElementById('autocode-max-distance');
@@ -158,8 +163,11 @@ document.addEventListener('DOMContentLoaded', function() {
     assignResultButton.addEventListener('click', () => {
         const state = store.getState();
         if (state.selectedJobId && state.selectedResult.label) {
-            store.dispatch(assignResult(state.selectedJobId, state.selectedResult));
-        }
+                const jobID = state.selectedJobId;
+                const result = state.selectedResult;
+                store.dispatch(assignResult(jobID, result));
+                incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+            }
     });
 
     // Assign uncodable event
@@ -167,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedJobId = store.getState().selectedJobId;
         if (selectedJobId) {
             store.dispatch(assignResult(selectedJobId, uncodableResult));
+            incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
         }
     });
 
@@ -181,6 +190,12 @@ document.addEventListener('DOMContentLoaded', function() {
             store.dispatch(updateOneResult(newOneResult));
         };
         fetchResults([currentJob],updateCallback);
+    });
+
+    // Toggle Coded Rows button event
+    toggleCodedRowsButton.addEventListener('click', () => {
+        const state = store.getState();
+        store.dispatch(toggleCodedRows(state.hideCoded));
     });
 
 });

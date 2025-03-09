@@ -10,6 +10,7 @@ export const ACTION_TYPES = {
     CLEAR_ALL: 'CLEAR_ALL',
     EDIT_JOB_DESCRIPTION: 'EDIT_JOB_DESCRIPTION',
     UPDATE_ONE_RESULT: 'UPDATE_ONE_RESULT',
+    TOGGLE_CODED_ROWS: 'TOGGLE_CODED_ROWS',
 };
 
 export const uncodableResult = {
@@ -85,6 +86,8 @@ export const updateResults = (resultsData) => {
     };
 };
 
+
+
 /**
  * Creates an action to assign the result to the jobsData
  * @param {int} jobId - The id of the job row being written to
@@ -118,3 +121,16 @@ export const editJobDescription = (job) => ({
     type: ACTION_TYPES.EDIT_JOB_DESCRIPTION,
     payload: job,
 });
+
+export const toggleCodedRows = (hiddenFlag) => {
+    if (hiddenFlag == true) {
+        var toggleOption = false;
+    } else {
+        var toggleOption = true;
+    };
+    localStorage.setItem('hideCoded', JSON.stringify(toggleOption));
+    return {
+    type: ACTION_TYPES.TOGGLE_CODED_ROWS,
+    payload: toggleOption,
+    };
+};

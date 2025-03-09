@@ -2,7 +2,6 @@
 
 import { ACTION_TYPES } from './actions.js';
 import { upsertRecords } from './dataService.js';
-
 /**
  * The initial state of the application
  */
@@ -11,6 +10,7 @@ const initialState = {
   selectedJobId: null,
   resultsData: [],
   selectedResult: {},
+  hideCoded: false,
 };
 
 
@@ -32,6 +32,11 @@ export function reducer(state, action) {
         return { ...state, selectedResult: action.payload };
       case ACTION_TYPES.CLEAR_ALL:
         return initialState;
+      case ACTION_TYPES.TOGGLE_CODED_ROWS:
+        return {
+          ...state,
+          hideCoded: action.payload,
+          };
       case ACTION_TYPES.UPDATE_ONE_RESULT:
         return {
           ...state,
@@ -91,6 +96,7 @@ const loadStateFromStorage = () => {
           resultsData: JSON.parse(localStorage.getItem('resultsData')) || [],
           selectedJobId: JSON.parse(localStorage.getItem('selectedJobId')) || null,
           selectedResult: JSON.parse(localStorage.getItem('selectedResult')) || {},
+          hideCoded: JSON.parse(localStorage.getItem('hideCoded')) || initialState.hideCoded
       };
   } catch (e) {
       console.error('Error loading state:', e);

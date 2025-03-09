@@ -189,7 +189,7 @@ export async function fetchResults(jobsData, updateCallback,endpoint='/predict_s
                 continue chunkLoop;
             } else {
                 console.error(`Attempt ${attempt} of chunk ${index} failed:`, response.status);
-                await delay(4000); // Waiting 4000 ms before continuing
+                await delay(2000); // Waiting before continuing
                 };
             };
             let failJson = constructMockResponse(chunk,failMessage);

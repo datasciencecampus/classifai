@@ -24,7 +24,19 @@ h1 {
 
 .main-content {
     display: flex;
+    flex-direction: column;
     margin-top: 10px;
+}
+
+.config-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.data-section {
+    display: flex;
+    flex-direction: row;
 }
 
 .file-upload {
@@ -42,13 +54,12 @@ h1 {
     margin-right: 20px;
 }
 
-.job-details {
-    flex: 1;
-}
-
-.job-details p {
-    font-size: 10px;
-    line-height: 1.0;
+#job-details {
+    flex-basis: 50%;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: center;
 }
 
 table {
@@ -68,7 +79,15 @@ th {
 }
 
 .action-buttons {
-    margin-top: 20px;
+    flex-basis: 50%;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-buttons button {
+    margin-top: 10px
 }
 
 button {
@@ -109,6 +128,12 @@ button {
 
 #fetch-one-result {
     background-color: #008CBA;
+    color: white;
+    border: none;
+}
+
+#toggle-coded-rows {
+    background-color: #ED60A9;
     color: white;
     border: none;
 }
@@ -169,4 +194,19 @@ table.dataTable tbody tr.selected {
 
 .edit-btn, .ok-btn, .cancel-btn {
     padding: 0.5rem 1rem;
+    background-color: #E04848;
+    color: white;
+    border: none;
+}
+
+#edit-description {
+    border: none;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#dt-search-0, #dt-search-1 {
+    border: none;
+    background-color: white;
+    margin-left: 10px;
 }

@@ -6,7 +6,7 @@ service: dev-fastapi    # DEV FastAPI service
 entrypoint: gunicorn -b 0.0.0.0:8080 -w 8 -k uvicorn.workers.UvicornWorker fast-api.main:app
 
 automatic_scaling:
-  min_instances: 1
+  min_instances: 0
   max_instances: 12
 
 env_variables:

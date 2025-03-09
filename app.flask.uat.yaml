@@ -7,7 +7,7 @@ entrypoint: gunicorn -t 300 -b 0.0.0.0:8080 flask_ui.app:app
 
 automatic_scaling:
   min_instances: 0
-  max_instances: 5
+  max_instances: 12
 
 handlers:
 - url: /static
