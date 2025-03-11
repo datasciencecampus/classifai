@@ -74,15 +74,15 @@ export function initTables(store) {
             if (state.selectedJobId && state.selectedResult.label) {
                 const jobID = state.selectedJobId;
                 const result = state.selectedResult;
-                store.dispatch(assignResult(jobID, result));
                 incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+                store.dispatch(assignResult(jobID, result));
            }
         }  else if (event.key === 'u' || event.key === 'U') {
             const selectedJobId = store.getState().selectedJobId;
             if (selectedJobId) {
+                incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
                 store.dispatch(assignResult(selectedJobId, uncodableResult));
             }
-            incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
         }else if (event.key === 'n' || event.key === 'N') {
             const clearData = {
                 label: "",
@@ -107,14 +107,14 @@ export function initTables(store) {
             if (state.selectedJobId && state.selectedResult.label) {
                 const jobID = state.selectedJobId;
                 const result = state.selectedResult;
-                store.dispatch(assignResult(jobID, result));
                 incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+                store.dispatch(assignResult(jobID, result));
             }
         }  else if (event.key === 'u' || event.key === 'U') {
             const selectedJobId = store.getState().selectedJobId;
             if (selectedJobId) {
-                store.dispatch(assignResult(selectedJobId, uncodableResult));
                 incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+                store.dispatch(assignResult(selectedJobId, uncodableResult));
             }
         }
     });

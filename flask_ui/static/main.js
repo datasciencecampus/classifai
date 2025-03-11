@@ -165,8 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.selectedJobId && state.selectedResult.label) {
                 const jobID = state.selectedJobId;
                 const result = state.selectedResult;
-                store.dispatch(assignResult(jobID, result));
                 incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+                store.dispatch(assignResult(jobID, result));
             }
     });
 
@@ -174,8 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
     assignUncodableButton.addEventListener('click', () => {
         const selectedJobId = store.getState().selectedJobId;
         if (selectedJobId) {
-            store.dispatch(assignResult(selectedJobId, uncodableResult));
             incrementDataTable(jobTable, (rowData) => store.dispatch(selectJob(rowData.id)));
+            store.dispatch(assignResult(selectedJobId, uncodableResult));
         }
     });
 
