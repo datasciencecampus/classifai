@@ -22,10 +22,9 @@ export function initTables(store) {
                 { data: 'description', title: 'Description' },
                 { data: 'code', title: 'Code' }
             ],
-            order: [[1,'asc']],
-            paging: false,
-            scrollY: '50vh',
-            scrollCollapse: true,
+            autoWidth: false,
+            order: false,
+            paging: true,
         }
     );
 
@@ -39,10 +38,9 @@ export function initTables(store) {
                 { data: 'distance', title: 'Distance' },
             ],
             order: [[2, 'asc']],
-            paging: false,
-            scrollCollapse: true,
-            scrollY: '50vh',
-            columnDefs: [{targets: [0,2], width: '20%'}]
+            columnDefs: [{targets: [0,2], width: '20%'}],
+            autoWidth: false,
+            paging: true,
         }
     );
 
@@ -50,14 +48,7 @@ export function initTables(store) {
     jobTable.table().node().setAttribute('tabindex', '0');
     resultsDataTable.table().node().setAttribute('tabindex', '0');
 
-    jobTable.on('order', function () {
-        // This will show: "Ordering on column 1 (asc)", for example
-        const order = jobTable.order();
 
-        console.log(
-            'Ordering on column ' + order[0][0] + ' (' + order[0][1] + ')'
-        );
-    });
 
     // Handle keyboard events
     jobTable.on('keydown', function(event) {

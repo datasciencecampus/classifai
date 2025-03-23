@@ -160,7 +160,7 @@ button {
 
 #job-table {
     width: 100%;
-    background-color: white
+    background-color: white;
 }
 
 #job-table tbody tr {
@@ -203,10 +203,4 @@ table.dataTable tbody tr.selected {
     border: none;
     text-align: center;
     margin-bottom: 10px;
-}
-
-#dt-search-0, #dt-search-1 {
-    border: none;
-    background-color: white;
-    margin-left: 10px;
 }
