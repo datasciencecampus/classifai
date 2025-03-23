@@ -76,7 +76,7 @@ API_URL=<URL of API>
 In one terminal, run the API:
 
 ```bash
-uvicorn fast-api.main:app
+uvicorn fast_api.main:app
 ```
 
 In another terminal, run the front end:

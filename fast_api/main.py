@@ -5,17 +5,19 @@ from pathlib import Path
 from typing import Annotated
 
 from dotenv import find_dotenv, load_dotenv
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 from google.cloud import storage
-from pydantic import BaseModel, Field, validator
 
+from fast_api.pydantic_models import ClassifaiData, ResultsResponseBody
 from src.classifai.config import Config
 from src.classifai.embedding import EmbeddingHandler
-from src.classifai.utils import (
+from src.classifai.search_result_builders import (
+    create_deduplicated_response,
+    naive_scorer,
     process_embedding_search_result,
-    pull_vdb_to_local,
 )
+from src.classifai.utils import pull_vdb_to_local
 
 load_dotenv(find_dotenv())
 config = Config("API")
@@ -51,62 +53,6 @@ pull_vdb_to_local(
     prefix="soc_knowledge_base_db_OLD",
     bucket_name=config.bucket_name,
 )
-
-
-### pydantic model classes that work with FastAPI to type check the input to the API
-# Model for a single SOC/SIC row entry
-class ClassifaiEntry(BaseModel):
-    """Model for a single row of data (SOC or SIC row etc), includes 'id' and 'description' which are expected as str type."""
-
-    id: str = Field(examples=["1"])
-    description: str = Field(
-        description="User string describing occupation or industry",
-        examples=["A butcher's shop"],
-    )
-
-
-# Model for a collection of SIC/SOC entries
-class ClassifaiData(BaseModel):
-    """Pydantic object which contains list of many SOC/SIC Classifai Entry pydantic models."""
-
-    entries: list[ClassifaiEntry] = Field(
-        description="array of SOC/SIC Entries to be classified"
-    )
-
-
-### pydantic model classes that work with FastAPI to type check the output of the API - same for SIC and SOC
-class ResultEntry(BaseModel):
-    """model for single vdb entry."""
-
-    label: str
-    bridge: str
-    description: str
-    distance: float
-    rank: int
-
-
-class ResultsList(BaseModel):
-    """model for ranked list of VDB entries for a single row input."""
-
-    input_id: str
-    response: list[ResultEntry]
-
-    @validator("response")
-    def check_zero_length_response(cls, v):
-        """Check for empty results list and throw HTTPException response to client."""
-
-        if len(v) == 0:
-            raise HTTPException(
-                status_code=503,
-                detail="Length of response body is zero. FastAPI Backend Fault.",
-            )
-        return v
-
-
-class ResultsResponseBody(BaseModel):
-    """model for set of ranked lists, for all row entries submmitted."""
-
-    data: list[ResultsList]
 
 
 @app.post("/soc", description="SOC programmatic endpoint")
@@ -151,11 +97,21 @@ def soc(
 
     query_result["input_ids"] = input_ids
 
+    # format the data response based on the VDB query results
     processed_result = process_embedding_search_result(
         query_result=query_result, include_bridge=False
     )
 
-    return processed_result
+    # format the deduplicated data response based on the original formatted data
+    deduplicated_result = create_deduplicated_response(
+        processed_result, naive_scorer
+    )
+
+    # return both data and deduplicated data
+    return {
+        "data": processed_result,
+        "deduplicated_data": deduplicated_result,
+    }
 
 
 @app.post("/sic", description="SIC programmatic endpoint")

@@ -204,47 +204,6 @@ def pull_vdb_to_local(
         blob.download_to_filename(str(local_file))
 
 
-def process_embedding_search_result(
-    query_result: chromadb.QueryResult, include_bridge: bool
-) -> dict:
-    """Structure embedding search result into JSON format.
-
-    Parameters
-    ----------
-    query_result : chromadb.QueryResult
-        ChromaDB vector search result format
-
-    Returns
-    -------
-    processed_result : dict
-        Dictionary format of Chroma DB vector search
-    """
-    processed_result = {
-        "data": [
-            {
-                "input_id": input_id,
-                "response": [
-                    {
-                        "label": query_result["metadatas"][i][j]["label"],
-                        "bridge": query_result["metadatas"][i][j]["bridge"]
-                        if include_bridge
-                        else "",
-                        "description": description,
-                        "distance": query_result["distances"][i][j],
-                        "rank": j + 1,
-                    }
-                    for j, description in enumerate(
-                        query_result["documents"][i]
-                    )
-                ],
-            }
-            for i, input_id in enumerate(query_result["input_ids"])
-        ]
-    }
-
-    return processed_result
-
-
 def setup_vector_store(classification: str, distance_metric: str = "l2"):
     """Create new vector store collection in cloud bucket.
 

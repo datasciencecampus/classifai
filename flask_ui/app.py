@@ -118,6 +118,14 @@ def remove_asterisk_labels(data):
             if response["label"] != "*"
         ]
 
+    # do the same for the deduplicated data
+    for entry in data["deduplicated_data"]:
+        entry["response"] = [
+            response
+            for response in entry["response"]
+            if response["label"] != "*"
+        ]
+
     return data
 
 

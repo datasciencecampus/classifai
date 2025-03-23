@@ -3,7 +3,7 @@ instance_class: F4_1G
 env: standard
 service: uat-fastapi    # UAT FastAPI service
 
-entrypoint: gunicorn -b 0.0.0.0:8080 -w 8 -k uvicorn.workers.UvicornWorker fast-api.main:app
+entrypoint: gunicorn -b 0.0.0.0:8080 -w 1 -k uvicorn.workers.UvicornWorker fast_api.main:app
 
 automatic_scaling:
   min_instances: 1
