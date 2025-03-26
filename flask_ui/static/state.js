@@ -11,6 +11,7 @@ const initialState = {
   resultsData: [],
   selectedResult: {},
   hideCoded: false,
+  sessionID: null,
 };
 
 
@@ -24,6 +25,8 @@ export function reducer(state, action) {
     switch (action.type) {
       case ACTION_TYPES.LOAD_JOBS:
         return { ...state, jobs: action.payload };
+      case ACTION_TYPES.NEW_SESSION:
+        return { ...state, sessionID: action.payload }
       case ACTION_TYPES.SELECT_JOB:
         return { ...state, selectedJobId: action.payload };
       case ACTION_TYPES.UPDATE_RESULTS:
@@ -96,7 +99,8 @@ const loadStateFromStorage = () => {
           resultsData: JSON.parse(localStorage.getItem('resultsData')) || [],
           selectedJobId: JSON.parse(localStorage.getItem('selectedJobId')) || null,
           selectedResult: JSON.parse(localStorage.getItem('selectedResult')) || {},
-          hideCoded: JSON.parse(localStorage.getItem('hideCoded')) || initialState.hideCoded
+          hideCoded: JSON.parse(localStorage.getItem('hideCoded')) || initialState.hideCoded,
+          sessionID: JSON.parse(localStorage.getItem('sessionID')) || null
       };
   } catch (e) {
       console.error('Error loading state:', e);

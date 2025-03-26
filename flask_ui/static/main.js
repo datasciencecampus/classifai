@@ -4,8 +4,8 @@
  */
 // main.js
 import { store } from './state.js';
-import { ACTION_TYPES, loadJobs, clearAll, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult, toggleCodedRows } from './actions.js';
-import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile } from './dataService.js';
+import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult, toggleCodedRows } from './actions.js';
+import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, postResultsData } from './dataService.js';
 import { initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeToggleCodedRows = store.subscribe(ACTION_TYPES.TOGGLE_CODED_ROWS, (state, action) => {
         console.log('Toggling coded rows');
         populateJobTable(state.jobs, jobTable, state.hideCoded)
+    });
+    const unsubscribeNewSession = store.subscribe(ACTION_TYPES.NEW_SESSION, (state, action) => {
+        console.log('New Session: ', state.sessionID)
+        postJobsData(state.sessionID, state.jobs);
     });
     // Subscribe to store changes
     const unsubscribeLoadJobs = store.subscribe(ACTION_TYPES.LOAD_JOBS, (state,action) => {
@@ -121,7 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
             let newResultsData = upsertRecords(currentResultsData,responseData,record => record?.input_id);
             store.dispatch(updateResults(newResultsData));
         };
-        fetchResults(newJobs,updateCallback,'/predict_soc',20,5);
+        // Create a new session on file input, then request from the api
+        store.dispatch(newSession())
+        fetchResults(newJobs,updateCallback, store.getState().sessionID, '/predict_soc',20,5);
     });
 
     // Backup in case file chooser 'change' event doesn't fire

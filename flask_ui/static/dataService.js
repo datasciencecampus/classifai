@@ -171,7 +171,7 @@ export function constructMockResponse(inputArray,messageRecord={label: 'Loading.
  * Retry functionality is implemented in each call to the endpoint, trying up until 5
  * times to ensure a succesful response, otherwise continuing through to the next chunk
  */
-export async function fetchResults(jobsData, updateCallback,endpoint='/predict_soc',chunkSize=20,retries=5) {
+export async function fetchResults(jobsData, updateCallback, sessionID, endpoint='/predict_soc',chunkSize=20,retries=5) {
     const chunkedData = batchData(jobsData, chunkSize);
     const failMessage = {label: 'Error', description: 'API call failed. Please click Re-search above',distance:0}
     chunkLoop: for (const [index, chunk] of chunkedData.entries()) {
@@ -186,6 +186,7 @@ export async function fetchResults(jobsData, updateCallback,endpoint='/predict_s
                 let responseData = responseJson?.data;
                 updateCallback(responseData,index);
                 console.log('Successfully processed chunk', index);
+                postResultsData(sessionID, responseData)
                 continue chunkLoop;
             } else {
                 console.error(`Attempt ${attempt} of chunk ${index} failed:`, response.status);
@@ -197,6 +198,28 @@ export async function fetchResults(jobsData, updateCallback,endpoint='/predict_s
             console.error('All attempts failed on chunk', index);
         };
     };
+
+/**
+ * Sends session data and jobs information to the server via a POST request.
+ * 
+ * @param {string} sessionID - The UUID that identifies the current session
+ * @param {Array<Object>} jobsData - An array of objects containing job information to be posted
+ * @param {string} [endpoint='/post_session'] - The server endpoint to post the data to
+ * @returns {Promise<void>} - A promise that resolves when the POST request completes
+ */
+export async function postJobsData(sessionID, jobsData, endpoint='/post_session') {
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([sessionID, jobsData]),
+    });
+    if (response.status === 200) {
+        console.log("JOBSDATA POSTED SUCCESFULLY", sessionID, jobsData)
+    }
+    else {
+        console.log("JOBSDATA NOT POSTED SUCCESFULLY")
+    };
+};
 
 /**
  * Gets SIC/SOC results for a specific job.
@@ -366,3 +389,25 @@ export function autocode(jobsData, resultsData, maxDistance=0.5, minDiff=0.05,ig
         return job;
     });
 }
+
+/**
+ * Posts results data to the specified endpoint for a given session.
+ * 
+ * @param {string} sessionID - UUID identifying the current user session
+ * @param {Array<Object>} resultsData - Array of result objects to be posted to the server
+ * @param {string} [endpoint='/post_results'] - The API endpoint to post the results to
+ * @returns {Promise<void>} - Promise that resolves when the post operation completes
+ */
+export async function postResultsData(sessionID, resultsData, endpoint='/post_results') {
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([sessionID, resultsData]),
+    });
+    if (response.status === 200) {
+        console.log("ResultsData posted successfully:", sessionID, resultsData)
+    }
+    else {
+        console.log("ResultsData NOT posted successfully.")
+    };
+};

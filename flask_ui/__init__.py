@@ -1,0 +1,1 @@
+"""Flask App Initialization."""

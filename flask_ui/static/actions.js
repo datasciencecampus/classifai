@@ -35,6 +35,15 @@ export const loadJobs = (jobs) => {
     };
 };
 
+export const newSession = () => {
+    const sessionID = uuid.v4();
+    localStorage.setItem('sessionID', JSON.stringify(sessionID));
+    return {
+        type: ACTION_TYPES.NEW_SESSION,
+        payload: sessionID,
+    };
+};
+
 /**
  * Creates an action to clear all
  * @returns {Object} Action object

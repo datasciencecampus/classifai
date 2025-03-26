@@ -80,6 +80,8 @@ filelock==3.16.1
     # via huggingface-hub
 flask==3.0.3
     # via classifai (pyproject.toml)
+Flask-SQLAlchemy==3.1.1
+    # via classifai (pyproject.toml)
 flatbuffers==24.3.25
     # via onnxruntime
 frozenlist==1.4.1

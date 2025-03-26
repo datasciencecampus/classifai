@@ -5,14 +5,12 @@ Run from root directory terminal with:
 python -m flask --app flask_ui/app.py run
 """
 
-import json
 import logging
 
-import requests
 from dotenv import find_dotenv, load_dotenv
 from flask import (
     Flask,
-    jsonify,
+    Response,
     make_response,
     render_template,
     request,
@@ -21,6 +19,16 @@ from flask import (
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 
+from flask_ui.api import api_call_no_auth, api_call_with_auth
+from flask_ui.db import db, db_config_uri
+from flask_ui.db.lib import get_local_user_credentials
+from flask_ui.db.queries import (
+    create_job_data,
+    create_many_results_many_jobs,
+    create_session,
+    get_or_create_user,
+)
+from flask_ui.lib import create_app, remove_asterisk_labels
 from src.classifai.config import Config
 
 load_dotenv(find_dotenv())
@@ -44,92 +52,10 @@ def _obtain_oidc_token(oauth_client_id):
     return headers
 
 
-def api_call_no_auth(data: dict, url: str) -> str:
-    """Return data from local fastapi.
-
-    Parameters
-    ----------
-    data: dict
-        User-input json extracted from csv file sent from front end to flask
-    url: str
-        The URL of the API endpoint
-    """
-    logging.info("Getting the results from the API")
-
-    response = requests.request(url=url, method="POST", json=data)
-    json_string = str(response.text)
-
-    try:
-        # Parse the JSON string into a Python dictionary
-        input_json = json.loads(json_string)
-
-        # Return the JSON
-        return input_json
-
-    except json.JSONDecodeError:
-        return jsonify({"error": "Invalid JSON format"}), 400
-
-
-def api_call_with_auth(data: dict, url: str, headers: dict) -> str:
-    """Return data from live fastapi.
-
-    Parameters
-    ----------
-    data: dict
-        User-input json extracted from csv file sent from front end to flask
-    url: str
-        The URL of the API endpoint
-    headers: dict
-        passes the auth details for the live server
-    """
-    logging.info("Getting the results from the API")
-
-    response = requests.request(
-        url=url, method="POST", json=data, headers=headers
-    )
-
-    json_string = str(response.text)
-
-    try:
-        # Parse the JSON string into a Python dictionary
-        input_json = json.loads(json_string)
-
-        # Return the JSON
-        return input_json
-
-    except json.JSONDecodeError:
-        return jsonify({"error": "Invalid JSON format"}), 400
-
-
-def remove_asterisk_labels(data):
-    """Remove any ranked soc codes from the ranking.
-
-    Parameters
-    ----------
-    data: dict
-        the json object / python dict returned by a succeful call to FastAPI SIC or SOC endpoint
-    """
-
-    # for each rows returned ranking, iterate through the ranking and remove ranked items where the label value is *
-    for entry in data["data"]:
-        entry["response"] = [
-            response
-            for response in entry["response"]
-            if response["label"] != "*"
-        ]
-
-    # do the same for the deduplicated data
-    for entry in data["deduplicated_data"]:
-        entry["response"] = [
-            response
-            for response in entry["response"]
-            if response["label"] != "*"
-        ]
-
-    return data
-
-
-app = Flask(__name__)
+"""Creating app, initialized with config & database."""
+app = create_app(
+    app=Flask(__name__), app_config=config, db=db, db_config_uri=db_config_uri
+)
 
 
 @app.route("/")
@@ -251,3 +177,46 @@ def predict_sic():
     else:  # api_type == 'mock'
         logging.info("Returning mock api data")
         return send_from_directory("static", "mock_sic_response.json")
+
+
+@app.route("/post_session", methods=["POST"])
+def post_session():
+    """
+    POST SESSION VIEW.
+
+    Takes a payload of 'sessionID' & 'jobsData' from the frontend.
+    Creates a Session Instance & many Job instances
+    """
+    logging.info("POST SESSION  CALLED")
+    if config.env_type == "local":
+        session_id, job_data = request.json
+        user_credentials = get_local_user_credentials()
+        user = get_or_create_user(db, user_credentials)
+        session = create_session(db, user, session_id)
+        create_job_data(db, session, job_data)
+        logging.info("SESSION & JOBS CREATED SUCCESFULLY")
+        return Response(status=200)
+    else:
+        logging.info(
+            f"'{config.env_type}' ENVIRONMENT NOT YET SUPPORTED FOR DB QUERIES"
+        )
+        return Response(status=501)
+
+
+@app.route("/post_results", methods=["POST"])
+def post_results():
+    """
+    POST RESULTS VIEW.
+
+    Takes a payload of 'sessionID' & 'resultsData' from the frontend
+    """
+    logging.info("POST RESULTS CALLED")
+    if config.env_type == "local":
+        session_id, results_data = request.json
+        create_many_results_many_jobs(db, session_id, results_data)
+        return Response(status=200)
+    else:
+        logging.info(
+            f"'{config.env_type}' ENVIRONMENT NOT YET SUPPORTED FOR DB QUERIES"
+        )
+        return Response(status=501)

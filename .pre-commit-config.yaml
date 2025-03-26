@@ -11,6 +11,7 @@ repos:
     -   id: check-json # checks json files for parseable syntax
     -   id: check-added-large-files # check for files above certain size (as likely to be data files)
         args: ['--maxkb=500']
+        exclude: uv.lock
     -   id: detect-private-key # detects the presence of private keys.
     -   id: check-case-conflict # check for files that would conflict in case-insensitive file systems.
     -   id: check-merge-conflict # check for files that contain merge conflict strings.
