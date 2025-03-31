@@ -12,5 +12,6 @@ user_id = request.headers.get("X-Goog-Authenticated-User-ID")
 
 from flask_ui.db.models import db
 
-db_config_uri = "sqlite:////tmp/classifai.db"
+sqlite_tmp_config = "sqlite:////tmp/classifai.db"
+sqlite_app_config = "sqlite:///classifai.db"
 db = db

@@ -4,11 +4,15 @@ Library Module.
 To contain library functions which are exported and used in the app.py script.
 """
 
+import sys
+
+sys.path.append("src/")
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from classifai.config import Config
 from flask_ui.db.lib import create_database
-from src.classifai.config import Config
 
 
 def remove_asterisk_labels(data):

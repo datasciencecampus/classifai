@@ -5,7 +5,7 @@ from typing import Optional
 from uuid import UUID
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, Uuid
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -55,12 +55,14 @@ class Session(db.Model):
     Mapped directly to a User.
     """
 
-    id: Mapped[UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )  # timestamps on creation
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+        DateTime(timezone=True),
+        default=func.now(),
+        onupdate=func.now(),
     )  # timestamp on update
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
 
@@ -88,7 +90,7 @@ class Job(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     input_id: Mapped[int]
-    session_id: Mapped[int] = mapped_column(ForeignKey("session.id"))
+    session_id: Mapped[UUID] = mapped_column(ForeignKey("session.id"))
     description: Mapped[str] = mapped_column(String(255))
     description_orig: Mapped[str] = mapped_column(String(255))
     code: Mapped[Optional[int]]

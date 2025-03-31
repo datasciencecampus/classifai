@@ -120,6 +120,12 @@ button {
     border: none;
 }
 
+#load-previous-session {
+    background-color: #f4cd00;
+    color: white;
+    border: none;
+}
+
 #fetch-results {
     background-color: #008CBA;
     color: white;

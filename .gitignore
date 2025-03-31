@@ -338,3 +338,4 @@ $RECYCLE.BIN/
 credentials.json
 *.venv
 node_modules/
+logs.txt

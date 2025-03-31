@@ -4,8 +4,9 @@
  */
 // main.js
 import { store } from './state.js';
-import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob, selectResult, assignResult, editJobDescription, updateOneResult, toggleCodedRows } from './actions.js';
-import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, postResultsData } from './dataService.js';
+
+import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob, selectResult, assignResult, editJobDescription, updateOneResult, toggleCodedRows, loadSession } from './actions.js';
+import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, updateJobCode, updateJobsData, fetchSessionFromDatabase } from './dataService.js';
 import { uncodableResult, initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeToggleCodedRows = store.subscribe(ACTION_TYPES.TOGGLE_CODED_ROWS, (state, action) => {
         console.log('Toggling coded rows');
         populateJobTable(state.jobs, jobTable, state.hideCoded)
+    });
+    const unsubscribeLoadSession = store.subscribe(ACTION_TYPES.LOAD_SESSION, (state, action) => {
+        console.log('Load Session: ', state.sessionID);
+        populateJobTable(state.jobs, jobTable, state.hideCoded);
     });
     const unsubscribeNewSession = store.subscribe(ACTION_TYPES.NEW_SESSION, (state, action) => {
         console.log('New Session: ', state.sessionID)
@@ -42,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const unsubscribeAssignResult = store.subscribe(ACTION_TYPES.ASSIGN_RESULT, (state, action) => {
         console.log('Assigning code:', action.type);
         localStorage.setItem('jobsData',JSON.stringify(state.jobs));
+        updateJobCode(state.sessionID, action.payload)
         populateJobTable(state.jobs, jobTable, state.hideCoded);
         jobTable.row((idx,data) => data.id === state.selectedJobId).select();
         // jobTable.row('.selected').select();
@@ -86,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const assignResultButton = document.getElementById('assign-result');
     const assignUncodableButton = document.getElementById('assign-uncodable');
     const toggleCodedRowsButton = document.getElementById('toggle-coded-rows');
+    const loadPreviousSessionButton = document.getElementById('load-previous-session');
 
     // Autocode event
     const autocodeMaxDistance = document.getElementById('autocode-max-distance');
@@ -100,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const newJobs = await Promise.resolve(
                 autocode(store.getState().jobs, store.getState().resultsData, maxDistance, minDiff)
             );
+            updateJobsData(store.getState().sessionID, newJobs);
             console.log('New jobs data length',newJobs.length);
             store.dispatch(loadJobs(newJobs));
         } finally {
@@ -156,7 +164,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Backup in case file chooser 'change' event doesn't fire
     fileInput.addEventListener('click', () => {
-        setTimeout(() => {fileInput.value = ''},2000);
+        if (store.getState().jobs.length >= 1) {
+            if (confirm('Are you sure you want to clear your data and start a new session? This cannot be undone.')) {
+                setTimeout(() => {fileInput.value = ''},2000);
+            }}
+        else {
+            setTimeout(() => {fileInput.value = ''},2000);
+        }
     });
 
     // Download event (doesn't affect state)
@@ -228,4 +242,19 @@ document.addEventListener('DOMContentLoaded', function() {
         store.dispatch(toggleCodedRows(state.hideCoded));
     });
 
+    // Load Previous Session button event
+    loadPreviousSessionButton.addEventListener('click', async () => {
+        if (store.getState().sessionID === null) {
+            try {
+                const sessionData = await fetchSessionFromDatabase();
+                store.dispatch(loadSession(sessionData[0], sessionData[1], sessionData[2]));
+            }
+            catch (e) {
+                console.error("ERROR FETCHING SESSION FROM DATABASE", e);
+            }
+        } else {
+            alert("Cannot load a session while current session is active")
+            console.log("Cannot load a session while current session is active")
+        };
+    });
 });

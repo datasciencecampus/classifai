@@ -12,6 +12,7 @@ export const ACTION_TYPES = {
     EDIT_JOB_DESCRIPTION: 'EDIT_JOB_DESCRIPTION',
     UPDATE_ONE_RESULT: 'UPDATE_ONE_RESULT',
     TOGGLE_CODED_ROWS: 'TOGGLE_CODED_ROWS',
+    LOAD_SESSION: 'LOAD_SESSION',
 };
 
 /**
@@ -188,5 +189,21 @@ export const toggleCodedRows = (hiddenFlag) => {
             ...state,
             hideCoded: toggleOption,
             }),
+    };
+};
+
+export const loadSession = (sessionID, jobsData, resultsData) => {
+    localStorage.setItem('sessionID', JSON.stringify(sessionID));
+    localStorage.setItem('jobsData', JSON.stringify(jobsData));
+    localStorage.setItem('resultsData', JSON.stringify(resultsData));
+    return {
+        type: ACTION_TYPES.LOAD_SESSION,
+        payload: [sessionID, jobsData, resultsData],
+        stateUpdater: (state) => ({
+            ...state,
+            sessionID: sessionID,
+            jobs: jobsData,
+            resultsData: resultsData
+        })
     };
 };

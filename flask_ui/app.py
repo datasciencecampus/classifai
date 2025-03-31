@@ -13,7 +13,6 @@ import logging
 from dotenv import find_dotenv, load_dotenv
 from flask import (
     Flask,
-    Response,
     make_response,
     render_template,
     request,
@@ -26,14 +25,7 @@ from flask_ui.api import (
     api_call_with_auth,
     obtain_oidc_token,
 )
-from flask_ui.db import db, db_config_uri
-from flask_ui.db.lib import get_local_user_credentials
-from flask_ui.db.queries import (
-    create_job_data,
-    create_many_results_many_jobs,
-    create_session,
-    get_or_create_user,
-)
+from flask_ui.db import db, sqlite_app_config
 from flask_ui.lib import create_app, remove_asterisk_labels
 
 load_dotenv(find_dotenv())
@@ -51,7 +43,10 @@ if not config.validate():
 
 """Creating app, initialized with config & database."""
 app = create_app(
-    app=Flask(__name__), app_config=config, db=db, db_config_uri=db_config_uri
+    app=Flask(__name__),
+    app_config=config,
+    db=db,
+    db_config_uri=sqlite_app_config,
 )
 
 
@@ -132,46 +127,3 @@ def predict_soc():
     else:  # api_type == 'mock'
         logging.info("Returning mock api data")
         return send_from_directory("static", "mock_soc_response.json")
-
-
-@app.route("/post_session", methods=["POST"])
-def post_session():
-    """
-    POST SESSION VIEW.
-
-    Takes a payload of 'sessionID' & 'jobsData' from the frontend.
-    Creates a Session Instance & many Job instances
-    """
-    logging.info("POST SESSION  CALLED")
-    if config.env_type == "local":
-        session_id, job_data = request.json
-        user_credentials = get_local_user_credentials()
-        user = get_or_create_user(db, user_credentials)
-        session = create_session(db, user, session_id)
-        create_job_data(db, session, job_data)
-        logging.info("SESSION & JOBS CREATED SUCCESFULLY")
-        return Response(status=200)
-    else:
-        logging.info(
-            f"'{config.env_type}' ENVIRONMENT NOT YET SUPPORTED FOR DB QUERIES"
-        )
-        return Response(status=501)
-
-
-@app.route("/post_results", methods=["POST"])
-def post_results():
-    """
-    POST RESULTS VIEW.
-
-    Takes a payload of 'sessionID' & 'resultsData' from the frontend
-    """
-    logging.info("POST RESULTS CALLED")
-    if config.env_type == "local":
-        session_id, results_data = request.json
-        create_many_results_many_jobs(db, session_id, results_data)
-        return Response(status=200)
-    else:
-        logging.info(
-            f"'{config.env_type}' ENVIRONMENT NOT YET SUPPORTED FOR DB QUERIES"
-        )
-        return Response(status=501)

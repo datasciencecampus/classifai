@@ -200,28 +200,6 @@ export async function fetchResults(jobsData, updateCallback, sessionID, endpoint
     };
 
 /**
- * Sends session data and jobs information to the server via a POST request.
- *
- * @param {string} sessionID - The UUID that identifies the current session
- * @param {Array<Object>} jobsData - An array of objects containing job information to be posted
- * @param {string} [endpoint='/post_session'] - The server endpoint to post the data to
- * @returns {Promise<void>} - A promise that resolves when the POST request completes
- */
-export async function postJobsData(sessionID, jobsData, endpoint='/post_session') {
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([sessionID, jobsData]),
-    });
-    if (response.status === 200) {
-        console.log("JOBSDATA POSTED SUCCESFULLY", sessionID, jobsData)
-    }
-    else {
-        console.log("JOBSDATA NOT POSTED SUCCESFULLY")
-    };
-};
-
-/**
  * Gets SIC/SOC results for a specific job.
  * @param {number} jobId - The ID of the job to get results for.
  * @param {Array} resultsData - the array of results
@@ -409,5 +387,92 @@ export async function postResultsData(sessionID, resultsData, endpoint='/post_re
     }
     else {
         console.log("ResultsData NOT posted successfully.")
+    };
+};
+
+/**
+ * Updates a single job, providing a jobID & given result to the specified endpoint for a given session.
+ *
+ * @param {string} sessionID - UUID identifying the current user session
+ * @param {Object} updatedJobPayload - Object representing the payload from 'ASSIGN_RESULT', containing 'jobID' & 'result' as the fields
+ * @param {string} [endpoint='/update_job'] - The API endpoint to update the job
+ * @returns {Promise<void>} - Promise that resolves when the post operation completes
+ */
+export async function updateJobCode(sessionID, updatedJobPayload, endpoint='/update_job_code') {
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([sessionID, updatedJobPayload]),
+    });
+    if (response.status === 200) {
+        console.log("Job updated successfully:", updatedJobPayload)
+    }
+    else {
+        console.log("Job NOT updated successfully.")
+    };
+};
+
+/**
+ * Sends session data and jobs information to the server via a POST request.
+ *
+ * @param {string} sessionID - The UUID that identifies the current session
+ * @param {Array<Object>} jobsData - An array of objects containing job information to be posted
+ * @param {string} [endpoint='/post_session'] - The server endpoint to post the data to
+ * @returns {Promise<void>} - A promise that resolves when the POST request completes
+ */
+export async function postJobsData(sessionID, jobsData, endpoint='/post_session') {
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([sessionID, jobsData]),
+    });
+    if (response.status === 200) {
+        console.log("JOBSDATA POSTED SUCCESFULLY", sessionID, jobsData)
+    }
+    else {
+        console.log("JOBSDATA NOT POSTED SUCCESFULLY")
+    };
+};
+
+
+/**
+ * Sends session data and jobs information to the server via a PUT request.
+ *
+ * @param {string} sessionID - The UUID that identifies the current session
+ * @param {Array<Object>} jobsData - An array of objects containing job information to be updated
+ * @param {string} [endpoint='/update_many_jobs'] - The server endpoint to post the data to
+ * @returns {Promise<void>} - A promise that resolves when the POST request completes
+ */
+export async function updateJobsData(sessionID, jobsData, endpoint='/update_many_jobs') {
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([sessionID, jobsData]),
+    });
+    if (response.status === 200) {
+        console.log("JOBSDATA UPDATED SUCCESFULLY", sessionID, jobsData)
+    }
+    else {
+        console.log("JOBSDATA NOT UPDATED SUCCESFULLY")
+    };
+};
+
+/**
+ * Requests Session Data: sessionID, jobsData, resultsData, from the server via GET request.
+ *
+ * @param {string} [endpoint='/get_state'] - The server endpoint to request the data from
+ * @returns {Promise<void>} - A promise that resolves when the GET request completes. Containing 'sessionID', 'jobsData', 'resultsData'.
+ */
+
+export async function fetchSessionFromDatabase(endpoint='get_previous_session') {
+    const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (response.status === 200) {
+        const session_data = await response.json();
+        return session_data
+    } else {
+        console.error("ERROR FETCHING PREVIOUS SESSION. (You may not be in a database supported environment).")
     };
 };
