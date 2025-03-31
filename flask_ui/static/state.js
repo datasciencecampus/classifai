@@ -1,80 +1,8 @@
 // state.js
 
-import { ACTION_TYPES } from './actions.js';
+import { ACTION_TYPES, initialState } from './actions.js';
 import { upsertRecords } from './dataService.js';
-/**
- * The initial state of the application
- */
-const initialState = {
-  jobs: [],
-  selectedJobId: null,
-  resultsData: [],
-  selectedResult: {},
-  hideCoded: false,
-  sessionID: null,
-};
 
-
-/**
- * Reducer function to handle state changes based on actions
- * @param {Object} state - Current state
- * @param {Object} action - Action object
- * @returns {Object} New state
- */
-export function reducer(state, action) {
-    switch (action.type) {
-      case ACTION_TYPES.LOAD_JOBS:
-        return { ...state, jobs: action.payload };
-      case ACTION_TYPES.NEW_SESSION:
-        return { ...state, sessionID: action.payload }
-      case ACTION_TYPES.SELECT_JOB:
-        return { ...state, selectedJobId: action.payload };
-      case ACTION_TYPES.UPDATE_RESULTS:
-        return { ...state, resultsData: action.payload };
-      case ACTION_TYPES.SELECT_RESULT:
-        return { ...state, selectedResult: action.payload };
-      case ACTION_TYPES.CLEAR_ALL:
-        return initialState;
-      case ACTION_TYPES.TOGGLE_CODED_ROWS:
-        return {
-          ...state,
-          hideCoded: action.payload,
-          };
-      case ACTION_TYPES.UPDATE_ONE_RESULT:
-        return {
-          ...state,
-          resultsData: upsertRecords(
-            state.resultsData,
-            action.payload,
-            result => result?.input_id,
-          )
-        };
-      case ACTION_TYPES.EDIT_JOB_DESCRIPTION:
-        return {
-            ...state,
-            jobs: upsertRecords(
-              state.jobs,
-              action.payload,
-            )
-            };
-      case ACTION_TYPES.ASSIGN_RESULT:
-        return {
-            ...state,
-            jobs: state.jobs.map(job =>
-                job.id === action.payload.jobId
-                    ? { ...job,
-                        code: action.payload.result.label,
-                        code_description: action.payload.result.description,
-                        code_score: action.payload.result.distance,
-                        code_rank: action.payload.result.rank,
-                    }
-                    : job
-            )
-        };
-      default:
-        return state;
-    }
-}
 
 /**
  * @typedef {Object} AppState
@@ -109,18 +37,21 @@ const loadStateFromStorage = () => {
 }
 
 /**
- * Creates a store with the given reducer function
- * @param {function} reducer - Function that returns new state based on current state and action
+ * Creates a store
  * @returns {Object} Store object with getState, dispatch, and subscribe methods
  */
- export function createStore(reducer) {
+ export function createStore() {
     let state = loadStateFromStorage();
     let listeners = new Map();
 
     const getState = () => state;
 
     const dispatch = (action) => {
-        state = reducer(state, action);
+        try {
+          state = action.stateUpdater(state);
+        } catch (error) {
+          console.log("Error in state.js with undefined action.");
+        }
         if (listeners.has(action.type)) {
             listeners.get(action.type).forEach(listener => listener(state, action));
         }
@@ -148,4 +79,4 @@ const loadStateFromStorage = () => {
 }
 
 
-export const store = createStore(reducer);
+export const store = createStore();

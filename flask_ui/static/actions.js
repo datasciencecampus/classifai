@@ -2,6 +2,7 @@
 
 // Action Types
 export const ACTION_TYPES = {
+    NEW_SESSION: 'NEW_SESSION',
     LOAD_JOBS: 'LOAD_JOBS',
     SELECT_JOB: 'SELECT_JOB',
     UPDATE_RESULTS: 'UPDATE_RESULTS',
@@ -13,12 +14,19 @@ export const ACTION_TYPES = {
     TOGGLE_CODED_ROWS: 'TOGGLE_CODED_ROWS',
 };
 
-export const uncodableResult = {
-    label: "*",
-    description: "uncodable",
-    distance: 9.99,
-    rank: 9999,
-}
+/**
+ * The initial state of the application
+ */
+export const initialState = {
+    jobs: [],
+    selectedJobId: null,
+    resultsData: [],
+    selectedResult: {},
+    hideCoded: false,
+    sessionID: null,
+  };
+
+
 // Action Creators
 
 /**
@@ -32,8 +40,10 @@ export const loadJobs = (jobs) => {
     return {
         type: ACTION_TYPES.LOAD_JOBS,
         payload: jobs,
+        stateUpdater: (state) => ({ ...state, jobs: jobs })
+        }
     };
-};
+
 
 export const newSession = () => {
     const sessionID = uuid.v4();
@@ -41,6 +51,7 @@ export const newSession = () => {
     return {
         type: ACTION_TYPES.NEW_SESSION,
         payload: sessionID,
+        stateUpdater: (state) => ({ ...state, sessionID: sessionID })
     };
 };
 
@@ -51,7 +62,8 @@ export const newSession = () => {
 export const clearAll = () => {
     localStorage.clear();
     return {
-        type: ACTION_TYPES.CLEAR_ALL
+        type: ACTION_TYPES.CLEAR_ALL,
+        stateUpdater: (state) => (initialState),
     };
 };
 
@@ -65,6 +77,7 @@ export const selectJob = (jobId) => {
     return {
         type: ACTION_TYPES.SELECT_JOB,
         payload: jobId,
+        stateUpdater: (state) => ({ ...state, selectedJobId: jobId }),
     };
 };
 
@@ -79,6 +92,7 @@ export const selectJob = (jobId) => {
     return {
         type: ACTION_TYPES.SELECT_RESULT,
         payload: selectedResult,
+        stateUpdater: (state) => ({ ...state, selectedResult: selectedResult }),
     };
 };
 
@@ -92,6 +106,7 @@ export const updateResults = (resultsData) => {
     return {
         type: ACTION_TYPES.UPDATE_RESULTS,
         payload: resultsData,
+        stateUpdater: (state) => ({ ...state, resultsData: resultsData }),
     };
 };
 
@@ -105,7 +120,20 @@ export const updateResults = (resultsData) => {
  */
 export const assignResult = (jobId, result) => ({
     type: ACTION_TYPES.ASSIGN_RESULT,
-    payload: { jobId, result }
+    payload: { jobId, result },
+    stateUpdater: (state) => ({
+        ...state,
+        jobs: state.jobs.map(job =>
+            job.id === jobId
+                ? { ...job,
+                    code: result.label,
+                    code_description: result.description,
+                    code_score: result.distance,
+                    code_rank: result.rank,
+                }
+                : job
+        )
+    }),
 });
 
 /**
@@ -118,6 +146,14 @@ export const updateOneResult = (resultSet) => {
     return {
         type: ACTION_TYPES.UPDATE_ONE_RESULT,
         payload: resultSet,
+        stateUpdater: (state) => ({
+            ...state,
+            resultsData: upsertRecords(
+              state.resultsData,
+              resultSet,
+              result => result?.input_id,
+            )
+          }),
     };
 };
 
@@ -129,6 +165,13 @@ export const updateOneResult = (resultSet) => {
 export const editJobDescription = (job) => ({
     type: ACTION_TYPES.EDIT_JOB_DESCRIPTION,
     payload: job,
+    stateUpdater: (state) => ({
+        ...state,
+        jobs: upsertRecords(
+          state.jobs,
+          job,
+        )
+        }),
 });
 
 export const toggleCodedRows = (hiddenFlag) => {
@@ -139,7 +182,11 @@ export const toggleCodedRows = (hiddenFlag) => {
     };
     localStorage.setItem('hideCoded', JSON.stringify(toggleOption));
     return {
-    type: ACTION_TYPES.TOGGLE_CODED_ROWS,
-    payload: toggleOption,
+        type: ACTION_TYPES.TOGGLE_CODED_ROWS,
+        payload: toggleOption,
+        stateUpdater: (state) => ({
+            ...state,
+            hideCoded: toggleOption,
+            }),
     };
 };

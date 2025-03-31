@@ -3,8 +3,14 @@
  * @description Provides UI-related functions for the SIC/SOC Coding Tool.
  */
 import { getResultsForJob } from './dataService.js';
-import {selectJob, selectResult, assignResult, uncodableResult} from './actions.js'
+import {selectJob, selectResult, assignResult} from './actions.js'
 
+export const uncodableResult = {
+    label: "*",
+    description: "uncodable",
+    distance: 9.99,
+    rank: 9999,
+}
 
 /**
  * Initializes DataTables for jobs and code results.

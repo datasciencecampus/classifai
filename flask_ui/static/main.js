@@ -4,9 +4,11 @@
  */
 // main.js
 import { store } from './state.js';
-import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob, selectResult, assignResult, editJobDescription, uncodableResult, updateOneResult, toggleCodedRows } from './actions.js';
+import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob, selectResult, assignResult, editJobDescription, updateOneResult, toggleCodedRows } from './actions.js';
 import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, postResultsData } from './dataService.js';
-import { initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
+import { uncodableResult, initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
