@@ -201,7 +201,7 @@ export async function fetchResults(jobsData, updateCallback, sessionID, endpoint
 
 /**
  * Sends session data and jobs information to the server via a POST request.
- * 
+ *
  * @param {string} sessionID - The UUID that identifies the current session
  * @param {Array<Object>} jobsData - An array of objects containing job information to be posted
  * @param {string} [endpoint='/post_session'] - The server endpoint to post the data to
@@ -392,7 +392,7 @@ export function autocode(jobsData, resultsData, maxDistance=0.5, minDiff=0.05,ig
 
 /**
  * Posts results data to the specified endpoint for a given session.
- * 
+ *
  * @param {string} sessionID - UUID identifying the current user session
  * @param {Array<Object>} resultsData - Array of result objects to be posted to the server
  * @param {string} [endpoint='/post_results'] - The API endpoint to post the results to

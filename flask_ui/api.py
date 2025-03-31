@@ -9,6 +9,16 @@ import logging
 
 import requests
 from flask import jsonify
+from google.auth.transport.requests import Request
+from google.oauth2 import id_token
+
+
+def obtain_oidc_token(oauth_client_id):
+    """Obtain OIDC authentication token."""
+
+    open_id_connect_token = id_token.fetch_id_token(Request(), oauth_client_id)
+    headers = {"Authorization": "Bearer {}".format(open_id_connect_token)}
+    return headers
 
 
 def api_call_no_auth(data: dict, url: str) -> str:

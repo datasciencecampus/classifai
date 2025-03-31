@@ -10,14 +10,15 @@ requires-python = ">=3.10"
 dynamic = ["version"]
 dependencies = [
     "pyprojroot==0.3.0",
-    "fastapi>=0.111.0",
+    "fastapi[standard]>=0.111.0",
     "toml>=0.10.2",
     "astroid>=2.3.3",
-    "chromadb>=0.4.22",
+    "chromadb>=0.6.0",
     "Click>=7.0",
     "colorama>=0.4.3",
     "fastapi>=0.111.0",
     "google-generativeai>=0.7.0",
+    "google-genai>=1.8.0",
     "google-cloud-secret-manager>=2.20.2",
     "google-cloud-storage>=2.18.2",
     "google-cloud-logging>=3.11.2",
@@ -46,7 +47,6 @@ dependencies = [
     "wrapt>=1.11.2",
     "Flask>=3.0.3",
     "Flask-SQLAlchemy==3.1.1"
-    # "gcp_iap_auth @ git+https://github.com/datasciencecampus/gcp-iap-auth.git",
 ]
 
 
@@ -61,16 +61,18 @@ test = [
     "pytest-cov>=4.1.0",
     "pytest-randomly>=3.15.0",
     "openpyxl>=3.1.5",
-    # "python-dateutil>=2.9.0",
 ]
 dev = [
     "pre-commit==3.3.3",
     "ruff==0.3.0",
     "classifai[test]",
+    "ipykernel>=6.29.5",
+    "mockito>=1.5.4",
 ]
 
 [tool.ruff]
 line-length = 79
+exclude = ["uv.lock"]
 
 [tool.ruff.lint]
 extend-select = ["D", "I", "W"]

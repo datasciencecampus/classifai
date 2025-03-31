@@ -5,6 +5,9 @@ Run from root directory terminal with:
 python -m flask --app flask_ui/app.py run
 """
 
+import sys
+
+sys.path.append("src/")
 import logging
 
 from dotenv import find_dotenv, load_dotenv
@@ -16,10 +19,13 @@ from flask import (
     request,
     send_from_directory,
 )
-from google.auth.transport.requests import Request
-from google.oauth2 import id_token
 
-from flask_ui.api import api_call_no_auth, api_call_with_auth
+from classifai.config import Config
+from flask_ui.api import (
+    api_call_no_auth,
+    api_call_with_auth,
+    obtain_oidc_token,
+)
 from flask_ui.db import db, db_config_uri
 from flask_ui.db.lib import get_local_user_credentials
 from flask_ui.db.queries import (
@@ -29,7 +35,6 @@ from flask_ui.db.queries import (
     get_or_create_user,
 )
 from flask_ui.lib import create_app, remove_asterisk_labels
-from src.classifai.config import Config
 
 load_dotenv(find_dotenv())
 config = Config("UI")
@@ -42,14 +47,6 @@ if not config.validate():
     import sys
 
     sys.exit(1)
-
-
-def _obtain_oidc_token(oauth_client_id):
-    """Obtain OIDC authentication token."""
-
-    open_id_connect_token = id_token.fetch_id_token(Request(), oauth_client_id)
-    headers = {"Authorization": "Bearer {}".format(open_id_connect_token)}
-    return headers
 
 
 """Creating app, initialized with config & database."""
@@ -117,7 +114,7 @@ def predict_soc():
             api_call_with_auth(
                 json_request_body,
                 f"{config.api_url}/soc",
-                headers=_obtain_oidc_token(config.oauth_client_id),
+                headers=obtain_oidc_token(config.oauth_client_id),
             )
         )
 
@@ -135,48 +132,6 @@ def predict_soc():
     else:  # api_type == 'mock'
         logging.info("Returning mock api data")
         return send_from_directory("static", "mock_soc_response.json")
-
-
-# endpoint for predicting SIC codes
-@app.route("/predict_sic", methods=["POST"])
-def predict_sic():
-    """Retrieve the JSON of SIC code results.
-
-    Returns
-    -------
-        json: SIC results
-    """
-    logging.info("Getting SIC codes")
-
-    # getting the users uploaded ['id, 'description']
-    input_json = request.json
-    input_json = [
-        {key: d[key] for key in ["id", "description"]} for d in input_json
-    ]  # extracting the necessary keys
-    json_request_body = {
-        "entries": input_json
-    }  # correctly formatted for fastapi request
-
-    # if in 'live' api_type call real api with auth, if in 'local' api_type call localhost api with no auth
-    if config.api_type == "live":
-        logging.info("Calling LIVE fastapi server")
-        return api_call_with_auth(
-            json_request_body,
-            f"{config.api_url}/sic",
-            headers=_obtain_oidc_token(config.oauth_client_id),
-        )
-
-    elif config.api_type == "local":
-        logging.info("Calling LOCAL fastapi server")
-        # return send_from_directory("static", "mock_sic_response.json")
-        return api_call_no_auth(
-            json_request_body,
-            f"{config.api_url}/sic",
-        )
-
-    else:  # api_type == 'mock'
-        logging.info("Returning mock api data")
-        return send_from_directory("static", "mock_sic_response.json")
 
 
 @app.route("/post_session", methods=["POST"])
