@@ -8,8 +8,6 @@ import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob,
 import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, postResultsData } from './dataService.js';
 import { uncodableResult, initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
 
-
-
 document.addEventListener('DOMContentLoaded', function() {
 
     // Initialise page objects
@@ -126,6 +124,30 @@ document.addEventListener('DOMContentLoaded', function() {
             let currentResultsData = store.getState().resultsData;
             let newResultsData = upsertRecords(currentResultsData,responseData,record => record?.input_id);
             store.dispatch(updateResults(newResultsData));
+
+            //added additional code to autocode/assignResults automatically
+
+            //for each job_id and results in the batch:
+            responseData.forEach(element => {
+
+                //calcualte a score based on top ranked result and if its higher than the threshold, extract result data and update state with assignResult action.
+                const score = 1 - parseFloat(element.response[0].distance)
+                if (score > 0.98) {
+
+                    //create the payload
+                    const job_id = element.input_id
+                    const autocodeResult = {
+                        'label': element.response[0].label,
+                        'description': element.response[0].description,
+                        'distance': element.response[0].distance,
+                        'rank': element.response[0].rank
+
+                    }
+                    //dispatch job on state to update the row in the jobs table
+                    store.dispatch(assignResult(job_id, autocodeResult))
+                }
+            });
+
         };
         // Create a new session on file input, then request from the api
         store.dispatch(newSession())
