@@ -86,25 +86,9 @@
       <button id="load-previous-session">Load Previous Session</button>
     </div>
     <br>
-    <div class="ons-fieldset">
-      <h1>Autocoding:</h1>
-      <div class="ons-field">
-        <label class="ons-label" for="autocode-max-distance">Threshold score</label>
-        <input type="text" id="autocode-max-distance"
-          class="ons-input ons-input--text ons-input-type__input ons-input-number--w-6" pattern="[0-9.]*"
-          inputmode="numeric" autocomplete="off" value="0.5" />
-      </div>
-      <div class="ons-field">
-        <label class="ons-label" for="autocode-min-diff">Minimum difference</label>
-        <input type="text" id="autocode-min-diff"
-          class="ons-input ons-input--text ons-input-type__input ons-input-number--w-6" pattern="[0-9.]*"
-          inputmode="numeric" autocomplete="off" value="0.01" />
-      </div>
-      <div class="ons-field">
-        <button class="ons-btn" id="autocode-btn">
-          <span class="ons-btn__inner"><span class="ons-btn__text">Autocode</span></span>
-        </button>
-      </div>
+    <div>
+      <h1 style="margin: 0; display: inline;">Autocoding:</h1>
+      <input id="autocode-checkbox" type="checkbox" style="display: inline; margin-left: 10px; transform: scale(2);"/>
     </div>
   </section>
   <section id="coding" class="ons-tabs__panel">

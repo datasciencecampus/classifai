@@ -6,7 +6,7 @@
 import { store } from './state.js';
 
 import { ACTION_TYPES, loadJobs, clearAll, newSession, updateResults, selectJob, selectResult, assignResult, editJobDescription, updateOneResult, toggleCodedRows, loadSession } from './actions.js';
-import { upsertRecords, constructMockResponse, fetchResults, autocode, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, updateJobCode, updateJobsData, fetchSessionFromDatabase } from './dataService.js';
+import { upsertRecords, constructMockResponse, fetchResults, handleFixedWidthFileSelect, downloadFixedWidthFile, postJobsData, updateJobCode, updateJobsData, fetchSessionFromDatabase } from './dataService.js';
 import { uncodableResult, initTables, populateJobTable, updateResultsTable, showJobDetails, incrementDataTable} from './uiService.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -93,27 +93,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const assignUncodableButton = document.getElementById('assign-uncodable');
     const toggleCodedRowsButton = document.getElementById('toggle-coded-rows');
     const loadPreviousSessionButton = document.getElementById('load-previous-session');
+    const autocodeCheckbox = document.getElementById('autocode-checkbox');
 
-    // Autocode event
-    const autocodeMaxDistance = document.getElementById('autocode-max-distance');
-    const autocodeMinDiff = document.getElementById('autocode-min-diff');
-    const autocodeButton = document.getElementById('autocode-btn');
-    autocodeButton.addEventListener('click', async () => {
-        autocodeButton.disabled = true;
-        try {
-            const maxDistance = parseFloat(autocodeMaxDistance.value);
-            const minDiff = parseFloat(autocodeMinDiff.value);
-            console.log('Autocoding with',maxDistance,'and',minDiff);
-            const newJobs = await Promise.resolve(
-                autocode(store.getState().jobs, store.getState().resultsData, maxDistance, minDiff)
-            );
-            updateJobsData(store.getState().sessionID, newJobs);
-            console.log('New jobs data length',newJobs.length);
-            store.dispatch(loadJobs(newJobs));
-        } finally {
-            autocodeButton.disabled = false;
-        }
-    });
 
     // File input event
     fileInput.addEventListener('change', async (event) => {
@@ -133,8 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
             let newResultsData = upsertRecords(currentResultsData,responseData,record => record?.input_id);
             store.dispatch(updateResults(newResultsData));
 
-            //added additional code to autocode/assignResults automatically
+        }
 
+        const autocodeCallback = (responseData,index) => {
+            //added funciton to autocode/assignResults automatically IF user checked the autocode button?
             //for each job_id and results in the batch:
             responseData.forEach(element => {
 
@@ -159,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         // Create a new session on file input, then request from the api
         store.dispatch(newSession())
-        fetchResults(newJobs,updateCallback, store.getState().sessionID, '/predict_soc',20,5);
+        fetchResults(newJobs, updateCallback, autocodeCallback, autocodeCheckbox.checked, store.getState().sessionID, '/predict_soc',20,5);
     });
 
     // Backup in case file chooser 'change' event doesn't fire
