@@ -5,6 +5,11 @@ Module containing the logic for setting up the Database fixtures & then testing 
 from db.queries.py.
 """
 
+import sys
+
+sys.path.append(".")
+
+from unittest import mock
 from uuid import uuid4
 
 import pytest
@@ -18,7 +23,6 @@ from flask_ui.db.queries import (
     create_many_results_many_jobs,
     create_many_results_one_job,
     create_session,
-    get_local_user_credentials,
     get_or_create_user,
     update_job_with_job_data,
     update_job_with_result,
@@ -50,9 +54,16 @@ def test_db(test_app):
 
 @pytest.fixture
 def test_user(test_db):
-    """Creates a test user using local credentials."""
-    user_credentials = get_local_user_credentials()
-    return get_or_create_user(test_db, user_credentials)
+    """Creates a test user using mocked local credentials."""
+    with mock.patch(
+        "flask_ui.db.queries.get_local_user_credentials"
+    ) as mock_creds:
+        mock_creds.return_value = (
+            "test_google_id",
+            "test_name",
+            "test@example.com",
+        )
+        return get_or_create_user(test_db, mock_creds.return_value)
 
 
 @pytest.fixture
@@ -63,15 +74,19 @@ def test_session(test_db, test_user):
 
 def test_get_or_create_user(test_db):
     """Test user retrieval and creation."""
-    user_credentials = get_local_user_credentials()
+    with mock.patch(
+        "flask_ui.db.queries.get_local_user_credentials"
+    ) as mock_creds:
+        user_credentials = ("test_google_id", "test_name", "test@example.com")
+        mock_creds.return_value = user_credentials
 
-    user = get_or_create_user(test_db, user_credentials)
-    assert user is not None
-    assert user.google_id == user_credentials[0]
+        user = get_or_create_user(test_db, user_credentials)
+        assert user is not None
+        assert user.google_id == user_credentials[0]
 
-    # Ensure user is retrieved, not created again
-    existing_user = get_or_create_user(test_db, user_credentials)
-    assert existing_user.id == user.id
+        # Ensure user is retrieved, not created again
+        existing_user = get_or_create_user(test_db, user_credentials)
+        assert existing_user.id == user.id
 
 
 def test_create_session(test_db, test_user):

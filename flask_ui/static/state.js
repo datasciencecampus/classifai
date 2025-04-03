@@ -1,8 +1,6 @@
 // state.js
 
-import { ACTION_TYPES, initialState } from './actions.js';
-import { upsertRecords } from './dataService.js';
-
+import { initialState } from './actions.js';
 
 /**
  * @typedef {Object} AppState
