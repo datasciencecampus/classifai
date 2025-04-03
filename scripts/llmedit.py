@@ -55,7 +55,7 @@ def main(
         ),
     ] = "gemini-2.0-flash",
 ):
-    r"""
+    """
     Edit files using LLMs.
 
     ---------------------\n\n
@@ -68,7 +68,7 @@ def main(
     Example\n
     -------\n
     $ uv run scripts/llmedit.py path/to/file.py
-    """
+    """  # noqa
     # Read the input file
     try:
         with open(file_path, "r") as f:
