@@ -83,6 +83,8 @@ def main(
 
     # Construct the prompt
     system_prompt = f"""
+    You are going to rewrite this code file, following these instructions:
+
     # Main Instruction
     {instruction}
 
@@ -92,7 +94,7 @@ def main(
     * Do not produce any output apart from the file
     * Your output will be piped directly into the result, so don't add any other explanation, just unfenced code.
     * IMPORTANT: Do not add python fenced codeblocks!
-    * IMPORTANT: Do not miss any # commented instructions at the top of the file!
+    * IMPORTANT: Do not miss any comments, especially commented instructions at the top of the file!
     """
 
     try:
