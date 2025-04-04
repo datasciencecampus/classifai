@@ -89,11 +89,13 @@ python -m flask --app flask_ui/app.py run
 
 Both apps deploy automatically on merge for the 'dev', 'uat' and 'prod' branches in GitHub. This is governed by the three config files: `app.cloudbuild.[dev|uat|prod].yaml`
 
-To deploy a single app manually to a temporary URL, use:
+To deploy a single app manually to a temporary URL with an informative issue-linked name, use:
 
 ```bash
-gcloud app deploy --no-promote app.[flask|fastapi].[dev|uat|prod].yaml
+gcloud app deploy --no-promote app.[flask|fastapi].[dev|uat|prod].yaml --version='branch-<ISSUE-NUMBER>'
 ```
+
+The URL can then be added to the PR so that reviewers can see the deployed app.
 
 ### Cloud set-up
 
