@@ -13,7 +13,7 @@ import polars as pl
 from google import genai
 from google.cloud import storage
 
-from ..fast_api.google_configurations.config import get_secret
+from .google_configurations.config import get_secret
 #from classifai.utils import get_secret
 
 

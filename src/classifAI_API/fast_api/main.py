@@ -10,15 +10,15 @@ from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 from google.cloud import storage
 
-from ..fast_api.google_configurations.config import Config
+from .google_configurations.config import Config
 
-from ..fast_api.deduplication.condense import create_deduplicated_response
-from ..fast_api.deduplication.scorers import naive_scorer
+from .deduplication.condense import create_deduplicated_response
+from .deduplication.scorers import naive_scorer
 
-from ..fast_api.embedder import ParquetNumpyVectorStore as VectorStore
-from ..fast_api.embedder import embed_as_array
+from .embedder import ParquetNumpyVectorStore as VectorStore
+from .embedder import embed_as_array
 
-from ..fast_api.pydantic_models import ClassifaiData, ResultsResponseBody, EmbeddingsResponseBody
+from .pydantic_models import ClassifaiData, ResultsResponseBody, EmbeddingsResponseBody
 
 import numpy as np
 
