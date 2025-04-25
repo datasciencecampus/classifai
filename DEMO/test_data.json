@@ -1,0 +1,16 @@
+{
+    "entries": [
+      {
+        "id": "1",
+        "description": "A butcher's shop"
+      },
+      {
+        "id": "2",
+        "description": "A software as a service tech company"
+      },
+      {
+        "id": "3",
+        "description": "A dairy farm"
+      }
+    ]
+  }

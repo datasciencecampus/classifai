@@ -1,0 +1,75 @@
+[project]
+name = "classifAI_API"
+description = "A minimalist library for exposing parts of classifAI as an extendable microservice"
+authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+    "uvicorn>0.34.0",
+    "fastapi==0.115.11",
+    "fastapi-cli==0.0.7",
+    "opentelemetry-instrumentation-fastapi==0.52b1",
+    "typing-inspect==0.9.0",
+    "typing_extensions==4.12.2",
+    "google-ai-generativelanguage==0.6.15",
+    "google-api-core==2.24.2",
+    "google-api-python-client==2.165.0",
+    "google-auth==2.38.0",
+    "google-auth-httplib2==0.2.0",
+    "google-cloud-aiplatform==1.85.0",
+    "google-cloud-appengine-logging==1.6.1",
+    "google-cloud-audit-log==0.3.2",
+    "google-cloud-bigquery==3.30.0",
+    "google-cloud-core==2.4.3",
+    "google-cloud-logging==3.11.4",
+    "google-cloud-resource-manager==1.14.2",
+    "google-cloud-secret-manager==2.23.2",
+    "google-cloud-storage==2.19.0",
+    "google-crc32c==1.7.0",
+    "google-genai==1.8.0",
+    "google-generativeai==0.8.4",
+    "google-resumable-media==2.7.2",
+    "googleapis-common-protos==1.69.2",
+    "grpc-google-iam-v1==0.14.2",
+    "langchain-google-vertexai==2.0.16",
+    "python-dotenv==1.0.1",
+    "numpy>2.2.4",
+    "requests==2.32.3",
+    "requests-oauthlib==2.0.0",
+    "requests-toolbelt==1.0.0",
+    "polars>1.26.0",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.8.1",
+    "pydantic_core==2.23.4"
+] 
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Do not upload :: Internal project :: !"
+]
+
+[build-system]
+requires = ["setuptools>=62"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "classifAI_API.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.setuptools.package-data]
+classifAI_API = []
+
+[project.optional-dependencies]
+app = []
+test = []
+docs = []
+dev = []
+
+[project.urls]
+homepage = "https://github.com/datasciencecampus/classifAI_API"
