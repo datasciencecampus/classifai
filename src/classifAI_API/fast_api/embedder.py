@@ -14,8 +14,6 @@ from google import genai
 from google.cloud import storage
 
 from .google_configurations.config import get_secret
-#from classifai.utils import get_secret
-
 
 def embed_as_array(documents: list[str], api_key: str) -> np.ndarray:
     """

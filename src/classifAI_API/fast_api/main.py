@@ -127,28 +127,6 @@ def embed(data: ClassifaiData,
 
     return formatted_embeddings_package
 
-'''
-@app.post("/score", description="scoring programmatic endpoint")
-def score(query_embeddings: list[float],
-) -> list[float] :
-    """Get the embeddings from a programmatic endpoint.
-
-    Parameters
-    ----------
-    query_embeddings: list[float]
-        user provided query embeddings array
-    Returns
-    -------
-    List of scores for each of query embeddings.
-    """
-    
-    query_embeddings = np.array(query_embeddings)
-    query_embeddings = query_embeddings / np.linalg.norm(query_embeddings)
-    document_embeddings = vector_store.knowledgebase["embeddings"].to_numpy().T
-    scores = query_embeddings @ document_embeddings
-    return scores.tolist()
-''';
-
 @app.get("/", description="UI accessibility")
 def docs():
     """Access default page: docs UI."""
@@ -157,19 +135,4 @@ def docs():
     return start_page
 
 def run_app():
-
-    #config.setup_logging()
-    #if not config.validate():
-    #    print('here')
-    #    logging.error("Invalid configuration. Exiting.")
-    #    import sys
-    #    sys.exit(1)
-
-    #vector_store = VectorStore.from_gcs_bucket(
-    #    client=storage.Client(),
-    #    bucket_name=config.bucket_name,
-    #    local_dir=config.db_dir,
-    #    prefix="soc_parquet",
-    #    force_refresh=True,
-    #)
     uvicorn.run("classifAI_API.fast_api:app", port=8000, log_level="info")
