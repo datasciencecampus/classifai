@@ -37,7 +37,7 @@
                   run: poetry lock
 
                 - name: Install dependencies
-                  run: poetry install
+                  run: poetry install --no-root
   
                 - name: check code formatting
                   run: make check-python-nofix

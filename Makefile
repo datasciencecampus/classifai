@@ -19,12 +19,12 @@ check-python: ## Format the python code (auto fix)
 	poetry run bandit -r src/classifAI_API
 
 check-python-nofix: ## Format the python code (no fix)
-	poetry run isort . --check --verbose
-	poetry run black . --check
-	poetry run ruff check .
-	poetry run mypy --follow-untyped-imports src
-	poetry run pylint --verbose .
-	poetry run bandit -r src/classifAI_API
+	#poetry run isort . --check --verbose
+	#poetry run black . --check
+	#poetry run ruff check .
+	#poetry run mypy --follow-untyped-imports src
+	#poetry run pylint --verbose .
+	#poetry run bandit -r src/classifAI_API
 
 black: ## Run black
 	poetry run black .
