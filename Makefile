@@ -28,3 +28,9 @@ check-python-nofix: ## Format the python code (no fix)
 
 black: ## Run black
 	poetry run black .
+
+setup-gitleaks: ## Grab the docker image
+	docker pull zricethezav/gitleaks:latest
+
+run-gitleaks: ## run gitleaks with docker
+	docker run -v $(CURDIR):/path zricethezav/gitleaks:latest detect --source="/path" --verbose
