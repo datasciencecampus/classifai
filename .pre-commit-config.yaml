@@ -23,7 +23,14 @@ repos:
         name: Grab the gitleaks Docker image
         entry: make setup-gitleaks
         language: system
+        stages:
+          - pre-commit
+          - pre-push
       - id: run-gitleaks
         name: Check commits for secrets, using gitleaks Docker image
         entry: make run-gitleaks
         language: system
+        stages:
+          - pre-commit
+          - pre-push
+        
