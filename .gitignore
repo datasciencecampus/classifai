@@ -98,14 +98,20 @@ ipython_config.py
 #   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
 #   commonly ignored for libraries.
-#uv.lock
+# NOTE: in classifAI_API we are choosing to version control the pyproject.toml, and allow
+#       users / developers to create their own virtual environments with poetry / uv from that
+#       instead. This substantially cuts down on merge conflicts for stale Pull Requests.
+uv.lock
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
 #   commonly ignored for libraries.
 #   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
+# NOTE: in classifAI_API we are choosing to version control the pyproject.toml, and allow
+#       users / developers to create their own virtual environments with poetry / uv from that
+#       instead. This substantially cuts down on merge conflicts for stale Pull Requests.
+poetry.lock
 
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
