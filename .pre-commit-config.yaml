@@ -1,7 +1,7 @@
 # Added pre-commit to check if __init__.py is added to the src folder
 # install using `pre-commit install`
 # skip using `git commit -m "message" --no-verify`
-default_stages: [pre-commit]
+default_stages: [pre-commit, pre-push]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -23,14 +23,8 @@ repos:
         name: Grab the gitleaks Docker image
         entry: make setup-gitleaks
         language: system
-        stages:
-          - pre-commit
-          - pre-push
       - id: run-gitleaks
         name: Check commits for secrets, using gitleaks Docker image
         entry: make run-gitleaks
         language: system
-        stages:
-          - pre-commit
-          - pre-push
         
