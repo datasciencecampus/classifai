@@ -15,7 +15,7 @@ from google.cloud import storage
 
 from .google_configurations.config import get_secret
 
-def embed_as_array(documents: list[str], api_key: str) -> np.ndarray:
+def embed_as_array(documents: list[str], api_key: str, model_name: str="text-embedding-004", model_task: str="CLASSIFICATION") -> np.ndarray:
     """
     Embeds a list of text documents into vector representations using Google's GenAI text embedding model.
 
@@ -25,6 +25,12 @@ def embed_as_array(documents: list[str], api_key: str) -> np.ndarray:
         A list of strings, each representing a document to be embedded.
     api_key : str
         The Google API key for authentication with the GenAI service.
+    model_name : str
+        The name of the GenAI embeddings model to use.
+        (default - text-embedding-004)
+    model_task : str
+        The task to assign the GenAI embeddings model.
+        (default - CLASSIFICATION)
 
     Returns
     -------
@@ -35,14 +41,14 @@ def embed_as_array(documents: list[str], api_key: str) -> np.ndarray:
     Notes
     -----
     This function requires the 'google.generativeai' package and numpy to be installed.
-    The embeddings are generated using the 'text-embedding-004' model with the
-    CLASSIFICATION task type.
+    The embeddings are generated using the model_name model with the
+    model_task task type.
 
     Examples
     --------
     >>> documents = ["This is the first document.", "This is the second document."]
     >>> api_key = "your_google_api_key" # pragma: allowlist secret
-    >>> embeddings = embed_as_array(documents, api_key)
+    >>> embeddings = embed_as_array(documents, api_key, mdel_name, model_task)
     >>> embeddings.shape
     (2, 768)  # Assuming the embedding dimension is 768
     """
@@ -51,9 +57,9 @@ def embed_as_array(documents: list[str], api_key: str) -> np.ndarray:
 
     client = genai.Client(api_key=api_key)
     result = client.models.embed_content(
-        model="text-embedding-004",
+        model=model_name,
         contents=documents,
-        config=genai.types.EmbedContentConfig(task_type="CLASSIFICATION"),
+        config=genai.types.EmbedContentConfig(task_type=model_task),
     )
     queries_array = np.array([res.values for res in result.embeddings])
     return queries_array

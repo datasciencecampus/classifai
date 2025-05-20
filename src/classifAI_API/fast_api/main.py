@@ -83,7 +83,7 @@ def soc(
     input_ids = [x.id for x in data.entries]
     documents = [x.description for x in data.entries]
 
-    query_embeddings = embed_as_array(documents, config.embedding_api_key)
+    query_embeddings = embed_as_array(documents, config.embedding_api_key, config.embeddings_model_name, config.embeddings_model_task)
     
     query_result = vector_store.query(
         query_embeddings, ids=input_ids, k=n_results
@@ -120,7 +120,7 @@ def embed(data: ClassifaiData,
     input_ids = [x.id for x in data.entries]
     documents = [x.description for x in data.entries]
 
-    query_embeddings = embed_as_array(documents, config.embedding_api_key)
+    query_embeddings = embed_as_array(documents, config.embedding_api_key, config.embeddings_model_name, config.embeddings_model_task)
     description_labels = vector_store.knowledgebase['description'].to_list()
     formatted_embeddings_package = vector_store.create_embeddings_json_array_response(query_embeddings, documents, input_ids, description_labels)
     #print(vector_store.knowledgebase.sample(n=10))

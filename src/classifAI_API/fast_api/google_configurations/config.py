@@ -19,6 +19,8 @@ class Config:
         self.api_type = os.getenv("API_TYPE") or env.get("API_TYPE") or "live"
         self.is_production = False
         self.project_id = os.getenv("PROJECT_ID") or env.get("PROJECT_ID")
+        self.embeddings_model_name = os.getenv("EMBEDDINGS_MODEL_NAME") or env.get("EMBEDDINGS_MODEL_NAME") or "text-embedding-004"
+        self.embeddings_model_task = os.getenv("EMBEDDINGS_MODEL_TASK") or env.get("EMBEDDINGS_MODEL__TASK") or "CLASSIFICATION"
         self.db_dir = "data/db" if self.api_type == "local" else "/tmp/"
 
         if service_name == "API":
