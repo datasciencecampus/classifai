@@ -21,32 +21,11 @@ class Config:
         self.project_id = os.getenv("PROJECT_ID") or env.get("PROJECT_ID")
         self.db_dir = "data/db" if self.api_type == "local" else "/tmp/"
 
-        if service_name == "UI":
-            if self.env_type != "local":
-                self.is_production = True
-        elif service_name == "API":
+        if service_name == "API":
             if self.api_type != "local":
                 self.is_production = True
 
         # Core configuration
-        if service_name == "UI":
-            self.api_url = (
-                "http://127.0.0.1:8000"
-                if self.api_type == "local"
-                else (
-                    os.getenv("API_URL")
-                    or env.get("API_URL")
-                    or self._get_secret("API_URL")
-                )
-            )
-            self.oauth_client_id = (
-                os.getenv("OAUTH_CLIENT_ID")
-                or env.get("OAUTH_CLIENT_ID")
-                or self._get_secret("app_oauth_client_id")
-            )
-            self.bucket_name = None
-            self.embedding_api_key = None
-
         if service_name == "API":
             self.api_url = None
             self.oauth_client_id = None
@@ -99,9 +78,7 @@ class Config:
         required = ["project_id", "api_type"]
 
         # Add environment-specific required configs
-        if self.service_name == "UI":
-            required.extend(["env_type", "api_url", "oauth_client_id"])
-        elif self.service_name == "API":
+        if self.service_name == "API":
             required.extend(["bucket_name", "embedding_api_key"])
 
         missing = []
