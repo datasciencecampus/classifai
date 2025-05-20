@@ -158,22 +158,30 @@ class ParquetNumpyVectorStore:
         >>> client = storage.Client()
         >>> pull_vdb_to_local(client, force_refresh=False)
         """
-        '''LUKE: checking, this is already handled in the Config class
-        if bucket_name is None:
-            bucket_name = get_secret(
-                "APP_DATA_BUCKET", project_id=os.getenv("PROJECT_ID")
-            )
-        ''';
 
         local_path = Path(local_dir)
         target_dir = local_path / prefix
+        path_to_knowledgebase = str(
+            Path(local_dir) / prefix / parquet_filename
+        )
 
-        if target_dir.exists() and not force_refresh:
-            return
-
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-
+        # If local data folder structure is in place, either remove it
+        # if force_refresh is set, or try to use an existing parquet file if
+        # it is not set. If none is found, continue on to pull one from
+        # the Google Bucket
+        if target_dir.exists(): 
+            if force_refresh:
+                shutil.rmtree(target_dir)
+            else:
+                try:
+                    knowledgebase = pl.read_parquet(path_to_knowledgebase).rename(
+                        {"documents": "description"}
+                    )
+                    new_vector_store = cls(knowledgebase=knowledgebase)
+                    return new_vector_store
+                except FileNotFoundError:
+                    pass 
+            
         target_dir.mkdir(parents=True, exist_ok=True)
         bucket = client.bucket(bucket_name)
         blobs = bucket.list_blobs(prefix=prefix)
@@ -186,9 +194,6 @@ class ParquetNumpyVectorStore:
             local_file.parent.mkdir(parents=True, exist_ok=True)
             blob.download_to_filename(str(local_file))
 
-        path_to_knowledgebase = str(
-            Path(local_dir) / prefix / parquet_filename
-        )
         knowledgebase = pl.read_parquet(path_to_knowledgebase).rename(
             {"documents": "description"}
         )

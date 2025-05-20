@@ -51,7 +51,7 @@ def setup_app():
             bucket_name=config.bucket_name,
             local_dir=config.db_dir,
             prefix="soc_parquet",
-            force_refresh=True,
+            force_refresh=False,
     )
     return config, vector_store
 
