@@ -6,7 +6,7 @@ readme = "README.md"
 version = "0.0.1"
 license = {file = "LICENSE"}
 requires-python = ">=3.12,<4.0"
-dynamic = ["version"]
+#dynamic = ["version"]
 dependencies = [
     "uvicorn>0.34.0",
     "fastapi==0.115.11",
@@ -55,8 +55,8 @@ classifiers = [
 requires = ["setuptools>=62"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic]
-version = {attr = "classifAI_API.__version__"}
+#[tool.setuptools.dynamic]
+#version = {attr = "classifAI_API.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
