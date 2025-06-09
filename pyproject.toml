@@ -1,0 +1,153 @@
+[project]
+name = "classifAI_API"
+description = "A minimalist library for exposing parts of classifAI as an extendable microservice"
+authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
+readme = "README.md"
+version = "0.0.1"
+license = {file = "LICENSE"}
+requires-python = ">=3.12,<4.0"
+#dynamic = ["version"]
+dependencies = [
+    "uvicorn>0.34.0",
+    "fastapi==0.115.11",
+    "fastapi-cli==0.0.7",
+    "opentelemetry-instrumentation-fastapi==0.52b1",
+    "typing-inspect==0.9.0",
+    "typing_extensions==4.12.2",
+    "google-ai-generativelanguage==0.6.15",
+    "google-api-core==2.24.2",
+    "google-api-python-client==2.165.0",
+    "google-auth==2.38.0",
+    "google-auth-httplib2==0.2.0",
+    "google-cloud-aiplatform==1.85.0",
+    "google-cloud-appengine-logging==1.6.1",
+    "google-cloud-audit-log==0.3.2",
+    "google-cloud-bigquery==3.30.0",
+    "google-cloud-core==2.4.3",
+    "google-cloud-logging==3.11.4",
+    "google-cloud-resource-manager==1.14.2",
+    "google-cloud-secret-manager==2.23.2",
+    "google-cloud-storage==2.19.0",
+    "google-crc32c==1.7.0",
+    "google-genai==1.8.0",
+    "google-generativeai==0.8.4",
+    "google-resumable-media==2.7.2",
+    "googleapis-common-protos==1.69.2",
+    "grpc-google-iam-v1==0.14.2",
+    "langchain-google-vertexai==2.0.16",
+    "python-dotenv==1.0.1",
+    "numpy>=2.2.4",
+    "requests>=2.32.3",
+    "requests-oauthlib>=2.0.0",
+    "requests-toolbelt>=1.0.0",
+    "polars>=1.26.0",
+    "pydantic>=2.9.2",
+    "pydantic-settings>=2.8.1",
+    "pydantic_core>=2.23.4"
+] 
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+[build-system]
+requires = ["setuptools>=62"]
+build-backend = "setuptools.build_meta"
+
+#[tool.setuptools.dynamic]
+#version = {attr = "classifAI_API.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.setuptools.package-data]
+classifAI_API = []
+
+[project.optional-dependencies]
+app = []
+test = []
+docs = []
+dev = []
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.10.6"
+pandas = "^2.2.3"
+
+
+[tool.poetry.group.dev.dependencies]
+mkdocs-material = "^9.6.9"
+pytest-cov = "^6.0.0"
+black = "^25.1.0"
+ruff = "^0.11.0"
+pylint = "^3.3.5"
+mypy = "^1.15.0"
+isort = "^6.0.1"
+bandit = "^1.8.3"
+pytest = "^8.3.5"
+pre-commit = "^4.2.0"
+mkdocs = "^1.6.1"
+mkdocstrings = "^0.29.0"
+mkdocstrings-python = "^1.16.7"
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    # Enabling ALL is not recommended it will implicitly enable new rules after upgrade.
+    # "ALL",
+
+    # Ruff rules: https://docs.astral.sh/ruff/rules/
+
+    "E",      # pycodestyle erros
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "UP",     # pyupgrade
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "C4",     # flake8-comprehensions
+    "S",      # flake8-bandit
+    "D",      # pydocstyle - Enforce existing docstrings only
+    "C90",    # mccabe
+    "RUF",    # Ruff specific rules
+
+    # PL - Pylint is only partially supported, we also use the pylint tool to catch all the rules.
+    # It is enabled here to take advantage of the ruff's speed.
+    "PL",
+]
+
+ignore = [
+    # Conflicts with google docstring style
+    "D205",
+    # Allow missing docstring, remove to enforce docstrings across the board
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    # Disable line length check as it is handled by black
+    # :TODO: Remove E501 when ruff supports all black rules
+    "E501",
+    # indentation contains tabs
+    "W191",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    # Allow use of assert statements in tests
+    "S101",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[project.urls]
+homepage = "https://github.com/datasciencecampus/classifAI_API"

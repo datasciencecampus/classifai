@@ -1,0 +1,54 @@
+---
+    name: CI
+    
+    on: # yamllint disable-line rule:truthy
+      push:
+        branches: [main]
+      pull_request:
+        branches: [main]
+    
+    concurrency:
+      group: "${{ github.head_ref || github.ref }}-${{ github.workflow }}"
+      cancel-in-progress: true
+
+    jobs:
+        lint-test:
+            name: Lint and Test
+            runs-on: ubuntu-22.04
+            strategy:
+              matrix:
+                python-version: ["3.12"]
+
+            steps:
+                - uses: actions/checkout@v4
+                - name: Install Poetry
+                  run: pipx install poetry==1.7.1
+
+                - name: Set up Python
+                  uses: actions/setup-python@v5
+                  with:
+                    python-version: ${{ matrix.python-version }}
+                    cache: poetry
+
+                - name: Display Python version
+                  run: python -c "import sys; print(sys.version)"
+
+                - name: Build poetry lockfile
+                  run: poetry lock
+
+                - name: Install dependencies
+                  run: poetry install --no-root
+  
+                - name: check code formatting
+                  run: make check-python-nofix
+
+                #- name: Lint Python
+                #  run: make check-python-nofix
+
+                #- name: Test Python
+                #  run: make all-tests
+
+                - name: Cleanup residue file
+                  run: make clean
+    
+    
