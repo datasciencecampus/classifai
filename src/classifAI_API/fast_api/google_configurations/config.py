@@ -11,9 +11,12 @@ from google.cloud.secretmanager import SecretManagerServiceClient
 class Config:
     """Simple configuration class that checks environment variables and secrets."""
 
-    def __init__(self, service_name="API"):
+    def __init__(self, service_name="API", all_local=False, local_LLM=None):
         env = dotenv_values(".env")
         # Environment detection
+        if local_LLM is not None:
+            self.local_LLM = local_LLM
+        self.all_local = all_local
         self.service_name = service_name
         self.env_type = os.getenv("ENV_TYPE") or env.get("ENV_TYPE") or "dev"
         self.api_type = os.getenv("API_TYPE") or env.get("API_TYPE") or "live"

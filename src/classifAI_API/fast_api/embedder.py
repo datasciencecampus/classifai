@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import polars as pl
+import ollama
 from google import genai
 from google.cloud import storage
 
@@ -62,6 +63,13 @@ def embed_as_array(documents: list[str], api_key: str, model_name: str="text-emb
         config=genai.types.EmbedContentConfig(task_type=model_task),
     )
     queries_array = np.array([res.values for res in result.embeddings])
+    return queries_array
+
+def embed_as_array_local_LLM(documents: list[str], model_name: str="nomic-embed-text") -> np.ndarray:
+    if len(documents) == 0:
+        return np.empty((0, 0))
+    result = [ollama.embeddings(model=model_name, prompt=doc).embedding for doc in documents]
+    queries_array = np.array(result)
     return queries_array
 
 

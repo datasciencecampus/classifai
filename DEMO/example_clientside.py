@@ -36,7 +36,7 @@ for idx,qe in enumerate(embed_response_dict['data']):
     print('\n')
 
 # Using the original classifAI /soc endpoint for validation 
-soc_response = requests.post(f"http://{endpoint_base_url}:{endpoint_port}/soc?n_results=3", 
+soc_response = requests.post(f"http://{endpoint_base_url}:{endpoint_port}/search?n_results=3", 
                                json=query_data)
 
 original_soc_data = json.loads(soc_response.content)

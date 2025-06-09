@@ -3,7 +3,9 @@
 import numpy as np
 from classifAI_API.fast_api import app, run_app, setup_app
 
-config, vector_store = setup_app()
+config, vector_store = setup_app(parquet_filepath_local='./classifai.parquet', 
+                                 local_LLM='nomic-embed-text',
+                                 all_local=True)
 
 @app.post("/new_endpoint_score", description="scoring programmatic endpoint")
 def new_endpoint_score(query_embeddings: list[float],

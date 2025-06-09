@@ -43,7 +43,8 @@ dependencies = [
     "polars>=1.26.0",
     "pydantic>=2.9.2",
     "pydantic-settings>=2.8.1",
-    "pydantic_core>=2.23.4"
+    "pydantic_core>=2.23.4",
+    "ollama>=0.5.1"
 ] 
 classifiers = [
     "Programming Language :: Python :: 3",
