@@ -11,7 +11,7 @@ from google.cloud.secretmanager import SecretManagerServiceClient
 class Config:
     """Simple configuration class that checks environment variables and secrets."""
 
-    def __init__(self, service_name="UI"):
+    def __init__(self, service_name="API"):
         env = dotenv_values(".env")
         # Environment detection
         self.service_name = service_name
@@ -97,7 +97,7 @@ class Config:
 
         return True
 
-def get_secret(secret_name: str, project_id: str = "classifai-sandbox"):
+def get_secret(secret_name: str, project_id: str):
     """Access GCP Secret Manager secret value.
 
     Parameters

@@ -143,12 +143,15 @@ class ParquetNumpyVectorStore:
         bucket_name : str | None
             Name of GCS bucket. If None, fetched from secrets
             Default: None
-        prefix : str
-            GCS bucket folder
-            Default: 'db/'
         local_dir : str
             Location of local/instance temporary directory
             Default: '/tmp/'
+        prefix : str
+            GCS bucket folder
+            Default: 'db/'
+        parquet_filename: str
+            name of the .parquet knowledgebase
+            Default "classifai.parquet"
         force_refresh : bool
             Whether to delete and re-fetch if database exists
             Default: False
@@ -200,6 +203,34 @@ class ParquetNumpyVectorStore:
 
         new_vector_store = cls(knowledgebase=knowledgebase)
         return new_vector_store
+
+    @classmethod
+    def from_local_storage(
+        cls,
+        parquet_filepath_local: str = ""
+    ):
+        """Inititialise VectorStore from local parquet file.
+
+        Parameters
+        ----------
+        parquet_filepath_local: str
+            path to the .parquet knowledgebase
+        """
+
+        if not Path(parquet_filepath_local).exists():
+            raise FileNotFoundError(f"could not find knowledgebase at\n{parquet_filepath_local}")
+
+        try:
+            knowledgebase = pl.read_parquet(parquet_filepath_local).rename(
+                {"documents": "description"}
+            )
+            new_vector_store = cls(knowledgebase=knowledgebase)
+            return new_vector_store
+        except pl.exceptions.ComputeError as e:
+            print(f"The file {parquet_filepath_local} does not appear to be a valid .parquet file", e) 
+            raise e
+        except Exception as e:
+            raise e
 
     def query(
         self,

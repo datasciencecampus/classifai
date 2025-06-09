@@ -37,7 +37,7 @@ app = FastAPI(
 
 load_dotenv(find_dotenv())
 
-def setup_app():
+def setup_app(parquet_filepath_local=None):
     global config, vector_store
     config = Config("API")
     config.setup_logging()
@@ -45,23 +45,26 @@ def setup_app():
         logging.error("Invalid configuration. Exiting.")
         import sys
         sys.exit(1)
-
-    vector_store = VectorStore.from_gcs_bucket(
+    if parquet_filepath_local is not None:
+        vector_store = VectorStore.from_local_storage(parquet_filepath_local)
+    else:
+        vector_store = VectorStore.from_gcs_bucket(
             client=storage.Client(),
             bucket_name=config.bucket_name,
             local_dir=config.db_dir,
             prefix="soc_parquet",
             force_refresh=False,
+            
     )
     return config, vector_store
 
-@app.post("/soc", description="SOC programmatic endpoint")
+@app.post("/search", description="search programmatic endpoint")
 def soc(
     data: ClassifaiData,
     n_results: Annotated[
         int,
         Query(
-            description="The number of results to return per SOC row.",
+            description="The number of knowledgebase results to return per input query.",
         ),
     ] = 20,
 ) -> ResultsResponseBody:
@@ -115,7 +118,6 @@ def embed(data: ClassifaiData,
     EmbeddingsResponseBody : EmbeddingsResponseBody :: Modelled as a Pydantic response object
         Dictionary (Pydantic Object) of embeddings for each of the input roles.
     """
-    # Do type checking, then build pydantic
     
     input_ids = [x.id for x in data.entries]
     documents = [x.description for x in data.entries]
@@ -123,7 +125,6 @@ def embed(data: ClassifaiData,
     query_embeddings = embed_as_array(documents, config.embedding_api_key, config.embeddings_model_name, config.embeddings_model_task)
     description_labels = vector_store.knowledgebase['description'].to_list()
     formatted_embeddings_package = vector_store.create_embeddings_json_array_response(query_embeddings, documents, input_ids, description_labels)
-    #print(vector_store.knowledgebase.sample(n=10))
 
     return formatted_embeddings_package
 
