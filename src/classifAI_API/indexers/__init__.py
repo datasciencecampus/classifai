@@ -1,0 +1,1 @@
+from .main import create_vector_index_from_string_file
