@@ -154,5 +154,10 @@ convention = "google"
 quote-style = "double"
 indent-style = "space"
 
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
+
 [project.urls]
 homepage = "https://github.com/datasciencecampus/classifAI_API"
