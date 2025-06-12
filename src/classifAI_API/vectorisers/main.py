@@ -1,6 +1,3 @@
-import numpy as np 
-#import more_itertools
-#import torch
 from google import genai
 import numpy as np
 import torch
@@ -11,10 +8,26 @@ logging.getLogger("google.cloud").setLevel(logging.WARNING)
 logging.getLogger("google.api_core").setLevel(logging.WARNING)
 
 
-#class for embedding model that uses Google Cloud Platform's GenAI API
-class Gcp_Vectoriser():
 
-    def __init__(self, project_id, location='europe-west2', model_name="text-embedding-004"):
+class Gcp_Vectoriser():
+    """
+        A class for embedding text using Google Cloud Platform's GenAI API.
+        Attributes:
+            model_name (str): The name of the embedding model to use.
+            vectoriser (genai.Client): The GenAI client instance for embedding text.
+    """
+
+
+    def __init__(self, project_id, location='europe-west2', model_name="text-embedding-004"): 
+        """
+            Initializes the Gcp_Vectoriser with the specified project ID, location, and model name.
+            Args:
+                project_id (str): The Google Cloud project ID.
+                location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
+                model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
+            Raises:
+                RuntimeError: If the GenAI client fails to initialize.
+        """
 
         self.model_name = model_name
 
@@ -28,8 +41,17 @@ class Gcp_Vectoriser():
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}")
 
 
-    #the function accepts embeddings from the user and 
+
     def transform(self, texts):
+        """
+            Transforms input text(s) into embeddings using the GenAI API.
+            Args:
+                texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+            Returns:
+                numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+            Raises:
+                TypeError: If the input is not a string or a list of strings.
+        """
 
         if type(texts) is str:
             texts = [texts]
@@ -38,7 +60,7 @@ class Gcp_Vectoriser():
             raise TypeError("Input must be a string or a list of strings.")
 
         
-        # Here you would implement the actual embedding logic using the API service
+        # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
             model=self.model_name,
             contents=texts,
@@ -54,9 +76,24 @@ class Gcp_Vectoriser():
 
 #general wrapper class for Huggingface Transformers models, may not work for all models
 class Huggingface_Vectoriser:
+    """
+        A general wrapper class for Huggingface Transformers models to generate text embeddings.
+        Attributes:
+            model_name (str): The name of the Huggingface model to use.
+            tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
+            model (transformers.PreTrainedModel): The Huggingface model instance.
+            device (torch.device): The device (CPU or GPU) on which the model is loaded.
+    """
 
 
     def __init__(self, model_name, device=None):
+        """
+            Initializes the Huggingface_Vectoriser with the specified model name and device.
+            Args:
+                model_name (str): The name of the Huggingface model to use.
+                device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
+        """
+
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
@@ -70,7 +107,18 @@ class Huggingface_Vectoriser:
         self.model.to(self.device)
         self.model.eval()
 
+
     def transform(self, texts):
+        """
+            Transforms input text(s) into embeddings using the Huggingface model.
+            Args:
+                texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+            Returns:
+                numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+            Raises:
+                TypeError: If the input is not a string or a list of strings.
+        """
+
         if isinstance(texts, str):
             texts = [texts]
 

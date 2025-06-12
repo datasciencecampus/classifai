@@ -1,6 +1,24 @@
 import pandas as pd
 
+
 def iter_csv(fileName, batch_size=8):
+    """
+        Reads a CSV file in batches and yields dictionaries containing rows of data.
+        This function reads a CSV file line by line, validates the header row, and 
+        yields batches of rows as dictionaries. Each dictionary contains the 'id' 
+        and 'text' fields from the CSV file. The function skips invalid rows and 
+        ensures the header matches the expected format.
+        Args:
+            fileName (str): The path to the CSV file to be read.
+            batch_size (int, optional): The number of rows to include in each batch. 
+                Defaults to 8.
+        Yields:
+            list[dict]: A batch of rows, where each row is represented as a dictionary 
+                with 'id' and 'text' keys.
+        Raises:
+            ValueError: If the CSV file does not have a header row with 'id' and 'text' 
+                columns.
+    """
     # Open the CSV file
     with open(fileName, 'r') as file:
         # Validate the header row

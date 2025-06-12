@@ -12,10 +12,36 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
 def create_vector_index_from_string_file(
+
     fileName, 
     dataType,
     embedder,
     batch_size,):
+    """
+        Creates a vector index from a file containing text data and saves it as a Parquet file.
+        This function processes a file in batches, extracts text data, generates vector embeddings
+        using the provided embedder, and saves the resulting data (IDs, text, and embeddings) 
+        into a Parquet file.
+        Args:
+            fileName (str): The path to the input file containing the text data.
+            dataType (str): The type of the input file. Currently, only 'csv' is supported.
+            embedder: An instance of the `Vectoriser` class from the 
+                `vectorisers` module, used to generate vector embeddings for the text data.
+            batch_size (int): The number of rows to process in each batch.
+        Returns:
+            pandas.DataFrame: A DataFrame containing the processed data with columns:
+                - 'id': The unique identifier for each row.
+                - 'text': The text data.
+                - 'embeddings': The vector embeddings generated for the text data.
+        Raises:
+            Exception: If an unsupported file type is provided or if there are errors during
+                file processing, vectorization, or saving the Parquet file.
+        Notes:
+            - The function currently supports only CSV files. Additional file types may be 
+            supported in future updates.
+            - The Parquet file is saved with the same name as the input file, but with a 
+            `.parquet` extension.
+    """
 
 
     #set up the file indexer
