@@ -1,1 +1,1 @@
-from .main import Gcp_Vectoriser, Huggingface_Vectoriser
+from .main import GcpVectoriser, HuggingFaceVectoriser

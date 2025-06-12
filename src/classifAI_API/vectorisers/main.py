@@ -1,65 +1,85 @@
-from google import genai
+"""This module provides classes for creating and utilizing embedding models from different services.
+
+The module contains the following classes:
+- `GcpVectoriser`: A class for embedding text using Google Cloud Platform's GenAI API.
+- `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
+models to generate text embeddings.
+
+Each class is designed to interface with a specific service that provides embedding model
+functionality.
+
+The `GcpVectoriser` class leverages Google's GenAI API,
+
+The `HuggingFaceVectoriser` class utilizes models from the Huggingface Transformers library.
+
+These classes abstract the underlying implementation details, providing a simple and consistent
+interface for embedding text using different services.
+"""
+
+import logging
+
 import numpy as np
 import torch
-from transformers import AutoTokenizer, AutoModel
-import logging
+from google import genai
+from transformers import AutoModel, AutoTokenizer
+
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
 logging.getLogger("google.api_core").setLevel(logging.WARNING)
 
 
+class GcpVectoriser:
+    """A class for embedding text using Google Cloud Platform's GenAI API.
 
-class Gcp_Vectoriser():
+    Attributes:
+        model_name (str): The name of the embedding model to use.
+        vectoriser (genai.Client): The GenAI client instance for embedding text.
     """
-        A class for embedding text using Google Cloud Platform's GenAI API.
-        Attributes:
-            model_name (str): The name of the embedding model to use.
-            vectoriser (genai.Client): The GenAI client instance for embedding text.
-    """
 
+    def __init__(
+        self, project_id, location="europe-west2", model_name="text-embedding-004"
+    ):
+        """Initializes the Gcp_Vectoriser with the specified project ID, location, and model name.
 
-    def __init__(self, project_id, location='europe-west2', model_name="text-embedding-004"): 
+        Args:
+            project_id (str): The Google Cloud project ID.
+            location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
+            model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
+
+        Raises:
+            RuntimeError: If the GenAI client fails to initialize.
         """
-            Initializes the Gcp_Vectoriser with the specified project ID, location, and model name.
-            Args:
-                project_id (str): The Google Cloud project ID.
-                location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
-                model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
-            Raises:
-                RuntimeError: If the GenAI client fails to initialize.
-        """
-
         self.model_name = model_name
 
         try:
             self.vectoriser = genai.Client(
-                vertexai=True, 
-                project="classifai-sandbox",
+                vertexai=True,
+                project=project_id,
                 location=location,
             )
         except Exception as e:
-            raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}")
-
-
+            raise RuntimeError(
+                f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}"
+            )
 
     def transform(self, texts):
-        """
-            Transforms input text(s) into embeddings using the GenAI API.
-            Args:
-                texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
-            Returns:
-                numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
-            Raises:
-                TypeError: If the input is not a string or a list of strings.
-        """
+        """Transforms input text(s) into embeddings using the GenAI API.
 
+        Args:
+            texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+
+        Returns:
+            numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+
+        Raises:
+            TypeError: If the input is not a string or a list of strings.
+        """
         if type(texts) is str:
             texts = [texts]
-        
+
         if type(texts) is not list:
             raise TypeError("Input must be a string or a list of strings.")
 
-        
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
             model=self.model_name,
@@ -67,33 +87,29 @@ class Gcp_Vectoriser():
         )
 
         # Extract embeddings from the response object
-        #embeddings = [embedding[0] for embedding in embeddings]
+        # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
-            
+
         return result
 
-    
 
-#general wrapper class for Huggingface Transformers models, may not work for all models
-class Huggingface_Vectoriser:
-    """
-        A general wrapper class for Huggingface Transformers models to generate text embeddings.
-        Attributes:
-            model_name (str): The name of the Huggingface model to use.
-            tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
-            model (transformers.PreTrainedModel): The Huggingface model instance.
-            device (torch.device): The device (CPU or GPU) on which the model is loaded.
-    """
+class HuggingFaceVectoriser:
+    """A general wrapper class for Huggingface Transformers models to generate text embeddings.
 
+    Attributes:
+        model_name (str): The name of the Huggingface model to use.
+        tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
+        model (transformers.PreTrainedModel): The Huggingface model instance.
+        device (torch.device): The device (CPU or GPU) on which the model is loaded.
+    """
 
     def __init__(self, model_name, device=None):
-        """
-            Initializes the Huggingface_Vectoriser with the specified model name and device.
-            Args:
-                model_name (str): The name of the Huggingface model to use.
-                device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
-        """
+        """Initializes the Huggingface_Vectoriser with the specified model name and device.
 
+        Args:
+            model_name (str): The name of the Huggingface model to use.
+            device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
+        """
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
@@ -107,18 +123,18 @@ class Huggingface_Vectoriser:
         self.model.to(self.device)
         self.model.eval()
 
-
     def transform(self, texts):
-        """
-            Transforms input text(s) into embeddings using the Huggingface model.
-            Args:
-                texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
-            Returns:
-                numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
-            Raises:
-                TypeError: If the input is not a string or a list of strings.
-        """
+        """Transforms input text(s) into embeddings using the Huggingface model.
 
+        Args:
+            texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+
+        Returns:
+            numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+
+        Raises:
+            TypeError: If the input is not a string or a list of strings.
+        """
         if isinstance(texts, str):
             texts = [texts]
 
@@ -127,19 +143,18 @@ class Huggingface_Vectoriser:
 
         # Tokenise input texts
         inputs = self.tokenizer(
-            texts,
-            padding=True,
-            truncation=True,
-            return_tensors="pt"
+            texts, padding=True, truncation=True, return_tensors="pt"
         ).to(self.device)
 
         # Get model outputs
         with torch.no_grad():
             outputs = self.model(**inputs)
 
-        #Use mean pooling over the token embeddings
-        token_embeddings = outputs.last_hidden_state  # shape: (batch_size, seq_len, hidden_size)
-        attention_mask = inputs['attention_mask']
+        # Use mean pooling over the token embeddings
+        token_embeddings = (
+            outputs.last_hidden_state
+        )  # shape: (batch_size, seq_len, hidden_size)
+        attention_mask = inputs["attention_mask"]
 
         # Perform mean pooling manually
         mask = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()

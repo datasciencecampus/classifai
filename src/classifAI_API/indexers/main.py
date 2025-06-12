@@ -1,6 +1,36 @@
+"""This module provides functionality for creating a vector index from a text file
+and saving the processed data as a Parquet file. It is designed to handle large
+datasets by processing the input file in batches, extracting text data, generating
+vector embeddings, and storing the results in a structured format.
+
+The main function in this module, `create_vector_index_from_string_file`, supports
+CSV files as input and uses a provided embedder to generate vector embeddings for
+the text data. The processed data includes unique identifiers, text content, and
+their corresponding embeddings, which are saved in a Parquet file for efficient
+storage and retrieval.
+
+Key Features:
+- Batch processing of input files to handle large datasets.
+- Support for CSV file format (additional formats may be added in future updates).
+- Integration with a custom embedder for generating vector embeddings.
+- Logging for tracking progress and handling errors during processing.
+
+Dependencies:
+- pandas: For handling data in tabular format and saving it as a Parquet file.
+- tqdm: For displaying progress bars during batch processing.
+- A custom file iterator (`iter_csv`) for reading input files in batches.
+
+Usage:
+This module is intended to be used as part of a larger application that requires
+vector indexing of text data. It can be extended to support additional file formats
+and embedding methods as needed.
+"""
+
 import logging
-import tqdm 
+
 import pandas as pd
+import tqdm
+
 from .helpers.file_iters import iter_csv
 
 # Configure logging for your application
@@ -10,65 +40,73 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
-
 def create_vector_index_from_string_file(
-
-    fileName, 
-    dataType,
+    file_name,
+    data_type,
     embedder,
-    batch_size,):
-    """
-        Creates a vector index from a file containing text data and saves it as a Parquet file.
-        This function processes a file in batches, extracts text data, generates vector embeddings
-        using the provided embedder, and saves the resulting data (IDs, text, and embeddings) 
-        into a Parquet file.
-        Args:
-            fileName (str): The path to the input file containing the text data.
-            dataType (str): The type of the input file. Currently, only 'csv' is supported.
-            embedder: An instance of the `Vectoriser` class from the 
-                `vectorisers` module, used to generate vector embeddings for the text data.
-            batch_size (int): The number of rows to process in each batch.
-        Returns:
-            pandas.DataFrame: A DataFrame containing the processed data with columns:
-                - 'id': The unique identifier for each row.
-                - 'text': The text data.
-                - 'embeddings': The vector embeddings generated for the text data.
-        Raises:
-            Exception: If an unsupported file type is provided or if there are errors during
-                file processing, vectorization, or saving the Parquet file.
-        Notes:
-            - The function currently supports only CSV files. Additional file types may be 
-            supported in future updates.
-            - The Parquet file is saved with the same name as the input file, but with a 
-            `.parquet` extension.
-    """
+    batch_size,
+):
+    """Creates a vector index from a file containing text data and saves it as a Parquet file.
+    This function processes a file in batches, extracts text data, generates vector embeddings
+    using the provided embedder, and saves the resulting data (IDs, text, and embeddings)
+    into a Parquet file.
 
+    Args:
+        file_name (str): The path to the input file containing the text data.
+        data_type (str): The type of the input file. Currently, only 'csv' is supported.
+        embedder: An instance of the `Vectoriser` class from the
+            `vectorisers` module, used to generate vector embeddings for the text data.
+        batch_size (int): The number of rows to process in each batch.
 
-    #set up the file indexer
+    Returns:
+        pandas.DataFrame: A DataFrame containing the processed data with columns:
+            - 'id': The unique identifier for each row.
+            - 'text': The text data.
+            - 'embeddings': The vector embeddings generated for the text data.
+
+    Raises:
+        Exception: If an unsupported file type is provided or if there are errors during
+            file processing, vectorization, or saving the Parquet file.
+
+    Notes:
+        - The function currently supports only CSV files. Additional file types may be
+        supported in future updates.
+        - The Parquet file is saved with the same name as the input file, but with a
+        `.parquet` extension.
+    """
+    # set up the file indexer
     try:
-        if dataType == 'csv':
+        if data_type == "csv":
             file_loader = iter_csv
-        
-        else:
-            raise "FileType must be of type string and one of ['csv']   (more file types added in later update!)"
 
-    except Exception as e:
+        else:
+            raise Exception(
+                "FileType must be of type string and one of ['csv']   (more file types added in later update!)"
+            )
+
+    except Exception:
         logging.error("Error setting up file loader: {e}")
         raise
-
-
 
     # Process the file in batches
     ids = []
     texts = []
     vectors = []
 
-    logging.info(f"Processing file: {fileName} in batches of size {batch_size}...\n")
-    for batch_no, batch in enumerate(tqdm.tqdm(file_loader(fileName, batch_size=batch_size,), desc="Processing batches")):
+    logging.info(f"Processing file: {fil_name} in batches of size {batch_size}...\n")
+    for batch_no, batch in enumerate(
+        tqdm.tqdm(
+            file_loader(
+                file_name,
+                batch_size=batch_size,
+            ),
+            desc="Processing batches",
+        )
+    ):
         try:
             # Extract IDs and texts
-            batch_ids = [entry['id'] for entry in batch]
-            batch_texts = [entry['text'] for entry in batch]
+            batch_ids = [entry["id"] for entry in batch]
+            batch_texts = [entry["text"] for entry in batch]
 
             # Send the batch to be vectorized
             batch_vectors = embedder.transform(batch_texts)
@@ -81,24 +119,23 @@ def create_vector_index_from_string_file(
         except Exception as e:
             logging.error(f"Error processing batch {batch_no}: {e}")
             continue
-    
+
     print("---------")
-    logging.info(f"Finished creating vectors, attempting to save to parquet file...")
+    logging.info("Finished creating vectors, attempting to save to parquet file...")
 
-
-    #finally collect all the data in pandas dataframe and save it to a parquay file
+    # finally collect all the data in pandas dataframe and save it to a parquay file
     try:
-        df = pd.DataFrame({'id': ids, 'text': texts, 'embeddings': vectors})
-        df.to_parquet(f"{fileName.split('.')[0]}.parquet")
+        df = pd.DataFrame({"id": ids, "text": texts, "embeddings": vectors})
+        df.to_parquet(f"{file_name.split('.')[0]}.parquet")
 
     except Exception as e:
         logging.error(f"Error creating DataFrame or saving to Parquet file: {e}")
         raise
-    
 
-    logging.info(f"DataFrame created with {len(df)} rows and {len(df.columns)} columns.")
-    logging.info(f"Saved DataFrame to Parquet file: {fileName}.parquet")
-
+    logging.info(
+        f"DataFrame created with {len(df)} rows and {len(df.columns)} columns."
+    )
+    logging.info(f"Saved DataFrame to Parquet file: {file_name}.parquet")
 
     return df
-
+    return df
