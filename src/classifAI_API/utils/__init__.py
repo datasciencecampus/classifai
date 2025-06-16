@@ -1,0 +1,1 @@
+from .knowledgebase_factory import create_knowledgebase
