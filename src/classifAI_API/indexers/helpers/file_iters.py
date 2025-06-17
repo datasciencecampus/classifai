@@ -10,43 +10,49 @@ Functions:
 """
 
 
-def iter_csv(file_name, batch_size=8):
+def iter_csv(file_name, meta_data=[], batch_size=8):
     """Reads a CSV file in batches and yields dictionaries containing rows of data.
     This function reads a CSV file line by line, validates the header row, and
-    yields batches of rows as dictionaries. Each dictionary contains the 'id'
-    and 'text' fields from the CSV file. The function skips invalid rows and
-    ensures the header matches the expected format.
+    yields batches of rows as dictionaries. Each dictionary contains all fields
+    from the CSV file, with keys corresponding to the header names.
 
     Args:
         file_name (str): The path to the CSV file to be read.
+        meta_data (list): A list of additional columns to include in the output,
         batch_size (int, optional): The number of rows to include in each batch.
             Defaults to 8.
 
     Yields:
         list[dict]: A batch of rows, where each row is represented as a dictionary
-            with 'id' and 'text' keys.
+            with keys corresponding to the header names.
 
     Raises:
-        ValueError: If the CSV file does not have a header row with 'id' and 'text'
-            columns.
+        ValueError: If the CSV file does not have a valid header row.
     """
+    # combine metadata and text and id column parameters
+    columns = ["id", "text", *meta_data]
+
     # Open the CSV file
     with open(file_name, encoding="utf-8") as file:
-        # Validate the header row
-        header = file.readline().strip().split(",")
-        if header != ["id", "text"]:
-            raise ValueError(
-                "CSV file must have a header row with 'id' and 'text' columns"
-            )
+
+        # Read and validate the header row
+        headers = file.readline().strip().split(",")
+
+        if not headers:
+            raise ValueError("CSV file must have a valid header row")
+
+        # Check if each row in the columns that we want to collect, is in fact in the csv file headers
+        for each in columns:
+            if each not in headers:
+                raise ValueError(f"CSV file header is missing required column: {each}")
 
         # Read the file in chunks, discarding the header
         batch = []
         for line in file:
-
             row = line.strip().split(",")
-            if len(row) != 2:
+            if len(row) != len(headers):
                 continue  # Skip invalid rows
-            batch.append({"id": row[0], "text": row[1]})
+            batch.append(dict(zip(headers, row, strict=False)))
             if len(batch) == batch_size:
                 yield batch
                 batch = []

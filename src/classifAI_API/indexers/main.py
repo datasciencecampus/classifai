@@ -28,7 +28,7 @@ and embedding methods as needed.
 
 import logging
 
-import pandas as pd
+import polars as pl
 import tqdm
 
 from .helpers.file_iters import iter_csv
@@ -43,6 +43,7 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 def create_vector_index_from_string_file(
     file_name,
     data_type,
+    meta_data,
     embedder,
     batch_size,
 ):
@@ -54,6 +55,7 @@ def create_vector_index_from_string_file(
     Args:
         file_name (str): The path to the input file containing the text data.
         data_type (str): The type of the input file. Currently, only 'csv' is supported.
+        meta_data (list): A list additional columns to include in the output DataFrame, other than ['id', 'text'].
         embedder: An instance of the `Vectoriser` class from the
             `vectorisers` module, used to generate vector embeddings for the text data.
         batch_size (int): The number of rows to process in each batch.
@@ -89,47 +91,47 @@ def create_vector_index_from_string_file(
         raise
 
     # Process the file in batches
-    ids = []
-    texts = []
-    vectors = []
+    captured_data = {x: [] for x in ["id", "text", *meta_data]}
+    captured_embeddings = []
 
-    logging.info(f"Processing file: {fil_name} in batches of size {batch_size}...\n")
+    logging.info(
+        "Processing file: %s in batches of size %d...\n", file_name, batch_size
+    )
     for batch_no, batch in enumerate(
         tqdm.tqdm(
             file_loader(
                 file_name,
+                meta_data=meta_data,
                 batch_size=batch_size,
             ),
             desc="Processing batches",
         )
     ):
-        try:
-            # Extract IDs and texts
-            batch_ids = [entry["id"] for entry in batch]
-            batch_texts = [entry["text"] for entry in batch]
+        # try:
+        # Extract IDs and texts
+        for k in captured_data.keys():
 
-            # Send the batch to be vectorized
-            batch_vectors = embedder.transform(batch_texts)
+            captured_data[k].extend([entry[k] for entry in batch])
 
-            # Store the ids, text, and vectors in their corresponding lists
-            ids.extend(batch_ids)
-            texts.extend(batch_texts)
-            vectors.extend(batch_vectors)
+        # Send the batch to be vectorized
+        batch_vectors = embedder.transform([entry["text"] for entry in batch])
+        captured_embeddings.extend(batch_vectors)
 
-        except Exception as e:
-            logging.error(f"Error processing batch {batch_no}: {e}")
-            continue
+        # except Exception as e:
+        # logging.error(f"Error processing batch {batch_no}: {e}")
+        # continue
 
     print("---------")
     logging.info("Finished creating vectors, attempting to save to parquet file...")
 
-    # finally collect all the data in pandas dataframe and save it to a parquay file
+    # finally collect all the data in polars dataframe and save it to a parquet file
     try:
-        df = pd.DataFrame({"id": ids, "text": texts, "embeddings": vectors})
-        df.to_parquet(f"{file_name.split('.')[0]}.parquet")
+        df = pl.DataFrame({x: captured_data[x] for x in captured_data})
+        df = df.with_columns(pl.Series("embeddings", captured_embeddings))
+        df.write_parquet(f"{file_name.replace('.csv', '.parquet')}")
 
     except Exception as e:
-        logging.error(f"Error creating DataFrame or saving to Parquet file: {e}")
+        logging.error(f"Error creating Polars DataFrame or saving to Parquet file: {e}")
         raise
 
     logging.info(
@@ -137,5 +139,4 @@ def create_vector_index_from_string_file(
     )
     logging.info(f"Saved DataFrame to Parquet file: {file_name}.parquet")
 
-    return df
     return df
