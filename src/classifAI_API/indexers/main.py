@@ -40,12 +40,23 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
+class VectorStore:
+
+    def __init__(self, file_name, data_type, embedder, batch_size=8, meta_data=None):
+        """Initializes the VectorStore with the specified parameters."""
+        self.file_name = file_name
+        self.data_type = data_type
+        self.embedder = embedder
+        self.batch_size = batch_size
+        self.meta_data = meta_data if meta_data is not None else []
+
+
 def create_vector_index_from_string_file(
     file_name,
     data_type,
-    meta_data,
     embedder,
-    batch_size,
+    batch_size=8,
+    meta_data=None,
 ):
     """Creates a vector index from a file containing text data and saves it as a Parquet file.
     This function processes a file in batches, extracts text data, generates vector embeddings
@@ -89,6 +100,9 @@ def create_vector_index_from_string_file(
     except Exception:
         logging.error("Error setting up file loader: {e}")
         raise
+
+    if meta_data is None:
+        meta_data = []
 
     # Process the file in batches
     captured_data = {x: [] for x in ["id", "text", *meta_data]}
