@@ -40,17 +40,6 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
-class VectorStore:
-
-    def __init__(self, file_name, data_type, embedder, batch_size=8, meta_data=None):
-        """Initializes the VectorStore with the specified parameters."""
-        self.file_name = file_name
-        self.data_type = data_type
-        self.embedder = embedder
-        self.batch_size = batch_size
-        self.meta_data = meta_data if meta_data is not None else []
-
-
 def create_vector_index_from_string_file(
     file_name,
     data_type,
