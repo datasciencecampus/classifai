@@ -26,8 +26,12 @@ vector indexing of text data. It can be extended to support additional file form
 and embedding methods as needed.
 """
 
+import json
 import logging
+import os
+import time
 
+import numpy as np
 import polars as pl
 import tqdm
 
@@ -40,106 +44,259 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
-def create_vector_index_from_string_file(
-    file_name,
-    data_type,
-    embedder,
-    batch_size=8,
-    meta_data=None,
-):
-    """Creates a vector index from a file containing text data and saves it as a Parquet file.
-    This function processes a file in batches, extracts text data, generates vector embeddings
-    using the provided embedder, and saves the resulting data (IDs, text, and embeddings)
-    into a Parquet file.
+class VectorStore:
+    def __init__(self, file_name, data_type, vectoriser, batch_size=8, meta_data=None):
+        """Initializes the VectorStore with the specified parameters."""
+        self.file_name = file_name
+        self.data_type = data_type
+        self.vectoriser = vectoriser
+        self.batch_size = batch_size
+        self.meta_data = meta_data if meta_data is not None else []
+        self.vectors = None
+        self.vector_shape = None
+        self.num_vectors = None
+        self.vectoriser_class = vectoriser.__class__.__name__
 
-    Args:
-        file_name (str): The path to the input file containing the text data.
-        data_type (str): The type of the input file. Currently, only 'csv' is supported.
-        meta_data (list): A list additional columns to include in the output DataFrame, other than ['id', 'text'].
-        embedder: An instance of the `Vectoriser` class from the
-            `vectorisers` module, used to generate vector embeddings for the text data.
-        batch_size (int): The number of rows to process in each batch.
-
-    Returns:
-        pandas.DataFrame: A DataFrame containing the processed data with columns:
-            - 'id': The unique identifier for each row.
-            - 'text': The text data.
-            - 'embeddings': The vector embeddings generated for the text data.
-
-    Raises:
-        Exception: If an unsupported file type is provided or if there are errors during
-            file processing, vectorization, or saving the Parquet file.
-
-    Notes:
-        - The function currently supports only CSV files. Additional file types may be
-        supported in future updates.
-        - The Parquet file is saved with the same name as the input file, but with a
-        `.parquet` extension.
-    """
-    # set up the file indexer
-    try:
-        if data_type == "csv":
-            file_loader = iter_csv
-
-        else:
-            raise Exception(
-                "FileType must be of type string and one of ['csv']   (more file types added in later update!)"
+        if self.data_type not in ["csv"]:
+            raise ValueError(
+                "Data type must be one of ['csv'] (more file types added in later update!)"
             )
 
-    except Exception:
-        logging.error("Error setting up file loader: {e}")
-        raise
+        os.makedirs("classifai_vector_stores", exist_ok=True)
 
-    if meta_data is None:
-        meta_data = []
+        # Normalize the file name to ensure it doesn't include relative paths or extensions
+        normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
+        # Check if the folder exists in the specified subdirectory
+        subdir_path = os.path.join("classifai_vector_ebatstores", normalized_file_name)
+        if os.path.isdir(subdir_path):
+            raise ValueError(
+                f"The name '{subdir_path}' is already used as a folder in the subdirectory."
+            )
+        os.makedirs(subdir_path, exist_ok=True)
 
-    # Process the file in batches
-    captured_data = {x: [] for x in ["id", "text", *meta_data]}
-    captured_embeddings = []
+        self._create_vector_store_index()
 
-    logging.info(
-        "Processing file: %s in batches of size %d...\n", file_name, batch_size
-    )
-    for batch_no, batch in enumerate(
-        tqdm.tqdm(
-            file_loader(
-                file_name,
-                meta_data=meta_data,
-                batch_size=batch_size,
-            ),
-            desc="Processing batches",
+        logging.info("Gathering metadata and saving vector store / metadata...")
+
+        self.vector_shape = self.vectors["embeddings"].shape
+        self.num_vectors = len(self.vectors)
+
+        ## save everything to the folder etc: metadata, parquet and vectoriser
+        self.vectors.write_parquet(os.path.join(subdir_path, "vectors.parquet"))
+        self._save_metadata(os.path.join(subdir_path, "metadata.json"))
+
+        logging.info("Vector Store created - files saved to %s", subdir_path)
+
+
+    def _save_metadata(self, path):
+        """Internal method to save metadata about the vector store."""
+        try:
+            metadata = {
+                "vectoriser_class": self.vectoriser_class,
+                "vector_shape": self.vector_shape,
+                "num_vectors": self.num_vectors,
+                "created_at": time.time(),
+                "meta_data": self.meta_data,
+            }
+
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(metadata, f, indent=4)
+        except Exception:
+            logging.error("Something went wrong trying to save the metadata file")
+            raise
+
+    def _create_vector_store_index(self):
+        """Internal method to create the vector store."""
+        # set up the file indexer
+        try:
+            # if self.data_type == "csv":
+            file_loader = iter_csv
+
+        except Exception:
+            logging.error("Error setting up file loader")
+            raise
+
+        # set up the captured data structure that will store the data and generated embeddings
+        captured_data = {x: [] for x in ["id", "text", *self.meta_data]}
+        captured_embeddings = []
+
+        logging.info(
+            "Processing file: %s in batches of size %d...\n",
+            self.file_name,
+            self.batch_size,
         )
-    ):
-        # try:
-        # Extract IDs and texts
-        for k in captured_data.keys():
 
-            captured_data[k].extend([entry[k] for entry in batch])
+        # Process the file in batches by iterating over the appropriate file loader
+        for batch_no, batch in enumerate(
+            tqdm.tqdm(
+                file_loader(
+                    file_name=self.file_name,
+                    meta_data=self.meta_data,
+                    batch_size=self.batch_size,
+                ),
+                desc="Processing batches",
+            )
+        ):
+            # try to process each batch provided by file iter
+            # try:
 
-        # Send the batch to be vectorized
-        batch_vectors = embedder.transform([entry["text"] for entry in batch])
-        captured_embeddings.extend(batch_vectors)
+            # get batch text and id and meta-data columns, store in corresponding captured_data
+            for k in captured_data.keys():
+                captured_data[k].extend([entry[k] for entry in batch])
 
-        # except Exception as e:
-        # logging.error(f"Error processing batch {batch_no}: {e}")
-        # continue
+            # generate embeddings for the text in the batch and store them
+            batch_vectors = self.vectoriser.transform([entry["text"] for entry in batch])
+            captured_embeddings.extend(batch_vectors)
 
-    print("---------")
-    logging.info("Finished creating vectors, attempting to save to parquet file...")
+            # if any error occurs while processing a batch, log the error and continue to next batch
+            # except (KeyError, ValueError, TypeError) as e:
+            # logging.error("Error processing batch %d: %s", batch_no, e)
+            # continue
 
-    # finally collect all the data in polars dataframe and save it to a parquet file
-    try:
-        df = pl.DataFrame({x: captured_data[x] for x in captured_data})
-        df = df.with_columns(pl.Series("embeddings", captured_embeddings))
-        df.write_parquet(f"{file_name.replace('.csv', '.parquet')}")
+        logging.info(
+            "\nFinished creating vectors, attempting to create parquet file and vector store object..."
+        )
 
-    except Exception as e:
-        logging.error(f"Error creating Polars DataFrame or saving to Parquet file: {e}")
-        raise
+        # now that all batches are processed and text vectorised, save it
+        try:
+            self.vectors = pl.DataFrame({x: captured_data[x] for x in captured_data})
+            self.vectors = self.vectors.with_columns(
+                pl.Series("embeddings", captured_embeddings)
+            )
 
-    logging.info(
-        f"DataFrame created with {len(df)} rows and {len(df.columns)} columns."
-    )
-    logging.info(f"Saved DataFrame to Parquet file: {file_name}.parquet")
+        except Exception:
+            logging.error("Error creating Polars DataFrame or saving to Parquet file")
+            raise
 
-    return df
+    def validate(self):
+        """Method to check if the vector store is valid, checking if the loaded vectoriser
+        matches the one used to create the vectors. and testing the search functionality.
+        """
+
+    def embed(self, text):
+        """Method to embed text using the vectoriser."""
+        return self.vectoriser.transform(text)
+
+    def search(self, query, ids=None, n_results=10):
+        """Perform a search on the vectors using the provided query."""
+        # convert the query/queries to vectors using the embedder
+
+        query_vectors = self.vectoriser.transform(query)
+        document_vectors = self.vectors["embeddings"].to_numpy()
+        if not ids:
+            ids = list(range(query_vectors.shape[0]))
+
+        cosine = query_vectors @ document_vectors.T
+        idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
+
+        # Sort top k indices by their scores in descending order
+        # For each row, get the scores at the top k indices, then sort them
+        idx_sorted = np.zeros_like(idx)
+        scores = np.zeros_like(idx, dtype=float)
+
+        # Vectorized approach for sorting the top k indices
+        for i in range(idx.shape[0]):
+            row_scores = cosine[i, idx[i]]
+            sorted_indices = np.argsort(row_scores)[::-1]
+            idx_sorted[i] = idx[i, sorted_indices]
+            scores[i] = row_scores[sorted_indices]
+            # Convert the output dictionary into a Polars DataFrame
+
+            # Convert the numpy arrays to Polars Series
+            result_df = pl.DataFrame(
+                {
+                    "query_id": np.repeat(ids, n_results),
+                    "query_text": np.repeat(query, n_results),
+                    "result_id": idx_sorted.flatten(),
+                    "rank": np.tile(np.arange(n_results), len(ids)),
+                    "score": scores.flatten(),
+                }
+            )
+
+            vectors_data = self.vectors[result_df["result_id"]]
+
+            # combine results data with the appropriate data from self.vectors
+            merged_df = vectors_data.drop("embeddings").hstack(
+                result_df.drop("result_id")
+            )
+
+            merged_df = merged_df.rename(
+                {
+                    "id": "doc_id",
+                    "text": "doc_text",
+                }
+            )
+
+            reordered_df = merged_df.select(
+                [
+                    "query_id",
+                    "query_text",
+                    "doc_id",
+                    "doc_text",
+                    "rank",
+                    "score",
+                    *self.meta_data,
+                ]
+            )
+
+            return reordered_df
+
+    @classmethod
+    def from_filespace(cls, folder_path, vectoriser):
+        """Class method to create a VectorStore instance from a folder containing vector data."""
+        # check that the metadataq, vectoiser info and parquet exist
+        # load the metadata file
+
+        metadata_path = os.path.join(folder_path, "metadata.json")
+        if not os.path.exists(metadata_path):
+            raise ValueError(f"Metadata file not found in {folder_path}")
+        with open(metadata_path, encoding="utf-8") as f:
+            metadata = json.load(f)
+
+        # check that the correct keys exist in metadata
+        required_keys = [
+            "vectoriser_class",
+            "vector_shape",
+            "num_vectors",
+            "created_at",
+            "meta_data",
+        ]
+        for key in required_keys:
+            if key not in metadata:
+                raise ValueError(f"Metadata file is missing required key: {key}")
+
+        # load the parquet file
+        vectors_path = os.path.join(folder_path, "vectors.parquet")
+        if not os.path.exists(vectors_path):
+            raise ValueError(f"Vectors Parquet file not found in {folder_path}")
+
+        df = pl.read_parquet(vectors_path)
+        if df.is_empty():
+            raise ValueError(f"Vectors Parquet file is empty in {folder_path}")
+        # check parquet file has the correct columns
+        required_columns = ["id", "text", "embeddings", *metadata["meta_data"]]
+        for col in required_columns:
+            if col not in df.columns:
+                raise ValueError(
+                    f"Vectors Parquet file is missing required column: {col}"
+                )
+
+        # check that the vectoriser class matches the one provided
+        if metadata["vectoriser_class"] != vectoriser.__class__.__name__:
+            raise ValueError(
+                f"Vectoriser class in metadata ({metadata['vectoriser_class']}) does not match provided vectoriser ({vectoriser.__class__.__name__})"
+            )
+
+        # create the VectorStore instance and add the new data to the fields
+        vector_store = object.__new__(cls)
+        vector_store.file_name = None
+        vector_store.data_type = None
+        vector_store.vectoriser = vectoriser
+        vector_store.batch_size = None
+        vector_store.meta_data = metadata["meta_data"]
+        vector_store.vectors = df
+        vector_store.vector_shape = metadata["vector_shape"]
+        vector_store.num_vectors = metadata["num_vectors"]
+        vector_store.vectoriser_class = metadata["vectoriser_class"]
+
+        return vector_store

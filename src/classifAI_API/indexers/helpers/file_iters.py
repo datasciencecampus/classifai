@@ -10,7 +10,7 @@ Functions:
 """
 
 
-def iter_csv(file_name, meta_data=[], batch_size=8):
+def iter_csv(file_name, meta_data=None, batch_size=8):
     """Reads a CSV file in batches and yields dictionaries containing rows of data.
     This function reads a CSV file line by line, validates the header row, and
     yields batches of rows as dictionaries. Each dictionary contains all fields
@@ -29,6 +29,9 @@ def iter_csv(file_name, meta_data=[], batch_size=8):
     Raises:
         ValueError: If the CSV file does not have a valid header row.
     """
+    if meta_data is None:
+        meta_data = []
+
     # combine metadata and text and id column parameters
     columns = ["id", "text", *meta_data]
 
