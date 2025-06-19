@@ -6,7 +6,7 @@ A Prototype demo of splitting the ClassiF-AI into three different modules that a
 3. Serving - Making a VectorStore available through a RESTAPI to search
 
 
-##Quick Start
+## Quick Start
 
 `!pip install git+https://github.com/datasciencecampus/classifAI_API@oo-prototype`
 
