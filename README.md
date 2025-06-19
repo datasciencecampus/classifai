@@ -1,5 +1,5 @@
 # classifAI_API
-A Prototype demo of splitting the ClassiF-AI into three different modules that adopt modular responsibility for different parts of the ClassifAI backend functionality
+A Prototype demo of splitting the Classif-AI Package into three different modules that adopt modular responsibility for different parts of the ClassifAI backend functionality
 
 1. <b>Vectorising</b> - Creating Vectors from text with different embedding models
 2. <b>Indexing</b> - The process of creating vector stores from (large) text files
