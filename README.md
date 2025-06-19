@@ -27,7 +27,7 @@ print(type(vector))
 
 ```
 
-Then the user can pass the vectoriser and a CSV file to a VectorStore constructor:
+Then the user can pass the vectoriser and a CSV file to a VectorStore constructor, this will build a vector database that you can interact with through the class
 ```python
 
 from classifAI_API.indexers import VectorStore
@@ -41,7 +41,7 @@ your_vector_store = VectorStore(
 
 ```
 
-You can then 'search the vector store on your local system. And its vectors and metadata will be stored in the `classifai_vector_stores` folder
+You can then 'search' the vector store on your local system and look at its auxilary data. And its vectors and metadata will be stored in the `classifai_vector_stores` folder
 
 ```python
 
