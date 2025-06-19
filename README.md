@@ -1,12 +1,12 @@
 # classifAI_API
 A Prototype demo of splitting the ClassiF-AI into three different modules that adopt modular responsibility for different parts of the ClassifAI backend functionality
 
-1. Vectorising - Creating Vectors from text with different embedding models
-2. Indexing - The process of creating vector stores from (large) text files
-3. Serving - Making a VectorStore available through a RESTAPI to search
+1. <b>Vectorising</b> - Creating Vectors from text with different embedding models
+2. <b>Indexing</b> - The process of creating vector stores from (large) text files
+3. <b>Serving</b> - Making a VectorStore available through a RESTAPI to search
 
 
-##Quick Start
+## Quick Start
 
 `!pip install git+https://github.com/datasciencecampus/classifAI_API@oo-prototype`
 

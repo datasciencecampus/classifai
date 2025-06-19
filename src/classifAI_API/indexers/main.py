@@ -67,7 +67,7 @@ class VectorStore:
         # Normalize the file name to ensure it doesn't include relative paths or extensions
         normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
         # Check if the folder exists in the specified subdirectory
-        subdir_path = os.path.join("classifai_vector_ebatstores", normalized_file_name)
+        subdir_path = os.path.join("classifai_vector_stores", normalized_file_name)
         if os.path.isdir(subdir_path):
             raise ValueError(
                 f"The name '{subdir_path}' is already used as a folder in the subdirectory."
