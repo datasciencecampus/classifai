@@ -14,7 +14,8 @@ A Prototype demo of splitting the ClassiF-AI into three different modules that a
 
 
 First create a Vectoriser Model, which allows users to pass text to its <i>.transform()</i> method and get embeddings
-```
+```python
+
 #Create a vectoriser model
 from classifAI_API.vectorisers import HuggingfaceVectoriser
 your_vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-L6-v2")
@@ -23,10 +24,12 @@ vector = my_vectoriser.transform("ClassifAI is the best classification tool ever
 
 print(vector.shape)
 print(type(vector))
+
 ```
 
 Then the user can pass the vectoriser and a CSV file to a VectorStore constructor:
-```
+```python
+
 from classifAI_API.indexers import VectorStore
 
 your_vector_store = VectorStore(
@@ -35,23 +38,28 @@ your_vector_store = VectorStore(
     embedder=your_vectoriser,
     batch_size=8
 )
+
 ```
 
 You can then 'search the vector store on your local system. And its vectors and metadata will be stored in the `classifai_vector_stores` folder
 
-```
+```python
+
 your_vector_store.search("your query about your data goes here")
 
 #other statistics about the vector store are available
 your_vector_store.num_vectors
 your_vector_store.vector_shape
+
 ```
 
 
 Then when you're happy with your VectorStore model, you can start a RESTAPI service:
-```
-# start the API with the vector store
+```python
+
+from classifAI_API.servers import start_api
 start_api(vector_stores=[your_vector_store], endpoint_names=["your_data"], port=8000)
+
 ```
 
 This will run a restAPI service on your machine and you can find its docs:
