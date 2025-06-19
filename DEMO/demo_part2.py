@@ -23,7 +23,7 @@ your_vectoriser = HuggingFaceVectoriser(
 
 # loads the vector store back in without having to re-embed the data
 your_vector_store = VectorStore.from_filespace(
-    folder_path="classifai_vector_ebatstores/testdata", #make sure you pass the right path
+    folder_path="classifai_vector_stores/testdata", #make sure you pass the right path
     vectoriser=your_vectoriser,
 )
 
