@@ -49,6 +49,7 @@ dependencies = [
     "torch>=2.7.1",
     "fastparquet>=2024.11.0",
     "pyarrow>=20.0.0",
+    "ollama>=0.5.1"
 ] 
 classifiers = [
     "Programming Language :: Python :: 3",
