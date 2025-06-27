@@ -43,7 +43,8 @@ class GcpVectoriser:
 
     def __init__(
         self, 
-        project_id, location="europe-west2", 
+        project_id, 
+        location="europe-west2", 
         model_name="text-embedding-004",
         task_type="CLASSIFICATION"
     ):
