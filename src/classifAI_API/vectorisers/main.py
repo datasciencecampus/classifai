@@ -4,6 +4,8 @@ The module contains the following classes:
 - `GcpVectoriser`: A class for embedding text using Google Cloud Platform's GenAI API.
 - `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
 models to generate text embeddings.
+- `OllamaVectoriser`: A general wrapper class for using a locally running ollama
+server to generate text embeddings.
 
 Each class is designed to interface with a specific service that provides embedding model
 functionality.
@@ -11,6 +13,8 @@ functionality.
 The `GcpVectoriser` class leverages Google's GenAI API,
 
 The `HuggingFaceVectoriser` class utilizes models from the Huggingface Transformers library.
+
+The `OllamaVectoriser` class can use any local/downloaded model which can be served by ollama.
 
 These classes abstract the underlying implementation details, providing a simple and consistent
 interface for embedding text using different services.
@@ -22,6 +26,7 @@ import numpy as np
 import torch
 from google import genai
 from transformers import AutoModel, AutoTokenizer
+import ollama
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
@@ -39,7 +44,7 @@ class GcpVectoriser:
     def __init__(
         self, project_id, location="europe-west2", model_name="text-embedding-004"
     ):
-        """Initializes the Gcp_Vectoriser with the specified project ID, location, and model name.
+        """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
             project_id (str): The Google Cloud project ID.
@@ -104,7 +109,7 @@ class HuggingFaceVectoriser:
     """
 
     def __init__(self, model_name, device=None):
-        """Initializes the Huggingface_Vectoriser with the specified model name and device.
+        """Initializes the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
@@ -166,3 +171,43 @@ class HuggingFaceVectoriser:
         embeddings = mean_pooled.cpu().numpy()
 
         return embeddings
+
+
+class OllamaVectoriser:
+    """A wrapper class allowing a locally-running ollama server to generate text embeddings.
+
+    Attributes:
+        model_name (str): The name of the local model to use.
+    """
+
+    def __init__(self, model_name: str):
+        """Initializes the OllamaVectoriser with the specified model name and device.
+
+        Args:
+            model_name (str): The name of the local model to use.
+        
+        Notes:
+            requires an ollama server to be running locally (`ollama serve`)
+        """
+        self.model_name = model_name
+
+    def transform(self, texts):
+        """Transforms input text(s) into embeddings using the Huggingface model.
+
+        Args:
+            texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+
+        Returns:
+            numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+
+        Raises:
+            TypeError: If the input is not a string or a list of strings.
+        """
+        if isinstance(texts, str):
+            texts = [texts]
+
+        if not isinstance(texts, list):
+            raise TypeError("Input must be a string or a list of strings.")
+
+        response = ollama.embed(model=self.model_name, input=texts)
+        return np.array(response.embeddings)
