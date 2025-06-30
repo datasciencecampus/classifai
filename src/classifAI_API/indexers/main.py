@@ -179,6 +179,11 @@ class VectorStore:
         
     def search(self, query, ids=None, n_results=10):
         """Perform a search on the vectors using the provided query."""
+
+        #if the query is a string, convert it to a list
+        if isinstance(query, str):
+            query = [query]
+
         # convert the query/queries to vectors using the embedder
         query_vectors = self.vectoriser.transform(query)
         document_vectors = self.vectors["embeddings"].to_numpy()
