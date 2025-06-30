@@ -78,7 +78,7 @@ class VectorStore:
 
         logging.info("Gathering metadata and saving vector store / metadata...")
 
-        self.vector_shape = self.vectors["embeddings"].shape
+        self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
         self.num_vectors = len(self.vectors)
 
         ## save everything to the folder etc: metadata, parquet and vectoriser
