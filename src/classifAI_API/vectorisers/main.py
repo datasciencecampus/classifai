@@ -42,7 +42,11 @@ class GcpVectoriser:
     """
 
     def __init__(
-        self, project_id, location="europe-west2", model_name="text-embedding-004"
+        self, 
+        project_id, 
+        location="europe-west2", 
+        model_name="text-embedding-004",
+        task_type="RETRIEVAL_DOCUMENT"
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
@@ -50,11 +54,15 @@ class GcpVectoriser:
             project_id (str): The Google Cloud project ID.
             location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
             model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
+            task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION". 
+                                       See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
+                                       for other options.
 
         Raises:
             RuntimeError: If the GenAI client fails to initialize.
         """
         self.model_name = model_name
+        self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
         try:
             self.vectoriser = genai.Client(
@@ -89,6 +97,7 @@ class GcpVectoriser:
         embeddings = self.vectoriser.models.embed_content(
             model=self.model_name,
             contents=texts,
+            config=self.model_config
         )
 
         # Extract embeddings from the response object
@@ -98,7 +107,7 @@ class GcpVectoriser:
         return result
 
 
-class HuggingFaceVectoriser:
+class HuggingFaceVectoriser:    
     """A general wrapper class for Huggingface Transformers models to generate text embeddings.
 
     Attributes:
