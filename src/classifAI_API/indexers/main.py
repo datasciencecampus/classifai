@@ -78,7 +78,7 @@ class VectorStore:
 
         logging.info("Gathering metadata and saving vector store / metadata...")
 
-        self.vector_shape = self.vectors["embeddings"].shape
+        self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
         self.num_vectors = len(self.vectors)
 
         ## save everything to the folder etc: metadata, parquet and vectoriser
@@ -176,70 +176,64 @@ class VectorStore:
     def embed(self, text):
         """Method to embed text using the vectoriser."""
         return self.vectoriser.transform(text)
-
+        
     def search(self, query, ids=None, n_results=10):
         """Perform a search on the vectors using the provided query."""
-        # convert the query/queries to vectors using the embedder
 
+        #if the query is a string, convert it to a list
+        if isinstance(query, str):
+            query = [query]
+
+        # convert the query/queries to vectors using the embedder
         query_vectors = self.vectoriser.transform(query)
         document_vectors = self.vectors["embeddings"].to_numpy()
         if not ids:
-            ids = list(range(query_vectors.shape[0]))
+            ids = list(range(len(query)))
 
+        # Compute cosine similarity between quries and each document
         cosine = query_vectors @ document_vectors.T
+
+        # Get the top n_results indices for each query
         idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
 
         # Sort top k indices by their scores in descending order
-        # For each row, get the scores at the top k indices, then sort them
         idx_sorted = np.zeros_like(idx)
         scores = np.zeros_like(idx, dtype=float)
 
-        # Vectorized approach for sorting the top k indices
         for i in range(idx.shape[0]):
             row_scores = cosine[i, idx[i]]
             sorted_indices = np.argsort(row_scores)[::-1]
             idx_sorted[i] = idx[i, sorted_indices]
             scores[i] = row_scores[sorted_indices]
-            # Convert the output dictionary into a Polars DataFrame
 
-            # Convert the numpy arrays to Polars Series
-            result_df = pl.DataFrame(
-                {
-                    "query_id": np.repeat(ids, n_results),
-                    "query_text": np.repeat(query, n_results),
-                    "result_id": idx_sorted.flatten(),
-                    "rank": np.tile(np.arange(n_results), len(ids)),
-                    "score": scores.flatten(),
-                }
-            )
+        # build polars dataframe for reults where query and ids and broadcasted, and rank is tiled
+        result_df = pl.DataFrame(
+            {
+                "query_id": np.repeat(ids, n_results),
+                "query_text": np.repeat(query, n_results),
+                "rank": np.tile(np.arange(n_results), len(ids)),
+                "score": scores.flatten(),
+            }
+        )
+        
+        #get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
+        ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(['id', 'text', *self.meta_data])
+        merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
 
-            vectors_data = self.vectors[result_df["result_id"]]
+        #reorder the df into presentable format
+        reordered_df = merged_df.select(
+            [
+                "query_id",
+                "query_text",
+                "doc_id",
+                "doc_text",
+                "rank",
+                "score",
+                *self.meta_data,
+            ]
+        )
 
-            # combine results data with the appropriate data from self.vectors
-            merged_df = vectors_data.drop("embeddings").hstack(
-                result_df.drop("result_id")
-            )
-
-            merged_df = merged_df.rename(
-                {
-                    "id": "doc_id",
-                    "text": "doc_text",
-                }
-            )
-
-            reordered_df = merged_df.select(
-                [
-                    "query_id",
-                    "query_text",
-                    "doc_id",
-                    "doc_text",
-                    "rank",
-                    "score",
-                    *self.meta_data,
-                ]
-            )
-
-            return reordered_df
+        return reordered_df
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
