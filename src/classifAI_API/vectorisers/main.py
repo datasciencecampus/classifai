@@ -46,7 +46,7 @@ class GcpVectoriser:
         project_id, 
         location="europe-west2", 
         model_name="text-embedding-004",
-        task_type="CLASSIFICATION"
+        task_type="RETRIEVAL_DOCUMENT"
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
