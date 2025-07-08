@@ -1,4 +1,11 @@
-"""Functions to initiate the API endpoints."""
+"""This module provides functionality for creating a start a restAPI service which
+allows a user to call the search methods of different VectorStore objects, from
+an api-endpoint.
+
+These functions interact with the ClassifAI PackageIndexer modules
+VectorStore objects, such that their embed and search methods are exposed on
+restAPI endpoints, in a FastAPI restAPI service started with these functions.
+"""
 
 import logging
 from typing import Annotated
@@ -18,7 +25,18 @@ from .pydantic_models import (
 
 
 def start_api(vector_stores, endpoint_names, port=8000):
-    """Start the API with the given vector stores and endpoint names."""
+    """Initialize and start the FastAPI application with dynamically created endpoints.
+
+    Args:
+        vector_stores (list): A list of vector store objects, each responsible for handling
+                              embedding and search operations for a specific endpoint.
+        endpoint_names (list): A list of endpoint names corresponding to the vector stores.
+        port (int, optional): The port on which the API server will run. Defaults to 8000.
+
+    This function dynamically registers embedding and search endpoints for each provided
+    vector store and endpoint name. It also sets up a default route to redirect users to
+    the API documentation page.
+    """
     logging.info("Starting ClassifAI API")
 
     endpoint_index_map = {x: i for i, x in enumerate(endpoint_names)}
@@ -26,7 +44,16 @@ def start_api(vector_stores, endpoint_names, port=8000):
     app = FastAPI()
 
     def create_embedding_endpoint(app, endpoint_name, vector_store):
-        """Helper function to create embedding endpoint."""
+        """Create and register an embedding endpoint for a specific vector store.
+
+        Args:
+            app (FastAPI): The FastAPI application instance.
+            endpoint_name (str): The name of the endpoint to be created.
+            vector_store: The vector store object responsible for generating embeddings.
+
+        The created endpoint accepts POST requests with input data, generates embeddings
+        for the provided documents, and returns the results in a structured format.
+        """
 
         @app.post(
             f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint"
@@ -49,7 +76,17 @@ def start_api(vector_stores, endpoint_names, port=8000):
             return {"data": returnable}
 
     def create_search_endpoint(app, endpoint_name, vector_store):
-        """Helper function to create search endpoint."""
+        """Create and register a search endpoint for a specific vector store.
+
+        Args:
+            app (FastAPI): The FastAPI application instance.
+            endpoint_name (str): The name of the endpoint to be created.
+            vector_store: The vector store object responsible for performing search operations.
+
+        The created endpoint accepts POST requests with input data and a query parameter
+        specifying the number of results to return. It performs a search operation using
+        the vector store and returns the results in a structured format.
+        """
 
         @app.post(
             f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint"
@@ -81,14 +118,17 @@ def start_api(vector_stores, endpoint_names, port=8000):
             return formatted_result
 
     for endpoint_name, vector_store in zip(endpoint_names, vector_stores):
-        logging.info(f"Registering endpoints for: {endpoint_name}")
+        logging.info("Registering endpoints for: %s", endpoint_name)
         create_embedding_endpoint(app, endpoint_name, vector_store)
         create_search_endpoint(app, endpoint_name, vector_store)
 
     @app.get("/", description="UI accessibility")
     def docs():
-        """Access default page: docs UI."""
+        """Redirect users to the API documentation page.
 
+        Returns:
+            RedirectResponse: A response object that redirects the user to the `/docs` page.
+        """
         start_page = RedirectResponse(url="/docs")
         return start_page
 
