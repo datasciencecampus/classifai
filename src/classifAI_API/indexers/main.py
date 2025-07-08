@@ -185,7 +185,11 @@ class VectorStore:
         #get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
         ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(['id', 'text', *self.meta_data])
         merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
-
+        merged_df = merged_df.with_columns([pl.col('doc_id').cast(str),
+                                            pl.col('doc_text').cast(str),
+                                            pl.col('rank').cast(int),
+                                            pl.col('score').cast(float),
+                                            ])
         #reorder the df into presentable format
         reordered_df = merged_df.select(
             [
