@@ -140,7 +140,12 @@ class VectorStore:
             raise
 
     def _create_vector_store_index(self):
-        """Processes the input file in batches, generates vector embeddings, and creates the vector store.
+        """Processes text strings in batches, generates vector embeddings, and creates the
+        vector store. Called from the constructor once other metadata has been set.
+        Loads in the correct file iter based on the data_type. Using file loader iterates
+        over data in batches, stores batch data and generated embeddings. Creates a Polars DataFrame
+        with the captured data and embeddings, and saves it as a Parquet file and stores in
+        vectors attribute.
 
         Raises:
             Exception: If an error occurs during file processing or vector generation.
@@ -227,15 +232,17 @@ class VectorStore:
         return self.vectoriser.transform(text)
 
     def search(self, query, ids=None, n_results=10):
-        """Searches the vector store using a text query or list of queries and returns ranked results.
+        """Searches the vector store using a text query or list of queries and returns
+        ranked results. Converts users text queries into vector embeddings,
+        computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
             query (str or list): The text query or list of queries to search for.
             ids (list, optional): List of query IDs. Defaults to None.
-            n_results (int, optional): The number of top results to return for each query. Defaults to 10.
+            n_results (int, optional): Number of top results to return for each query. Default 10.
 
         Returns:
-            pl.DataFrame: A DataFrame containing the search results with columns for query ID, query text,
+            pl.DataFrame: DataFrame containing search results with columns for query ID, query text,
                           document ID, document text, rank, score, and metadata.
         """
         # if the query is a string, convert it to a list
@@ -300,6 +307,14 @@ class VectorStore:
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
+        This method reads the metadata and vectors from the specified folder,
+        validates the contents, and initializes a `VectorStore` object with the
+        loaded data. It checks that the metadata contains the required keys,
+        that the Parquet file exists and is not empty, and that the vectoriser class
+        matches the one used to create the vectors. If any checks fail, it raises
+        a `ValueError` with an appropriate message.
+        This method is useful for loading previously created vector stores without
+        needing to reprocess the original text data.
 
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.

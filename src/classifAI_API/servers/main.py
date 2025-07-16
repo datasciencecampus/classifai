@@ -26,6 +26,9 @@ from .pydantic_models import (
 
 def start_api(vector_stores, endpoint_names, port=8000):
     """Initialize and start the FastAPI application with dynamically created endpoints.
+    This function dynamically registers embedding and search endpoints for each provided
+    vector store and endpoint name. It also sets up a default route to redirect users to
+    the API documentation page.
 
     Args:
         vector_stores (list): A list of vector store objects, each responsible for handling
@@ -33,9 +36,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
         endpoint_names (list): A list of endpoint names corresponding to the vector stores.
         port (int, optional): The port on which the API server will run. Defaults to 8000.
 
-    This function dynamically registers embedding and search endpoints for each provided
-    vector store and endpoint name. It also sets up a default route to redirect users to
-    the API documentation page.
+
     """
     logging.info("Starting ClassifAI API")
 
