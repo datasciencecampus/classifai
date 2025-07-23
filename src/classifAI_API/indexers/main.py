@@ -1,13 +1,11 @@
-"""This module provides functionality for creating a vector index from a text file
-and saving the processed data as a Parquet file. It is designed to handle large
-datasets by processing the input file in batches, extracting text data, generating
-vector embeddings, and storing the results in a structured format.
+"""This module provides functionality for creating a vector index from a text file.
+It defines the `VectorStore` class, which is used to model and create vector databases
+from CSV text files using a vectoriser object.
 
-The main function in this module, `create_vector_index_from_string_file`, supports
-CSV files as input and uses a provided embedder to generate vector embeddings for
-the text data. The processed data includes unique identifiers, text content, and
-their corresponding embeddings, which are saved in a Parquet file for efficient
-storage and retrieval.
+This class interacts with the Vectoriser class from the vectorisers submodule,
+expecting that any vector model used to generate embeddings used in the
+VectorStore objects is an instance of one of these classes, most notably
+that each vectoriser object should have a transform method.
 
 Key Features:
 - Batch processing of input files to handle large datasets.
@@ -16,14 +14,15 @@ Key Features:
 - Logging for tracking progress and handling errors during processing.
 
 Dependencies:
-- pandas: For handling data in tabular format and saving it as a Parquet file.
+- polars: For handling data in tabular format and saving it as a Parquet file.
 - tqdm: For displaying progress bars during batch processing.
+- numpy: for vector cosine similarity calculations
 - A custom file iterator (`iter_csv`) for reading input files in batches.
 
 Usage:
-This module is intended to be used as part of a larger application that requires
-vector indexing of text data. It can be extended to support additional file formats
-and embedding methods as needed.
+This module is intended to be used with the Vectoriers mdodule and the
+the servers module from ClassifAI package, to created scalable, modular, searchable
+vector databases from your own text data.
 """
 
 import json
@@ -45,8 +44,37 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
 class VectorStore:
+    """A class to model and create 'VectorStore' objects for building and searching vector databases from CSV text files.
+
+    Attributes:
+        file_name (str): the original CSV file associated with the vector store
+        data_type (str): the data type of the original file (curently only csv)
+        vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
+        batch_size (int): the batch size to pass to the vectoriser when embedding
+        meta_data (list[str]): list of metadata stored in the vector DB
+        vectors: (np.array): a numpy array of vectors for the vector DB
+        vector_shape (int): the dimension of the vectors
+        num_vectors (int): how many vectors are in the vector store
+        vectoriser_class (str): the type of vectoriser used to create embeddings
+    """
+
     def __init__(self, file_name, data_type, vectoriser, batch_size=8, meta_data=None):
-        """Initializes the VectorStore with the specified parameters."""
+        """Initializes the VectorStore object by processing the input CSV file and generating
+        vector embeddings.
+
+        Args:
+            file_name (str): The name of the input CSV file.
+            data_type (str): The type of input data (currently supports only "csv").
+            vectoriser (object): The vectoriser object used to transform text into
+                                vector embeddings.
+            batch_size (int, optional): The batch size for processing the input file and batching to
+            vectoriser. Defaults to 8.
+            meta_data (list, optional): List of metadata column names to extract from the input file.
+                                Defaults to None.
+
+        Raises:
+            ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
+        """
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
@@ -87,9 +115,15 @@ class VectorStore:
 
         logging.info("Vector Store created - files saved to %s", subdir_path)
 
-
     def _save_metadata(self, path):
-        """Internal method to save metadata about the vector store."""
+        """Saves metadata about the vector store to a JSON file.
+
+        Args:
+            path (str): The file path where the metadata JSON file will be saved.
+
+        Raises:
+            Exception: If an error occurs while saving the metadata file.
+        """
         try:
             metadata = {
                 "vectoriser_class": self.vectoriser_class,
@@ -106,7 +140,16 @@ class VectorStore:
             raise
 
     def _create_vector_store_index(self):
-        """Internal method to create the vector store."""
+        """Processes text strings in batches, generates vector embeddings, and creates the
+        vector store. Called from the constructor once other metadata has been set.
+        Loads in the correct file iter based on the data_type. Using file loader iterates
+        over data in batches, stores batch data and generated embeddings. Creates a Polars DataFrame
+        with the captured data and embeddings, and saves it as a Parquet file and stores in
+        vectors attribute.
+
+        Raises:
+            Exception: If an error occurs during file processing or vector generation.
+        """
         # set up the file indexer
         try:
             # if self.data_type == "csv":
@@ -138,23 +181,25 @@ class VectorStore:
             )
         ):
             # try to process each batch provided by file iter
-            # try:
+            try:
 
-            # get batch text and id and meta-data columns, store in corresponding captured_data
-            for k in captured_data.keys():
-                captured_data[k].extend([entry[k] for entry in batch])
+                # get batch text and id and meta-data columns, store in corresponding captured_data
+                for k in captured_data.keys():
+                    captured_data[k].extend([entry[k] for entry in batch])
 
-            # generate embeddings for the text in the batch and store them
-            batch_vectors = self.vectoriser.transform([entry["text"] for entry in batch])
-            captured_embeddings.extend(batch_vectors)
+                # generate embeddings for the text in the batch and store them
+                batch_vectors = self.vectoriser.transform(
+                    [entry["text"] for entry in batch]
+                )
+                captured_embeddings.extend(batch_vectors)
 
             # if any error occurs while processing a batch, log the error and continue to next batch
-            # except (KeyError, ValueError, TypeError) as e:
-            # logging.error("Error processing batch %d: %s", batch_no, e)
-            # continue
+            except (KeyError, ValueError, TypeError) as e:
+                logging.error("Error processing batch %d: %s", batch_no, e)
+                continue
 
         logging.info(
-            "\nFinished creating vectors, attempting to create parquet file and vector store object..."
+            "\nFinished creating vectors, attempting to create vector store object..."
         )
 
         # now that all batches are processed and text vectorised, save it
@@ -169,18 +214,38 @@ class VectorStore:
             raise
 
     def validate(self):
-        """Method to check if the vector store is valid, checking if the loaded vectoriser
-        matches the one used to create the vectors. and testing the search functionality.
+        """Validates the vector store by checking if the loaded vectoriser matches the one used to create the vectors
+        and testing the search functionality.
         """
+        # This method is a placeholder for future validation logic.
+        # Currently, it does not perform any validation.
 
     def embed(self, text):
-        """Method to embed text using the vectoriser."""
-        return self.vectoriser.transform(text)
-        
-    def search(self, query, ids=None, n_results=10):
-        """Perform a search on the vectors using the provided query."""
+        """Converts text into vector embeddings using the vectoriser.
 
-        #if the query is a string, convert it to a list
+        Args:
+            text (str or list): The text or list of text to be converted into vector embeddings.
+
+        Returns:
+            np.ndarray: The vector embeddings generated by the vectoriser.
+        """
+        return self.vectoriser.transform(text)
+
+    def search(self, query, ids=None, n_results=10):
+        """Searches the vector store using a text query or list of queries and returns
+        ranked results. Converts users text queries into vector embeddings,
+        computes cosine similarity with stored document vectors, and retrieves the top results.
+
+        Args:
+            query (str or list): The text query or list of queries to search for.
+            ids (list, optional): List of query IDs. Defaults to None.
+            n_results (int, optional): Number of top results to return for each query. Default 10.
+
+        Returns:
+            pl.DataFrame: DataFrame containing search results with columns for query ID, query text,
+                          document ID, document text, rank, score, and metadata.
+        """
+        # if the query is a string, convert it to a list
         if isinstance(query, str):
             query = [query]
 
@@ -215,12 +280,16 @@ class VectorStore:
                 "score": scores.flatten(),
             }
         )
-        
-        #get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
-        ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(['id', 'text', *self.meta_data])
-        merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
 
-        #reorder the df into presentable format
+        # get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
+        ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
+            ["id", "text", *self.meta_data]
+        )
+        merged_df = result_df.hstack(ranked_docs).rename(
+            {"id": "doc_id", "text": "doc_text"}
+        )
+
+        # reorder the df into presentable format
         reordered_df = merged_df.select(
             [
                 "query_id",
@@ -237,7 +306,26 @@ class VectorStore:
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
-        """Class method to create a VectorStore instance from a folder containing vector data."""
+        """Creates a `VectorStore` instance from stored metadata and Parquet files.
+        This method reads the metadata and vectors from the specified folder,
+        validates the contents, and initializes a `VectorStore` object with the
+        loaded data. It checks that the metadata contains the required keys,
+        that the Parquet file exists and is not empty, and that the vectoriser class
+        matches the one used to create the vectors. If any checks fail, it raises
+        a `ValueError` with an appropriate message.
+        This method is useful for loading previously created vector stores without
+        needing to reprocess the original text data.
+
+        Args:
+            folder_path (str): The folder path containing the metadata and Parquet files.
+            vectoriser (object): The vectoriser object used to transform text into vector embeddings.
+
+        Returns:
+            VectorStore: An instance of the `VectorStore` class.
+
+        Raises:
+            ValueError: If required files or metadata keys are missing, or if the vectoriser class does not match.
+        """
         # check that the metadataq, vectoiser info and parquet exist
         # load the metadata file
 
