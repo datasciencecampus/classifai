@@ -14,13 +14,13 @@ Key Features:
 - Logging for tracking progress and handling errors during processing.
 
 Dependencies:
-- pandas: For handling data in tabular format and saving it as a Parquet file.
+- polars: For handling data in tabular format and saving it as a Parquet file.
 - tqdm: For displaying progress bars during batch processing.
 - numpy: for vector cosine similarity calculations
 - A custom file iterator (`iter_csv`) for reading input files in batches.
 
 Usage:
-This module is intended to be used as with the Vectoriers mdodule and the
+This module is intended to be used with the Vectoriers mdodule and the
 the servers module from ClassifAI package, to created scalable, modular, searchable
 vector databases from your own text data.
 """
