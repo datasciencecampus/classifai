@@ -231,7 +231,7 @@ class VectorStore:
         """
         return self.vectoriser.transform(text)
 
-    def search(self, query, ids=None, n_results=10):
+    def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
         ranked results. Converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
@@ -240,6 +240,7 @@ class VectorStore:
             query (str or list): The text query or list of queries to search for.
             ids (list, optional): List of query IDs. Defaults to None.
             n_results (int, optional): Number of top results to return for each query. Default 10.
+            batch_size (int, optional): The batch size for processing queries. Default 8.
 
         Returns:
             pl.DataFrame: DataFrame containing search results with columns for query ID, query text,
@@ -249,48 +250,62 @@ class VectorStore:
         if isinstance(query, str):
             query = [query]
 
-        # convert the query/queries to vectors using the embedder
-        query_vectors = self.vectoriser.transform(query)
-        document_vectors = self.vectors["embeddings"].to_numpy()
-        if not ids:
-            ids = list(range(len(query)))
+        # Initialize an empty list to store results from each batch
+        all_results = []
 
-        # Compute cosine similarity between quries and each document
-        cosine = query_vectors @ document_vectors.T
+        # Process the queries in batches
+        for i in tqdm.tqdm(
+            range(0, len(query), batch_size), desc="Processing query batches"
+        ):
+            # Get the current batch of queries
+            query_batch = query[i : i + batch_size]
+            query_ids_batch = (
+                ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
+            )
 
-        # Get the top n_results indices for each query
-        idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
+            # Convert the current batch of queries to vectors
+            query_vectors = self.vectoriser.transform(query_batch)
 
-        # Sort top k indices by their scores in descending order
-        idx_sorted = np.zeros_like(idx)
-        scores = np.zeros_like(idx, dtype=float)
+            # Compute cosine similarity between the query batch and document vectors
+            document_vectors = self.vectors["embeddings"].to_numpy()
+            cosine = query_vectors @ document_vectors.T
 
-        for i in range(idx.shape[0]):
-            row_scores = cosine[i, idx[i]]
-            sorted_indices = np.argsort(row_scores)[::-1]
-            idx_sorted[i] = idx[i, sorted_indices]
-            scores[i] = row_scores[sorted_indices]
+            # Get the top n_results indices for each query in the batch
+            idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
 
-        # build polars dataframe for reults where query and ids and broadcasted, and rank is tiled
-        result_df = pl.DataFrame(
-            {
-                "query_id": np.repeat(ids, n_results),
-                "query_text": np.repeat(query, n_results),
-                "rank": np.tile(np.arange(n_results), len(ids)),
-                "score": scores.flatten(),
-            }
-        )
+            # Sort top n_results indices by their scores in descending order
+            idx_sorted = np.zeros_like(idx)
+            scores = np.zeros_like(idx, dtype=float)
 
-        # get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
-        ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
-            ["id", "text", *self.meta_data]
-        )
-        merged_df = result_df.hstack(ranked_docs).rename(
-            {"id": "doc_id", "text": "doc_text"}
-        )
+            for j in range(idx.shape[0]):
+                row_scores = cosine[j, idx[j]]
+                sorted_indices = np.argsort(row_scores)[::-1]
+                idx_sorted[j] = idx[j, sorted_indices]
+                scores[j] = row_scores[sorted_indices]
 
-        # reorder the df into presentable format
-        reordered_df = merged_df.select(
+            # Build a DataFrame for the current batch results
+            result_df = pl.DataFrame(
+                {
+                    "query_id": np.repeat(query_ids_batch, n_results),
+                    "query_text": np.repeat(query_batch, n_results),
+                    "rank": np.tile(np.arange(n_results), len(query_batch)),
+                    "score": scores.flatten(),
+                }
+            )
+
+            # Get the vector store results for the current batch
+            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
+                ["id", "text", *self.meta_data]
+            )
+            merged_df = result_df.hstack(ranked_docs).rename(
+                {"id": "doc_id", "text": "doc_text"}
+            )
+
+            # Append the current batch results to the list
+            all_results.append(merged_df)
+
+        # Concatenate all batch results into a single DataFrame
+        reordered_df = pl.concat(all_results).select(
             [
                 "query_id",
                 "query_text",
