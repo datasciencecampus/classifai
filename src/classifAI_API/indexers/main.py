@@ -56,7 +56,7 @@ class VectorStore:
         num_vectors (int): how many vectors are in the vector store
         vectoriser_class (str): the type of vectoriser used to create embeddings
     """
-    def __init__(self, file_name, data_type, vectoriser, batch_size=50, meta_data=None, output_dir=None):
+    def __init__(self, file_name, data_type, vectoriser, batch_size=8, meta_data=None, output_dir=None):
         """Initializes the VectorStore object by processing the input CSV file and generating
         vector embeddings.
 
