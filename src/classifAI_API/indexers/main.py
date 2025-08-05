@@ -172,8 +172,8 @@ class VectorStore:
         try:
             documents = self.vectors["text"].to_list()
             embeddings = []
-            for batch_id in tqdm(range(len(documents)//self.batch_size +1)):
-                batch = documents[batch_id*self.batch_size:(batch_id+1)*self.batch_size]
+            for batch_id in tqdm(range(0, len(documents), self.batch_size)):
+                batch = documents[batch_id:(batch_id+self.batch_size)]
                 embeddings.extend(self.vectoriser.transform(batch))
             self.vectors = self.vectors.with_columns(
                 pl.Series(embeddings).alias("embeddings")
