@@ -317,7 +317,8 @@ class VectorStore:
             ]
         )
 
-        return reordered_df
+        # Now that polars has been used for processing convert back to pandas for user familiarity
+        return reordered_df.to_pandas()
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
