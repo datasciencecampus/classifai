@@ -233,7 +233,7 @@ class VectorStore:
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
-        ranked results. Converts users text queries into vector embeddings,
+        ranked results. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
@@ -243,7 +243,7 @@ class VectorStore:
             batch_size (int, optional): The batch size for processing queries. Default 8.
 
         Returns:
-            pl.DataFrame: DataFrame containing search results with columns for query ID, query text,
+            pd.DataFrame: DataFrame containing search results with columns for query ID, query text,
                           document ID, document text, rank, score, and metadata.
         """
         # if the query is a string, convert it to a list
