@@ -28,6 +28,7 @@ vector databases from your own text data.
 import json
 import logging
 import os
+import shutil
 import time
 
 import numpy as np
@@ -56,7 +57,17 @@ class VectorStore:
         num_vectors (int): how many vectors are in the vector store
         vectoriser_class (str): the type of vectoriser used to create embeddings
     """
-    def __init__(self, file_name, data_type, vectoriser, batch_size=8, meta_data=None, output_dir=None):
+
+    def __init__(
+        self,
+        file_name,
+        data_type,
+        vectoriser,
+        batch_size=8,
+        meta_data=None,
+        output_dir=None,
+        overwrite=False,
+    ):
         """Initializes the VectorStore object by processing the input CSV file and generating
         vector embeddings.
 
@@ -70,7 +81,8 @@ class VectorStore:
             meta_data (list, optional): List of metadata column names to extract from the input file.
                                 Defaults to None.
             output_dir (str, optional): The directory where the vector store will be saved.
-                                Defaults to None, where './classifai_vector_stores' will be used.
+                                Defaults to None, where input file name will be used.
+            overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
 
 
         Raises:
@@ -94,18 +106,31 @@ class VectorStore:
             )
 
         if self.output_dir is None:
-            os.makedirs("classifai_vector_stores", exist_ok=True)
+            logging.info(
+                "No output directory specified, attempting to use input file name as output folder name."
+            )
+
             # Normalize the file name to ensure it doesn't include relative paths or extensions
             normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
             # Check if the folder exists in the specified subdirectory
-            self.output_dir = os.path.join("classifai_vector_stores", normalized_file_name)
+            self.output_dir = os.path.join(normalized_file_name)
             if os.path.isdir(self.output_dir):
-                raise ValueError(
-                    f"The name '{self.output_dir}' is already used as a folder in the subdirectory."
-                )
+                if overwrite:
+                    shutil.rmtree(self.output_dir)
+                else:
+                    raise ValueError(
+                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. Pass overwrite=True to overwrite the folder."
+                    )
             os.makedirs(self.output_dir, exist_ok=True)
 
         else:
+            if os.path.isdir(self.output_dir):
+                if overwrite:
+                    shutil.rmtree(self.output_dir)
+                else:
+                    raise ValueError(
+                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. Pass overwrite=True to overwrite the folder."
+                    )
             os.makedirs(self.output_dir, exist_ok=True)
 
         self._create_vector_store_index()
@@ -147,10 +172,10 @@ class VectorStore:
 
     def _create_vector_store_index(self):
         """Processes text strings in batches, generates vector embeddings, and creates the
-        vector store. 
+        vector store.
         Called from the constructor once other metadata has been set.
-        Iterates over data in batches, stores batch data and generated embeddings. 
-        Creates a Polars DataFrame with the captured data and embeddings, and saves it as 
+        Iterates over data in batches, stores batch data and generated embeddings.
+        Creates a Polars DataFrame with the captured data and embeddings, and saves it as
         a Parquet file in the output_dir attribute, and stores in the vectors attribute.
 
         Raises:
@@ -158,22 +183,26 @@ class VectorStore:
         """
 
         if self.data_type == "excel":
-            self.vectors = pl.read_excel(self.file_name, columns=["id", "text", *self.meta_data], )
+            self.vectors = pl.read_excel(
+                self.file_name,
+                columns=["id", "text", *self.meta_data],
+            )
         elif self.data_type == "csv":
-            self.vectors = pl.read_csv(self.file_name, columns=["id", "text", *self.meta_data])
+            self.vectors = pl.read_csv(
+                self.file_name, columns=["id", "text", *self.meta_data]
+            )
         else:
             logging.error("No file loader implemented for data type %s", self.data_type)
-            raise ValueError("No file loader implemented for data type {self.data_type}")
+            raise ValueError(
+                "No file loader implemented for data type {self.data_type}"
+            )
 
-        logging.info(
-            "Processing file: %s...\n",
-            self.file_name
-        )
+        logging.info("Processing file: %s...\n", self.file_name)
         try:
             documents = self.vectors["text"].to_list()
             embeddings = []
             for batch_id in tqdm(range(0, len(documents), self.batch_size)):
-                batch = documents[batch_id:(batch_id+self.batch_size)]
+                batch = documents[batch_id : (batch_id + self.batch_size)]
                 embeddings.extend(self.vectoriser.transform(batch))
             self.vectors = self.vectors.with_columns(
                 pl.Series(embeddings).alias("embeddings")
@@ -248,16 +277,23 @@ class VectorStore:
                 "score": scores.flatten(),
             }
         )
-        
-        #get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
-        ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(['id', 'text', *self.meta_data])
-        merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
-        merged_df = merged_df.with_columns([pl.col('doc_id').cast(str),
-                                            pl.col('doc_text').cast(str),
-                                            pl.col('rank').cast(int),
-                                            pl.col('score').cast(float),
-                                            ])
-        #reorder the df into presentable format
+
+        # get the vector store results ids, texts and metadata based on sorted idx and merge with result_df
+        ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
+            ["id", "text", *self.meta_data]
+        )
+        merged_df = result_df.hstack(ranked_docs).rename(
+            {"id": "doc_id", "text": "doc_text"}
+        )
+        merged_df = merged_df.with_columns(
+            [
+                pl.col("doc_id").cast(str),
+                pl.col("doc_text").cast(str),
+                pl.col("rank").cast(int),
+                pl.col("score").cast(float),
+            ]
+        )
+        # reorder the df into presentable format
         reordered_df = merged_df.select(
             [
                 "query_id",
