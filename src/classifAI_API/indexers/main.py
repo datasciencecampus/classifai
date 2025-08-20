@@ -28,13 +28,12 @@ vector databases from your own text data.
 import json
 import logging
 import os
+import shutil
 import time
 
 import numpy as np
 import polars as pl
-import tqdm
-
-from .helpers.file_iters import iter_csv
+from tqdm.autonotebook import tqdm
 
 # Configure logging for your application
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -47,18 +46,28 @@ class VectorStore:
     """A class to model and create 'VectorStore' objects for building and searching vector databases from CSV text files.
 
     Attributes:
-        file_name (str): the original CSV file associated with the vector store
-        data_type (str): the data type of the original file (curently only csv)
+        file_name (str): the original file with the knowledgebase to build the vector store
+        data_type (str): the data type of the original file (curently only csv or excel supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (list[str]): list of metadata stored in the vector DB
-        vectors: (np.array): a numpy array of vectors for the vector DB
+        output_dir (str): the path to the output directory where the VectorStore will be saved
+        vectors (np.array): a numpy array of vectors for the vector DB
         vector_shape (int): the dimension of the vectors
         num_vectors (int): how many vectors are in the vector store
         vectoriser_class (str): the type of vectoriser used to create embeddings
     """
 
-    def __init__(self, file_name, data_type, vectoriser, batch_size=8, meta_data=None):
+    def __init__(
+        self,
+        file_name,
+        data_type,
+        vectoriser,
+        batch_size=8,
+        meta_data=None,
+        output_dir=None,
+        overwrite=False,
+    ):
         """Initializes the VectorStore object by processing the input CSV file and generating
         vector embeddings.
 
@@ -71,10 +80,15 @@ class VectorStore:
             vectoriser. Defaults to 8.
             meta_data (list, optional): List of metadata column names to extract from the input file.
                                 Defaults to None.
+            output_dir (str, optional): The directory where the vector store will be saved.
+                                Defaults to None, where input file name will be used.
+            overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
+
 
         Raises:
             ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
         """
+
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
@@ -84,23 +98,40 @@ class VectorStore:
         self.vector_shape = None
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
+        self.output_dir = output_dir
 
-        if self.data_type not in ["csv"]:
+        if self.data_type not in ["csv", "excel"]:
             raise ValueError(
                 "Data type must be one of ['csv'] (more file types added in later update!)"
             )
 
-        os.makedirs("classifai_vector_stores", exist_ok=True)
-
-        # Normalize the file name to ensure it doesn't include relative paths or extensions
-        normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
-        # Check if the folder exists in the specified subdirectory
-        subdir_path = os.path.join("classifai_vector_stores", normalized_file_name)
-        if os.path.isdir(subdir_path):
-            raise ValueError(
-                f"The name '{subdir_path}' is already used as a folder in the subdirectory."
+        if self.output_dir is None:
+            logging.info(
+                "No output directory specified, attempting to use input file name as output folder name."
             )
-        os.makedirs(subdir_path, exist_ok=True)
+
+            # Normalize the file name to ensure it doesn't include relative paths or extensions
+            normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
+            # Check if the folder exists in the specified subdirectory
+            self.output_dir = os.path.join(normalized_file_name)
+            if os.path.isdir(self.output_dir):
+                if overwrite:
+                    shutil.rmtree(self.output_dir)
+                else:
+                    raise ValueError(
+                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. Pass overwrite=True to overwrite the folder."
+                    )
+            os.makedirs(self.output_dir, exist_ok=True)
+
+        else:
+            if os.path.isdir(self.output_dir):
+                if overwrite:
+                    shutil.rmtree(self.output_dir)
+                else:
+                    raise ValueError(
+                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. Pass overwrite=True to overwrite the folder."
+                    )
+            os.makedirs(self.output_dir, exist_ok=True)
 
         self._create_vector_store_index()
 
@@ -110,10 +141,10 @@ class VectorStore:
         self.num_vectors = len(self.vectors)
 
         ## save everything to the folder etc: metadata, parquet and vectoriser
-        self.vectors.write_parquet(os.path.join(subdir_path, "vectors.parquet"))
-        self._save_metadata(os.path.join(subdir_path, "metadata.json"))
+        self.vectors.write_parquet(os.path.join(self.output_dir, "vectors.parquet"))
+        self._save_metadata(os.path.join(self.output_dir, "metadata.json"))
 
-        logging.info("Vector Store created - files saved to %s", subdir_path)
+        logging.info("Vector Store created - files saved to %s", self.output_dir)
 
     def _save_metadata(self, path):
         """Saves metadata about the vector store to a JSON file.
@@ -141,77 +172,44 @@ class VectorStore:
 
     def _create_vector_store_index(self):
         """Processes text strings in batches, generates vector embeddings, and creates the
-        vector store. Called from the constructor once other metadata has been set.
-        Loads in the correct file iter based on the data_type. Using file loader iterates
-        over data in batches, stores batch data and generated embeddings. Creates a Polars DataFrame
-        with the captured data and embeddings, and saves it as a Parquet file and stores in
-        vectors attribute.
+        vector store.
+        Called from the constructor once other metadata has been set.
+        Iterates over data in batches, stores batch data and generated embeddings.
+        Creates a Polars DataFrame with the captured data and embeddings, and saves it as
+        a Parquet file in the output_dir attribute, and stores in the vectors attribute.
 
         Raises:
             Exception: If an error occurs during file processing or vector generation.
         """
-        # set up the file indexer
-        try:
-            # if self.data_type == "csv":
-            file_loader = iter_csv
 
-        except Exception:
-            logging.error("Error setting up file loader")
-            raise
-
-        # set up the captured data structure that will store the data and generated embeddings
-        captured_data = {x: [] for x in ["id", "text", *self.meta_data]}
-        captured_embeddings = []
-
-        logging.info(
-            "Processing file: %s in batches of size %d...\n",
-            self.file_name,
-            self.batch_size,
-        )
-
-        # Process the file in batches by iterating over the appropriate file loader
-        for batch_no, batch in enumerate(
-            tqdm.tqdm(
-                file_loader(
-                    file_name=self.file_name,
-                    meta_data=self.meta_data,
-                    batch_size=self.batch_size,
-                ),
-                desc="Processing batches",
+        if self.data_type == "excel":
+            self.vectors = pl.read_excel(
+                self.file_name,
+                columns=["id", "text", *self.meta_data],
             )
-        ):
-            # try to process each batch provided by file iter
-            try:
+        elif self.data_type == "csv":
+            self.vectors = pl.read_csv(
+                self.file_name, columns=["id", "text", *self.meta_data]
+            )
+        else:
+            logging.error("No file loader implemented for data type %s", self.data_type)
+            raise ValueError(
+                "No file loader implemented for data type {self.data_type}"
+            )
 
-                # get batch text and id and meta-data columns, store in corresponding captured_data
-                for k in captured_data.keys():
-                    captured_data[k].extend([entry[k] for entry in batch])
-
-                # generate embeddings for the text in the batch and store them
-                batch_vectors = self.vectoriser.transform(
-                    [entry["text"] for entry in batch]
-                )
-                captured_embeddings.extend(batch_vectors)
-
-            # if any error occurs while processing a batch, log the error and continue to next batch
-            except (KeyError, ValueError, TypeError) as e:
-                logging.error("Error processing batch %d: %s", batch_no, e)
-                continue
-
-        logging.info(
-            "\nFinished creating vectors, attempting to create vector store object..."
-        )
-
-        # now that all batches are processed and text vectorised, save it
+        logging.info("Processing file: %s...\n", self.file_name)
         try:
-            self.vectors = pl.DataFrame({x: captured_data[x] for x in captured_data})
+            documents = self.vectors["text"].to_list()
+            embeddings = []
+            for batch_id in tqdm(range(0, len(documents), self.batch_size)):
+                batch = documents[batch_id : (batch_id + self.batch_size)]
+                embeddings.extend(self.vectoriser.transform(batch))
             self.vectors = self.vectors.with_columns(
-                pl.Series("embeddings", captured_embeddings)
+                pl.Series(embeddings).alias("embeddings")
             )
-
-        except Exception:
-            logging.error("Error creating Polars DataFrame or saving to Parquet file")
-            raise
+        except Exception as e:
+            logging.error("Error creating Polars DataFrame")
+            raise e
 
     def validate(self):
         """Validates the vector store by checking if the loaded vectoriser matches the one used to create the vectors
@@ -267,8 +265,7 @@ class VectorStore:
             query_vectors = self.vectoriser.transform(query_batch)
 
             # Compute cosine similarity between the query batch and document vectors
-            document_vectors = self.vectors["embeddings"].to_numpy()
-            cosine = query_vectors @ document_vectors.T
+            cosine = query_vectors @ self.vectors["embeddings"].to_numpy().T
 
             # Get the top n_results indices for each query in the batch
             idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
@@ -300,7 +297,14 @@ class VectorStore:
             merged_df = result_df.hstack(ranked_docs).rename(
                 {"id": "doc_id", "text": "doc_text"}
             )
-
+            merged_df = merged_df.with_columns(
+                [
+                    pl.col("doc_id").cast(str),
+                    pl.col("doc_text").cast(str),
+                    pl.col("rank").cast(int),
+                    pl.col("score").cast(float),
+                ]
+            )
             # Append the current batch results to the list
             all_results.append(merged_df)
 
