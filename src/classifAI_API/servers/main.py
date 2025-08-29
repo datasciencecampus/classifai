@@ -109,7 +109,6 @@ def start_api(vector_stores, endpoint_names, port=8000):
             query_result = vector_store.search(
                 query=queries, ids=input_ids, n_results=n_results
             )
-
             ##post processing of the pandas dataframe
             formatted_result = convert_dataframe_to_pydantic_response(
                 df=query_result,
