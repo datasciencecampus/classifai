@@ -1,5 +1,5 @@
 [project]
-name = "classifAI_API"
+name = "classifai_package"
 description = "A minimalist library for exposing parts of classifAI as an extendable microservice"
 authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
 readme = "README.md"
@@ -41,9 +41,15 @@ dependencies = [
     "requests-oauthlib>=2.0.0",
     "requests-toolbelt>=1.0.0",
     "polars>=1.26.0",
+    "pandas>=2.3.0",
     "pydantic>=2.9.2",
     "pydantic-settings>=2.8.1",
-    "pydantic_core>=2.23.4"
+    "pydantic_core>=2.23.4",
+    "transformers>=4.52.4",
+    "torch>=2.7.1",
+    "fastparquet>=2024.11.0",
+    "pyarrow>=20.0.0",
+    "ollama>=0.5.1"
 ] 
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -56,14 +62,14 @@ requires = ["setuptools>=62"]
 build-backend = "setuptools.build_meta"
 
 #[tool.setuptools.dynamic]
-#version = {attr = "classifAI_API.__version__"}
+#version = {attr = "classifai_package.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-classifAI_API = []
+classifai_package = []
 
 [project.optional-dependencies]
 app = []
@@ -148,6 +154,11 @@ convention = "google"
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
 
 [project.urls]
 homepage = "https://github.com/datasciencecampus/classifAI_API"
