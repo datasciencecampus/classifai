@@ -50,7 +50,7 @@ class VectorStore:
         data_type (str): the data type of the original file (curently only csv or excel supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
-        meta_data (list[str]): list of metadata stored in the vector DB
+        meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
         vectors (np.array): a numpy array of vectors for the vector DB
         vector_shape (int): the dimension of the vectors
@@ -78,7 +78,7 @@ class VectorStore:
                                 vector embeddings.
             batch_size (int, optional): The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
-            meta_data (list, optional): List of metadata column names to extract from the input file.
+            meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
                                 Defaults to None.
             output_dir (str, optional): The directory where the vector store will be saved.
                                 Defaults to None, where input file name will be used.
@@ -93,7 +93,7 @@ class VectorStore:
         self.data_type = data_type
         self.vectoriser = vectoriser
         self.batch_size = batch_size
-        self.meta_data = meta_data if meta_data is not None else []
+        self.meta_data = meta_data if meta_data is not None else {}
         self.vectors = None
         self.vector_shape = None
         self.num_vectors = None
@@ -156,12 +156,19 @@ class VectorStore:
             Exception: If an error occurs while saving the metadata file.
         """
         try:
+
+            # Convert meta_data types to strings for JSON serialization
+            serializable_column_meta_data = {
+                key: value.__name__ if isinstance(value, type) else value
+                for key, value in (self.meta_data or {}).items()
+            }
+
             metadata = {
                 "vectoriser_class": self.vectoriser_class,
                 "vector_shape": self.vector_shape,
                 "num_vectors": self.num_vectors,
                 "created_at": time.time(),
-                "meta_data": self.meta_data,
+                "meta_data": serializable_column_meta_data,
             }
 
             with open(path, "w", encoding="utf-8") as f:
@@ -185,11 +192,14 @@ class VectorStore:
         if self.data_type == "excel":
             self.vectors = pl.read_excel(
                 self.file_name,
-                columns=["id", "text", *self.meta_data],
+                columns=["id", "text", *self.meta_data.keys()],
+                dtypes={"id": str, "text": str} | self.meta_data,
             )
         elif self.data_type == "csv":
             self.vectors = pl.read_csv(
-                self.file_name, columns=["id", "text", *self.meta_data]
+                self.file_name,
+                columns=["id", "text", *self.meta_data.keys()],
+                dtypes={"id": str, "text": str} | self.meta_data,
             )
         else:
             logging.error("No file loader implemented for data type %s", self.data_type)
@@ -252,7 +262,7 @@ class VectorStore:
         all_results = []
 
         # Process the queries in batches
-        for i in tqdm.tqdm(
+        for i in tqdm(
             range(0, len(query), batch_size), desc="Processing query batches"
         ):
             # Get the current batch of queries
@@ -292,7 +302,7 @@ class VectorStore:
 
             # Get the vector store results for the current batch
             ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
-                ["id", "text", *self.meta_data]
+                ["id", "text", *self.meta_data.keys()]
             )
             merged_df = result_df.hstack(ranked_docs).rename(
                 {"id": "doc_id", "text": "doc_text"}
@@ -317,7 +327,7 @@ class VectorStore:
                 "doc_text",
                 "rank",
                 "score",
-                *self.meta_data,
+                *self.meta_data.keys(),
             ]
         )
 
@@ -367,16 +377,31 @@ class VectorStore:
             if key not in metadata:
                 raise ValueError(f"Metadata file is missing required key: {key}")
 
+        # get the column metadata and convert types to built-in types
+        deserialized_column_meta_data = {
+            key: getattr(__builtins__, value, value)  # Use built-in types or keep as-is
+            for key, value in metadata["meta_data"].items()
+        }
+
+        # check that the vector shape and num vectors are correct
         # load the parquet file
         vectors_path = os.path.join(folder_path, "vectors.parquet")
         if not os.path.exists(vectors_path):
             raise ValueError(f"Vectors Parquet file not found in {folder_path}")
 
-        df = pl.read_parquet(vectors_path)
+        df = pl.read_parquet(
+            vectors_path,
+            columns=["id", "text", "embeddings", *deserialized_column_meta_data.keys()],
+        )
         if df.is_empty():
             raise ValueError(f"Vectors Parquet file is empty in {folder_path}")
         # check parquet file has the correct columns
-        required_columns = ["id", "text", "embeddings", *metadata["meta_data"]]
+        required_columns = [
+            "id",
+            "text",
+            "embeddings",
+            *deserialized_column_meta_data.keys(),
+        ]
         for col in required_columns:
             if col not in df.columns:
                 raise ValueError(
@@ -395,7 +420,7 @@ class VectorStore:
         vector_store.data_type = None
         vector_store.vectoriser = vectoriser
         vector_store.batch_size = None
-        vector_store.meta_data = metadata["meta_data"]
+        vector_store.meta_data = deserialized_column_meta_data
         vector_store.vectors = df
         vector_store.vector_shape = metadata["vector_shape"]
         vector_store.num_vectors = metadata["num_vectors"]

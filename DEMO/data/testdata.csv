@@ -1,7 +1,7 @@
 id,text,colour,country,language
-1011,The sun rises in the east.,Orange,India,Hindi
-1012,The moon shines at night.,White,USA,English
-1013,Rivers flow to the sea.,Blue,Brazil,Portuguese
+0001,The sun rises in the east.,Orange,India,Hindi
+0002,The moon shines at night.,White,USA,English
+0003,Rivers flow to the sea.,Blue,Brazil,Portuguese
 1014,Stars twinkle in the sky.,Yellow,Japan,Japanese
 1015,Fire burns brightly.,Red,Australia,English
 1016,Ice is cold.,White,Canada,French
