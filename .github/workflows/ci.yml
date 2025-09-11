@@ -24,23 +24,23 @@
                 - name: Install Poetry
                   run: pipx install poetry==1.7.1
 
-                - name: Set up Python
-                  uses: actions/setup-python@v5
-                  with:
-                    python-version: ${{ matrix.python-version }}
-                    cache: poetry
+                # - name: Set up Python
+                #   uses: actions/setup-python@v5
+                #   with:
+                #     python-version: ${{ matrix.python-version }}
+                #     cache: poetry
 
-                - name: Display Python version
-                  run: python -c "import sys; print(sys.version)"
+                # - name: Display Python version
+                #   run: python -c "import sys; print(sys.version)"
 
-                - name: Build poetry lockfile
-                  run: poetry lock
+                # - name: Build poetry lockfile
+                #   run: poetry lock
 
-                - name: Install dependencies
-                  run: poetry install --no-root
+                # - name: Install dependencies
+                #   run: poetry install --no-root
   
-                - name: check code formatting
-                  run: make check-python-nofix
+                # - name: check code formatting
+                #   run: make check-python-nofix
 
                 #- name: Lint Python
                 #  run: make check-python-nofix

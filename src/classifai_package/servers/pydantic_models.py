@@ -1,7 +1,7 @@
 """Pydantic Classes to model request and response data for FastAPI RESTful API."""
 
 import numpy as np
-import polars as pl
+import pandas as pd
 from fastapi import HTTPException
 from pydantic import BaseModel, Extra, Field, validator
 
@@ -64,27 +64,25 @@ class EmbeddingsResponseBody(BaseModel):
 
 
 def convert_dataframe_to_pydantic_response(
-    df: pl.DataFrame, meta_data: list
+    df: pd.DataFrame, meta_data: list
 ) -> ResultsResponseBody:
-    """Convert a Polars DataFrame into a JSON object conforming to the ResultsResponseBody Pydantic model.
+    """Convert a Pandas DataFrame into a JSON object conforming to the ResultsResponseBody Pydantic model.
 
     Args:
-        df (pl.DataFrame): Polars DataFrame containing query results.
+        df (pd.DataFrame): Pandas DataFrame containing query results.
         meta_data (list): List of metadata column names.
 
     Returns:
         ResultsResponseBody: Pydantic model containing the structured response.
     """
     # Group rows by `query_id`
-    grouped = df.group_by("query_id")
+    grouped = df.groupby("query_id")
 
     results_list = []
 
     for query_id, group_df in grouped:
-        # Extract `query_text` for the current group (assuming all rows in the group have the same query_text)
-
         # Convert group_df to a list of dictionaries
-        rows_as_dicts = group_df.to_dicts()
+        rows_as_dicts = group_df.to_dict(orient="records")
 
         # Build the list of ResultEntry objects for the current group
         response_entries = []
@@ -106,7 +104,7 @@ def convert_dataframe_to_pydantic_response(
         # Create a ResultsList object for the current query_id
         results_list.append(
             ResultsList(
-                input_id=query_id[0],
+                input_id=query_id,
                 response=response_entries,
             )
         )
