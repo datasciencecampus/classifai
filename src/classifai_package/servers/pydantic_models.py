@@ -64,13 +64,13 @@ class EmbeddingsResponseBody(BaseModel):
 
 
 def convert_dataframe_to_pydantic_response(
-    df: pd.DataFrame, meta_data: list
+    df: pd.DataFrame, meta_data: dict
 ) -> ResultsResponseBody:
     """Convert a Pandas DataFrame into a JSON object conforming to the ResultsResponseBody Pydantic model.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing query results.
-        meta_data (list): List of metadata column names.
+        meta_data (dict): dictionary of metadata column names mapping to their types.
 
     Returns:
         ResultsResponseBody: Pydantic model containing the structured response.
@@ -88,7 +88,7 @@ def convert_dataframe_to_pydantic_response(
         response_entries = []
         for row in rows_as_dicts:
             # Extract metadata columns dynamically
-            metadata_values = {meta: row[meta] for meta in meta_data}
+            metadata_values = {meta: row[meta] for meta in meta_data.keys()}
 
             # Create a ResultEntry object
             response_entries.append(
