@@ -1,3 +1,4 @@
+# pylint: disable=C0301
 """This module provides functionality for creating a vector index from a text file.
 It defines the `VectorStore` class, which is used to model and create vector databases
 from CSV text files using a vectoriser object.
@@ -58,7 +59,7 @@ class VectorStore:
         vectoriser_class (str): the type of vectoriser used to create embeddings
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         file_name,
         data_type,
@@ -88,7 +89,6 @@ class VectorStore:
         Raises:
             ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
         """
-
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
@@ -188,7 +188,6 @@ class VectorStore:
         Raises:
             Exception: If an error occurs during file processing or vector generation.
         """
-
         if self.data_type == "excel":
             self.vectors = pl.read_excel(
                 self.file_name,
@@ -253,10 +252,23 @@ class VectorStore:
         Returns:
             pd.DataFrame: DataFrame containing search results with columns for query ID, query text,
                           document ID, document text, rank, score, and metadata.
+
+        Raises:
+            ValueError: Raised if invalid arguments are passed.
         """
         # if the query is a string, convert it to a list
         if isinstance(query, str):
             query = [query]
+
+        if (ids is not None) and not all(
+            isinstance(ids, list),
+            all(isinstance(id, (str, int)) for id in ids),
+            len(ids) == len(query),
+            len(set(ids)) == len(ids),
+        ):
+            raise ValueError(
+                "'ids' argument must be a list of unique ints or strings, matching the length of the query argument."
+            )
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -313,6 +325,8 @@ class VectorStore:
                     pl.col("doc_text").cast(str),
                     pl.col("rank").cast(int),
                     pl.col("score").cast(float),
+                    pl.col("query_id").cast(str),
+                    pl.col("query_text").cast(str),
                 ]
             )
             # Append the current batch results to the list

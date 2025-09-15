@@ -1,3 +1,4 @@
+# pylint: disable=C0301
 """This module provides classes for creating and utilizing embedding models from different services.
 The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules.
 Generally Vectorisers are used to convert text data into numerical embeddings that can be used for
@@ -67,7 +68,7 @@ class VectoriserBase(ABC):
     @abstractmethod
     def transform(self, texts: str | list[str]) -> np.ndarray:
         """Transforms input text(s) into embeddings."""
-        pass
+        pass  # pylint: disable=W0107
 
 
 ##
@@ -115,7 +116,7 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise RuntimeError(
                 f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}"
-            )
+            ) from e
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
@@ -129,10 +130,10 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
-        if type(texts) is str:
+        if isinstance(texts, str):
             texts = [texts]
 
-        if type(texts) is not list:
+        if not isinstance(texts, list):
             raise TypeError("Input must be a string or a list of strings.")
 
         # The Vertex AI call to  embed content

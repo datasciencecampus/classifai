@@ -1,13 +1,14 @@
+# pylint: disable=C0301
 """Pydantic Classes to model request and response data for FastAPI RESTful API."""
 
-import numpy as np
 import pandas as pd
-from fastapi import HTTPException
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import BaseModel, Extra, Field
 
 
 class ClassifaiEntry(BaseModel):
-    """Model for a single row of data (SOC or SIC row etc), includes 'id' and 'description' which are expected as str type."""
+    """Model for a single row of data (SOC or SIC row etc), includes 'id' and
+    'description' which are expected as str type.
+    """
 
     id: str = Field(examples=["1"])
     description: str = Field(
@@ -32,8 +33,10 @@ class ResultEntry(BaseModel):
     score: float
     rank: int
 
-    class Config:
-        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
+    class Config:  # pylint: disable=R0903
+        """Sub-class to permit additional extra keys (e.g., metadata columns)."""
+
+        extra = Extra.allow
 
 
 class ResultsList(BaseModel):
@@ -66,7 +69,8 @@ class EmbeddingsResponseBody(BaseModel):
 def convert_dataframe_to_pydantic_response(
     df: pd.DataFrame, meta_data: dict
 ) -> ResultsResponseBody:
-    """Convert a Pandas DataFrame into a JSON object conforming to the ResultsResponseBody Pydantic model.
+    """Convert a Pandas DataFrame into a JSON object conforming to the
+    ResultsResponseBody Pydantic model.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing query results.
@@ -88,7 +92,7 @@ def convert_dataframe_to_pydantic_response(
         response_entries = []
         for row in rows_as_dicts:
             # Extract metadata columns dynamically
-            metadata_values = {meta: row[meta] for meta in meta_data.keys()}
+            metadata_values = {meta: row[meta] for meta in meta_data}
 
             # Create a ResultEntry object
             response_entries.append(
@@ -104,7 +108,7 @@ def convert_dataframe_to_pydantic_response(
         # Create a ResultsList object for the current query_id
         results_list.append(
             ResultsList(
-                input_id=query_id,
+                input_id=query_id,  # type: ignore[arg-type]
                 response=response_entries,
             )
         )

@@ -1,3 +1,4 @@
+# pylint: disable=C0301
 """This module provides functionality for creating a start a restAPI service which
 allows a user to call the search methods of different VectorStore objects, from
 an api-endpoint.
@@ -18,6 +19,7 @@ from fastapi.responses import RedirectResponse
 
 from .pydantic_models import (
     ClassifaiData,
+    EmbeddingsList,
     EmbeddingsResponseBody,
     ResultsResponseBody,
     convert_dataframe_to_pydantic_response,
@@ -66,15 +68,15 @@ def start_api(vector_stores, endpoint_names, port=8000):
             embeddings = vector_store.embed(documents)
 
             returnable = []
-            for i in range(len(input_ids)):
+            for idx, desc, embed in zip(input_ids, documents, embeddings, strict=False):
                 returnable.append(
-                    {
-                        "idx": input_ids[i],
-                        "description": documents[i],
-                        "embedding": embeddings[i, :].tolist(),
-                    }
+                    EmbeddingsList(
+                        idx=idx,
+                        description=desc,
+                        embedding=embed.tolist(),
+                    )
                 )
-            return {"data": returnable}
+            return EmbeddingsResponseBody(data=returnable)
 
     def create_search_endpoint(app, endpoint_name, vector_store):
         """Create and register a search endpoint for a specific vector store.
@@ -117,7 +119,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
 
             return formatted_result
 
-    for endpoint_name, vector_store in zip(endpoint_names, vector_stores):
+    for endpoint_name, vector_store in zip(endpoint_names, vector_stores, strict=False):
         logging.info("Registering endpoints for: %s", endpoint_name)
         create_embedding_endpoint(app, endpoint_name, vector_store)
         create_search_endpoint(app, endpoint_name, vector_store)
@@ -132,4 +134,4 @@ def start_api(vector_stores, endpoint_names, port=8000):
         start_page = RedirectResponse(url="/docs")
         return start_page
 
-    uvicorn.run(app, port=8000, log_level="info")
+    uvicorn.run(app, port=port, log_level="info")
