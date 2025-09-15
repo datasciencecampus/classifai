@@ -68,7 +68,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
             embeddings = vector_store.embed(documents)
 
             returnable = []
-            for idx, desc, embed in zip(input_ids, documents, embeddings, strict=False):
+            for idx, desc, embed in zip(input_ids, documents, embeddings, strict=True):
                 returnable.append(
                     EmbeddingsList(
                         idx=idx,
