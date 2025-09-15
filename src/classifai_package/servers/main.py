@@ -119,7 +119,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
 
             return formatted_result
 
-    for endpoint_name, vector_store in zip(endpoint_names, vector_stores, strict=False):
+    for endpoint_name, vector_store in zip(endpoint_names, vector_stores, strict=True):
         logging.info("Registering endpoints for: %s", endpoint_name)
         create_embedding_endpoint(app, endpoint_name, vector_store)
         create_search_endpoint(app, endpoint_name, vector_store)
