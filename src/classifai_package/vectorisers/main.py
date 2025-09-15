@@ -1,6 +1,28 @@
 """This module provides classes for creating and utilizing embedding models from different services.
+The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules.
+Generally Vectorisers are used to convert text data into numerical embeddings that can be used for
+machine learning tasks.
 
-The module contains the following classes:
+###########################
+###########################
+# Vectoriser Overview
+
+In our Package, Vectoriser have a simple role:
+    - Take in text data (as a string or list of strings)
+    - Output numerical embeddings (as a numpy array)
+    - Each Vectortiser should provide a `transform` method to perform this conversion.
+
+It is possible for users to implement their own Vectoriser classes by inheriting from the
+`VectoriserBase` abstract base class and implementing the `transform` method.
+
+
+###########################
+###########################
+# Implemented Vectorisers
+
+We provide several quick implementations of Vectorisers that interface with popular services and libraries.
+
+The module contains the following 'ready-made' classes:
 - `GcpVectoriser`: A class for embedding text using Google Cloud Platform's GenAI API.
 - `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
 models to generate text embeddings.
@@ -21,19 +43,39 @@ interface for embedding text using different services.
 """
 
 import logging
+from abc import ABC, abstractmethod
 
 import numpy as np
+import ollama
 import torch
 from google import genai
 from transformers import AutoModel, AutoTokenizer
-import ollama
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
 logging.getLogger("google.api_core").setLevel(logging.WARNING)
 
 
-class GcpVectoriser:
+##
+# The following is the abstract base class for all vectorisers.
+##
+
+
+class VectoriserBase(ABC):
+    """Abstract base class for all vectorisers."""
+
+    @abstractmethod
+    def transform(self, texts: str | list[str]) -> np.ndarray:
+        """Transforms input text(s) into embeddings."""
+        pass
+
+
+##
+# The following are implementations of various 'ready-made' vectorisers.
+##
+
+
+class GcpVectoriser(VectoriserBase):
     """A class for embedding text using Google Cloud Platform's GenAI API.
 
     Attributes:
@@ -42,11 +84,11 @@ class GcpVectoriser:
     """
 
     def __init__(
-        self, 
-        project_id, 
-        location="europe-west2", 
+        self,
+        project_id,
+        location="europe-west2",
         model_name="text-embedding-004",
-        task_type="RETRIEVAL_DOCUMENT"
+        task_type="RETRIEVAL_DOCUMENT",
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
@@ -54,7 +96,7 @@ class GcpVectoriser:
             project_id (str): The Google Cloud project ID.
             location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
             model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
-            task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION". 
+            task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
 
@@ -95,9 +137,7 @@ class GcpVectoriser:
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
-            model=self.model_name,
-            contents=texts,
-            config=self.model_config
+            model=self.model_name, contents=texts, config=self.model_config
         )
 
         # Extract embeddings from the response object
@@ -107,7 +147,7 @@ class GcpVectoriser:
         return result
 
 
-class HuggingFaceVectoriser:    
+class HuggingFaceVectoriser(VectoriserBase):
     """A general wrapper class for Huggingface Transformers models to generate text embeddings.
 
     Attributes:
@@ -182,7 +222,7 @@ class HuggingFaceVectoriser:
         return embeddings
 
 
-class OllamaVectoriser:
+class OllamaVectoriser(VectoriserBase):
     """A wrapper class allowing a locally-running ollama server to generate text embeddings.
 
     Attributes:
@@ -194,7 +234,7 @@ class OllamaVectoriser:
 
         Args:
             model_name (str): The name of the local model to use.
-        
+
         Notes:
             requires an ollama server to be running locally (`ollama serve`)
         """

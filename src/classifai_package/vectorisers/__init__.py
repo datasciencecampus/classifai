@@ -1,1 +1,1 @@
-from .main import GcpVectoriser, HuggingFaceVectoriser, OllamaVectoriser
+from .main import GcpVectoriser, HuggingFaceVectoriser, OllamaVectoriser, VectoriserBase
