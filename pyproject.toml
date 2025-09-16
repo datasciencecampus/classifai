@@ -143,6 +143,7 @@ ignore = [
     "E501",
     # indentation contains tabs
     "W191",
+    "PLC0415",
 ]
 
 [tool.ruff.lint.pydocstyle]
