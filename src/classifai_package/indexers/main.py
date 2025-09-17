@@ -239,6 +239,27 @@ class VectorStore:
         """
         return self.vectoriser.transform(text)
 
+    def reverse_query(self, query, n_results=10):
+        """Searches the vector store using id to get rows with correct
+        
+        Args:
+            query (str): id to lookup
+            n_results (int, optional): Number of top results to return for each query. Default 10.
+
+        Returns:
+            pd.DataFrame: DataFrame containing search results with columns for ...
+        """
+        query = str(query)
+        reverse_items = self.vectors.filter(self.vectors['id']== query).head(n_results)
+        reverse_len = reverse_items['id'].len()
+        new_df = pl.DataFrame({
+            'query_id': np.repeat(0, reverse_len),
+            'query_doc_id': np.repeat(query, reverse_len),
+            'doc_text': reverse_items['text']
+
+        })
+        return new_df.to_pandas()
+
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
         ranked results. In batches, converts users text queries into vector embeddings,

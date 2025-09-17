@@ -23,6 +23,28 @@ class ClassifaiData(BaseModel):
         description="array of SOC/SIC Entries to be classified"
     )
 
+class ClassifaiRevEntry(BaseModel):
+    """Model for single reverse search entry"""
+    code: str = Field(examples=["0001"], description="Input code to query vdb for")
+
+class RevQueryResponseEntry(BaseModel):
+    """Model for single rev query entry"""
+    label:str
+    description:str
+
+    class Config:
+        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
+
+
+class RevQueryResponse(BaseModel):
+    """Model for set of matching entries for rev query"""
+    input_id: str
+    response: list[RevQueryResponseEntry]
+
+    
+class RevQueryResponseBody(BaseModel):
+    """Model for rev query response"""
+    data: list[RevQueryResponse]
 
 class ResultEntry(BaseModel):
     """Model for single vdb entry."""
@@ -62,7 +84,38 @@ class EmbeddingsResponseBody(BaseModel):
 
     data: list[EmbeddingsList]
 
+def convert_dataframe_to_rev_query_pydantic_response(
+    df:pd.DataFrame, meta_data:dict
+) -> RevQueryResponseBody:
+    """Converts polars to json results"""
 
+    rows_as_dicts= df.to_dict(orient='records')
+
+    # Extract metadata columns dynamically
+    results_list = []
+    response_entries = []
+    for row in rows_as_dicts:
+        metadata_values = {meta: row[meta] for meta in meta_data.keys()}
+        # Create a ResultEntry object
+        response_entries.append(
+            RevQueryResponseEntry(
+                label=row["query_doc_id"],
+                description=row["doc_text"],
+                **metadata_values,  # Add metadata dynamically
+            )
+        )
+
+    
+        # Create a ResultsList object for the current query_id
+    results_list.append(
+        RevQueryResponse(
+            input_id='0',
+            response=response_entries,
+        )
+    )
+    response_body = RevQueryResponseBody(data=results_list)
+    return response_body
+    
 def convert_dataframe_to_pydantic_response(
     df: pd.DataFrame, meta_data: dict
 ) -> ResultsResponseBody:
@@ -79,7 +132,6 @@ def convert_dataframe_to_pydantic_response(
     grouped = df.groupby("query_id")
 
     results_list = []
-
     for query_id, group_df in grouped:
         # Convert group_df to a list of dictionaries
         rows_as_dicts = group_df.to_dict(orient="records")
