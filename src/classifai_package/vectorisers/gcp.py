@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 
 from classifai_package._optional import check_deps
 
 from .base import VectoriserBase
+
+logging.getLogger("google.auth").setLevel(logging.WARNING)
+logging.getLogger("google.cloud").setLevel(logging.WARNING)
+logging.getLogger("google.api_core").setLevel(logging.WARNING)
 
 
 class GcpVectoriser(VectoriserBase):

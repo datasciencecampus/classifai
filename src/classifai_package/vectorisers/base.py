@@ -42,15 +42,9 @@ These classes abstract the underlying implementation details, providing a simple
 interface for embedding text using different services.
 """
 
-import logging
 from abc import ABC, abstractmethod
 
 import numpy as np
-
-logging.getLogger("google.auth").setLevel(logging.WARNING)
-logging.getLogger("google.cloud").setLevel(logging.WARNING)
-logging.getLogger("google.api_core").setLevel(logging.WARNING)
-
 
 ##
 # The following is the abstract base class for all vectorisers.
