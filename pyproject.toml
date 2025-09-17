@@ -79,6 +79,9 @@ gcp = [
     "grpc-google-iam-v1>=0.14.2",
     "langchain-google-vertexai>=2.0.16"
 ]
+all = [
+    "classifai_package[huggingface,gcp,ollama]"
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
