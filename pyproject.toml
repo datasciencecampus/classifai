@@ -5,7 +5,7 @@ authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"
 readme = "README.md"
 version = "0.0.1"
 license = {file = "LICENSE"}
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.10,<4.0"
 #dynamic = ["version"]
 dependencies = [
     "uvicorn>0.34.0",
@@ -27,7 +27,7 @@ dependencies = [
     "fastparquet>=2024.11.0",
     "pyarrow>=20.0.0",
     "tqdm>=4.67.1",
-] 
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
