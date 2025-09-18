@@ -5,37 +5,16 @@ authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"
 readme = "README.md"
 version = "0.0.1"
 license = {file = "LICENSE"}
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.10,<4.0"
 #dynamic = ["version"]
 dependencies = [
     "uvicorn>0.34.0",
-    "fastapi==0.115.11",
-    "fastapi-cli==0.0.7",
-    "opentelemetry-instrumentation-fastapi==0.52b1",
-    "typing-inspect==0.9.0",
-    "typing_extensions==4.12.2",
-    "google-ai-generativelanguage==0.6.15",
-    "google-api-core==2.24.2",
-    "google-api-python-client==2.165.0",
-    "google-auth==2.38.0",
-    "google-auth-httplib2==0.2.0",
-    "google-cloud-aiplatform==1.85.0",
-    "google-cloud-appengine-logging==1.6.1",
-    "google-cloud-audit-log==0.3.2",
-    "google-cloud-bigquery==3.30.0",
-    "google-cloud-core==2.4.3",
-    "google-cloud-logging==3.11.4",
-    "google-cloud-resource-manager==1.14.2",
-    "google-cloud-secret-manager==2.23.2",
-    "google-cloud-storage==2.19.0",
-    "google-crc32c==1.7.0",
-    "google-genai==1.8.0",
-    "google-generativeai==0.8.4",
-    "google-resumable-media==2.7.2",
-    "googleapis-common-protos==1.69.2",
-    "grpc-google-iam-v1==0.14.2",
-    "langchain-google-vertexai==2.0.16",
-    "python-dotenv==1.0.1",
+    "fastapi[standard]>=0.115.11",
+    "fastapi-cli>=0.0.7",
+    "opentelemetry-instrumentation-fastapi>=0.52b1",
+    "typing-inspect>=0.9.0",
+    "typing_extensions>=4.12.2",
+    "python-dotenv>=1.0.1",
     "numpy>=2.2.4",
     "requests>=2.32.3",
     "requests-oauthlib>=2.0.0",
@@ -45,12 +24,10 @@ dependencies = [
     "pydantic>=2.9.2",
     "pydantic-settings>=2.8.1",
     "pydantic_core>=2.23.4",
-    "transformers>=4.52.4",
-    "torch>=2.7.1",
     "fastparquet>=2024.11.0",
     "pyarrow>=20.0.0",
-    "ollama>=0.5.1"
-] 
+    "tqdm>=4.67.1",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -72,10 +49,39 @@ namespaces = false
 classifai_package = []
 
 [project.optional-dependencies]
-app = []
-test = []
-docs = []
-dev = []
+huggingface = [
+    "transformers>=4.52.4",
+    "torch>=2.7.1"
+]
+ollama = [
+    "ollama>=0.5.1"
+]
+gcp = [
+    "google-ai-generativelanguage>=0.6.15",
+    "google-api-core>=2.24.2",
+    "google-api-python-client>=2.165.0",
+    "google-auth>=2.38.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-cloud-aiplatform>=1.85.0",
+    "google-cloud-appengine-logging>=1.6.1",
+    "google-cloud-audit-log>=0.3.2",
+    "google-cloud-bigquery>=3.30.0",
+    "google-cloud-core>=2.4.3",
+    "google-cloud-logging>=3.11.4",
+    "google-cloud-resource-manager>=1.14.2",
+    "google-cloud-secret-manager>=2.23.2",
+    "google-cloud-storage>=2.19.0",
+    "google-crc32c>=1.7.0",
+    "google-genai>=1.8.0",
+    "google-generativeai>=0.8.4",
+    "google-resumable-media>=2.7.2",
+    "googleapis-common-protos>=1.69.2",
+    "grpc-google-iam-v1>=0.14.2",
+    "langchain-google-vertexai>=2.0.16"
+]
+all = [
+    "classifai_package[huggingface,gcp,ollama]"
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -140,6 +146,7 @@ ignore = [
     "E501",
     # indentation contains tabs
     "W191",
+    "PLC0415",
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -157,7 +164,16 @@ indent-style = "space"
 
 [dependency-groups]
 dev = [
+    "black>=25.1.0",
     "ipykernel>=6.29.5",
+    "isort>=6.0.1",
+    "nbstripout>=0.8.1",
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.0",
+    {include-group = "test"},
+]
+test = [
+    "pytest>=8.4.2",
 ]
 
 [project.urls]
