@@ -239,26 +239,42 @@ class VectorStore:
         """
         return self.vectoriser.transform(text)
 
-    def reverse_query(self, query, n_results=10):
-        """Searches the vector store using id to get rows with correct
-        
+    def reverse_search(self, query, ids=None, n_results=100):
+        """Reverse searches the vector store using a input code or list of codes and returns
+        matched results. In batches, converts users text queries into vector embeddings,
+        computes cosine similarity with stored document vectors, and retrieves the top results.
+
         Args:
-            query (str): id to lookup
-            n_results (int, optional): Number of top results to return for each query. Default 10.
+            query (str or list): The text query or list of queries to search for.
+            ids (list, optional): List of query IDs. Defaults to None.
+            n_results (int, optional): Number of top results to return for each query. Default 100.
 
         Returns:
-            pd.DataFrame: DataFrame containing search results with columns for ...
+            pd.DataFrame: DataFrame containing search results with columns for query ID, matching
+                          document ID, document text and metadata.
         """
-        query = str(query)
-        reverse_items = self.vectors.filter(self.vectors['id']== query).head(n_results)
-        reverse_len = reverse_items['id'].len()
-        new_df = pl.DataFrame({
-            'query_id': np.repeat(0, reverse_len),
-            'query_doc_id': np.repeat(query, reverse_len),
-            'doc_text': reverse_items['text']
+        # if the query is a string, convert it to a list
+        if isinstance(query, str):
+            query = [query]
 
-        })
-        return new_df.to_pandas()
+        # pair query ids with input ids
+        query_ids = ids if ids else list(range(0,len(query)))
+        paired_query = pl.DataFrame({'query_id':query_ids, "id":query})
+
+
+        # join query with vdb to get matches
+        joined_table = paired_query.join(self.vectors, on='id', how='inner')
+
+        # sort join by id
+        sorted_table = joined_table.sort("query_id")
+
+        # get formatted table
+        final_table = sorted_table.select([pl.col('query_id').cast(str),
+        pl.col('id').cast(str).alias('doc_id'),
+        pl.col('text').cast(str).alias("doc_text"),
+         *[pl.col(key).cast(value) for key,value in self.meta_data.items()]])
+
+        return final_table.to_pandas()
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
@@ -351,7 +367,6 @@ class VectorStore:
                 *self.meta_data.keys(),
             ]
         )
-
         # Now that polars has been used for processing convert back to pandas for user familiarity
         return reordered_df.to_pandas()
 
