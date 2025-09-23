@@ -1,4 +1,3 @@
-# pylint: disable=C0301
 """This module provides classes for creating and utilizing embedding models from different services.
 The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules.
 Generally Vectorisers are used to convert text data into numerical embeddings that can be used for
@@ -43,14 +42,19 @@ These classes abstract the underlying implementation details, providing a simple
 interface for embedding text using different services.
 """
 
-from .base import VectoriserBase
-from .gcp import GcpVectoriser
-from .huggingface import HuggingFaceVectoriser
-from .ollama import OllamaVectoriser
+from abc import ABC, abstractmethod
 
-__all__ = [
-    "GcpVectoriser",
-    "HuggingFaceVectoriser",
-    "OllamaVectoriser",
-    "VectoriserBase",
-]
+import numpy as np
+
+##
+# The following is the abstract base class for all vectorisers.
+##
+
+
+class VectoriserBase(ABC):
+    """Abstract base class for all vectorisers."""
+
+    @abstractmethod
+    def transform(self, texts: str | list[str]) -> np.ndarray:
+        """Transforms input text(s) into embeddings."""
+        pass
