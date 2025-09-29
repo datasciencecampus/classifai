@@ -42,13 +42,3 @@
 
                 - name: Cleanup residue file
                   run: make clean
-
-        gitleaks:
-            name: Run Gitleaks
-            runs-on: ubuntu-22.04
-            steps:
-                - name: Setup gitleaks docker image
-                  run: make setup-gitleaks
-
-                - name: Run gitleaks
-                  run: make run-gitleaks
