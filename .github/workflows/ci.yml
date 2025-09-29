@@ -1,12 +1,11 @@
 ---
     name: CI
-    
+
     on: # yamllint disable-line rule:truthy
       push:
         branches: [main]
       pull_request:
-        branches: [main]
-    
+
     concurrency:
       group: "${{ github.head_ref || github.ref }}-${{ github.workflow }}"
       cancel-in-progress: true
@@ -21,34 +20,35 @@
 
             steps:
                 - uses: actions/checkout@v4
-                - name: Install Poetry
-                  run: pipx install poetry==1.7.1
+                - name: Install UV
+                  run: pipx install uv
 
-                # - name: Set up Python
-                #   uses: actions/setup-python@v5
-                #   with:
-                #     python-version: ${{ matrix.python-version }}
-                #     cache: poetry
+                - name: Set up Python
+                  uses: actions/setup-python@v5
+                  with:
+                    python-version: ${{ matrix.python-version }}
 
-                # - name: Display Python version
-                #   run: python -c "import sys; print(sys.version)"
+                - name: Display Python version
+                  run: python -c "import sys; print(sys.version)"
 
-                # - name: Build poetry lockfile
-                #   run: poetry lock
+                - name: Build uv lock file
+                  run: uv lock
 
-                # - name: Install dependencies
-                #   run: poetry install --no-root
-  
-                # - name: check code formatting
-                #   run: make check-python-nofix
+                - name: Install dependencies
+                  run: uv sync
 
-                #- name: Lint Python
-                #  run: make check-python-nofix
-
-                #- name: Test Python
-                #  run: make all-tests
+                - name: check code formatting & vulnerability detection
+                  run: make check-python-nofix
 
                 - name: Cleanup residue file
                   run: make clean
-    
-    
+
+        gitleaks:
+            name: Run Gitleaks
+            runs-on: ubuntu-22.04
+            steps:
+                - name: Setup gitleaks docker image
+                  run: make setup-gitleaks
+
+                - name: Run gitleaks
+                  run: make run-gitleaks
