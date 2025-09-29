@@ -42,3 +42,9 @@
 
                 - name: Cleanup residue file
                   run: make clean
+
+                - name: setup gitleaks
+                  run: make setup-gitleaks
+
+                - name: run gitleaks
+                  run: make run-gitleaks
