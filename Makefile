@@ -11,6 +11,7 @@ clean: ## Clean the temporary files.
 
 check-python: ## Format the python code (auto fix)
 	uv tool run ruff check . --fix
+	uv tool run ruff format .
 	uv tool run bandit -r src
 
 check-python-nofix: ## Format the python code (no fix)
