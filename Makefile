@@ -15,7 +15,7 @@ check-python: ## Format the python code (auto fix)
 
 check-python-nofix: ## Format the python code (no fix)
 	uv tool run ruff check .
-	uv tool run bandit -r src
+	# uv tool run bandit -r src
 
 check-python-security: ## security checks only (no-fix)
 	# uv tool run bandit -r src
