@@ -1,0 +1,55 @@
+# Added pre-commit to check if __init__.py is added to the src folder
+# install using `pre-commit install`
+# skip using `git commit -m "message" --no-verify`
+default_stages: [pre-commit, pre-push]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-ast # checks python files for parseable syntax.
+      - id: check-vcs-permalinks # ensures that links to files in VCS repos are permalinks.
+      - id: debug-statements # checks for print, pdb, and ipdb statements.
+      - id: trailing-whitespace # strip out white spaces at end of lines
+      - id: end-of-file-fixer # ensure newline present at end of file
+      - id: check-yaml # checks yaml files for parseable syntax.
+      - id: check-json # checks json files for parseable syntax
+      - id: check-added-large-files # check for files above certain size (as likely to be data files)
+        args: ['--maxkb=500']
+        exclude: (^uv\.lock$|.*\.ipynb$|.*\.png$|.*\.jpg$)
+      - id: detect-private-key # detects the presence of private keys.
+      - id: check-case-conflict # check for files that would conflict in case-insensitive file systems.
+      - id: check-merge-conflict # check for files that contain merge conflict strings.
+      - id: detect-private-key # detects the presence of private keys.
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.2
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: forbid-new-init
+        name: Check if __init__.py is added to the src folder
+        entry: python
+        language: fail
+        files: ^src/__init__.py$
+
+      - id: local-vulnerability-detection
+        name: scan code with bandit
+        entry: make check-python-security
+        language: system

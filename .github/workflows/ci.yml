@@ -3,7 +3,6 @@
 
     on: # yamllint disable-line rule:truthy
       push:
-        branches: [main]
       pull_request:
 
     concurrency:
@@ -19,6 +18,12 @@
                 python-version: ["3.12"]
 
             steps:
+                - name: setup gitleaks
+                  run: make setup-gitleaks
+
+                - name: run gitleaks
+                  run: make run-gitleaks
+
                 - uses: actions/checkout@v4
                 - name: Install uv
                   uses: astral-sh/setup-uv@v6
@@ -42,9 +47,3 @@
 
                 - name: Cleanup residue file
                   run: make clean
-
-                - name: setup gitleaks
-                  run: make setup-gitleaks
-
-                - name: run gitleaks
-                  run: make run-gitleaks
