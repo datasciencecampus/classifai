@@ -11,6 +11,7 @@
 
     jobs:
         lint-test:
+            if: '! github.event.pull_request.draft'
             name: Lint and Test
             runs-on: ubuntu-22.04
             strategy:
