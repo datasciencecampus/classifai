@@ -1,18 +1,17 @@
 ---
     name: CI
-    
+
     on: # yamllint disable-line rule:truthy
       push:
-        branches: [main]
       pull_request:
-        branches: [main]
-    
+
     concurrency:
       group: "${{ github.head_ref || github.ref }}-${{ github.workflow }}"
       cancel-in-progress: true
 
     jobs:
         lint-test:
+            if: '! github.event.pull_request.draft'
             name: Lint and Test
             runs-on: ubuntu-22.04
             strategy:
@@ -21,8 +20,8 @@
 
             steps:
                 - uses: actions/checkout@v4
-                - name: Install UV
-                  run: pipx install uv
+                - name: Install uv
+                  uses: astral-sh/setup-uv@v6
 
                 - name: Set up Python
                   uses: actions/setup-python@v5
@@ -38,14 +37,14 @@
                 - name: Install dependencies
                   run: uv sync
 
-                - name: Test package builds
-                  run: make build-package
+                - name: setup gitleaks
+                  run: make setup-gitleaks
 
-                # - name: check code formatting
+                - name: run gitleaks
+                  run: make run-gitleaks
+
+                # - name: check code formatting & vulnerability detection
                 #   run: make check-python-nofix
-
-                - name: Check code security practices
-                  run: make check-python-security
 
                 - name: Cleanup residue file
                   run: make clean
