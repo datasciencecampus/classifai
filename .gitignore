@@ -101,7 +101,7 @@ ipython_config.py
 # NOTE: in classifAI_API we are choosing to version control the pyproject.toml, and allow
 #       users / developers to create their own virtual environments with poetry / uv from that
 #       instead. This substantially cuts down on merge conflicts for stale Pull Requests.
-uv.lock
+# uv.lock
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.

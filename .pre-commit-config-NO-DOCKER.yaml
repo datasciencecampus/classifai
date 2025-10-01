@@ -53,13 +53,3 @@ repos:
         name: scan code with bandit
         entry: make check-python-security
         language: system
-
-      - id: setup-gitleaks
-        name: Grab the gitleaks Docker image
-        entry: make setup-gitleaks
-        language: system
-
-      - id: run-gitleaks
-        name: Check commits for secrets, using gitleaks Docker image
-        entry: make run-gitleaks
-        language: system
