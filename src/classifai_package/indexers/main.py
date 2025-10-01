@@ -101,14 +101,10 @@ class VectorStore:
         self.output_dir = output_dir
 
         if self.data_type not in ["csv", "excel"]:
-            raise ValueError(
-                "Data type must be one of ['csv'] (more file types added in later update!)"
-            )
+            raise ValueError("Data type must be one of ['csv'] (more file types added in later update!)")
 
         if self.output_dir is None:
-            logging.info(
-                "No output directory specified, attempting to use input file name as output folder name."
-            )
+            logging.info("No output directory specified, attempting to use input file name as output folder name.")
 
             # Normalize the file name to ensure it doesn't include relative paths or extensions
             normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
@@ -156,7 +152,6 @@ class VectorStore:
             Exception: If an error occurs while saving the metadata file.
         """
         try:
-
             # Convert meta_data types to strings for JSON serialization
             serializable_column_meta_data = {
                 key: value.__name__ if isinstance(value, type) else value
@@ -202,9 +197,7 @@ class VectorStore:
             )
         else:
             logging.error("No file loader implemented for data type %s", self.data_type)
-            raise ValueError(
-                "No file loader implemented for data type {self.data_type}"
-            )
+            raise ValueError("No file loader implemented for data type {self.data_type}")
 
         logging.info("Processing file: %s...\n", self.file_name)
         try:
@@ -213,9 +206,7 @@ class VectorStore:
             for batch_id in tqdm(range(0, len(documents), self.batch_size)):
                 batch = documents[batch_id : (batch_id + self.batch_size)]
                 embeddings.extend(self.vectoriser.transform(batch))
-            self.vectors = self.vectors.with_columns(
-                pl.Series(embeddings).alias("embeddings")
-            )
+            self.vectors = self.vectors.with_columns(pl.Series(embeddings).alias("embeddings"))
         except Exception as e:
             logging.error("Error creating Polars DataFrame")
             raise e
@@ -274,14 +265,10 @@ class VectorStore:
         all_results = []
 
         # Process the queries in batches
-        for i in tqdm(
-            range(0, len(query), batch_size), desc="Processing query batches"
-        ):
+        for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
             # Get the current batch of queries
             query_batch = query[i : i + batch_size]
-            query_ids_batch = (
-                ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
-            )
+            query_ids_batch = ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
 
             # Convert the current batch of queries to vectors
             query_vectors = self.vectoriser.transform(query_batch)
@@ -313,12 +300,8 @@ class VectorStore:
             )
 
             # Get the vector store results for the current batch
-            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
-                ["id", "text", *self.meta_data.keys()]
-            )
-            merged_df = result_df.hstack(ranked_docs).rename(
-                {"id": "doc_id", "text": "doc_text"}
-            )
+            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(["id", "text", *self.meta_data.keys()])
+            merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
             merged_df = merged_df.with_columns(
                 [
                     pl.col("doc_id").cast(str),
@@ -418,9 +401,7 @@ class VectorStore:
         ]
         for col in required_columns:
             if col not in df.columns:
-                raise ValueError(
-                    f"Vectors Parquet file is missing required column: {col}"
-                )
+                raise ValueError(f"Vectors Parquet file is missing required column: {col}")
 
         # check that the vectoriser class matches the one provided
         if metadata["vectoriser_class"] != vectoriser.__class__.__name__:

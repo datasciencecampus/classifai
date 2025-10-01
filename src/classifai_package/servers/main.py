@@ -58,9 +58,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
         for the provided documents, and returns the results in a structured format.
         """
 
-        @app.post(
-            f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint"
-        )
+        @app.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
         async def embedding_endpoint(data: ClassifaiData) -> EmbeddingsResponseBody:
             input_ids = [x.id for x in data.entries]
             documents = [x.description for x in data.entries]
@@ -91,9 +89,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
         the vector store and returns the results in a structured format.
         """
 
-        @app.post(
-            f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint"
-        )
+        @app.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
         async def search_endpoint(
             data: ClassifaiData,
             n_results: Annotated[
@@ -104,13 +100,10 @@ def start_api(vector_stores, endpoint_names, port=8000):
                 ),
             ] = 10,
         ) -> ResultsResponseBody:
-
             input_ids = [x.id for x in data.entries]
             queries = [x.description for x in data.entries]
 
-            query_result = vector_store.search(
-                query=queries, ids=input_ids, n_results=n_results
-            )
+            query_result = vector_store.search(query=queries, ids=input_ids, n_results=n_results)
             ##post processing of the pandas dataframe
             formatted_result = convert_dataframe_to_pydantic_response(
                 df=query_result,

@@ -1,1 +1,1 @@
-from .main import VectorStore
+from .main import VectorStore as VectorStore

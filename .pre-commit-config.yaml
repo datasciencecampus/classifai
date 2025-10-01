@@ -10,8 +10,6 @@ repos:
       - id: check-ast # checks python files for parseable syntax.
       - id: check-vcs-permalinks # ensures that links to files in VCS repos are permalinks.
       - id: debug-statements # checks for print, pdb, and ipdb statements.
-      - id: trailing-whitespace # strip out white spaces at end of lines
-      - id: end-of-file-fixer # ensure newline present at end of file
       - id: check-yaml # checks yaml files for parseable syntax.
       - id: check-json # checks json files for parseable syntax
       - id: check-added-large-files # check for files above certain size (as likely to be data files)

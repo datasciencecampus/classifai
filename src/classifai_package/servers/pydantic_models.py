@@ -20,9 +20,7 @@ class ClassifaiEntry(BaseModel):
 class ClassifaiData(BaseModel):
     """Pydantic object which contains list of many SOC/SIC Classifai Entry pydantic models."""
 
-    entries: list[ClassifaiEntry] = Field(
-        description="array of SOC/SIC Entries to be classified"
-    )
+    entries: list[ClassifaiEntry] = Field(description="array of SOC/SIC Entries to be classified")
 
 
 class ResultEntry(BaseModel):
@@ -66,9 +64,7 @@ class EmbeddingsResponseBody(BaseModel):
     data: list[EmbeddingsList]
 
 
-def convert_dataframe_to_pydantic_response(
-    df: pd.DataFrame, meta_data: dict
-) -> ResultsResponseBody:
+def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) -> ResultsResponseBody:
     """Convert a Pandas DataFrame into a JSON object conforming to the
     ResultsResponseBody Pydantic model.
 
