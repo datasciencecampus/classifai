@@ -66,3 +66,37 @@ This will run a FastAPI based REST-API service on your machine and you can find 
 
 `htpp://127.0.0.1:8000`
 
+---
+
+## Development Setup
+
+1. Clone the repo:
+```bash
+git clone git@github.com:datasciencecampus/classifAI_package.git
+
+cd classifAI_package
+```
+
+2. Set up pre-commit hooks:
+```bash
+make setup-git-hooks
+```
+  (or, if you don't have Docker available)
+```bash
+make setup-git-hooks-no-docker
+```
+
+3. Create / activate the virtual environment:
+```bash
+uv lock
+
+uv sync
+```
+
+And that's you good to go!
+
+During development, you might want to run linters / code vulnerability scans; you can do so at any point via
+```bash
+make check-python
+```
+---
