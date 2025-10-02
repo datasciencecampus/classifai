@@ -22,7 +22,10 @@ from .pydantic_models import (
     EmbeddingsList,
     EmbeddingsResponseBody,
     ResultsResponseBody,
+    RevClassifaiData,
+    RevResultsResponseBody,
     convert_dataframe_to_pydantic_response,
+    convert_dataframe_to_reverse_search_pydantic_response,
 )
 
 
@@ -112,10 +115,46 @@ def start_api(vector_stores, endpoint_names, port=8000):
 
             return formatted_result
 
+    def create_reverse_search_endpoint(app, endpoint_name, vector_store):
+        """Create and register a reverse_search endpoint for a specific vector store.
+
+        Args:
+            app (FastAPI): The FastAPI application instance.
+            endpoint_name (str): The name of the endpoint to be created.
+            vector_store: The vector store object responsible for performing search operations.
+
+        The created endpoint accepts POST requests with input data and a query parameter
+        specifying the number of results to return. It performs a reverse search operation using
+        the vector store and returns the results in a structured format.
+        """
+
+        @app.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
+        def reverse_search_endpoint(
+            data: RevClassifaiData,
+            n_results: Annotated[
+                int,
+                Query(
+                    description="The max number of results to return.",
+                ),
+            ] = 100,
+        ) -> RevResultsResponseBody:
+            input_ids = [x.id for x in data.entries]
+            queries = [x.code for x in data.entries]
+
+            reverse_query_result = vector_store.reverse_search(query=queries, ids=input_ids, n_results=n_results)
+
+            formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
+                df=reverse_query_result,
+                meta_data=vector_stores[endpoint_index_map[endpoint_name]].meta_data,
+                ids=input_ids,
+            )
+            return formatted_result
+
     for endpoint_name, vector_store in zip(endpoint_names, vector_stores, strict=True):
         logging.info("Registering endpoints for: %s", endpoint_name)
         create_embedding_endpoint(app, endpoint_name, vector_store)
         create_search_endpoint(app, endpoint_name, vector_store)
+        create_reverse_search_endpoint(app, endpoint_name, vector_store)
 
     @app.get("/", description="UI accessibility")
     def docs():
