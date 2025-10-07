@@ -16,7 +16,6 @@ ClassifAI_Package is a Python package designed to simplify a pipeline of text em
 
 
 ## How to Contribute
-
 ### Got a question about the package?
 If you have a question about how to use the package, encounter unexpected behavior, or need clarification on something, feel free to [open an issue](#). When asking a question:
 
@@ -40,10 +39,9 @@ When describing the bug it would be beneficial to include:
 - The actual behaviour of the software,
 - How often the bug reproduces
 
-### Requesting an enhancement
-TODO: need to add something here that makes the distinction between reporting a bug/issue and
 
-
+### Suggesting an enhancement
+TODO: need a process here for asking for something to be added to the package, but not actually forking and doing the implementation themselves
 ### Submitting/Suggesting Code Changes
 Whether you want to: suggest a fix to a known bug/issue; want to propose an enhancement; or provide a general beneficial suggestion change to the code base, please follow the below steps to acheive this.
 
@@ -87,4 +85,4 @@ If you have any questions, feel free to reach out by [opening an issue](https://
 
 ---
 
-Thank you for contributing!
+Thank you for contributing! 😊
