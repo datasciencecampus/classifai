@@ -11,23 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    validate-pr-title:
-      if: |
-        github.event_name == 'pull_request' &&
-        (github.event.action == 'opened' ||
-        github.event.action == 'synchronize' ||
-        github.event.action == 'reopened' ||
-        github.event.action == 'edited') &&
-        github.actor != 'dependabot[bot]' &&
-        github.actor != 'dependabot-preview[bot]'
-      runs-on: ubuntu-latest
-      steps:
-        - name: PR Conventional Commit Validation
-          uses: ytanikin/pr-conventional-commits@1.4.0
-          with:
-            task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert"]'
-            custom_labels: '{"feat": "enhancement", "fix": "bug", "docs": "documentation", "test": "test", "ci": "CI/CD", "refactor": "refactor", "perf": "performance", "chore": "chore", "revert": "revert", "wip": "WIP"}'
-            add_scope_label: 'false'
     lint-test:
         if: '! github.event.pull_request.draft'
         name: Lint and Test
@@ -37,6 +20,20 @@ jobs:
             python-version: ["3.12"]
 
         steps:
+            - name: PR Conventional Commit Validation
+              if: |
+                github.event_name == 'pull_request' &&
+                (github.event.action == 'opened' ||
+                github.event.action == 'synchronize' ||
+                github.event.action == 'reopened' ||
+                github.event.action == 'edited') &&
+                github.actor != 'dependabot[bot]' &&
+                github.actor != 'dependabot-preview[bot]'
+              uses: ytanikin/pr-conventional-commits@1.4.0
+              with:
+                task_types: '["feat","fix","docs","test","ci","refactor","perf","chore","revert"]'
+                custom_labels: '{"feat": "enhancement", "fix": "bug", "docs": "documentation", "test": "test", "ci": "CI/CD", "refactor": "refactor", "perf": "performance", "chore": "chore", "revert": "revert", "wip": "WIP"}'
+                add_scope_label: 'false'
             - uses: actions/checkout@v4
             - name: Install uv
               uses: astral-sh/setup-uv@v6
