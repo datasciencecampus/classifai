@@ -1,4 +1,4 @@
-# classifAI_package
+# classifAI_package 
 A generalised, extendable and modular solution for LLM automated / assisted classification.
 
 The main features offered by the package are;
