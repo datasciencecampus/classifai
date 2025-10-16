@@ -292,10 +292,12 @@ class VectorStore:
             query = [query]
 
         if (ids is not None) and not all(
-            isinstance(ids, list),
-            all(isinstance(id, (str, int)) for id in ids),
-            len(ids) == len(query),
-            len(set(ids)) == len(ids),
+            [
+                isinstance(ids, list),
+                all(isinstance(id, (str, int)) for id in ids),
+                len(ids) == len(query),
+                len(set(ids)) == len(ids),
+            ]
         ):
             raise ValueError(
                 "'ids' argument must be a list of unique ints or strings, matching the length of the query argument."
