@@ -20,13 +20,11 @@ class ClassifaiEntry(BaseModel):
 class ClassifaiData(BaseModel):
     """Model for a list of many ClassifaiEntry pydantic models, i.e. several queries to be searched in the VectorStore."""
 
-    entries: list[ClassifaiEntry] = Field(
-        description="array of ClassifAIEntry search queries to be searched in the VectorStore"
-    )
+    entries: list[ClassifaiEntry] = Field(description="array of search queries to be searched in the VectorStore")
 
 
 class ResultEntry(BaseModel):
-    """Atomic model for an single row of vector store result data (i.e. a single vectorstore entry) , includes 'label', 'description', 'score' and 'rank' which are expected as str, str, float and int types respectively."""
+    """Atomic model for a single row of vector store result data (i.e. a single vectorstore entry) , includes 'label', 'description', 'score' and 'rank' which are expected as str, str, float and int types respectively."""
 
     label: str
     description: str
