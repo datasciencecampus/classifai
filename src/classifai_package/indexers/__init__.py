@@ -1,1 +1,7 @@
-from .main import VectorStore as VectorStore
+"""Indexers package."""
+
+from .main import VectorStore
+
+__all__ = [
+    "VectorStore",
+]
