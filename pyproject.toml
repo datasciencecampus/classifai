@@ -1,6 +1,6 @@
 [project]
-name = "classifai_package"
-description = "A minimalist library for exposing parts of classifAI as an extendable microservice"
+name = "classifAI"
+description = "A modular library for text classification, as extendable microservices"
 authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
 readme = "README.md"
 version = "0.0.1"
@@ -27,6 +27,7 @@ dependencies = [
     "fastparquet>=2024.11.0",
     "pyarrow>=20.0.0",
     "tqdm>=4.67.1",
+    "scikit-learn>=1.7.2",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -39,14 +40,14 @@ requires = ["setuptools>=62"]
 build-backend = "setuptools.build_meta"
 
 #[tool.setuptools.dynamic]
-#version = {attr = "classifai_package.__version__"}
+#version = {attr = "classifai.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-classifai_package = []
+classifai = []
 
 [project.optional-dependencies]
 huggingface = [
@@ -80,7 +81,7 @@ gcp = [
     "langchain-google-vertexai>=2.0.16"
 ]
 all = [
-    "classifai_package[huggingface,gcp,ollama]"
+    "classifai[huggingface,gcp,ollama]"
 ]
 
 [tool.ruff]

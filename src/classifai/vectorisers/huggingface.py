@@ -1,6 +1,6 @@
 """A module that provides a wrapper for Huggingface Transformers models to generate text embeddings."""
 
-from classifai_package._optional import check_deps
+from classifai._optional import check_deps
 
 from .base import VectoriserBase
 

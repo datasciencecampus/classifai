@@ -1,4 +1,4 @@
-# classifAI_package 
+# classifAI
 A generalised, extendable and modular solution for LLM automated / assisted classification.
 
 The main features offered by the package are;
@@ -10,7 +10,7 @@ The main features offered by the package are;
 ## Quick Start
 
 #### Installation:
-`pip install git+https://github.com/datasciencecampus/classifAI_package`
+`pip install git+https://github.com/datasciencecampus/classifAI`
 
 #### Given a CSV file with header columns "id, text", a user can execute the following commands:
 
@@ -18,7 +18,7 @@ First create a Vectoriser Model, which allows users to pass text to its `.transf
 ```python
 
 #Create a vectoriser model
-from classifai_package.vectorisers import HuggingfaceVectoriser
+from classifai.vectorisers import HuggingfaceVectoriser
 your_vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 vector = your_vectoriser.transform("ClassifAI_package is the best classification tool ever!")
@@ -28,7 +28,7 @@ print(vector.shape, type(vector))
 
 Then pass the vectoriser and a CSV file to a VectorStore constructor to build a vector database that you can interact with through the class.
 ```python
-from classifai_package.indexers import VectorStore
+from classifai.indexers import VectorStore
 
 your_vector_store = VectorStore(
     file_name="<PATH_TO_YOUR_CSV_FILE>.csv",
@@ -55,7 +55,7 @@ reloaded_vector_store.search("your query about your data goes here")
 
 When you're happy with your VectorStore model, you can start a REST-API service:
 ```python
-from classifai_package.servers import start_api
+from classifai.servers import start_api
 
 start_api(vector_stores=[your_vector_store], endpoint_names=["your_data"], port=8000)
 ```
@@ -72,9 +72,9 @@ This will run a FastAPI based REST-API service on your machine and you can find 
 
 1. Clone the repo:
 ```bash
-git clone git@github.com:datasciencecampus/classifAI_package.git
+git clone git@github.com:datasciencecampus/classifAI.git
 
-cd classifAI_package
+cd classifAI
 ```
 
 2. Set up pre-commit hooks:
