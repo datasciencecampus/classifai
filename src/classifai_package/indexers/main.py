@@ -101,7 +101,7 @@ class VectorStore:
         self.output_dir = output_dir
 
         if self.data_type not in ["csv", "excel"]:
-            raise ValueError("Data type must be one of ['csv'] (more file types added in later update!)")
+            raise ValueError("Data type must be one of ['csv', 'excel']")
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -196,8 +196,7 @@ class VectorStore:
                 dtypes={"id": str, "text": str} | self.meta_data,
             )
         else:
-            logging.error("No file loader implemented for data type %s", self.data_type)
-            raise ValueError("No file loader implemented for data type {self.data_type}")
+            raise ValueError("File type not supported: {self.data_type}. Choose from ['csv', 'excel'].")
 
         logging.info("Processing file: %s...\n", self.file_name)
         try:
