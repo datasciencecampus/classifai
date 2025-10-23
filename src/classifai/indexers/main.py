@@ -22,7 +22,7 @@ Dependencies:
 
 Usage:
 This module is intended to be used with the Vectoriers mdodule and the
-the servers module from ClassifAI package, to created scalable, modular, searchable
+the servers module from ClassifAI, to created scalable, modular, searchable
 vector databases from your own text data.
 """
 

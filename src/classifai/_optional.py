@@ -12,7 +12,7 @@ def _message(req: str | list[str], extra: str | None) -> str:
     if isinstance(req, list):
         req = ", ".join(req)
     return (
-        f"Optional {singular_or_plural} '{req}' is required. Install with: pip install 'classifai_package[{extra}]'."
+        f"Optional {singular_or_plural} '{req}' is required. Install with: pip install 'classifai[{extra}]'."
         if extra
         else ""
     )
