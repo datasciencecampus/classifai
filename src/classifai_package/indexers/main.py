@@ -186,8 +186,9 @@ class VectorStore:
         if self.data_type == "excel":
             self.vectors = pl.read_excel(
                 self.file_name,
+                has_header=True,
                 columns=["id", "text", *self.meta_data.keys()],
-                dtypes={"id": str, "text": str} | self.meta_data,
+                schema_overrides={"id": pl.String, "text": pl.String} | self.meta_data,
             )
         elif self.data_type == "csv":
             self.vectors = pl.read_csv(
