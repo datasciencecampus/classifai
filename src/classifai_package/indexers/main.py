@@ -48,7 +48,7 @@ class VectorStore:
 
     Attributes:
         file_name (str): the original file with the knowledgebase to build the vector store
-        data_type (str): the data type of the original file (curently only csv or excel supported)
+        data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
@@ -100,8 +100,8 @@ class VectorStore:
         self.vectoriser_class = vectoriser.__class__.__name__
         self.output_dir = output_dir
 
-        if self.data_type not in ["csv", "excel"]:
-            raise ValueError("Data type must be one of ['csv'] (more file types added in later update!)")
+        if self.data_type not in ["csv"]:
+            raise ValueError("Data type must be one of ['csv'].")
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -183,21 +183,24 @@ class VectorStore:
         Raises:
             Exception: If an error occurs during file processing or vector generation.
         """
-        if self.data_type == "excel":
-            self.vectors = pl.read_excel(
-                self.file_name,
-                columns=["id", "text", *self.meta_data.keys()],
-                dtypes={"id": str, "text": str} | self.meta_data,
-            )
-        elif self.data_type == "csv":
+        # NOTE: read_excel schema_overrides only allows polars datatypes, not python built-in types
+        #       Excel support disabled until we decide how to handle this.
+        #
+        # if self.data_type == "excel":
+        #     self.vectors = pl.read_excel(
+        #         self.file_name,
+        #         has_header=True,
+        #         columns=["id", "text", *self.meta_data.keys()],
+        #         schema_overrides={"id": pl.String, "text": pl.String} | self.meta_data,
+        #     )
+        if self.data_type == "csv":
             self.vectors = pl.read_csv(
                 self.file_name,
                 columns=["id", "text", *self.meta_data.keys()],
-                dtypes={"id": str, "text": str} | self.meta_data,
+                dtypes=self.meta_data | {"id": str, "text": str},
             )
         else:
-            logging.error("No file loader implemented for data type %s", self.data_type)
-            raise ValueError("No file loader implemented for data type {self.data_type}")
+            raise ValueError("File type not supported: {self.data_type}. Choose from ['csv'].")
 
         logging.info("Processing file: %s...\n", self.file_name)
         try:
