@@ -1,13 +1,14 @@
-# Demo for `classifai_package`
+# Demo for `classifai`
 
-This directory contains a set of Jupyter notebooks designed to help you understand and use `classifai_package` effectively.
+This directory contains a set of Jupyter notebooks designed to help you understand and use `classifai` effectively.
 
 ## Prerequisites
 
-Before running the notebooks, make sure you have `classifai_package` installed. You can install it using pip:
+Before running the notebooks, make sure you have `classifai` installed. You can install it using pip:
 
 ```bash
-pip install git+<TODO upon release>
+pip install "git+<TODO upon release>[huggingface]" 
+# add other optional dependencies if you want to try other vectorisers; e.g. [huggingface,gcp]
 ```
 
 ## Running the Demo
@@ -33,7 +34,7 @@ This demo includes two Jupyter notebooks:
 
 ### 1. `general_workflow_demo.ipynb`
 
-This introduces the core features of `classifai_package`.
+This introduces the core features of `classifai`.
 
 It covers:
 *   Importing the package and its main components.
