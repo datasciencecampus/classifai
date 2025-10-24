@@ -1,6 +1,6 @@
 """A module that provides a wrapper for Huggingface Transformers models to generate text embeddings."""
 
-from classifai_package._optional import check_deps
+from classifai._optional import check_deps
 
 from .base import VectoriserBase
 
@@ -15,20 +15,21 @@ class HuggingFaceVectoriser(VectoriserBase):
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
     """
 
-    def __init__(self, model_name, device=None):
+    def __init__(self, model_name, device=None, model_revision="main"):
         """Initializes the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
             device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
+            model_revision (str, optional): The specific model revision to use. Defaults to "main".
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
         from transformers import AutoModel, AutoTokenizer  # type: ignore
 
         self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModel.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)  # nosec: B615
+        self.model = AutoModel.from_pretrained(model_name, revision=model_revision)  # nosec: B615
 
         # Use GPU if available and not overridden
         if device:

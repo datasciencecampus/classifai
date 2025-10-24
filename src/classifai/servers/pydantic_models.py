@@ -1,80 +1,90 @@
-"""Pydantic Classes to model request and response data for FastAPI RESTful API."""
+# pylint: disable=C0301
+"""Pydantic Classes to model request and response data for ClassifAI FastAPI RESTful API."""
 
-import numpy as np
 import pandas as pd
-from fastapi import HTTPException
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import BaseModel, Extra, Field
 
 
 class ClassifaiEntry(BaseModel):
-    """Model for a single row of data (SOC or SIC row etc), includes 'id' and 'description' which are expected as str type."""
+    """Atomic model for a single row of input data (i.e. a single query input) , includes 'id' and
+    'description' which are expected as str type.
+    """
 
     id: str = Field(examples=["1"])
     description: str = Field(
-        description="User string describing occupation or industry",
-        examples=["A butcher's shop"],
+        description="User string describing inforation need/query",
+        examples=["How to ice skate?"],
     )
+
+
 class ClassifaiData(BaseModel):
-    """Pydantic object which contains list of many SOC/SIC Classifai Entry pydantic models."""
+    """Model for a list of many ClassifaiEntry pydantic models, i.e. several queries to be searched in the VectorStore."""
 
-    entries: list[ClassifaiEntry] = Field(
-        description="array of SOC/SIC Entries to be classified"
-    )
-
+    entries: list[ClassifaiEntry] = Field(description="array of search queries to be searched in the VectorStore")
 
 
 class ResultEntry(BaseModel):
-    """Model for single vdb entry."""
+    """Atomic model for a single row of vector store result data (i.e. a single vectorstore entry) , includes 'label', 'description', 'score' and 'rank' which are expected as str, str, float and int types respectively."""
 
     label: str
     description: str
     score: float
     rank: int
 
-    class Config:
-        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
+    class Config:  # pylint: disable=R0903
+        """Sub-class to permit additional extra metadata (e.g., metadata columns from vectorstore construction)."""
+
+        extra = Extra.allow
 
 
 class ResultsList(BaseModel):
-    """model for ranked list of VDB entries for a single row input."""
+    """Model for a list of many ResultEntry pydantic models, representing a ranked list of vector store search results."""
 
     input_id: str
     response: list[ResultEntry]
 
 
 class ResultsResponseBody(BaseModel):
-    """model for set of ranked lists, for all row entries submmitted."""
+    """Model for set of ranked lists, corresponding to multiple input queries and their own ranked ResultsLists."""
 
     data: list[ResultsList]
 
 
 class RevClassifaiEntry(BaseModel):
-    """Model for a single row of reverse search data (SOC or SIC row etc), includes 'id' and 'code' which are expected as str type."""
+    """Atomic model for a single row of reverse search data includes 'id' and 'code' which are expected as str type."""
+
     id: str = Field(examples=["1"])
-    code: str = Field(examples=["0001"], description="Input code to query vdb for")
+    code: str = Field(
+        examples=["0001"], description="VectorStore row entry 'ID' to be looked up, searched in the 'id' column."
+    )
+
 
 class RevClassifaiData(BaseModel):
-    """Pydantic object which contains list of many SOC/SIC Reverse Search Entry pydantic models."""
+    """Model for a list of many RevClassifaiEntry pydantic models, i.e. several vectorstore row entry codes to be looked up in the VectorStore."""
 
-    entries: list[RevClassifaiEntry] = Field(
-        description="array of Rev SOC/SIC Entries to be classified"
-    )
+    entries: list[RevClassifaiEntry] = Field(description="array of VectorStore row entry IDs to be retrieved")
+
+
 class RevResultEntry(BaseModel):
-    """Model for single reverse query vdb entry"""
-    label:str
-    description:str
+    """Atomic model for single reverse search result entry, includes 'label' and 'description' which are expected as str types."""
+
+    label: str
+    description: str
+
     class Config:
         extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
 
 
 class RevResultsList(BaseModel):
-    """Model for set of matching entries for reverse search."""
+    """Model for a list of many RevResultEntry pydnatic models, representing a list of vector store entries found matching an input RevClassifaiEntry 'id'."""
+
     input_id: str
     response: list[RevResultEntry]
 
-    
+
 class RevResultsResponseBody(BaseModel):
-    """Model for reverse search response"""
+    """Model for set of reverse ranked lists, corresponding to multiple input RevClassifaiEntry and their own RevResultsList."""
+
     data: list[RevResultsList]
 
 
@@ -91,14 +101,16 @@ class EmbeddingsResponseBody(BaseModel):
 
     data: list[EmbeddingsList]
 
+
 def convert_dataframe_to_reverse_search_pydantic_response(
-    df:pd.DataFrame, meta_data:dict, ids: list[str]
+    df: pd.DataFrame, meta_data: dict, ids: list[str]
 ) -> RevResultsResponseBody:
     """Convert a Pandas DataFrame into a JSON object conforming to the RevResultsResponseBody Pydantic model.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing query results.
         meta_data (dict): dictionary of metadata column names mapping to their types.
+        ids (list): list of ids (str) to be reverse-searched.
 
     Returns:
         RevResultsResponseBody: Pydantic model containing the structured response.
@@ -107,13 +119,13 @@ def convert_dataframe_to_reverse_search_pydantic_response(
 
     # Group rows by `query_id`
     for query_id in ids:
-        group_df = df[df['query_id']==query_id]
+        group_df = df[df["query_id"] == query_id]
         if group_df.empty:
             results_list.append(
-            RevResultsList(
-                input_id=query_id,
-                response=[],
-            )
+                RevResultsList(
+                    input_id=query_id,
+                    response=[],
+                )
             )
             continue
 
@@ -124,7 +136,7 @@ def convert_dataframe_to_reverse_search_pydantic_response(
         response_entries = []
         for row in rows_as_dicts:
             # Extract metadata columns dynamically
-            metadata_values = {meta: row[meta] for meta in meta_data.keys()}
+            metadata_values = {meta: row[meta] for meta in meta_data}
 
             # Create a ResultEntry object
             response_entries.append(
@@ -147,9 +159,9 @@ def convert_dataframe_to_reverse_search_pydantic_response(
     response_body = RevResultsResponseBody(data=results_list)
 
     return response_body
-def convert_dataframe_to_pydantic_response(
-    df: pd.DataFrame, meta_data: dict
-) -> ResultsResponseBody:
+
+
+def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) -> ResultsResponseBody:
     """Convert a Pandas DataFrame into a JSON object conforming to the ResultsResponseBody Pydantic model.
 
     Args:
@@ -171,7 +183,7 @@ def convert_dataframe_to_pydantic_response(
         response_entries = []
         for row in rows_as_dicts:
             # Extract metadata columns dynamically
-            metadata_values = {meta: row[meta] for meta in meta_data.keys()}
+            metadata_values = {meta: row[meta] for meta in meta_data}
 
             # Create a ResultEntry object
             response_entries.append(
@@ -187,7 +199,7 @@ def convert_dataframe_to_pydantic_response(
         # Create a ResultsList object for the current query_id
         results_list.append(
             ResultsList(
-                input_id=query_id,
+                input_id=query_id,  # type: ignore[arg-type]
                 response=response_entries,
             )
         )

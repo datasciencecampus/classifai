@@ -43,8 +43,8 @@
                 - name: run gitleaks
                   run: make run-gitleaks
 
-                # - name: check code formatting & vulnerability detection
-                #   run: make check-python-nofix
+                - name: check code formatting & vulnerability detection
+                  run: make check-python-nofix
 
                 - name: Cleanup residue file
                   run: make clean

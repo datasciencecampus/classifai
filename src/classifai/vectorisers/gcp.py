@@ -6,7 +6,7 @@ import logging
 
 import numpy as np
 
-from classifai_package._optional import check_deps
+from classifai._optional import check_deps
 
 from .base import VectoriserBase
 
