@@ -1,3 +1,4 @@
+# pylint: disable=C0301
 """This module provides functionality for creating a vector index from a text file.
 It defines the `VectorStore` class, which is used to model and create vector databases
 from CSV text files using a vectoriser object.
@@ -21,7 +22,7 @@ Dependencies:
 
 Usage:
 This module is intended to be used with the Vectoriers mdodule and the
-the servers module from ClassifAI package, to created scalable, modular, searchable
+the servers module from ClassifAI, to created scalable, modular, searchable
 vector databases from your own text data.
 """
 
@@ -47,7 +48,7 @@ class VectorStore:
 
     Attributes:
         file_name (str): the original file with the knowledgebase to build the vector store
-        data_type (str): the data type of the original file (curently only csv or excel supported)
+        data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
@@ -58,7 +59,7 @@ class VectorStore:
         vectoriser_class (str): the type of vectoriser used to create embeddings
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         file_name,
         data_type,
@@ -88,7 +89,6 @@ class VectorStore:
         Raises:
             ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
         """
-
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
@@ -100,15 +100,11 @@ class VectorStore:
         self.vectoriser_class = vectoriser.__class__.__name__
         self.output_dir = output_dir
 
-        if self.data_type not in ["csv", "excel"]:
-            raise ValueError(
-                "Data type must be one of ['csv'] (more file types added in later update!)"
-            )
+        if self.data_type not in ["csv"]:
+            raise ValueError("Data type must be one of ['csv'].")
 
         if self.output_dir is None:
-            logging.info(
-                "No output directory specified, attempting to use input file name as output folder name."
-            )
+            logging.info("No output directory specified, attempting to use input file name as output folder name.")
 
             # Normalize the file name to ensure it doesn't include relative paths or extensions
             normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
@@ -156,7 +152,6 @@ class VectorStore:
             Exception: If an error occurs while saving the metadata file.
         """
         try:
-
             # Convert meta_data types to strings for JSON serialization
             serializable_column_meta_data = {
                 key: value.__name__ if isinstance(value, type) else value
@@ -188,24 +183,24 @@ class VectorStore:
         Raises:
             Exception: If an error occurs during file processing or vector generation.
         """
-
-        if self.data_type == "excel":
-            self.vectors = pl.read_excel(
-                self.file_name,
-                columns=["id", "text", *self.meta_data.keys()],
-                dtypes={"id": str, "text": str} | self.meta_data,
-            )
-        elif self.data_type == "csv":
+        # NOTE: read_excel schema_overrides only allows polars datatypes, not python built-in types
+        #       Excel support disabled until we decide how to handle this.
+        #
+        # if self.data_type == "excel":
+        #     self.vectors = pl.read_excel(
+        #         self.file_name,
+        #         has_header=True,
+        #         columns=["id", "text", *self.meta_data.keys()],
+        #         schema_overrides={"id": pl.String, "text": pl.String} | self.meta_data,
+        #     )
+        if self.data_type == "csv":
             self.vectors = pl.read_csv(
                 self.file_name,
                 columns=["id", "text", *self.meta_data.keys()],
-                dtypes={"id": str, "text": str} | self.meta_data,
+                dtypes=self.meta_data | {"id": str, "text": str},
             )
         else:
-            logging.error("No file loader implemented for data type %s", self.data_type)
-            raise ValueError(
-                "No file loader implemented for data type {self.data_type}"
-            )
+            raise ValueError("File type not supported: {self.data_type}. Choose from ['csv'].")
 
         logging.info("Processing file: %s...\n", self.file_name)
         try:
@@ -214,9 +209,7 @@ class VectorStore:
             for batch_id in tqdm(range(0, len(documents), self.batch_size)):
                 batch = documents[batch_id : (batch_id + self.batch_size)]
                 embeddings.extend(self.vectoriser.transform(batch))
-            self.vectors = self.vectors.with_columns(
-                pl.Series(embeddings).alias("embeddings")
-            )
+            self.vectors = self.vectors.with_columns(pl.Series(embeddings).alias("embeddings"))
         except Exception as e:
             logging.error("Error creating Polars DataFrame")
             raise e
@@ -258,21 +251,24 @@ class VectorStore:
             query = [query]
 
         # pair query ids with input ids
-        query_ids = ids if ids else list(range(0,len(query)))
-        paired_query = pl.DataFrame({'query_id':query_ids, "id":query})
-
+        query_ids = ids if ids else list(range(0, len(query)))
+        paired_query = pl.DataFrame({"query_id": query_ids, "id": query})
 
         # join query with vdb to get matches
-        joined_table = paired_query.join(self.vectors, on='id', how='inner')
+        joined_table = paired_query.join(self.vectors, on="id", how="inner")
 
         # sort join by id
         sorted_table = joined_table.sort("query_id")
 
         # get formatted table
-        final_table = sorted_table.select([pl.col('query_id').cast(str),
-        pl.col('id').cast(str).alias('doc_id'),
-        pl.col('text').cast(str).alias("doc_text"),
-         *[pl.col(key).cast(value) for key,value in self.meta_data.items()]])
+        final_table = sorted_table.select(
+            [
+                pl.col("query_id").cast(str),
+                pl.col("id").cast(str).alias("doc_id"),
+                pl.col("text").cast(str).alias("doc_text"),
+                *[pl.col(key).cast(value) for key, value in self.meta_data.items()],
+            ]
+        )
 
         return final_table.to_pandas()
 
@@ -290,23 +286,34 @@ class VectorStore:
         Returns:
             pd.DataFrame: DataFrame containing search results with columns for query ID, query text,
                           document ID, document text, rank, score, and metadata.
+
+        Raises:
+            ValueError: Raised if invalid arguments are passed.
         """
         # if the query is a string, convert it to a list
         if isinstance(query, str):
             query = [query]
 
+        if (ids is not None) and not all(
+            [
+                isinstance(ids, list),
+                all(isinstance(id, (str, int)) for id in ids),
+                len(ids) == len(query),
+                len(set(ids)) == len(ids),
+            ]
+        ):
+            raise ValueError(
+                "'ids' argument must be a list of unique ints or strings, matching the length of the query argument."
+            )
+
         # Initialize an empty list to store results from each batch
         all_results = []
 
         # Process the queries in batches
-        for i in tqdm(
-            range(0, len(query), batch_size), desc="Processing query batches"
-        ):
+        for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
             # Get the current batch of queries
             query_batch = query[i : i + batch_size]
-            query_ids_batch = (
-                ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
-            )
+            query_ids_batch = ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
 
             # Convert the current batch of queries to vectors
             query_vectors = self.vectoriser.transform(query_batch)
@@ -338,18 +345,16 @@ class VectorStore:
             )
 
             # Get the vector store results for the current batch
-            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
-                ["id", "text", *self.meta_data.keys()]
-            )
-            merged_df = result_df.hstack(ranked_docs).rename(
-                {"id": "doc_id", "text": "doc_text"}
-            )
+            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(["id", "text", *self.meta_data.keys()])
+            merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
             merged_df = merged_df.with_columns(
                 [
                     pl.col("doc_id").cast(str),
                     pl.col("doc_text").cast(str),
                     pl.col("rank").cast(int),
                     pl.col("score").cast(float),
+                    pl.col("query_id").cast(str),
+                    pl.col("query_text").cast(str),
                 ]
             )
             # Append the current batch results to the list
@@ -440,9 +445,7 @@ class VectorStore:
         ]
         for col in required_columns:
             if col not in df.columns:
-                raise ValueError(
-                    f"Vectors Parquet file is missing required column: {col}"
-                )
+                raise ValueError(f"Vectors Parquet file is missing required column: {col}")
 
         # check that the vectoriser class matches the one provided
         if metadata["vectoriser_class"] != vectoriser.__class__.__name__:

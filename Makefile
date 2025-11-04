@@ -16,10 +16,10 @@ check-python: ## Format the python code (auto fix)
 
 check-python-nofix: ## Format the python code (no fix)
 	uv tool run ruff check .
-	# uv tool run bandit -r src
+	uv tool run bandit -r src
 
 check-python-security: ## security checks only (no-fix)
-	# uv tool run bandit -r src
+	uv tool run bandit -r src
 
 setup-gitleaks: ## Grab the docker image
 	docker pull zricethezav/gitleaks:latest
@@ -32,3 +32,6 @@ setup-git-hooks: ## build & add pre-commit and pre-push hooks
 
 setup-git-hooks-no-docker: ## build & add pre-commit and pre-push hooks
 	pre-commit install --hook-type pre-commit --hook-type pre-push -c ".pre-commit-config-NO-DOCKER.yaml"
+
+build-package: ## Build the package as an installable file locally
+	uv build
