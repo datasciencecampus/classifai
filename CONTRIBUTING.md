@@ -1,25 +1,25 @@
-# Contributing to ClassifAI_package
+# Contributing to ClassifAI
 
-👍🎉 Thank you for considering contributing to the Classifai_Package project! 🎉👍
+👍🎉 Thank you for considering contributing to the Classifai project! 🎉👍
 
 Please take a moment to review these guidelines before you start helping out.
 
 
 ## What should I know before getting started with contributions?
-ClassifAI_Package is a Python package designed to simplify a pipeline of text embedding, vector search, and deployment tasks. We encourage and appreciate contributions, whether it's asking questions about usage, reporting bugs, submitting fixes, or proposing new features. Your involvement helps improve the library and makes it more robust and user-friendly for everyone.😊
+ClassifAI is a Python package designed to simplify a pipeline of text embedding, vector search, and deployment tasks. We encourage and appreciate contributions, whether it's asking questions about usage, reporting bugs, submitting fixes, or proposing new features. Your involvement helps improve the library and makes it more robust and user-friendly for everyone.😊
 
 
 ## Quick links
 - You can find the main repository's [Readme file here](./README.md) for more details about the project (just in case you're very lost).
-- Have a look at existing bugs and issues that are monitored on the [GitHub Issues page](https://github.com/classifAI_package/issues).
-- Check out the [Developer Setup](./README.md#developer-setup) section in the Readme file to quickly set up your environment for development.
+- Have a look at existing bugs and issues that are monitored on the [GitHub Issues page](https://github.com/datasciencecampus/classifai/issues).
+- Check out the <b>Development Setup</b> section in the Readme file to quickly set up your environment for development.
 
 
 ## How to Contribute
 ### Got a question about the package?
 If you have a question about how to use the package, encounter unexpected behavior, or need clarification on something, feel free to [open an issue](#). When asking a question:
 
-- Check the [README file](./README.md), DEMO ipynb [notebooks](./DEMO/), and existing [issues page](https://github.com/classifAI_package/issues) to see if your question has already been answered.
+- Check the [README file](./README.md), DEMO ipynb [notebooks](./DEMO/), and existing [issues page](https://github.com/datasciencecampus/classifai/issues) to see if your question has already been answered.
 - Use a clear and descriptive title for your issue.
 - Provide as much context as possible, including:
   - What you are trying to achieve.
@@ -40,8 +40,9 @@ When describing the bug it would be beneficial to include:
 - How often the bug reproduces
 
 
-### Suggesting an enhancement
-TODO: need a process here for asking for something to be added to the package, but not actually forking and doing the implementation themselves
+### Suggesting an Enhancement
+
+If you have an idea for a new feature or improvement but do not plan to implement it yourself, you can suggest an enhancement by opening an Issue on our [GitHub Issues page](https://github.com/datasciencecampus/classifai/issues). Please use a clear and descriptive title, and provide details about the proposed enhancement, including its potential benefits and any relevant context. While we welcome all suggestions, submitting an Issue does not guarantee that the feature will be implemented. The maintainers will review and prioritize requests based on project goals and available resources.
 ### Submitting/Suggesting Code Changes
 Whether you want to: suggest a fix to a known bug/issue; want to propose an enhancement; or provide a general beneficial suggestion change to the code base, please follow the below steps to acheive this.
 
@@ -71,7 +72,7 @@ Ensure your PR title starts with one of these prefixes to pass validation. Title
 
 
 ### Code Style
-- Follow the existing code style and conventions you can view the the ways in which we format, lint and check our code during the development proces. Read through the [Developer Setup section](./README.md#developer-setup) of the readme.md for information on how to set up correctly.
+- Follow the existing code style and conventions you can view the the ways in which we format, lint and check our code during the development proces. Read through the <b>Development Setup section</b> of the readme.md for information on how to set up correctly.
 - You can find a setup guide in the readme.md detailing our linting and formatting strategy (primarly using Ruff).
 - Ensure your code is well-documented and includes tests where applicable.
 
@@ -81,7 +82,7 @@ We currently do not have a testing pipeline setup for this repository.
 
 
 ## Getting Help
-If you have any questions, feel free to reach out by [opening an issue](https://github.com/classifAI_package/issues).
+If you have any questions, feel free to reach out by [opening an issue](https://github.com/datasciencecampus/classifai/issues).
 
 ---
 
