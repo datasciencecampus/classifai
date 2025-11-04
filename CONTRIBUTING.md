@@ -17,7 +17,7 @@ ClassifAI is a Python package designed to simplify a pipeline of text embedding,
 
 ## How to Contribute
 ### Got a question about ClassifAI?
-If you have a question about how to use ClassifAI, encounter unexpected behavior, or need clarification on something, feel free to [open an issue](#). When asking a question:
+If you have a question about how to use ClassifAI, encounter unexpected behavior, or need clarification on something, feel free to [open an issue](https://github.com/datasciencecampus/classifai/issues). When asking a question:
 
 - Check the [README file](./README.md), DEMO ipynb [notebooks](./DEMO/), and existing [issues page](https://github.com/datasciencecampus/classifai/issues) to see if your question has already been answered.
 - Use a clear and descriptive title for your issue.
