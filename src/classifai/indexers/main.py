@@ -31,6 +31,7 @@ import logging
 import os
 import shutil
 import time
+import uuid
 
 import numpy as np
 import polars as pl
@@ -198,6 +199,9 @@ class VectorStore:
                 self.file_name,
                 columns=["id", "text", *self.meta_data.keys()],
                 dtypes=self.meta_data | {"id": str, "text": str},
+            )
+            self.vectors = self.vectors.with_columns(
+                pl.Series("uuid", [str(uuid.uuid4()) for _ in range(self.vectors.height)])
             )
         else:
             raise ValueError("File type not supported: {self.data_type}. Choose from ['csv'].")
@@ -432,7 +436,7 @@ class VectorStore:
 
         df = pl.read_parquet(
             vectors_path,
-            columns=["id", "text", "embeddings", *deserialized_column_meta_data.keys()],
+            columns=["id", "text", "embeddings", "uuid", *deserialized_column_meta_data.keys()],
         )
         if df.is_empty():
             raise ValueError(f"Vectors Parquet file is empty in {folder_path}")
@@ -441,6 +445,7 @@ class VectorStore:
             "id",
             "text",
             "embeddings",
+            "uuid",
             *deserialized_column_meta_data.keys(),
         ]
         for col in required_columns:
