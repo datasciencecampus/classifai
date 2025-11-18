@@ -12,7 +12,7 @@ vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-
 loaded_vectorstore = VectorStore.from_filespace("./DEMO/testdata", vectoriser)
 
 
-#### look wow! you can search it straight away cause it was laoded back in
+#### look wow! you can search it straight away cause it was loaded back in
 
 print(f"Test search {loaded_vectorstore.search('did the quick brown fox jump over the log?')}")
 
