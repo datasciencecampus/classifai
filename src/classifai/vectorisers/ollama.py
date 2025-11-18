@@ -1,10 +1,12 @@
 """A module for embedding text using a locally-running Ollama server."""
 
 import numpy as np
+from pydantic import ValidationError
 
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
+from .boundaries import TransformInput, TransformOutput
 
 
 class OllamaVectoriser(VectoriserBase):
@@ -40,11 +42,18 @@ class OllamaVectoriser(VectoriserBase):
         """
         import ollama  # type: ignore
 
-        if isinstance(texts, str):
-            texts = [texts]
-
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
+        try:
+            # Validate and normalize input using Pydantic
+            validated_input = TransformInput(texts=texts)
+            texts = validated_input.texts
+        except ValidationError as e:
+            raise ValueError(f"Invalid input: {e}")
 
         response = ollama.embed(model=self.model_name, input=texts)
-        return np.array(response.embeddings)
+
+        try:
+            validated_output = TransformOutput.from_ndarray(np.array(response.embeddings))
+        except ValidationError as e:
+            raise ValueError(f"Invalid output: {e}")
+
+        return validated_output

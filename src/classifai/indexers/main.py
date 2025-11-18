@@ -34,8 +34,12 @@ import time
 import uuid
 
 import numpy as np
+import pandera as pa
 import polars as pl
+from pydantic import ValidationError
 from tqdm.autonotebook import tqdm
+
+from .boundaries import ReverseSearchInput, ReverseSearchOutputSchema, SearchInput, SearchOutputSchema
 
 # Configure logging for your application
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -225,7 +229,7 @@ class VectorStore:
         # This method is a placeholder for future validation logic.
         # Currently, it does not perform any validation.
 
-    def embed(self, text):
+    def embed(self, text: str | list[str]) -> np.ndarray:
         """Converts text into vector embeddings using the vectoriser.
 
         Args:
@@ -250,9 +254,15 @@ class VectorStore:
             pd.DataFrame: DataFrame containing search results with columns for query ID, matching
                           document ID, document text and metadata.
         """
-        # if the query is a string, convert it to a list
-        if isinstance(query, str):
-            query = [query]
+        #  pydantic validation on inputs
+        try:
+            # Validate inputs using Pydantic
+            validated_input = ReverseSearchInput(query=query, ids=ids, n_results=n_results)
+            query = validated_input.query
+            query_ids = validated_input.ids or list(range(len(query)))
+            n_results = validated_input.n_results
+        except ValidationError as e:
+            raise ValueError(f"Invalid input: {e}")
 
         # pair query ids with input ids
         query_ids = ids if ids else list(range(0, len(query)))
@@ -274,7 +284,15 @@ class VectorStore:
             ]
         )
 
-        return final_table.to_pandas()
+        result_df = final_table.to_pandas()
+
+        # Validate the output DataFrame using Pandera
+        try:
+            ReverseSearchOutputSchema.validate(result_df)
+        except pa.errors.SchemaError as e:
+            raise ValueError(f"Output DataFrame validation failed: {e}")
+
+        return result_df
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
@@ -294,21 +312,15 @@ class VectorStore:
         Raises:
             ValueError: Raised if invalid arguments are passed.
         """
-        # if the query is a string, convert it to a list
-        if isinstance(query, str):
-            query = [query]
-
-        if (ids is not None) and not all(
-            [
-                isinstance(ids, list),
-                all(isinstance(id, (str, int)) for id in ids),
-                len(ids) == len(query),
-                len(set(ids)) == len(ids),
-            ]
-        ):
-            raise ValueError(
-                "'ids' argument must be a list of unique ints or strings, matching the length of the query argument."
-            )
+        try:
+            # Validate inputs using Pydantic
+            validated_input = SearchInput(query=query, ids=ids, n_results=n_results, batch_size=batch_size)
+            query = validated_input.query
+            ids = validated_input.ids
+            n_results = validated_input.n_results
+            batch_size = validated_input.batch_size
+        except ValidationError as e:
+            raise ValueError(f"Invalid input: {e}")
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -376,8 +388,17 @@ class VectorStore:
                 *self.meta_data.keys(),
             ]
         )
+
         # Now that polars has been used for processing convert back to pandas for user familiarity
-        return reordered_df.to_pandas()
+        result_df = reordered_df.to_pandas()
+
+        # Validate the output DataFrame using Pandera
+        try:
+            SearchOutputSchema.validate(result_df)
+        except pa.errors.SchemaError as e:
+            raise ValueError(f"Output DataFrame validation failed: {e}")
+
+        return result_df
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):

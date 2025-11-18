@@ -1,8 +1,11 @@
 """A module that provides a wrapper for Huggingface Transformers models to generate text embeddings."""
 
+from pydantic import ValidationError
+
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
+from .boundaries import TransformInput, TransformOutput
 
 
 class HuggingFaceVectoriser(VectoriserBase):
@@ -54,11 +57,12 @@ class HuggingFaceVectoriser(VectoriserBase):
         """
         import torch  # type: ignore
 
-        if isinstance(texts, str):
-            texts = [texts]
-
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
+        try:
+            # Validate and normalize input using Pydantic
+            validated_input = TransformInput(texts=texts)
+            texts = validated_input.texts
+        except ValidationError as e:
+            raise ValueError(f"Invalid input: {e}")
 
         # Tokenise input texts
         inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
@@ -80,4 +84,9 @@ class HuggingFaceVectoriser(VectoriserBase):
         # Convert to numpy array
         embeddings = mean_pooled.cpu().numpy()
 
-        return embeddings
+        try:
+            validated_output = TransformOutput.from_ndarray(embeddings)
+        except ValidationError as e:
+            raise ValueError(f"Invalid output: {e}")
+
+        return validated_output

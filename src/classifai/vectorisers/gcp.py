@@ -5,10 +5,12 @@ from __future__ import annotations
 import logging
 
 import numpy as np
+from pydantic import ValidationError
 
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
+from .boundaries import TransformInput, TransformOutput
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
@@ -70,11 +72,12 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
-        if type(texts) is str:
-            texts = [texts]
-
-        if type(texts) is not list:
-            raise TypeError("Input must be a string or a list of strings.")
+        try:
+            # Validate and normalize input using Pydantic
+            validated_input = TransformInput(texts=texts)
+            texts = validated_input.texts
+        except ValidationError as e:
+            raise ValueError(f"Invalid input: {e}")
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
@@ -85,4 +88,9 @@ class GcpVectoriser(VectoriserBase):
         # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
 
-        return result
+        try:
+            validated_output = TransformOutput.from_ndarray(result)
+        except ValidationError as e:
+            raise ValueError(f"Invalid output: {e}")
+
+        return validated_output
