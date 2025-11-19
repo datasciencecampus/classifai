@@ -48,7 +48,7 @@ jobs:
         run: |
           set -e
           VERSION="${{ inputs.version }}"
-          HEADER_PATTERN="^## \[v${VERSION}\]"
+          HEADER_PATTERN="^## \[(v)?${VERSION}\]"
           echo "Extracting section starting with: $HEADER_PATTERN"
           awk -v header="$HEADER_PATTERN" 'BEGIN{found=0}
             $0 ~ header { if(found){ exit 1 } found=1 }
