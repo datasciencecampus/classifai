@@ -22,6 +22,9 @@ class TransformInput(BaseModel):
         raise ValueError("Input must be a string or a list of strings.")
 
 
+EXPECTED_EMBEDDING_DIMENSION = 2
+
+
 class TransformOutput(BaseModel):
     embeddings: NDArray[np.float32] = Field(..., description="A 2D NumPy array of embeddings.")
     n_texts: int = Field(..., ge=1, description="The number of input texts.")
@@ -32,14 +35,14 @@ class TransformOutput(BaseModel):
     def validate_embeddings(cls, v):
         if not isinstance(v, np.ndarray):
             raise ValueError("Embeddings must be a NumPy array.")
-        if v.ndim != 2:
+        if v.ndim != EXPECTED_EMBEDDING_DIMENSION:
             raise ValueError("Embeddings must be a 2D NumPy array.")
         return v
 
     @classmethod
     def from_ndarray(cls, arr: NDArray[np.float32]) -> "TransformOutput":
         """Create a TransformOutput instance from a NumPy array."""
-        if arr.ndim != 2:
+        if arr.ndim != EXPECTED_EMBEDDING_DIMENSION:
             raise ValueError("Expected a 2D NumPy array.")
         n_texts, embedding_dim = arr.shape
         return cls(embeddings=arr, n_texts=n_texts, embedding_dim=embedding_dim)

@@ -77,7 +77,7 @@ class GcpVectoriser(VectoriserBase):
             validated_input = TransformInput(texts=texts)
             texts = validated_input.texts
         except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}")
+            raise ValueError(f"Invalid input: {e}") from e
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
@@ -91,6 +91,6 @@ class GcpVectoriser(VectoriserBase):
         try:
             validated_output = TransformOutput.from_ndarray(result)
         except ValidationError as e:
-            raise ValueError(f"Invalid output: {e}")
+            raise ValueError(f"Invalid output: {e}") from e
 
         return validated_output

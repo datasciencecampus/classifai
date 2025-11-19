@@ -1,5 +1,5 @@
 import pandera as pa
-from pydantic import BaseModel, Field, ValidationError, root_validator
+from pydantic import BaseModel, Field, root_validator
 
 # Pydantic and Pandera models for input and output validation
 #######

@@ -62,7 +62,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             validated_input = TransformInput(texts=texts)
             texts = validated_input.texts
         except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}")
+            raise ValueError(f"Invalid input: {e}") from e
 
         # Tokenise input texts
         inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
@@ -87,6 +87,6 @@ class HuggingFaceVectoriser(VectoriserBase):
         try:
             validated_output = TransformOutput.from_ndarray(embeddings)
         except ValidationError as e:
-            raise ValueError(f"Invalid output: {e}")
+            raise ValueError(f"Invalid output: {e}") from e
 
         return validated_output

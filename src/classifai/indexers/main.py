@@ -262,7 +262,7 @@ class VectorStore:
             query_ids = validated_input.ids or list(range(len(query)))
             n_results = validated_input.n_results
         except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}")
+            raise ValueError(f"Invalid input: {e}") from e
 
         # pair query ids with input ids
         query_ids = ids if ids else list(range(0, len(query)))
@@ -290,7 +290,7 @@ class VectorStore:
         try:
             ReverseSearchOutputSchema.validate(result_df)
         except pa.errors.SchemaError as e:
-            raise ValueError(f"Output DataFrame validation failed: {e}")
+            raise ValueError(f"Output DataFrame validation failed: {e}") from e
 
         return result_df
 
@@ -320,7 +320,7 @@ class VectorStore:
             n_results = validated_input.n_results
             batch_size = validated_input.batch_size
         except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}")
+            raise ValueError(f"Invalid input: {e}") from e
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -396,7 +396,7 @@ class VectorStore:
         try:
             SearchOutputSchema.validate(result_df)
         except pa.errors.SchemaError as e:
-            raise ValueError(f"Output DataFrame validation failed: {e}")
+            raise ValueError(f"Output DataFrame validation failed: {e}") from e
 
         return result_df
 

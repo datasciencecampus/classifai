@@ -47,13 +47,13 @@ class OllamaVectoriser(VectoriserBase):
             validated_input = TransformInput(texts=texts)
             texts = validated_input.texts
         except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}")
+            raise ValueError(f"Invalid input: {e}") from e
 
         response = ollama.embed(model=self.model_name, input=texts)
 
         try:
             validated_output = TransformOutput.from_ndarray(np.array(response.embeddings))
         except ValidationError as e:
-            raise ValueError(f"Invalid output: {e}")
+            raise ValueError(f"Invalid output: {e}") from e
 
         return validated_output
