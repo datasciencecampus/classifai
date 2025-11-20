@@ -48,16 +48,14 @@ jobs:
         run: |
           set -e
           VERSION="${{ inputs.version }}"
-          HEADER_PATTERN="^## \[(v)?${VERSION}\]"
-          echo "Extracting section starting with: $HEADER_PATTERN"
-          awk -v header="$HEADER_PATTERN" 'BEGIN{found=0}
-            $0 ~ header { if(found){ exit 1 } found=1 }
-            found {
-              if($0 ~ /^## \[/ && $0 !~ header){ exit }
-              print $0
-            }
+          awk -v ver="$VERSION" '
+          $0 ~ ("^## \\[v?" ver "\\]") {flag=1}
+          /^## \[/{
+              if (flag && $0 !~ ("^## \\[v?" ver "\\]")) exit
+          }
+          flag
           ' CHANGELOG.md > raw_release_notes.md || {
-            echo "Failed to extract changelog section" >&2; exit 1; }
+          echo "Failed to extract changelog section" >&2; exit 1; }
           # Trim trailing blank lines
           awk 'NF{p=1} p' raw_release_notes.md > release_notes.md
           echo "Extracted release notes:"; cat release_notes.md
@@ -96,7 +94,7 @@ jobs:
       - name: Commit version bump
         run: |
           git add pyproject.toml
-          git commit -m "Bump version to ${{ inputs.version }}"
+          git commit --allow-empty -m "Bump version to ${{ inputs.version }}"
           git push
 
       - name: Download extracted release notes
@@ -130,6 +128,9 @@ jobs:
           python-version: "3.12"
       - name: Install uv
         uses: astral-sh/setup-uv@v7
+      - name: Bump version with uv
+        run: |
+          uv version ${{ inputs.version }}
       - name: Build
         run: |
           uv build
