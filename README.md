@@ -15,6 +15,12 @@ The main features offered by the package are;
 pip install git+https://github.com/datasciencecampus/classifAI
 ```
 
+Or to install the built wheel
+
+```bash
+pip install git+https://github.com/datasciencecampus/classifAI/releases/download/v0.1.0/classifai-0.1.0-py3-none-any.whl
+```
+
 #### Given a CSV file with header columns "id, text", a user can execute the following commands:
 
 First create a Vectoriser Model, which allows users to pass text to its `.transform()` method to convert the text to a vector.
