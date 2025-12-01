@@ -50,6 +50,11 @@ class ResultsResponseBody(BaseModel):
     data: list[ResultsList]
 
 
+class RagResponseBody(BaseModel):
+    agent_response: str
+    ranking: ResultsResponseBody
+
+
 class RevClassifaiEntry(BaseModel):
     """Atomic model for a single row of reverse search data includes 'id' and 'code' which are expected as str type."""
 

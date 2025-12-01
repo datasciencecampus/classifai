@@ -37,7 +37,7 @@ The XML structure for the context and user query will be as follows:
 </Context>
 
 <UserQuery>
-    <Text>[The user’s query will be inserted here]</Text>
+    <Text>[The user query will be inserted here]</Text>
 </UserQuery>
 
 Your task is to generate a response based on the context and the user query."""
@@ -75,7 +75,7 @@ The XML structure for the context and user query will be as follows:
 </Context>
 
 <UserQuery>
-    <Text>[The user’s query will be inserted here]</Text>
+    <Text>[The user query will be inserted here]</Text>
 </UserQuery>
 
 Your task is to analyze the context and the user query, and return the classification in the required structured format."""
@@ -102,8 +102,7 @@ CLASSIFICATION_RESPONSE_SCHEMA = {
 
 
 def format_prompt_with_retrieval_results(user_query: str, df: pd.DataFrame) -> str:
-    """
-    Generates a formatted XML prompt for the generative model.
+    """Generates a formatted XML prompt for the generative model.
 
     Args:
         user_query (str): The user's query.
