@@ -2,9 +2,9 @@ import numpy as np
 from numpy.typing import NDArray
 from pydantic import BaseModel, Field, field_validator
 
-##
-# The following is the Pydantic Base Model for all pre-set vectorisers input and output data which must be adhered to:
-##
+####
+# Input and output models for transform method that is common between the different vectorisers
+####
 
 
 class TransformInput(BaseModel):
@@ -27,8 +27,6 @@ EXPECTED_EMBEDDING_DIMENSION = 2
 
 class TransformOutput(BaseModel):
     embeddings: NDArray[np.float32] = Field(..., description="A 2D NumPy array of embeddings.")
-    n_texts: int = Field(..., ge=1, description="The number of input texts.")
-    embedding_dim: int = Field(..., ge=1, description="The dimensionality of the embeddings.")
 
     @field_validator("embeddings")
     @classmethod
@@ -39,10 +37,39 @@ class TransformOutput(BaseModel):
             raise ValueError("Embeddings must be a 2D NumPy array.")
         return v
 
-    @classmethod
-    def from_ndarray(cls, arr: NDArray[np.float32]) -> "TransformOutput":
-        """Create a TransformOutput instance from a NumPy array."""
-        if arr.ndim != EXPECTED_EMBEDDING_DIMENSION:
-            raise ValueError("Expected a 2D NumPy array.")
-        n_texts, embedding_dim = arr.shape
-        return cls(embeddings=arr, n_texts=n_texts, embedding_dim=embedding_dim)
+
+####
+# Class initialization input models for each vectoriser
+####
+
+
+class GcpVectoriserInput(BaseModel):
+    project_id: str = Field(description="The Google Cloud project ID.")
+    location: str = Field(
+        description="The location of the GenAI API.",
+    )
+    model_name: str = Field(
+        description="The name of the embedding model.",
+    )
+    task_type: str = Field(
+        description="The embedding model task type.",
+    )
+
+
+class HuggingFaceVectoriserInput(BaseModel):
+    model_name: str = Field(
+        description="The name of the Hugging Face embedding model.",
+    )
+    device: str | None = Field(
+        default=None,
+        description="The device to use for computation ('cpu', 'cuda', or None).",
+    )
+    task_type: str = Field(
+        model_revision="Essentially, the tag version of model as uploaded to Hugging Face.",
+    )
+
+
+class OllamaVectoriserInput(BaseModel):
+    model_name: str = Field(
+        description="The name of the local Ollama model to use.",
+    )
