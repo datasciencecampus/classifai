@@ -10,11 +10,21 @@ The main features offered by the package are;
 ## Quick Start
 
 #### Installation:
-`pip install git+https://github.com/datasciencecampus/classifAI`
+
+```bash
+pip install git+https://github.com/datasciencecampus/classifAI
+```
+
+Or to install the built wheel
+
+```bash
+pip install git+https://github.com/datasciencecampus/classifAI/releases/download/v0.1.0/classifai-0.1.0-py3-none-any.whl
+```
 
 #### Given a CSV file with header columns "id, text", a user can execute the following commands:
 
 First create a Vectoriser Model, which allows users to pass text to its `.transform()` method to convert the text to a vector.
+
 ```python
 
 #Create a vectoriser model
@@ -27,6 +37,7 @@ print(vector.shape, type(vector))
 ```
 
 Then pass the vectoriser and a CSV file to a VectorStore constructor to build a vector database that you can interact with through the class.
+
 ```python
 from classifai.indexers import VectorStore
 
@@ -64,7 +75,7 @@ This will run a FastAPI based REST-API service on your machine and you can find 
 
 `http://localhost:8000`
 
-`htpp://127.0.0.1:8000`
+`http://127.0.0.1:8000`
 
 ---
 
@@ -99,4 +110,5 @@ During development, you might want to run linters / code vulnerability scans; yo
 ```bash
 make check-python
 ```
+
 ---

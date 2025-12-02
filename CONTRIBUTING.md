@@ -70,6 +70,8 @@ We currently use _conventional commits_ in our GitHub workflows. This means that
 
 Ensure your PR title starts with one of these prefixes to pass validation. Titles that do not conform will fail the CI/CD pipeline.
 
+We ensure a linear commit history by using squash merges for pull requests. This means that all commits from a feature branch will be combined into a single commit when merged into the main branch. 
+
 
 ### Code Style
 - Follow the existing code style and conventions you can view the the ways in which we format, lint and check our code during the development proces. Read through the <b>Development Setup section</b> of the readme.md for information on how to set up correctly.
@@ -83,6 +85,16 @@ We currently do not have a testing pipeline setup for this repository.
 
 ## Getting Help
 If you have any questions, feel free to reach out by [opening an issue](https://github.com/datasciencecampus/classifai/issues).
+
+## Release Process (project maintainers only)
+
+The project team decides when to make a new version release. 
+The project follows Semantic Versioning principles. To release a new version, the maintainers will:
+
+1. Ensure that all changes intended for the new version are merged into the main branch.
+2. Create a new version entry in the `CHANGELOG.md` file.
+3. Run the manually dispatched GitHub Action workflow `Release` to validate the changelog and create a new GitHub release.
+
 
 ---
 
