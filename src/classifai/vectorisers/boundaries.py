@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 class TransformInput(BaseModel):
     texts: str | list[str] = Field(..., description="The input text(s) to embed.")
 
-    @field_validator("texts")
+    @field_validator("texts", mode="after")
     @classmethod
     def validate_and_normalize_texts(cls, v):
         if isinstance(v, str):
@@ -45,15 +45,6 @@ class TransformOutput(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-    # @field_validator("embeddings")
-    # @classmethod
-    # def validate_embeddings(cls, v):
-    #     if not isinstance(v, np.ndarray):
-    #         raise ValueError("Embeddings must be a NumPy array.")
-    #     if v.ndim != EXPECTED_EMBEDDING_DIMENSION:
-    #         raise ValueError("Embeddings must be a 2D NumPy array.")
-    #     return v
 
 
 ####

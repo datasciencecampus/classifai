@@ -34,12 +34,17 @@ import time
 import uuid
 
 import numpy as np
-import pandera as pa
 import polars as pl
-from pydantic import ValidationError
 from tqdm.autonotebook import tqdm
 
-from .boundaries import ReverseSearchInput, ReverseSearchOutputSchema, SearchInput, SearchOutputSchema
+from .boundaries import (
+    FromFileSpaceInput,
+    ReverseSearchInput,
+    ReverseSearchOutputSchema,
+    SearchInput,
+    SearchOutputSchema,
+    VectorStoreInput,
+)
 
 # Configure logging for your application
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -94,19 +99,27 @@ class VectorStore:
         Raises:
             ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
         """
-        self.file_name = file_name
-        self.data_type = data_type
-        self.vectoriser = vectoriser
-        self.batch_size = batch_size
-        self.meta_data = meta_data if meta_data is not None else {}
+        # Run the Pydantic validator first which will raise errors if the inputs are invalid
+        validated_inputs = VectorStoreInput(
+            file_name=file_name,
+            data_type=data_type,
+            vectoriser=vectoriser,
+            batch_size=batch_size,
+            meta_data=meta_data,
+            output_dir=output_dir,
+            overwrite=overwrite,
+        )
+
+        self.file_name = validated_inputs.file_name
+        self.data_type = validated_inputs.data_type
+        self.vectoriser = validated_inputs.vectoriser
+        self.batch_size = validated_inputs.batch_size
+        self.meta_data = validated_inputs.meta_data
+        self.output_dir = validated_inputs.output_dir
         self.vectors = None
         self.vector_shape = None
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
-        self.output_dir = output_dir
-
-        if self.data_type not in ["csv"]:
-            raise ValueError("Data type must be one of ['csv'].")
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -254,19 +267,11 @@ class VectorStore:
             pd.DataFrame: DataFrame containing search results with columns for query ID, matching
                           document ID, document text and metadata.
         """
-        #  pydantic validation on inputs
-        try:
-            # Validate inputs using Pydantic
-            validated_input = ReverseSearchInput(query=query, ids=ids, n_results=n_results)
-            query = validated_input.query
-            query_ids = validated_input.ids or list(range(len(query)))
-            n_results = validated_input.n_results
-        except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}") from e
+        # Run the Pydantic validator first which will raise errors if the inputs are invalid
+        validated_input = ReverseSearchInput(query=query, ids=ids, n_results=n_results)
 
         # pair query ids with input ids
-        query_ids = ids if ids else list(range(0, len(query)))
-        paired_query = pl.DataFrame({"query_id": query_ids, "id": query})
+        paired_query = pl.DataFrame({"query_id": validated_input.ids, "id": validated_input.query})
 
         # join query with vdb to get matches
         joined_table = paired_query.join(self.vectors, on="id", how="inner")
@@ -286,13 +291,10 @@ class VectorStore:
 
         result_df = final_table.to_pandas()
 
-        # Validate the output DataFrame using Pandera
-        try:
-            ReverseSearchOutputSchema.validate(result_df)
-        except pa.errors.SchemaError as e:
-            raise ValueError(f"Output DataFrame validation failed: {e}") from e
+        # Validate the output before returning which will raise errors if the outputs are invalid
+        validated_ouput = ReverseSearchOutputSchema.validate(result_df)
 
-        return result_df
+        return validated_ouput
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
@@ -312,24 +314,23 @@ class VectorStore:
         Raises:
             ValueError: Raised if invalid arguments are passed.
         """
-        try:
-            # Validate inputs using Pydantic
-            validated_input = SearchInput(query=query, ids=ids, n_results=n_results, batch_size=batch_size)
-            query = validated_input.query
-            ids = validated_input.ids
-            n_results = validated_input.n_results
-            batch_size = validated_input.batch_size
-        except ValidationError as e:
-            raise ValueError(f"Invalid input: {e}") from e
+        # Run the Pydantic validator first which will raise errors if the inputs are invalid
+        validated_input = SearchInput(query=query, ids=ids, n_results=n_results, batch_size=batch_size)
 
         # Initialize an empty list to store results from each batch
         all_results = []
 
         # Process the queries in batches
-        for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
+        for i in tqdm(
+            range(0, len(validated_input.query), validated_input.batch_size), desc="Processing query batches"
+        ):
             # Get the current batch of queries
-            query_batch = query[i : i + batch_size]
-            query_ids_batch = ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
+            query_batch = validated_input.query[i : i + validated_input.batch_size]
+            query_ids_batch = (
+                validated_input.ids[i : i + validated_input.batch_size]
+                if validated_input.ids
+                else list(range(i, i + len(validated_input.query_batch)))
+            )
 
             # Convert the current batch of queries to vectors
             query_vectors = self.vectoriser.transform(query_batch)
@@ -338,7 +339,7 @@ class VectorStore:
             cosine = query_vectors @ self.vectors["embeddings"].to_numpy().T
 
             # Get the top n_results indices for each query in the batch
-            idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
+            idx = np.argpartition(cosine, -validated_input.n_results, axis=1)[:, -validated_input.n_results :]
 
             # Sort top n_results indices by their scores in descending order
             idx_sorted = np.zeros_like(idx)
@@ -353,9 +354,9 @@ class VectorStore:
             # Build a DataFrame for the current batch results
             result_df = pl.DataFrame(
                 {
-                    "query_id": np.repeat(query_ids_batch, n_results),
-                    "query_text": np.repeat(query_batch, n_results),
-                    "rank": np.tile(np.arange(n_results), len(query_batch)),
+                    "query_id": np.repeat(query_ids_batch, validated_input.n_results),
+                    "query_text": np.repeat(query_batch, validated_input.n_results),
+                    "rank": np.tile(np.arange(validated_input.n_results), len(query_batch)),
                     "score": scores.flatten(),
                 }
             )
@@ -392,11 +393,8 @@ class VectorStore:
         # Now that polars has been used for processing convert back to pandas for user familiarity
         result_df = reordered_df.to_pandas()
 
-        # Validate the output DataFrame using Pandera
-        try:
-            SearchOutputSchema.validate(result_df)
-        except pa.errors.SchemaError as e:
-            raise ValueError(f"Output DataFrame validation failed: {e}") from e
+        # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
+        result_df = SearchOutputSchema.validate(result_df)
 
         return result_df
 
@@ -422,10 +420,13 @@ class VectorStore:
         Raises:
             ValueError: If required files or metadata keys are missing, or if the vectoriser class does not match.
         """
+        # Run the Pydantic validator first which will raise errors if the inputs are invalid
+        validated_inputs = FromFileSpaceInput(folder_path=folder_path, vectoriser=vectoriser)
+
         # check that the metadataq, vectoiser info and parquet exist
         # load the metadata file
 
-        metadata_path = os.path.join(folder_path, "metadata.json")
+        metadata_path = os.path.join(validated_inputs.folder_path, "metadata.json")
         if not os.path.exists(metadata_path):
             raise ValueError(f"Metadata file not found in {folder_path}")
         with open(metadata_path, encoding="utf-8") as f:
@@ -460,7 +461,7 @@ class VectorStore:
             columns=["id", "text", "embeddings", "uuid", *deserialized_column_meta_data.keys()],
         )
         if df.is_empty():
-            raise ValueError(f"Vectors Parquet file is empty in {folder_path}")
+            raise ValueError(f"Vectors Parquet file is empty in {validated_inputs.folder_path}")
         # check parquet file has the correct columns
         required_columns = [
             "id",
@@ -483,7 +484,7 @@ class VectorStore:
         vector_store = object.__new__(cls)
         vector_store.file_name = None
         vector_store.data_type = None
-        vector_store.vectoriser = vectoriser
+        vector_store.vectoriser = validated_inputs.vectoriser
         vector_store.batch_size = None
         vector_store.meta_data = deserialized_column_meta_data
         vector_store.vectors = df
