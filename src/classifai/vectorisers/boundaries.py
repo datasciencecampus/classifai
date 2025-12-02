@@ -26,16 +26,34 @@ EXPECTED_EMBEDDING_DIMENSION = 2
 
 
 class TransformOutput(BaseModel):
-    embeddings: NDArray[np.float32] = Field(..., description="A 2D NumPy array of embeddings.")
+    embeddings: NDArray | list[list[float]] = Field(..., description="A 2D array of embeddings.")
 
     @field_validator("embeddings")
     @classmethod
     def validate_embeddings(cls, v):
-        if not isinstance(v, np.ndarray):
-            raise ValueError("Embeddings must be a NumPy array.")
-        if v.ndim != EXPECTED_EMBEDDING_DIMENSION:
-            raise ValueError("Embeddings must be a 2D NumPy array.")
-        return v
+        if isinstance(v, np.ndarray):
+            if v.ndim != EXPECTED_EMBEDDING_DIMENSION:
+                raise ValueError("Embeddings must be a 2D NumPy array.")
+            return v
+        elif isinstance(v, list):
+            arr = np.array(v)
+            if arr.ndim != EXPECTED_EMBEDDING_DIMENSION:
+                raise ValueError("Embeddings must be a 2D array.")
+            return arr
+        else:
+            raise ValueError("Embeddings must be a NumPy array or a 2D list.")
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    # @field_validator("embeddings")
+    # @classmethod
+    # def validate_embeddings(cls, v):
+    #     if not isinstance(v, np.ndarray):
+    #         raise ValueError("Embeddings must be a NumPy array.")
+    #     if v.ndim != EXPECTED_EMBEDDING_DIMENSION:
+    #         raise ValueError("Embeddings must be a 2D NumPy array.")
+    #     return v
 
 
 ####
@@ -64,8 +82,8 @@ class HuggingFaceVectoriserInput(BaseModel):
         default=None,
         description="The device to use for computation ('cpu', 'cuda', or None).",
     )
-    task_type: str = Field(
-        model_revision="Essentially, the tag version of model as uploaded to Hugging Face.",
+    model_revision: str = Field(
+        description="The specific model revision to use.",
     )
 
 
