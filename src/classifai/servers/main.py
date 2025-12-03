@@ -166,4 +166,4 @@ def start_api(vector_stores, endpoint_names, port=8000):
         start_page = RedirectResponse(url="/docs")
         return start_page
 
-    uvicorn.run(app, port=port, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")  # pylint: disable=all
