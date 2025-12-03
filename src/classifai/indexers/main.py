@@ -291,7 +291,7 @@ class VectorStore:
 
         result_df = final_table.to_pandas()
 
-        # Validate the output before returning which will raise errors if the outputs are invalid
+        # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
         validated_ouput = ReverseSearchOutputSchema.validate(result_df)
 
         return validated_ouput
