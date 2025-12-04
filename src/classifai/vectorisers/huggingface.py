@@ -3,6 +3,7 @@
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
+from .boundaries import HuggingFaceVectoriserInput, TransformInput, TransformOutput
 
 
 class HuggingFaceVectoriser(VectoriserBase):
@@ -27,13 +28,22 @@ class HuggingFaceVectoriser(VectoriserBase):
         import torch  # type: ignore
         from transformers import AutoModel, AutoTokenizer  # type: ignore
 
-        self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)  # nosec: B615
-        self.model = AutoModel.from_pretrained(model_name, revision=model_revision)  # nosec: B615
+        # Run the Pydantic validator first which will raise errors if the inputs are invalid
+        validated_inputs = HuggingFaceVectoriserInput(
+            model_name=model_name,
+            device=device,
+            model_revision=model_revision,
+        )
+
+        self.model_name = validated_inputs.model_name
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            validated_inputs.model_name, revision=validated_inputs.model_revision
+        )  # nosec: B615
+        self.model = AutoModel.from_pretrained(validated_inputs.model_name, revision=validated_inputs.model_revision)  # nosec: B615
 
         # Use GPU if available and not overridden
-        if device:
-            self.device = device
+        if validated_inputs.device:
+            self.device = validated_inputs.device
         else:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -54,14 +64,12 @@ class HuggingFaceVectoriser(VectoriserBase):
         """
         import torch  # type: ignore
 
-        if isinstance(texts, str):
-            texts = [texts]
-
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
+        validated_inputs = TransformInput(texts=texts)
 
         # Tokenise input texts
-        inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
+        inputs = self.tokenizer(validated_inputs.texts, padding=True, truncation=True, return_tensors="pt").to(
+            self.device
+        )
 
         # Get model outputs
         with torch.no_grad():
@@ -80,4 +88,7 @@ class HuggingFaceVectoriser(VectoriserBase):
         # Convert to numpy array
         embeddings = mean_pooled.cpu().numpy()
 
-        return embeddings
+        # Validate the output before returning which will raise errors if the outputs are invalid
+        validated_output = TransformOutput(embeddings=embeddings)
+
+        return validated_output.embeddings
