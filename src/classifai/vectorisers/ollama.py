@@ -33,7 +33,7 @@ class OllamaVectoriser(VectoriserBase):
 
         self.model_name = validated_inputs.model_name
 
-        self.hooks = hooks
+        self.hooks = {} if hooks is None else hooks
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the Huggingface model.
@@ -50,9 +50,9 @@ class OllamaVectoriser(VectoriserBase):
         import ollama  # type: ignore
 
         validated_input = TransformInput(texts=texts)
-        if self.hooks["transform_preprocess"]:
+        if "transform_preprocess" in self.hooks:
             # pass the validated_outputs to the user defined function
-            hook_output = self.subroutes["transform_postprocess"](validated_input)
+            hook_output = self.hooks["transform_postprocess"](validated_input)
             # revalidate the output of the user defined function
             validated_input = TransformInput(hook_output)
 
@@ -60,7 +60,7 @@ class OllamaVectoriser(VectoriserBase):
 
         # Validate the output before returning which will raise errors if the outputs are invalid
         validated_output = TransformOutput(embeddings=np.array(response.embeddings))
-        if self.hooks["transform_postprocess"]:
+        if "transform_postprocess" in self.hooks:
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_output)
             # revalidate the output of the user defined function

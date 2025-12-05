@@ -70,7 +70,7 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
 
-        self.hooks = hooks
+        self.hooks = {} if hooks is None else hooks
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
@@ -88,7 +88,7 @@ class GcpVectoriser(VectoriserBase):
         validated_input = TransformInput(texts=texts)
         if self.hooks["transform_preprocess"]:
             # pass the validated_input to the user defined function
-            hook_output = self.subroutes["transform_postprocess"](validated_input)
+            hook_output = self.hooks["transform_postprocess"](validated_input)
             # revalidate the output of the user defined function
             validated_input = TransformInput(hook_output)
 

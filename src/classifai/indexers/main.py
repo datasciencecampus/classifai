@@ -123,7 +123,7 @@ class VectorStore:
         self.vector_shape = None
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
-        self.hooks = hooks
+        self.hooks = {} if hooks is None else hooks
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -330,7 +330,7 @@ class VectorStore:
         """
         # Run the Pydantic validator first which will raise errors if the inputs are invalid
         validated_input = SearchInput(query=query, ids=ids, n_results=n_results, batch_size=batch_size)
-        if self.hooks["search_preprocess"]:
+        if "search_preprocess" in self.hooks:
             # pass the validated_input to the user defined function
             hook_output = self.hooks["search_preprocess"](validated_input)
             # revalidate the output of the user defined function
@@ -414,7 +414,7 @@ class VectorStore:
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
         result_df = SearchOutputSchema.validate(result_df)
-        if self.hooks["search_postprocess"]:
+        if "search_postprocess" in self.hooks:
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["search_postprocess"](result_df)
             # revalidate the output of the user defined function

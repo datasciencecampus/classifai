@@ -52,7 +52,7 @@ class HuggingFaceVectoriser(VectoriserBase):
         self.model.to(self.device)
         self.model.eval()
 
-        self.hooks = hooks
+        self.hooks = {} if hooks is None else hooks
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the Huggingface model.
@@ -71,7 +71,8 @@ class HuggingFaceVectoriser(VectoriserBase):
         validated_input = TransformInput(texts=texts)
         if self.hooks["transform_preprocess"]:
             # pass the validated_outputs to the user defined function
-            hook_output = self.subroutes["transform_postprocess"](validated_input)
+            if "transform_preprocess" in self.hooks:
+                hook_output = self.hooks["transform_preprocess"](validated_input)
             # revalidate the output of the user defined function
             validated_input = TransformInput(hook_output)
 
@@ -99,7 +100,7 @@ class HuggingFaceVectoriser(VectoriserBase):
 
         # Validate the output before returning which will raise errors if the outputs are invalid
         validated_output = TransformOutput(embeddings=embeddings)
-        if self.hooks["transform_postprocess"]:
+        if "transform_postprocess" in self.hooks:
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_output)
             # revalidate the output of the user defined function
