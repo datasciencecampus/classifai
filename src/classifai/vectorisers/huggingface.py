@@ -14,15 +14,17 @@ class HuggingFaceVectoriser(VectoriserBase):
         tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
         model (transformers.PreTrainedModel): The Huggingface model instance.
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
+        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
-    def __init__(self, model_name, device=None, model_revision="main"):
+    def __init__(self, model_name, device=None, model_revision="main", hooks=None):
         """Initializes the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
             device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
             model_revision (str, optional): The specific model revision to use. Defaults to "main".
+            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -50,6 +52,8 @@ class HuggingFaceVectoriser(VectoriserBase):
         self.model.to(self.device)
         self.model.eval()
 
+        self.hooks = hooks
+
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the Huggingface model.
 
@@ -64,10 +68,15 @@ class HuggingFaceVectoriser(VectoriserBase):
         """
         import torch  # type: ignore
 
-        validated_inputs = TransformInput(texts=texts)
+        validated_input = TransformInput(texts=texts)
+        if self.hooks["transform_preprocess"]:
+            # pass the validated_outputs to the user defined function
+            hook_output = self.subroutes["transform_postprocess"](validated_input)
+            # revalidate the output of the user defined function
+            validated_input = TransformInput(hook_output)
 
         # Tokenise input texts
-        inputs = self.tokenizer(validated_inputs.texts, padding=True, truncation=True, return_tensors="pt").to(
+        inputs = self.tokenizer(validated_input.texts, padding=True, truncation=True, return_tensors="pt").to(
             self.device
         )
 
@@ -90,5 +99,10 @@ class HuggingFaceVectoriser(VectoriserBase):
 
         # Validate the output before returning which will raise errors if the outputs are invalid
         validated_output = TransformOutput(embeddings=embeddings)
+        if self.hooks["transform_postprocess"]:
+            # pass the validated_outputs to the user defined function
+            hook_output = self.hooks["transform_postprocess"](validated_output)
+            # revalidate the output of the user defined function
+            validated_output = TransformOutput(hook_output)
 
         return validated_output.embeddings

@@ -22,6 +22,7 @@ class GcpVectoriser(VectoriserBase):
     Attributes:
         model_name (str): The name of the embedding model to use.
         vectoriser (genai.Client): The GenAI client instance for embedding text.
+        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
     def __init__(
@@ -30,6 +31,7 @@ class GcpVectoriser(VectoriserBase):
         location="europe-west2",
         model_name="text-embedding-004",
         task_type="RETRIEVAL_DOCUMENT",
+        hooks=None,
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
@@ -40,6 +42,7 @@ class GcpVectoriser(VectoriserBase):
             task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
+            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Raises:
             RuntimeError: If the GenAI client fails to initialize.
@@ -67,6 +70,8 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
 
+        self.hooks = hooks
+
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
 
@@ -81,6 +86,11 @@ class GcpVectoriser(VectoriserBase):
         """
         # Run the Pydantic validator first which will raise errors if the inputs are invalid
         validated_input = TransformInput(texts=texts)
+        if self.hooks["transform_preprocess"]:
+            # pass the validated_input to the user defined function
+            hook_output = self.subroutes["transform_postprocess"](validated_input)
+            # revalidate the output of the user defined function
+            validated_input = TransformInput(hook_output)
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
@@ -93,5 +103,9 @@ class GcpVectoriser(VectoriserBase):
 
         # Validate the output before returning which will raise errors if the outputs are invalid
         validated_output = TransformOutput(embeddings=result)
-
+        if self.hooks["transform_postprocess"]:
+            # pass the validated_output to the user defined function
+            hook_output = self.hooks["transform_postprocess"](validated_output)
+            # revalidate the output of the user defined function
+            validated_output = TransformOutput(hook_output)
         return validated_output.embeddings

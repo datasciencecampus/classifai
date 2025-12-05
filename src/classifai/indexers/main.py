@@ -67,6 +67,7 @@ class VectorStore:
         vector_shape (int): the dimension of the vectors
         num_vectors (int): how many vectors are in the vector store
         vectoriser_class (str): the type of vectoriser used to create embeddings
+        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
     def __init__(  # noqa: PLR0913
@@ -78,6 +79,7 @@ class VectorStore:
         meta_data=None,
         output_dir=None,
         overwrite=False,
+        hooks=None,
     ):
         """Initializes the VectorStore object by processing the input CSV file and generating
         vector embeddings.
@@ -94,6 +96,7 @@ class VectorStore:
             output_dir (str, optional): The directory where the vector store will be saved.
                                 Defaults to None, where input file name will be used.
             overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
+            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
 
         Raises:
@@ -120,6 +123,7 @@ class VectorStore:
         self.vector_shape = None
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
+        self.hooks = hooks
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -269,6 +273,11 @@ class VectorStore:
         """
         # Run the Pydantic validator first which will raise errors if the inputs are invalid
         validated_input = ReverseSearchInput(query=query, ids=ids, n_results=n_results)
+        if self.hooks["reverse_search_preprocess"]:
+            # pass the validated_input to the user defined function
+            hook_output = self.hooks["reverse_search_preprocess"](validated_input)
+            # revalidate the output of the user defined function
+            validated_input = ReverseSearchInput(hook_output)
 
         # pair query ids with input ids
         paired_query = pl.DataFrame({"query_id": validated_input.ids, "id": validated_input.query})
@@ -293,6 +302,11 @@ class VectorStore:
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
         validated_ouput = ReverseSearchOutputSchema.validate(result_df)
+        if self.hooks["reverse_search_postprocess"]:
+            # pass the validated_output to the user defined function
+            hook_output = self.hooks["reverse_search_postprocess"](validated_ouput)
+            # revalidate the output of the user defined function
+            validated_ouput = ReverseSearchOutputSchema.validate(hook_output)
 
         return validated_ouput
 
@@ -316,6 +330,11 @@ class VectorStore:
         """
         # Run the Pydantic validator first which will raise errors if the inputs are invalid
         validated_input = SearchInput(query=query, ids=ids, n_results=n_results, batch_size=batch_size)
+        if self.hooks["search_preprocess"]:
+            # pass the validated_input to the user defined function
+            hook_output = self.hooks["search_preprocess"](validated_input)
+            # revalidate the output of the user defined function
+            validated_input = SearchInput(hook_output)
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -395,6 +414,11 @@ class VectorStore:
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
         result_df = SearchOutputSchema.validate(result_df)
+        if self.hooks["search_postprocess"]:
+            # pass the validated_outputs to the user defined function
+            hook_output = self.hooks["search_postprocess"](result_df)
+            # revalidate the output of the user defined function
+            result_df = SearchOutputSchema.validate(hook_output)
 
         return result_df
 
