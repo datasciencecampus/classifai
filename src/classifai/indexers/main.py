@@ -254,34 +254,85 @@ class VectorStore:
         return self.vectoriser.transform(text)
 
     def reverse_search(self, query, ids=None, n_results=100):
-        """Reverse searches the vector store using an input code or list of codes and returns
-        matched results. In batches, converts users' text queries into vector embeddings,
-        computes cosine similarity with stored document vectors, and retrieves the top results.
+        """Look up documents in the vector store by their document IDs.
+
+        This method performs an exact match on the ``id`` column of the
+        vector store and returns the corresponding documents and metadata.
+        It does **not** perform any vector similarity search – it is
+        intended as a convenience for retrieving rows by their document ID.
 
         Args:
-            query (str or list): The text query or list of queries to search for.
-            ids (list, optional): List of query IDs. Defaults to None.
-            n_results (int, optional): Number of top results to return for each query. Default 100.
+            query (str | int | list[str | int]):
+                A single document ID or a list of document IDs to look up.
+            ids (list[str | int], optional):
+                Optional list of labels to use as ``query_id`` in the
+                returned results. If not provided, ``query_id`` will
+                default to ``range(len(query))``.
+                Must be a list of unique strings or integers with the
+                same length as ``query`` if provided.
+            n_results (int, optional):
+                Currently unused and kept only for API compatibility
+                with :meth:`search`. It is ignored by this method.
 
         Returns:
-            pd.DataFrame: DataFrame containing search results with columns for query ID, matching
-                document ID, document text and metadata.
+            pandas.DataFrame:
+                DataFrame containing one row per matched document with
+                columns:
+
+                - ``query_id`` – label for the input query/ID.
+                - ``doc_id`` – document ID from the vector store.
+                - ``doc_text`` – document text.
+                - one column per metadata field defined in ``meta_data``.
+
+        Raises:
+            ValueError: If ``query`` or ``ids`` are passed in an
+                unsupported format.
         """
-        # if the query is a string, convert it to a list
-        if isinstance(query, str):
+        # Normalise query to a list of IDs
+        if isinstance(query, (str, int)):
             query = [query]
+        elif not isinstance(query, list):
+            raise ValueError(
+                "'query' must be a string, int, or a list of strings/ints "
+                "representing document IDs."
+            )
 
-        # pair query ids with input ids
-        query_ids = ids if ids else list(range(0, len(query)))
-        paired_query = pl.DataFrame({"query_id": query_ids, "id": query})
+        if not query:
+            raise ValueError("'query' must contain at least one document ID.")
 
-        # join query with vdb to get matches
+        # Validate and construct query IDs
+        if ids is not None:
+            if not isinstance(ids, list) or not all(isinstance(_id, (str, int)) for _id in ids):
+                raise ValueError(
+                    "'ids' argument must be a list of strings or ints when provided."
+                )
+            if len(ids) != len(query):
+                raise ValueError(
+                    "'ids' argument must have the same length as the 'query' argument."
+                )
+            if len(set(ids)) != len(ids):
+                raise ValueError(
+                    "'ids' argument must contain unique values."
+                )
+            query_ids = ids
+        else:
+            query_ids = list(range(len(query)))
+
+        # Build a DataFrame of requested IDs (cast to string to match stored 'id' dtype)
+        paired_query = pl.DataFrame(
+            {
+                "query_id": query_ids,
+                "id": [str(q) for q in query],
+            }
+        )
+
+        # Join query IDs with the vector store to get matching documents
         joined_table = paired_query.join(self.vectors, on="id", how="inner")
 
-        # sort join by id
+        # Sort by query_id for deterministic ordering
         sorted_table = joined_table.sort("query_id")
 
-        # get formatted table
+        # Select and cast output columns
         final_table = sorted_table.select(
             [
                 pl.col("query_id").cast(str),
