@@ -69,10 +69,9 @@ class HuggingFaceVectoriser(VectoriserBase):
         import torch  # type: ignore
 
         validated_input = TransformInput(texts=texts)
-        if self.hooks["transform_preprocess"]:
+        if "transform_preprocess" in self.hooks:
             # pass the validated_outputs to the user defined function
-            if "transform_preprocess" in self.hooks:
-                hook_output = self.hooks["transform_preprocess"](validated_input)
+            hook_output = self.hooks["transform_preprocess"](validated_input)
             # revalidate the output of the user defined function
             validated_input = TransformInput(hook_output)
 

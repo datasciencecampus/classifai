@@ -72,7 +72,7 @@ class SearchInput(BaseModel):
             self.query = [self.query]
 
         if self.ids is None:
-            self.ids = [list(range(len(self.query)))]
+            self.ids = list(range(len(self.query)))
             self.ids = [str(i) for i in self.ids]
 
         elif len(set(self.ids)) != len(self.ids):

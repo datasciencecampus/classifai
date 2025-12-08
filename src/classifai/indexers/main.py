@@ -334,7 +334,7 @@ class VectorStore:
             # pass the validated_input to the user defined function
             hook_output = self.hooks["search_preprocess"](validated_input)
             # revalidate the output of the user defined function
-            validated_input = SearchInput(hook_output)
+            validated_input = SearchInput(**hook_output)
 
         # Initialize an empty list to store results from each batch
         all_results = []
