@@ -40,9 +40,9 @@ from tqdm.autonotebook import tqdm
 from .boundaries import (
     FromFileSpaceInput,
     ReverseSearchInput,
-    ReverseSearchOutputSchema,
+    ReverseSearchOutput,
     SearchInput,
-    SearchOutputSchema,
+    SearchOutput,
     VectorStoreInput,
 )
 
@@ -292,9 +292,9 @@ class VectorStore:
         result_df = final_table.to_pandas()
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
-        validated_ouput = ReverseSearchOutputSchema.validate(result_df)
+        validated_output = ReverseSearchOutput(dataframe=result_df)
 
-        return validated_ouput
+        return validated_output.dataframe
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
@@ -394,9 +394,9 @@ class VectorStore:
         result_df = reordered_df.to_pandas()
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
-        result_df = SearchOutputSchema.validate(result_df)
+        validated_output = SearchOutput(dataframe=result_df)
 
-        return result_df
+        return validated_output.dataframe
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):

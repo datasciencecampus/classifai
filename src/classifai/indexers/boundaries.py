@@ -1,13 +1,14 @@
 from pathlib import Path
 from typing import Literal
 
+import pandas as pd
 import pandera.pandas as pa
 from pydantic import BaseModel, DirectoryPath, Field, FilePath, field_validator, model_validator
 from typing_extensions import Self
 
 from ..vectorisers.base import VectoriserBase
 
-# Pydantic and Pandera models for input and output validation
+# Pydantic and Pandera models for input and output validation of the VectorStore class from the indexers module
 #######
 
 
@@ -16,7 +17,7 @@ class VectorStoreInput(BaseModel):
         description="Path to the data file to be indexed.",
     )
     data_type: Literal["csv"] = Field(description="The type of data file. Currently only 'csv' is supported.")
-    vectoriser: VectoriserBase = Field(..., description="An instance of a class inheriting from VectoriserBase.")
+    vectoriser: VectoriserBase = Field(description="An instance of a class inheriting from VectoriserBase.")
     batch_size: int = Field(
         gt=0,
         description="The batch size for processing data. Must be greater than 0.",
@@ -51,7 +52,7 @@ class FromFileSpaceInput(BaseModel):
 
 
 class SearchInput(BaseModel):
-    query: str | list[str] = Field(..., description="The text query or list of queries to search for.")
+    query: str | list[str] = Field(description="The text query or list of queries to search for.")
     ids: list[str | int] | None = Field(
         None,
         description="List of query IDs. Must be unique and match the length of the query list.",
@@ -97,6 +98,19 @@ class SearchOutputSchema(pa.DataFrameModel):
         strict = False  # Allow additional columns (e.g., metadata)
 
 
+class SearchOutput(BaseModel):
+    dataframe: pd.DataFrame
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    @field_validator("dataframe", mode="after")
+    def validate(cls, value):
+        # Validate the dataframe using the Pandera schema
+        SearchOutputSchema.validate(value)
+        return value
+
+
 class ReverseSearchInput(BaseModel):
     query: str | list[str] = Field(description="The text query or list of queries to search for.")
     ids: list[str | int] | None = Field(
@@ -136,3 +150,16 @@ class ReverseSearchOutputSchema(pa.DataFrameModel):
     # Add metadata columns dynamically if needed
     class Config:
         strict = False  # Allow additional columns (e.g., metadata)
+
+
+class ReverseSearchOutput(BaseModel):
+    dataframe: pd.DataFrame
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    @field_validator("dataframe", mode="after")
+    def validate(cls, value):
+        # Validate the dataframe using the Pandera schema
+        ReverseSearchOutputSchema.validate(value)
+        return value
