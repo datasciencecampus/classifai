@@ -40,9 +40,9 @@ from tqdm.autonotebook import tqdm
 from .boundaries import (
     FromFileSpaceInput,
     ReverseSearchInput,
-    ReverseSearchOutputSchema,
+    ReverseSearchOutput,
     SearchInput,
-    SearchOutputSchema,
+    SearchOutput,
     VectorStoreInput,
 )
 
@@ -301,14 +301,14 @@ class VectorStore:
         result_df = final_table.to_pandas()
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
-        validated_ouput = ReverseSearchOutputSchema.validate(result_df)
+        validated_output = ReverseSearchOutput(dataframe=result_df)
         if self.hooks["reverse_search_postprocess"]:
             # pass the validated_output to the user defined function
-            hook_output = self.hooks["reverse_search_postprocess"](validated_ouput)
+            hook_output = self.hooks["reverse_search_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            validated_ouput = ReverseSearchOutputSchema.validate(hook_output)
+            validated_output = ReverseSearchOutput(hook_output)
 
-        return validated_ouput
+        return validated_output.dataframe
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
@@ -413,14 +413,14 @@ class VectorStore:
         result_df = reordered_df.to_pandas()
 
         # Validate the output with Pandera SCHEMA before returning which will raise errors if the outputs are invalid
-        result_df = SearchOutputSchema.validate(result_df)
+        validated_output = SearchOutput(dataframe=result_df)
         if "search_postprocess" in self.hooks:
             # pass the validated_outputs to the user defined function
-            hook_output = self.hooks["search_postprocess"](result_df)
+            hook_output = self.hooks["search_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            result_df = SearchOutputSchema.validate(hook_output)
+            validated_output = SearchOutput(hook_output)
 
-        return result_df
+        return validated_output.dataframe
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
