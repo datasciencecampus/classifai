@@ -86,11 +86,11 @@ class GcpVectoriser(VectoriserBase):
         """
         # Run the Pydantic validator first which will raise errors if the inputs are invalid
         validated_input = TransformInput(texts=texts)
-        if self.hooks["transform_preprocess"]:
+        if "transform_preprocess" in self.hooks["transform_preprocess"]:
             # pass the validated_input to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_input)
             # revalidate the output of the user defined function
-            validated_input = TransformInput(hook_output)
+            validated_input = TransformInput(**hook_output.model_dump())
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
@@ -107,5 +107,5 @@ class GcpVectoriser(VectoriserBase):
             # pass the validated_output to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            validated_output = TransformOutput(hook_output)
+            validated_output = TransformOutput(**hook_output.model_dump())
         return validated_output.embeddings

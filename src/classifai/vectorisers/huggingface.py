@@ -73,7 +73,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["transform_preprocess"](validated_input)
             # revalidate the output of the user defined function
-            validated_input = TransformInput(hook_output)
+            validated_input = TransformInput(**hook_output.model_dump())
 
         # Tokenise input texts
         inputs = self.tokenizer(validated_input.texts, padding=True, truncation=True, return_tensors="pt").to(
@@ -103,6 +103,6 @@ class HuggingFaceVectoriser(VectoriserBase):
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            validated_output = TransformOutput(hook_output)
+            validated_output = TransformOutput(**hook_output.model_dump())
 
         return validated_output.embeddings

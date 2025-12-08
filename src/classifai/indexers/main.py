@@ -277,7 +277,7 @@ class VectorStore:
             # pass the validated_input to the user defined function
             hook_output = self.hooks["reverse_search_preprocess"](validated_input)
             # revalidate the output of the user defined function
-            validated_input = ReverseSearchInput(hook_output)
+            validated_input = ReverseSearchInput(**hook_output.model_dump())
 
         # pair query ids with input ids
         paired_query = pl.DataFrame({"query_id": validated_input.ids, "id": validated_input.query})
@@ -306,7 +306,7 @@ class VectorStore:
             # pass the validated_output to the user defined function
             hook_output = self.hooks["reverse_search_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            validated_output = ReverseSearchOutput(hook_output)
+            validated_output = ReverseSearchOutput(**hook_output.model_dump())
 
         return validated_output.dataframe
 
@@ -334,7 +334,7 @@ class VectorStore:
             # pass the validated_input to the user defined function
             hook_output = self.hooks["search_preprocess"](validated_input)
             # revalidate the output of the user defined function
-            validated_input = SearchInput(**hook_output)
+            validated_input = SearchInput(**hook_output.model_dump())
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -418,7 +418,7 @@ class VectorStore:
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["search_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            validated_output = SearchOutput(hook_output)
+            validated_output = SearchOutput(**hook_output.model_dump())
 
         return validated_output.dataframe
 

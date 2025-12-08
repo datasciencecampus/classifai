@@ -54,7 +54,7 @@ class OllamaVectoriser(VectoriserBase):
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_input)
             # revalidate the output of the user defined function
-            validated_input = TransformInput(hook_output)
+            validated_input = TransformInput(**hook_output.model_dump())
 
         response = ollama.embed(model=self.model_name, input=validated_input.texts)
 
@@ -64,6 +64,6 @@ class OllamaVectoriser(VectoriserBase):
             # pass the validated_outputs to the user defined function
             hook_output = self.hooks["transform_postprocess"](validated_output)
             # revalidate the output of the user defined function
-            validated_output = TransformOutput(hook_output)
+            validated_output = TransformOutput(**hook_output.model_dump())
 
         return validated_output.embeddings
