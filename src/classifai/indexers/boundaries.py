@@ -21,9 +21,9 @@ class VectorStoreInput(BaseModel):
         gt=0,
         description="The batch size for processing data. Must be greater than 0.",
     )
-    meta_data: list[str] | None = Field(
+    meta_data: dict[str, type] | None = Field(
         None,
-        description="List of metadata fields to include in the index, aligning with column names of the input file.",
+        description="Dictionary of metadata fields to include in the index, where keys are column names and values are their types.",
     )
     output_dir: Path | None = Field(
         None, description="Directory to save the vector store, if not set will attempt to reåuse file_name path."
@@ -72,7 +72,7 @@ class SearchInput(BaseModel):
             self.query = [self.query]
 
         if self.ids is None:
-            self.ids = [list(range(len(self.query)))]
+            self.ids = list(range(len(self.query)))
             self.ids = [str(i) for i in self.ids]
 
         elif len(set(self.ids)) != len(self.ids):
