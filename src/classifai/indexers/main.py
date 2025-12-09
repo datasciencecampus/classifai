@@ -17,12 +17,12 @@ Key Features:
 Dependencies:
 - polars: For handling data in tabular format and saving it as a Parquet file.
 - tqdm: For displaying progress bars during batch processing.
-- numpy: for vector cosine similarity calculations
+- numpy: For vector cosine similarity calculations.
 - A custom file iterator (`iter_csv`) for reading input files in batches.
 
 Usage:
-This module is intended to be used with the Vectoriers mdodule and the
-the servers module from ClassifAI, to created scalable, modular, searchable
+This module is intended to be used with the vectorisers module and the
+servers module from ClassifAI, to create scalable, modular, searchable
 vector databases from your own text data.
 """
 
@@ -45,19 +45,26 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
 class VectorStore:
-    """A class to model and create 'VectorStore' objects for building and searching vector databases from CSV text files.
+    """A class to model and create `VectorStore` objects for building and searching
+    vector databases from CSV text files.
 
     Attributes:
-        file_name (str): the original file with the knowledgebase to build the vector store
-        data_type (str): the data type of the original file (curently only csv supported)
-        vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
-        batch_size (int): the batch size to pass to the vectoriser when embedding
-        meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
-        output_dir (str): the path to the output directory where the VectorStore will be saved
-        vectors (np.array): a numpy array of vectors for the vector DB
-        vector_shape (int): the dimension of the vectors
-        num_vectors (int): how many vectors are in the vector store
-        vectoriser_class (str): the type of vectoriser used to create embeddings
+        file_name (str): The original file with the knowledge base used to build
+            the vector store.
+        data_type (str): The data type of the original file (currently only 'csv'
+            is supported).
+        vectoriser (object): A Vectoriser object from the corresponding ClassifAI
+            package module.
+        batch_size (int): The batch size to pass to the vectoriser when embedding.
+        meta_data (dict[str, type]): Key-value pairs of metadata to extract from
+            the input file and their corresponding types.
+        output_dir (str): The path to the output directory where the VectorStore
+            will be saved.
+        vectors (np.ndarray | polars.DataFrame): A collection of vectors and
+            associated data for the vector database.
+        vector_shape (int): The dimension of the vectors.
+        num_vectors (int): How many vectors are in the vector store.
+        vectoriser_class (str): The type of vectoriser used to create embeddings.
     """
 
     def __init__(  # noqa: PLR0913
@@ -77,18 +84,19 @@ class VectorStore:
             file_name (str): The name of the input CSV file.
             data_type (str): The type of input data (currently supports only "csv").
             vectoriser (object): The vectoriser object used to transform text into
-                                vector embeddings.
+                vector embeddings.
             batch_size (int, optional): The batch size for processing the input file and batching to
-            vectoriser. Defaults to 8.
-            meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
-                                Defaults to None.
+                the vectoriser. Defaults to 8.
+            meta_data (dict, optional): Key-value pair metadata column names to extract from the
+                input file and their types. Defaults to None.
             output_dir (str, optional): The directory where the vector store will be saved.
-                                Defaults to None, where input file name will be used.
-            overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
-
+                Defaults to None, where the input file name will be used.
+            overwrite (bool, optional): If True, allows overwriting existing folders with the same
+                name. Defaults to False to prevent accidental overwrites.
 
         Raises:
-            ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
+            ValueError: If the data type is not supported or if the folder name conflicts with an
+                existing folder.
         """
         self.file_name = file_name
         self.data_type = data_type
@@ -102,10 +110,14 @@ class VectorStore:
         self.output_dir = output_dir
 
         if self.data_type not in ["csv"]:
-            raise ValueError("Data type must be one of ['csv'].")
+            raise ValueError(
+                f"Unsupported data_type='{self.data_type}'. Currently only 'csv' is supported."
+            )
 
         if self.output_dir is None:
-            logging.info("No output directory specified, attempting to use input file name as output folder name.")
+            logging.info(
+                "No output directory specified, attempting to use input file name as output folder name."
+            )
 
             # Normalize the file name to ensure it doesn't include relative paths or extensions
             normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
@@ -116,7 +128,8 @@ class VectorStore:
                     shutil.rmtree(self.output_dir)
                 else:
                     raise ValueError(
-                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. Pass overwrite=True to overwrite the folder."
+                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. "
+                        "Pass overwrite=True to overwrite the folder."
                     )
             os.makedirs(self.output_dir, exist_ok=True)
 
@@ -126,7 +139,8 @@ class VectorStore:
                     shutil.rmtree(self.output_dir)
                 else:
                     raise ValueError(
-                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. Pass overwrite=True to overwrite the folder."
+                        f"The name '{self.output_dir}' is already used as a folder in the subdirectory. "
+                        "Pass overwrite=True to overwrite the folder."
                     )
             os.makedirs(self.output_dir, exist_ok=True)
 
@@ -137,7 +151,7 @@ class VectorStore:
         self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
         self.num_vectors = len(self.vectors)
 
-        ## save everything to the folder etc: metadata, parquet and vectoriser
+        # save everything to the folder etc: metadata, parquet and vectoriser
         self.vectors.write_parquet(os.path.join(self.output_dir, "vectors.parquet"))
         self._save_metadata(os.path.join(self.output_dir, "metadata.json"))
 
@@ -176,6 +190,7 @@ class VectorStore:
     def _create_vector_store_index(self):
         """Processes text strings in batches, generates vector embeddings, and creates the
         vector store.
+
         Called from the constructor once other metadata has been set.
         Iterates over data in batches, stores batch data and generated embeddings.
         Creates a Polars DataFrame with the captured data and embeddings, and saves it as
@@ -204,7 +219,9 @@ class VectorStore:
                 pl.Series("uuid", [str(uuid.uuid4()) for _ in range(self.vectors.height)])
             )
         else:
-            raise ValueError("File type not supported: {self.data_type}. Choose from ['csv'].")
+            raise ValueError(
+                f"File type not supported: '{self.data_type}'. Choose from ['csv']."
+            )
 
         logging.info("Processing file: %s...\n", self.file_name)
         try:
@@ -219,8 +236,8 @@ class VectorStore:
             raise e
 
     def validate(self):
-        """Validates the vector store by checking if the loaded vectoriser matches the one used to create the vectors
-        and testing the search functionality.
+        """Validates the vector store by checking if the loaded vectoriser matches the one
+        used to create the vectors and testing the search functionality.
         """
         # This method is a placeholder for future validation logic.
         # Currently, it does not perform any validation.
@@ -237,8 +254,8 @@ class VectorStore:
         return self.vectoriser.transform(text)
 
     def reverse_search(self, query, ids=None, n_results=100):
-        """Reverse searches the vector store using a input code or list of codes and returns
-        matched results. In batches, converts users text queries into vector embeddings,
+        """Reverse searches the vector store using an input code or list of codes and returns
+        matched results. In batches, converts users' text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
@@ -248,7 +265,7 @@ class VectorStore:
 
         Returns:
             pd.DataFrame: DataFrame containing search results with columns for query ID, matching
-                          document ID, document text and metadata.
+                document ID, document text and metadata.
         """
         # if the query is a string, convert it to a list
         if isinstance(query, str):
@@ -278,7 +295,7 @@ class VectorStore:
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
-        ranked results. In batches, converts users text queries into vector embeddings,
+        ranked results. In batches, converts users' text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
@@ -289,7 +306,7 @@ class VectorStore:
 
         Returns:
             pd.DataFrame: DataFrame containing search results with columns for query ID, query text,
-                          document ID, document text, rank, score, and metadata.
+                document ID, document text, rank, score, and metadata.
 
         Raises:
             ValueError: Raised if invalid arguments are passed.
@@ -349,7 +366,9 @@ class VectorStore:
             )
 
             # Get the vector store results for the current batch
-            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(["id", "text", *self.meta_data.keys()])
+            ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
+                ["id", "text", *self.meta_data.keys()]
+            )
             merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
             merged_df = merged_df.with_columns(
                 [
@@ -388,6 +407,7 @@ class VectorStore:
         that the Parquet file exists and is not empty, and that the vectoriser class
         matches the one used to create the vectors. If any checks fail, it raises
         a `ValueError` with an appropriate message.
+
         This method is useful for loading previously created vector stores without
         needing to reprocess the original text data.
 
@@ -399,9 +419,10 @@ class VectorStore:
             VectorStore: An instance of the `VectorStore` class.
 
         Raises:
-            ValueError: If required files or metadata keys are missing, or if the vectoriser class does not match.
+            ValueError: If required files or metadata keys are missing, or if the vectoriser class
+                does not match.
         """
-        # check that the metadataq, vectoiser info and parquet exist
+        # check that the metadata, vectoriser info and parquet exist
         # load the metadata file
 
         metadata_path = os.path.join(folder_path, "metadata.json")
@@ -455,7 +476,8 @@ class VectorStore:
         # check that the vectoriser class matches the one provided
         if metadata["vectoriser_class"] != vectoriser.__class__.__name__:
             raise ValueError(
-                f"Vectoriser class in metadata ({metadata['vectoriser_class']}) does not match provided vectoriser ({vectoriser.__class__.__name__})"
+                f"Vectoriser class in metadata ({metadata['vectoriser_class']}) does not match "
+                f"provided vectoriser ({vectoriser.__class__.__name__})"
             )
 
         # create the VectorStore instance and add the new data to the fields
