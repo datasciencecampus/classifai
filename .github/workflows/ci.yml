@@ -8,13 +8,14 @@ on:
   pull_request:
     branches-ignore:
       - 'dependabot/**/**'
+    types: [opened, synchronize, reopened, edited, ready_for_review]
 concurrency:
   group: "${{ github.head_ref || github.ref }}-${{ github.workflow }}"
   cancel-in-progress: true
 
 jobs:
   lint-test:
-    if: '! github.event.pull_request.draft'
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     name: Lint and Test
     runs-on: ubuntu-22.04
     strategy:
