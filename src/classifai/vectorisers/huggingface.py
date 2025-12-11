@@ -58,6 +58,12 @@ class HuggingFaceVectoriser(VectoriserBase):
         """
         import torch  # type: ignore
 
+        if type(texts) is str:
+            texts = [texts]
+
+        if type(texts) is not list:
+            raise TypeError("Input texts must be a string or a list of strings.")
+
         # Check if there is a user defined preprocess hook for the HFVectoriser transform method
         if "transform_preprocess" in self.hooks:
             # pass the args to the preprocessing function as a dictionary

@@ -77,6 +77,12 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
+        if type(texts) is str:
+            texts = [texts]
+
+        if type(texts) is not list:
+            raise TypeError("Input texts must be a string or a list of strings.")
+
         # Check if there is a user defined preprocess hook for the GCPVectoriser transform method
         if "transform_preprocess" in self.hooks["transform_preprocess"]:
             # pass the args to the preprocessing function as a dictionary

@@ -99,13 +99,16 @@ class VectorStore:
         self.data_type = data_type
         self.vectoriser = vectoriser
         self.batch_size = batch_size
-        self.meta_data = meta_data
+        self.meta_data = meta_data if meta_data is not None else {}
         self.output_dir = output_dir
         self.vectors = None
         self.vector_shape = None
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
         self.hooks = {} if hooks is None else hooks
+
+        if self.data_type not in ["csv"]:
+            raise ValueError(f"Data type '{self.data_type}' not supported. Choose from ['csv'].")
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -228,7 +231,7 @@ class VectorStore:
         # This method is a placeholder for future validation logic.
         # Currently, it does not perform any validation.
 
-    def embed(self, text: str | list[str]) -> np.ndarray:
+    def embed(self, text):
         """Converts text into vector embeddings using the vectoriser.
 
         Args:
@@ -253,6 +256,12 @@ class VectorStore:
             pd.DataFrame: DataFrame containing search results with columns for query ID, matching
                           document ID, document text and metadata.
         """
+        # if the query is a string convert to list
+        if isinstance(query, str):
+            query = [query]
+
+        ids = ids if ids is not None else list(range(len(query)))
+
         # Check if there is a user defined preprocess hook for the VectorStore reverse search method
         if self.hooks["reverse_search_preprocess"]:
             # pass the args as a dictionary to the preprocessing function
@@ -312,6 +321,17 @@ class VectorStore:
         Raises:
             ValueError: Raised if invalid arguments are passed.
         """
+        # if the query is a string convert to list
+        if isinstance(query, str):
+            query = [query]
+
+        # if ids are provided, check they are the correct length and a list
+        if (ids is not None) and not (isinstance(ids, list) and len(ids) == len(query)):
+            raise ValueError("If ids are provided, they must be a list of the same length as the number of queries.")
+
+        # set default ids if none provided
+        ids = ids if ids is not None else list(range(len(query)))
+
         # Check if there is a user defined preprocess hook for the VectorStore search method
         if "search_preprocess" in self.hooks:
             # Pass the args as a dictionary to the preprocessing function
