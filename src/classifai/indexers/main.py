@@ -421,9 +421,9 @@ class VectorStore:
             hook_output = self.hooks["search_postprocess"]({"dataframe": result_df})
 
             # Unpack the dictionary back into the argument variables
-            results_df = hook_output.get("dataframe", result_df)
+            result_df = hook_output.get("dataframe", result_df)
 
-        return results_df
+        return result_df
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
