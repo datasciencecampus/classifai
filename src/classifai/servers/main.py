@@ -17,7 +17,6 @@ import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 
-from .boundaries import StartApiInput
 from .pydantic_models import (
     ClassifaiData,
     EmbeddingsList,
@@ -44,16 +43,9 @@ def start_api(vector_stores, endpoint_names, port=8000):
 
 
     """
-    # Run the Pydantic validator first which will raise errors if the inputs are invalid
-    validated_input = StartApiInput(
-        vector_stores=vector_stores,
-        endpoint_names=endpoint_names,
-        port=port,
-    )
-
     logging.info("Starting ClassifAI API")
 
-    endpoint_index_map = {x: i for i, x in enumerate(validated_input.endpoint_names)}
+    endpoint_index_map = {x: i for i, x in enumerate(endpoint_names)}
 
     app = FastAPI()
 
@@ -118,7 +110,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
             ##post processing of the pandas dataframe
             formatted_result = convert_dataframe_to_pydantic_response(
                 df=query_result,
-                meta_data=validated_input.vector_stores[endpoint_index_map[endpoint_name]].meta_data,
+                meta_data=vector_stores[endpoint_index_map[endpoint_name]].meta_data,
             )
 
             return formatted_result
@@ -153,12 +145,12 @@ def start_api(vector_stores, endpoint_names, port=8000):
 
             formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
                 df=reverse_query_result,
-                meta_data=validated_input.vector_stores[endpoint_index_map[endpoint_name]].meta_data,
+                meta_data=vector_stores[endpoint_index_map[endpoint_name]].meta_data,
                 ids=input_ids,
             )
             return formatted_result
 
-    for endpoint_name, vector_store in zip(validated_input.endpoint_names, validated_input.vector_stores, strict=True):
+    for endpoint_name, vector_store in zip(endpoint_names, vector_stores, strict=True):
         logging.info("Registering endpoints for: %s", endpoint_name)
         create_embedding_endpoint(app, endpoint_name, vector_store)
         create_search_endpoint(app, endpoint_name, vector_store)
@@ -174,4 +166,4 @@ def start_api(vector_stores, endpoint_names, port=8000):
         start_page = RedirectResponse(url="/docs")
         return start_page
 
-    uvicorn.run(app, port=validated_input.port, log_level="info")
+    uvicorn.run(app, port=port, log_level="info")

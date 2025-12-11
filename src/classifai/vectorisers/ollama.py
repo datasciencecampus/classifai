@@ -1,11 +1,8 @@
 """A module for embedding text using a locally-running Ollama server."""
 
-import numpy as np
-
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
-from .boundaries import OllamaVectoriserInput, TransformInput, TransformOutput
 
 
 class OllamaVectoriser(VectoriserBase):
@@ -28,10 +25,7 @@ class OllamaVectoriser(VectoriserBase):
         """
         check_deps(["ollama"], extra="ollama")
 
-        # Run the Pydantic validator first which will raise errors if the inputs are invalid
-        validated_inputs = OllamaVectoriserInput(model_name=model_name)
-
-        self.model_name = validated_inputs.model_name
+        self.model_name = model_name
 
         self.hooks = {} if hooks is None else hooks
 
@@ -49,21 +43,22 @@ class OllamaVectoriser(VectoriserBase):
         """
         import ollama  # type: ignore
 
-        validated_input = TransformInput(texts=texts)
+        # Check if there is a user defined preprocess hook for the OllamaVectoriser transform method
         if "transform_preprocess" in self.hooks:
-            # pass the validated_outputs to the user defined function
-            hook_output = self.hooks["transform_postprocess"](validated_input)
-            # revalidate the output of the user defined function
-            validated_input = TransformInput(**hook_output.model_dump())
+            # pass the args to the preprocessing function as a dictionary
+            hook_output = self.hooks["transform_preprocess"]({"texts": texts})
 
-        response = ollama.embed(model=self.model_name, input=validated_input.texts)
+            # Unpack the dictionary back into the argument variables
+            texts = hook_output.get("texts", texts)
 
-        # Validate the output before returning which will raise errors if the outputs are invalid
-        validated_output = TransformOutput(embeddings=np.array(response.embeddings))
+        response = ollama.embed(model=self.model_name, input=texts)
+
+        # Check if there is a user defined postprocess hook for the OllamaVectoriser transform method
         if "transform_postprocess" in self.hooks:
-            # pass the validated_outputs to the user defined function
-            hook_output = self.hooks["transform_postprocess"](validated_output)
-            # revalidate the output of the user defined function
-            validated_output = TransformOutput(**hook_output.model_dump())
+            # pass args to the postprocessing function as a dictionary
+            hook_output = self.hooks["transform_postprocess"]({"embeddings": response.embeddings})
 
-        return validated_output.embeddings
+            # Unpack the dictionary back into the argument variables
+            embeddings = hook_output.get("embeddings", response)
+
+        return embeddings

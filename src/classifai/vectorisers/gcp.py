@@ -9,7 +9,6 @@ import numpy as np
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
-from .boundaries import GcpVectoriserInput, TransformInput, TransformOutput
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
@@ -51,21 +50,15 @@ class GcpVectoriser(VectoriserBase):
         from google import genai  # type: ignore
 
         # Run the Pydantic validator first which will raise errors if the inputs are invalid
-        validated_inputs = GcpVectoriserInput(
-            project_id=project_id,
-            location=location,
-            model_name=model_name,
-            task_type=task_type,
-        )
 
-        self.model_name = validated_inputs.model_name
-        self.model_config = genai.types.EmbedContentConfig(task_type=validated_inputs.task_type)
+        self.model_name = model_name
+        self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
         try:
             self.vectoriser = genai.Client(
                 vertexai=True,
-                project=validated_inputs.project_id,
-                location=validated_inputs.location,
+                project=project_id,
+                location=location,
             )
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
@@ -84,28 +77,29 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
-        # Run the Pydantic validator first which will raise errors if the inputs are invalid
-        validated_input = TransformInput(texts=texts)
+        # Check if there is a user defined preprocess hook for the GCPVectoriser transform method
         if "transform_preprocess" in self.hooks["transform_preprocess"]:
-            # pass the validated_input to the user defined function
-            hook_output = self.hooks["transform_postprocess"](validated_input)
-            # revalidate the output of the user defined function
-            validated_input = TransformInput(**hook_output.model_dump())
+            # pass the args to the preprocessing function as a dictionary
+            hook_output = self.hooks["transform_preprocess"]({"texts": texts})
+
+            # Unpack the dictionary back into the argument variables
+            texts = hook_output.get("texts", texts)
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
-            model=self.model_name, contents=validated_input.texts, config=self.model_config
+            model=self.model_name, contents=texts, config=self.model_config
         )
 
         # Extract embeddings from the response object
         # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
 
-        # Validate the output before returning which will raise errors if the outputs are invalid
-        validated_output = TransformOutput(embeddings=result)
+        # Check if there is a user defined postprocess hook for the GCPVectoriser transform method
         if self.hooks["transform_postprocess"]:
-            # pass the validated_output to the user defined function
-            hook_output = self.hooks["transform_postprocess"](validated_output)
-            # revalidate the output of the user defined function
-            validated_output = TransformOutput(**hook_output.model_dump())
-        return validated_output.embeddings
+            # pass the args to the postprocessing function as a dictionary
+            hook_output = self.hooks["transform_postprocess"]({"embeddings": result})
+
+            # Unpack the dictionary back into the argument variables
+            result = hook_output.get("embeddings", result)
+
+        return result

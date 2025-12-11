@@ -3,7 +3,6 @@
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
-from .boundaries import HuggingFaceVectoriserInput, TransformInput, TransformOutput
 
 
 class HuggingFaceVectoriser(VectoriserBase):
@@ -30,22 +29,13 @@ class HuggingFaceVectoriser(VectoriserBase):
         import torch  # type: ignore
         from transformers import AutoModel, AutoTokenizer  # type: ignore
 
-        # Run the Pydantic validator first which will raise errors if the inputs are invalid
-        validated_inputs = HuggingFaceVectoriserInput(
-            model_name=model_name,
-            device=device,
-            model_revision=model_revision,
-        )
-
-        self.model_name = validated_inputs.model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            validated_inputs.model_name, revision=validated_inputs.model_revision
-        )  # nosec: B615
-        self.model = AutoModel.from_pretrained(validated_inputs.model_name, revision=validated_inputs.model_revision)  # nosec: B615
+        self.model_name = model_name
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)  # nosec: B615
+        self.model = AutoModel.from_pretrained(model_name, revision=model_revision)  # nosec: B615
 
         # Use GPU if available and not overridden
-        if validated_inputs.device:
-            self.device = validated_inputs.device
+        if device:
+            self.device = device
         else:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -68,17 +58,16 @@ class HuggingFaceVectoriser(VectoriserBase):
         """
         import torch  # type: ignore
 
-        validated_input = TransformInput(texts=texts)
+        # Check if there is a user defined preprocess hook for the HFVectoriser transform method
         if "transform_preprocess" in self.hooks:
-            # pass the validated_outputs to the user defined function
-            hook_output = self.hooks["transform_preprocess"](validated_input)
-            # revalidate the output of the user defined function
-            validated_input = TransformInput(**hook_output.model_dump())
+            # pass the args to the preprocessing function as a dictionary
+            hook_output = self.hooks["transform_preprocess"]({"texts": texts})
+
+            # Unpack the dictionary back into the argument variables
+            texts = hook_output.get("texts", texts)
 
         # Tokenise input texts
-        inputs = self.tokenizer(validated_input.texts, padding=True, truncation=True, return_tensors="pt").to(
-            self.device
-        )
+        inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
 
         # Get model outputs
         with torch.no_grad():
@@ -97,12 +86,12 @@ class HuggingFaceVectoriser(VectoriserBase):
         # Convert to numpy array
         embeddings = mean_pooled.cpu().numpy()
 
-        # Validate the output before returning which will raise errors if the outputs are invalid
-        validated_output = TransformOutput(embeddings=embeddings)
+        # Check if there is a user defined postprocess hook for the HFVectoriser transform method
         if "transform_postprocess" in self.hooks:
-            # pass the validated_outputs to the user defined function
-            hook_output = self.hooks["transform_postprocess"](validated_output)
-            # revalidate the output of the user defined function
-            validated_output = TransformOutput(**hook_output.model_dump())
+            # pass the args to the postprocessing function as a dictionary
+            hook_output = self.hooks["transform_postprocess"]({"embeddings": embeddings})
 
-        return validated_output.embeddings
+            # Unpack the dictionary back into the argument variables
+            embeddings = hook_output.get("embeddings", embeddings)
+
+        return embeddings
