@@ -26,6 +26,7 @@ class GcpVectoriser(VectoriserBase):
     def __init__(
         self,
         project_id,
+        api_key=None,
         location="europe-west2",
         model_name="text-embedding-004",
         task_type="RETRIEVAL_DOCUMENT",
@@ -34,6 +35,7 @@ class GcpVectoriser(VectoriserBase):
 
         Args:
             project_id (str): The Google Cloud project ID.
+            api_key (str, optional): The API key for authenticating with the GenAI API. Defaults to None.
             location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
             model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
             task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
@@ -54,6 +56,7 @@ class GcpVectoriser(VectoriserBase):
                 vertexai=True,
                 project=project_id,
                 location=location,
+                api_key=api_key,
             )
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
