@@ -39,7 +39,7 @@ def start_api(vector_stores, endpoint_names, port=8000):
         vector_stores (list): A list of vector store objects, each responsible for handling
                               embedding and search operations for a specific endpoint.
         endpoint_names (list): A list of endpoint names corresponding to the vector stores.
-        port (int, optional): The port on which the API server will run. Defaults to 8000.
+        port (int): [optional] The port on which the API server will run. Defaults to 8000.
 
 
     """
