@@ -1,0 +1,107 @@
+project:
+  type: website
+  render: 
+    - index.qmd
+    - docs/**.qmd
+    - classifai/**.py
+    - DEMO/**.ipynb
+    - DEMO/**.py
+    - DEMO/**.qmd
+    - README.md
+    - DEMO/README.md
+
+website:
+  title: "ClassifAI"
+  page-navigation: true
+  navbar:
+    background: light
+    search: true
+    left:
+      - file: docs/index.qmd
+        text: "Documentation"
+    right:
+      - icon: github
+        href: https://github.com/datasciencecampus/classifai
+
+  sidebar:
+    - id: index
+    - title: "Documentation"
+    - style: "docked"
+      contents:
+        - section: "Overview"
+          contents:
+            - docs/index.qmd
+        - section: "Vectorisers"
+          contents:
+            - section: "Vectorisers Overview"
+              contents:
+              - docs/vectorisers.base.VectoriserBase.qmd
+              - docs/vectorisers.base.VectoriserBase.transform.qmd
+            - section: "Specific Vectorisers"
+              contents:
+              - docs/vectorisers.huggingface.HuggingFaceVectoriser.qmd
+              - docs/vectorisers.ollama.OllamaVectoriser.qmd
+              - docs/vectorisers.gcp.GcpVectoriser.qmd
+        - section: "Indexers"
+          contents:
+            - docs/indexers.VectorStore.qmd
+            - docs/indexers.VectorStore.embed.qmd
+            - docs/indexers.VectorStore.search.qmd
+            - docs/indexers.VectorStore.reverse_search.qmd
+            - docs/indexers.VectorStore.from_filespace.qmd
+        - section: "Servers"
+          contents:
+            - docs/servers.start_api.qmd
+        - section: "DEMO"
+          contents:
+            - file: DEMO/README.md
+            - file: DEMO/general_workflow_demo.ipynb
+            - file: DEMO/custom_vectoriser.ipynb
+
+interlinks:
+ sources:
+   python:
+     url: https://docs.python.org/3/
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    grid:
+      sidebar-width: 400px
+      body-width: 900px
+      margin-width: 200px
+      gutter-width: 1.0rem
+
+quartodoc:
+  style: pkgdown
+  dir: docs
+  renderer:
+    style: _renderer.py
+    show_signature_annotations: false
+  # renderer:
+  #   style: markdown
+  package: classifai
+  parser: google
+  sections:
+    - title: Vectorisers
+      desc: "Utilities to project text into numerical representation in a semantic vector space"
+      contents:
+        - vectorisers.base.VectoriserBase
+        - vectorisers.base.VectoriserBase.transform
+        - vectorisers.huggingface.HuggingFaceVectoriser
+        - vectorisers.ollama.OllamaVectoriser
+        - vectorisers.gcp.GcpVectoriser
+    - title: Indexers
+      desc: "Creation of Vector Stores for efficient similarity search and retrieval"
+      contents:
+        - indexers.VectorStore
+        - indexers.VectorStore.embed
+        - indexers.VectorStore.search
+        - indexers.VectorStore.reverse_search
+        - indexers.VectorStore.from_filespace
+    - title: Servers
+      desc: "Expose ClassifAI functionality via Fast-API endpoints"
+      contents:
+        - servers.start_api

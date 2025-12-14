@@ -1,5 +1,7 @@
 """A module that provides a wrapper for Huggingface Transformers models to generate text embeddings."""
 
+from numpy import ndarray as np_ndarray
+
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
@@ -15,13 +17,13 @@ class HuggingFaceVectoriser(VectoriserBase):
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
     """
 
-    def __init__(self, model_name, device=None, model_revision="main"):
+    def __init__(self, model_name: str, device=None, model_revision: str = "main"):
         """Initializes the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
-            device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
-            model_revision (str, optional): The specific model revision to use. Defaults to "main".
+            device (torch.device): [optional] The device to use for computation. Defaults to GPU if available, otherwise CPU.
+            model_revision (str): [optional] The specific model revision to use. Defaults to "main".
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -40,11 +42,11 @@ class HuggingFaceVectoriser(VectoriserBase):
         self.model.to(self.device)
         self.model.eval()
 
-    def transform(self, texts):
+    def transform(self, texts: str | list[str]) -> np_ndarray:
         """Transforms input text(s) into embeddings using the Huggingface model.
 
         Args:
-            texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str,list[str]): The input text(s) to embed. Can be a single string or a list of strings.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.

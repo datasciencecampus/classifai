@@ -25,18 +25,18 @@ class GcpVectoriser(VectoriserBase):
 
     def __init__(
         self,
-        project_id,
-        location="europe-west2",
-        model_name="text-embedding-004",
-        task_type="RETRIEVAL_DOCUMENT",
+        project_id: str,
+        location: str = "europe-west2",
+        model_name: str = "text-embedding-004",
+        task_type: str = "RETRIEVAL_DOCUMENT",
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
             project_id (str): The Google Cloud project ID.
-            location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
-            model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
-            task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
+            location (str): [optional] The location of the GenAI API. Defaults to 'europe-west2'.
+            model_name (str): [optional] The name of the embedding model. Defaults to "text-embedding-004".
+            task_type (str): [optional] The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
 
@@ -58,11 +58,11 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
 
-    def transform(self, texts):
+    def transform(self, texts: str | list[str]) -> np.ndarray:
         """Transforms input text(s) into embeddings using the GenAI API.
 
         Args:
-            texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str,list[str]): The input text(s) to embed. Can be a single string or a list of strings.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
