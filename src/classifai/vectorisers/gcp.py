@@ -46,8 +46,6 @@ class GcpVectoriser(VectoriserBase):
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
 
-        # Run the Pydantic validator first which will raise errors if the inputs are invalid
-
         self.model_name = model_name
         self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
