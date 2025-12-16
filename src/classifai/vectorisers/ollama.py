@@ -1,5 +1,7 @@
 """A module for embedding text using a locally-running Ollama server."""
 
+import numpy as np
+
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
@@ -10,15 +12,13 @@ class OllamaVectoriser(VectoriserBase):
 
     Attributes:
         model_name (str): The name of the local model to use.
-        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
-    def __init__(self, model_name: str, hooks=None):
+    def __init__(self, model_name: str):
         """Initializes the OllamaVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the local model to use.
-            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Notes:
             requires an ollama server to be running locally (`ollama serve`)
@@ -26,8 +26,6 @@ class OllamaVectoriser(VectoriserBase):
         check_deps(["ollama"], extra="ollama")
 
         self.model_name = model_name
-
-        self.hooks = {} if hooks is None else hooks
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the Huggingface model.
@@ -43,28 +41,12 @@ class OllamaVectoriser(VectoriserBase):
         """
         import ollama  # type: ignore
 
-        if type(texts) is str:
+        if isinstance(texts, str):
             texts = [texts]
 
-        if type(texts) is not list:
+        if not isinstance(texts, list):
             raise TypeError("Input texts must be a string or a list of strings.")
-
-        # Check if there is a user defined preprocess hook for the OllamaVectoriser transform method
-        if "transform_preprocess" in self.hooks:
-            # pass the args to the preprocessing function as a dictionary
-            hook_output = self.hooks["transform_preprocess"]({"texts": texts})
-
-            # Unpack the dictionary back into the argument variables
-            texts = hook_output.get("texts", texts)
 
         response = ollama.embed(model=self.model_name, input=texts)
 
-        # Check if there is a user defined postprocess hook for the OllamaVectoriser transform method
-        if "transform_postprocess" in self.hooks:
-            # pass args to the postprocessing function as a dictionary
-            hook_output = self.hooks["transform_postprocess"]({"embeddings": response.embeddings})
-
-            # Unpack the dictionary back into the argument variables
-            embeddings = hook_output.get("embeddings", response)
-
-        return embeddings
+        return np.array(response.embeddings)

@@ -21,7 +21,6 @@ class GcpVectoriser(VectoriserBase):
     Attributes:
         model_name (str): The name of the embedding model to use.
         vectoriser (genai.Client): The GenAI client instance for embedding text.
-        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
     def __init__(
@@ -30,7 +29,6 @@ class GcpVectoriser(VectoriserBase):
         location="europe-west2",
         model_name="text-embedding-004",
         task_type="RETRIEVAL_DOCUMENT",
-        hooks=None,
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
@@ -41,7 +39,6 @@ class GcpVectoriser(VectoriserBase):
             task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
-            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Raises:
             RuntimeError: If the GenAI client fails to initialize.
@@ -63,8 +60,6 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
 
-        self.hooks = {} if hooks is None else hooks
-
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
 
@@ -77,19 +72,11 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
-        if type(texts) is str:
+        if isinstance(texts, str):
             texts = [texts]
 
-        if type(texts) is not list:
-            raise TypeError("Input texts must be a string or a list of strings.")
-
-        # Check if there is a user defined preprocess hook for the GCPVectoriser transform method
-        if "transform_preprocess" in self.hooks["transform_preprocess"]:
-            # pass the args to the preprocessing function as a dictionary
-            hook_output = self.hooks["transform_preprocess"]({"texts": texts})
-
-            # Unpack the dictionary back into the argument variables
-            texts = hook_output.get("texts", texts)
+        if not isinstance(texts, list):
+            raise TypeError("Input must be a string or a list of strings.")
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
@@ -99,13 +86,5 @@ class GcpVectoriser(VectoriserBase):
         # Extract embeddings from the response object
         # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
-
-        # Check if there is a user defined postprocess hook for the GCPVectoriser transform method
-        if self.hooks["transform_postprocess"]:
-            # pass the args to the postprocessing function as a dictionary
-            hook_output = self.hooks["transform_postprocess"]({"embeddings": result})
-
-            # Unpack the dictionary back into the argument variables
-            result = hook_output.get("embeddings", result)
 
         return result
