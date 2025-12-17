@@ -58,6 +58,7 @@ class VectorStore:
         vector_shape (int): the dimension of the vectors
         num_vectors (int): how many vectors are in the vector store
         vectoriser_class (str): the type of vectoriser used to create embeddings
+        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
     def __init__(  # noqa: PLR0913
@@ -69,6 +70,7 @@ class VectorStore:
         meta_data=None,
         output_dir=None,
         overwrite=False,
+        hooks=None,
     ):
         """Initializes the VectorStore object by processing the input CSV file and generating
         vector embeddings.
@@ -85,24 +87,28 @@ class VectorStore:
             output_dir (str, optional): The directory where the vector store will be saved.
                                 Defaults to None, where input file name will be used.
             overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
+            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
 
         Raises:
             ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
         """
+        # Run the Pydantic validator first which will raise errors if the inputs are invalid
+
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
         self.batch_size = batch_size
         self.meta_data = meta_data if meta_data is not None else {}
+        self.output_dir = output_dir
         self.vectors = None
         self.vector_shape = None
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
-        self.output_dir = output_dir
+        self.hooks = {} if hooks is None else hooks
 
         if self.data_type not in ["csv"]:
-            raise ValueError("Data type must be one of ['csv'].")
+            raise ValueError(f"Data type '{self.data_type}' not supported. Choose from ['csv'].")
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -250,13 +256,24 @@ class VectorStore:
             pd.DataFrame: DataFrame containing search results with columns for query ID, matching
                           document ID, document text and metadata.
         """
-        # if the query is a string, convert it to a list
+        # if the query is a string convert to list
         if isinstance(query, str):
             query = [query]
 
+        ids = ids if ids is not None else list(range(len(query)))
+
+        # Check if there is a user defined preprocess hook for the VectorStore reverse search method
+        if self.hooks["reverse_search_preprocess"]:
+            # pass the args as a dictionary to the preprocessing function
+            hook_output = self.hooks["reverse_search_preprocess"]({"query": query, "ids": ids, "n_results": n_results})
+
+            # Unpack the dictionary back into the argument variables
+            query = hook_output.get("query", query)
+            ids = hook_output.get("ids", ids)
+            n_results = hook_output.get("n_results", n_results)
+
         # pair query ids with input ids
-        query_ids = ids if ids else list(range(0, len(query)))
-        paired_query = pl.DataFrame({"query_id": query_ids, "id": query})
+        paired_query = pl.DataFrame({"query_id": ids, "id": query})
 
         # join query with vdb to get matches
         joined_table = paired_query.join(self.vectors, on="id", how="inner")
@@ -274,7 +291,17 @@ class VectorStore:
             ]
         )
 
-        return final_table.to_pandas()
+        result_df = final_table.to_pandas()
+
+        # Check if there is a user defined postprocess hook for the VectorStore reverse search method
+        if self.hooks["reverse_search_postprocess"]:
+            # pass the args as a dictionary to the postprocessing function
+            hook_output = self.hooks["reverse_search_postprocess"]({"dataframe": result_df})
+
+            # Unpack the dictionary back into the argument variables
+            result_df = hook_output.get("dataframe", result_df)
+
+        return result_df
 
     def search(self, query, ids=None, n_results=10, batch_size=8):
         """Searches the vector store using a text query or list of queries and returns
@@ -294,21 +321,29 @@ class VectorStore:
         Raises:
             ValueError: Raised if invalid arguments are passed.
         """
-        # if the query is a string, convert it to a list
+        # if the query is a string convert to list
         if isinstance(query, str):
             query = [query]
 
-        if (ids is not None) and not all(
-            [
-                isinstance(ids, list),
-                all(isinstance(id, (str, int)) for id in ids),
-                len(ids) == len(query),
-                len(set(ids)) == len(ids),
-            ]
-        ):
-            raise ValueError(
-                "'ids' argument must be a list of unique ints or strings, matching the length of the query argument."
+        # if ids are provided, check they are the correct length and a list
+        if (ids is not None) and not (isinstance(ids, list) and len(ids) == len(query)):
+            raise ValueError("If ids are provided, they must be a list of the same length as the number of queries.")
+
+        # set default ids if none provided
+        ids = ids if ids is not None else list(range(len(query)))
+
+        # Check if there is a user defined preprocess hook for the VectorStore search method
+        if "search_preprocess" in self.hooks:
+            # Pass the args as a dictionary to the preprocessing function
+            hook_output = self.hooks["search_preprocess"](
+                {"query": query, "ids": ids, "n_results": n_results, "batch_size": batch_size}
             )
+
+            # Unpack the dictionary back into the argument variables
+            query = hook_output.get("query", query)
+            ids = hook_output.get("ids", ids)
+            n_results = hook_output.get("n_results", n_results)
+            batch_size = hook_output.get("batch_size", batch_size)
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -376,8 +411,19 @@ class VectorStore:
                 *self.meta_data.keys(),
             ]
         )
+
         # Now that polars has been used for processing convert back to pandas for user familiarity
-        return reordered_df.to_pandas()
+        result_df = reordered_df.to_pandas()
+
+        # Check if there is a user defined postprocess hook for the VectorStore search method
+        if "search_postprocess" in self.hooks:
+            # pass the args as a dictionary to the postprocessing function
+            hook_output = self.hooks["search_postprocess"]({"dataframe": result_df})
+
+            # Unpack the dictionary back into the argument variables
+            result_df = hook_output.get("dataframe", result_df)
+
+        return result_df
 
     @classmethod
     def from_filespace(cls, folder_path, vectoriser):
@@ -401,7 +447,7 @@ class VectorStore:
         Raises:
             ValueError: If required files or metadata keys are missing, or if the vectoriser class does not match.
         """
-        # check that the metadataq, vectoiser info and parquet exist
+        # check that the metadata, vectoiser info and parquet exist
         # load the metadata file
 
         metadata_path = os.path.join(folder_path, "metadata.json")
