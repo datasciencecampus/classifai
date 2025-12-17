@@ -9,7 +9,6 @@ import numpy as np
 from classifai._optional import check_deps
 
 from .base import VectoriserBase
-from .boundaries import GcpVectoriserInput, TransformInput, TransformOutput
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
@@ -47,22 +46,14 @@ class GcpVectoriser(VectoriserBase):
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
 
-        # Run the Pydantic validator first which will raise errors if the inputs are invalid
-        validated_inputs = GcpVectoriserInput(
-            project_id=project_id,
-            location=location,
-            model_name=model_name,
-            task_type=task_type,
-        )
-
-        self.model_name = validated_inputs.model_name
-        self.model_config = genai.types.EmbedContentConfig(task_type=validated_inputs.task_type)
+        self.model_name = model_name
+        self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
         try:
             self.vectoriser = genai.Client(
                 vertexai=True,
-                project=validated_inputs.project_id,
-                location=validated_inputs.location,
+                project=project_id,
+                location=location,
             )
         except Exception as e:
             raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
@@ -79,19 +70,13 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
-        # Run the Pydantic validator first which will raise errors if the inputs are invalid
-        validated_input = TransformInput(texts=texts)
-
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(
-            model=self.model_name, contents=validated_input.texts, config=self.model_config
+            model=self.model_name, contents=texts, config=self.model_config
         )
 
         # Extract embeddings from the response object
         # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
 
-        # Validate the output before returning which will raise errors if the outputs are invalid
-        validated_output = TransformOutput(embeddings=result)
-
-        return validated_output.embeddings
+        return result
