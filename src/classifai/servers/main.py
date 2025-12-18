@@ -29,7 +29,7 @@ from .pydantic_models import (
 )
 
 
-def start_api(vector_stores, endpoint_names, port=8000):
+def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
     """Initialize and start the FastAPI application with dynamically created endpoints.
     This function dynamically registers embedding and search endpoints for each provided
     vector store and endpoint name. It also sets up a default route to redirect users to
