@@ -41,6 +41,12 @@ class OllamaVectoriser(VectoriserBase):
         """
         import ollama  # type: ignore
 
+        if isinstance(texts, str):
+            texts = [texts]
+
+        if not isinstance(texts, list):
+            raise TypeError("Input must be a string or a list of strings.")
+
         response = ollama.embed(model=self.model_name, input=texts)
 
         return np.array(response.embeddings)

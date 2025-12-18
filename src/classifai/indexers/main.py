@@ -37,6 +37,13 @@ import numpy as np
 import polars as pl
 from tqdm.autonotebook import tqdm
 
+from .dataclasses import (
+    ClassifaiReverseSearchInput,
+    ClassifaiReverseSearchOutput,
+    ClassifaiSearchInput,
+    ClassifaiSearchOutput,
+)
+
 # Configure logging for your application
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 logging.getLogger("httpcore").setLevel(logging.WARNING)
@@ -242,38 +249,38 @@ class VectorStore:
         """
         return self.vectoriser.transform(text)
 
-    def reverse_search(self, query, ids=None, n_results=100):
-        """Reverse searches the vector store using a input code or list of codes and returns
-        matched results. In batches, converts users text queries into vector embeddings,
+    def reverse_search(self, query: ClassifaiReverseSearchInput, n_results=100):
+        """Reverse searches the vector store using a ClassifaiReverseSearch input and returns
+        matched results in ClassifaiReverseSearch output. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
-            query (str or list): The text query or list of queries to search for.
-            ids (list, optional): List of query IDs. Defaults to None.
+            query (str or list): A ClassifaiReverseSearchInput object containing the text query or list of queries to search for with ids.
             n_results (int, optional): Number of top results to return for each query. Default 100.
 
         Returns:
-            pd.DataFrame: DataFrame containing search results with columns for query ID, matching
-                          document ID, document text and metadata.
-        """
-        # if the query is a string convert to list
-        if isinstance(query, str):
-            query = [query]
+            result_df (ClassifaiReverseSearchOutput): A ClassifaiReverseSearchOutput object containing reverse search results with columns for query ID, query text,
+                          document ID, document text and any associated metadata columns.
 
-        ids = ids if ids is not None else list(range(len(query)))
+        Raises:
+            ValueError: Raised if invalid arguments are passed.
+        """
+        # Validate the input object
+        if not isinstance(query, ClassifaiReverseSearchInput):
+            raise ValueError("Query must be a ClassifaiReverseSearchInput object.")
 
         # Check if there is a user defined preprocess hook for the VectorStore reverse search method
-        if self.hooks["reverse_search_preprocess"]:
-            # pass the args as a dictionary to the preprocessing function
-            hook_output = self.hooks["reverse_search_preprocess"]({"query": query, "ids": ids, "n_results": n_results})
-
-            # Unpack the dictionary back into the argument variables
-            query = hook_output.get("query", query)
-            ids = hook_output.get("ids", ids)
-            n_results = hook_output.get("n_results", n_results)
+        if "reverse_search_preprocess" in self.hooks:
+            modified_query = self.hooks["reverse_search_preprocess"](query)
+            try:
+                query = ClassifaiReverseSearchInput.from_data(modified_query)
+            except Exception as e:
+                raise ValueError(
+                    f"Preprocessing hook returned an invalid ClassifaiReverseSearchInput object. Error: {e}"
+                ) from e
 
         # pair query ids with input ids
-        paired_query = pl.DataFrame({"query_id": ids, "id": query})
+        paired_query = pl.DataFrame({"query_id": query.id, "id": query.text})
 
         # join query with vdb to get matches
         joined_table = paired_query.join(self.vectors, on="id", how="inner")
@@ -291,59 +298,50 @@ class VectorStore:
             ]
         )
 
-        result_df = final_table.to_pandas()
+        result_df = ClassifaiReverseSearchOutput.from_data(final_table.to_pandas())
 
         # Check if there is a user defined postprocess hook for the VectorStore reverse search method
-        if self.hooks["reverse_search_postprocess"]:
-            # pass the args as a dictionary to the postprocessing function
-            hook_output = self.hooks["reverse_search_postprocess"]({"dataframe": result_df})
-
-            # Unpack the dictionary back into the argument variables
-            result_df = hook_output.get("dataframe", result_df)
+        if "reverse_search_postprocess" in self.hooks:
+            modified_result_df = self.hooks["reverse_search_postprocess"](result_df)
+            try:
+                result_df = ClassifaiReverseSearchOutput.from_data(modified_result_df)
+            except Exception as e:
+                raise ValueError(
+                    f"Preprocessing hook returned an invalid ClassifaiReverseSearchOutput object. Error: {e}"
+                ) from e
 
         return result_df
 
-    def search(self, query, ids=None, n_results=10, batch_size=8):
-        """Searches the vector store using a text query or list of queries and returns
-        ranked results. In batches, converts users text queries into vector embeddings,
+    def search(self, query: ClassifaiSearchInput, n_results=10, batch_size=8):
+        """Searches the vector store using queries from a ClassifaiSearchInput and returns
+        ranked results in ClassifaiSearchOutput object. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
-            query (str or list): The text query or list of queries to search for.
-            ids (list, optional): List of query IDs. Defaults to None.
+            query (ClassifaiSearchInput): A ClassifaiSearchInput object containing the text query or list of queries to search for with ids.
             n_results (int, optional): Number of top results to return for each query. Default 10.
             batch_size (int, optional): The batch size for processing queries. Default 8.
 
         Returns:
-            pd.DataFrame: DataFrame containing search results with columns for query ID, query text,
-                          document ID, document text, rank, score, and metadata.
+            result_df (ClassifaiSearchOutput): A ClassifaiSearchOutput object containing search results with columns for query ID, query text,
+                          document ID, document text, rank, score, and any associated metadata columns.
 
         Raises:
             ValueError: Raised if invalid arguments are passed.
         """
-        # if the query is a string convert to list
-        if isinstance(query, str):
-            query = [query]
-
-        # if ids are provided, check they are the correct length and a list
-        if (ids is not None) and not (isinstance(ids, list) and len(ids) == len(query)):
-            raise ValueError("If ids are provided, they must be a list of the same length as the number of queries.")
-
-        # set default ids if none provided
-        ids = ids if ids is not None else list(range(len(query)))
+        # Validate the input object
+        if not isinstance(query, ClassifaiSearchInput):
+            raise ValueError("Query must be a ClassifaiSearchInput object.")
 
         # Check if there is a user defined preprocess hook for the VectorStore search method
         if "search_preprocess" in self.hooks:
-            # Pass the args as a dictionary to the preprocessing function
-            hook_output = self.hooks["search_preprocess"](
-                {"query": query, "ids": ids, "n_results": n_results, "batch_size": batch_size}
-            )
-
-            # Unpack the dictionary back into the argument variables
-            query = hook_output.get("query", query)
-            ids = hook_output.get("ids", ids)
-            n_results = hook_output.get("n_results", n_results)
-            batch_size = hook_output.get("batch_size", batch_size)
+            modified_query = self.hooks["search_preprocess"](query)
+            try:
+                query = ClassifaiSearchInput.from_data(modified_query)
+            except Exception as e:
+                raise ValueError(
+                    f"Preprocessing hook returned an invalid ClassifaiSearchInput object. Error: {e}"
+                ) from e
 
         # Initialize an empty list to store results from each batch
         all_results = []
@@ -351,11 +349,11 @@ class VectorStore:
         # Process the queries in batches
         for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
             # Get the current batch of queries
-            query_batch = query[i : i + batch_size]
-            query_ids_batch = ids[i : i + batch_size] if ids else list(range(i, i + len(query_batch)))
+            query_text_batch = query.text[i : i + batch_size]
+            query_ids_batch = query.id[i : i + batch_size]
 
             # Convert the current batch of queries to vectors
-            query_vectors = self.vectoriser.transform(query_batch)
+            query_vectors = self.vectoriser.transform(query_text_batch)
 
             # Compute cosine similarity between the query batch and document vectors
             cosine = query_vectors @ self.vectors["embeddings"].to_numpy().T
@@ -377,8 +375,8 @@ class VectorStore:
             result_df = pl.DataFrame(
                 {
                     "query_id": np.repeat(query_ids_batch, n_results),
-                    "query_text": np.repeat(query_batch, n_results),
-                    "rank": np.tile(np.arange(n_results), len(query_batch)),
+                    "query_text": np.repeat(query_text_batch, n_results),
+                    "rank": np.tile(np.arange(n_results), len(query_text_batch)),
                     "score": scores.flatten(),
                 }
             )
@@ -413,15 +411,17 @@ class VectorStore:
         )
 
         # Now that polars has been used for processing convert back to pandas for user familiarity
-        result_df = reordered_df.to_pandas()
+        result_df = ClassifaiSearchOutput(reordered_df.to_pandas())
 
         # Check if there is a user defined postprocess hook for the VectorStore search method
         if "search_postprocess" in self.hooks:
-            # pass the args as a dictionary to the postprocessing function
-            hook_output = self.hooks["search_postprocess"]({"dataframe": result_df})
-
-            # Unpack the dictionary back into the argument variables
-            result_df = hook_output.get("dataframe", result_df)
+            modified_result_df = self.hooks["search_postprocess"](result_df)
+            try:
+                result_df = ClassifaiSearchOutput.from_data(modified_result_df)
+            except Exception as e:
+                raise ValueError(
+                    f"Preprocessing hook returned an invalid ClassifaiSearchOutput object. Error: {e}"
+                ) from e
 
         return result_df
 
