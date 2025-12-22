@@ -54,11 +54,9 @@ class HuggingFaceVectoriser(VectoriserBase):
         """
         import torch  # type: ignore
 
+        # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
-
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
 
         # Tokenise input texts
         inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)

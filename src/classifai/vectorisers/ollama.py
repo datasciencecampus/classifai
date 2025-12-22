@@ -41,11 +41,9 @@ class OllamaVectoriser(VectoriserBase):
         """
         import ollama  # type: ignore
 
+        # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
-
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
 
         response = ollama.embed(model=self.model_name, input=texts)
 
