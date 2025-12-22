@@ -70,11 +70,9 @@ class GcpVectoriser(VectoriserBase):
         Raises:
             TypeError: If the input is not a string or a list of strings.
         """
+        # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
-
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
 
         # The Vertex AI call to  embed content
         embeddings = self.vectoriser.models.embed_content(

@@ -1,76 +1,93 @@
+import numpy as np
 import pandas as pd
-import pandera as pa
-from pandera.typing import Series
+import pandera.pandas as pa
+
+##
+# Search Input DataClass
+##
+searchInputSchema = pa.DataFrameSchema(
+    {
+        "id": pa.Column(str),
+        "query": pa.Column(str),
+    },
+    coerce=True,
+)
 
 
-class SearchInputSchema(pa.DataFrameModel):
-    id: Series[str]  # Ensure the 'id' column is a string
-    text: Series[str]  # Ensure the 'text' column is a string
+class VectorStoreSearchInput(pd.DataFrame):
+    _schema = searchInputSchema
 
-    # Additional metadata columns can be added dynamically if needed
-    class Config:
-        strict = False  # No additional columns allowed
+    def __init__(self, data: dict | pd.DataFrame):
+        """Initialize the class with validated data."""
+        # Use the from_data logic to validate the input
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = self._schema.validate(df)  # Validate against the schema
 
-
-class SearchOutputSchema(pa.DataFrameModel):
-    query_id: Series[str]
-    query_text: Series[str]
-    doc_id: Series[str]
-    doc_text: Series[str]
-    rank: Series[int] = pa.Field(ge=0)  # Non-negative integers
-    score: Series[float] = pa.Field(ge=0.0, le=1.0)  # Scores between 0 and 1
-
-    # Additional metadata columns can be added dynamically if needed
-    class Config:
-        strict = False
-
-
-class ReverseSearchInputSchema(pa.DataFrameModel):
-    id: Series[str]  # Ensure the 'id' column is a string
-    text: Series[str]  # Ensure the 'text' column is a string
-
-    # Additional metadata columns can be added dynamically if needed
-    class Config:
-        strict = False
-
-
-class ReverseSearchOutputSchema(pa.DataFrameModel):
-    query_id: Series[str]
-    doc_id: Series[str]
-    doc_text: Series[str]
-
-    class Config:
-        strict = False
-
-
-class ClassifaiSearchInput(pd.DataFrame):
-    _schema = SearchInputSchema
+        # Call the superclass (pd.DataFrame) constructor
+        super().__init__(validated_df)
 
     @classmethod
-    def from_data(cls, data: dict | pd.DataFrame) -> "ClassifaiSearchInput":
-        """Create a validated ClassifaiSearchInput from a dictionary or DataFrame."""
+    def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreSearchInput":
+        """Create a validated VectorStoreSearchInput from a dictionary or DataFrame."""
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
+
+    @classmethod
+    def validate(cls, df: pd.DataFrame) -> "VectorStoreSearchInput":
+        """Validate an existing DataFrame against the schema and return a VectorStoreSearchInput."""
+        validated_df = cls._schema.validate(df)
+        return validated_df
 
     @property
     def id(self) -> pd.Series:
         return self["id"]
 
     @property
-    def text(self) -> pd.Series:
-        return self["text"]
+    def query(self) -> pd.Series:
+        return self["query"]
 
 
-class ClassifaiSearchOutput(pd.DataFrame):
-    _schema = SearchOutputSchema
+##
+# Search Output DataClass
+##
+searchOutputSchema = pa.DataFrameSchema(
+    {
+        "query_id": pa.Column(str),
+        "query_text": pa.Column(str),
+        "doc_id": pa.Column(str),
+        "rank": pa.Column(int, pa.Check.ge(0)),
+        "score": pa.Column(float),
+    },
+    ordered=True,
+    coerce=True,
+)
+
+
+class VectorStoreSearchOutput(pd.DataFrame):
+    _schema = searchOutputSchema
+
+    def __init__(self, data: dict | pd.DataFrame):
+        """Initialize the class with validated data."""
+        # Use the from_data logic to validate the input
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = self._schema.validate(df)  # Validate against the schema
+
+        # Call the superclass (pd.DataFrame) constructor
+        super().__init__(validated_df)
 
     @classmethod
-    def from_data(cls, data: dict | pd.DataFrame) -> "ClassifaiSearchOutput":
-        """Create a validated ClassifaiSearchOutput from a dictionary or DataFrame."""
+    def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreSearchOutput":
+        """Create a validated VectorStoreSearchOutput from a dictionary or DataFrame."""
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
+
+    @classmethod
+    def validate(cls, df: pd.DataFrame) -> "VectorStoreSearchOutput":
+        """Validate an existing instance against the schema and return a VectorStoreSearchOutput."""
+        validated_df = cls._schema.validate(df)
+        return validated_df
 
     @property
     def query_id(self) -> pd.Series:
@@ -97,15 +114,138 @@ class ClassifaiSearchOutput(pd.DataFrame):
         return self["score"]
 
 
-class ClassifaiReverseSearchInput(pd.DataFrame):
-    _schema = ReverseSearchInputSchema
+##
+# Reverse Search Input DataClass
+##
+reverseSearchInputSchema = pa.DataFrameSchema(
+    {
+        "id": pa.Column(str),
+        "doc_id": pa.Column(str),
+    },
+    coerce=True,
+)
+
+
+class VectorStoreReverseSearchInput(pd.DataFrame):
+    _schema = reverseSearchInputSchema
+
+    def __init__(self, data: dict | pd.DataFrame):
+        """Initialize the class with validated data."""
+        # Use the from_data logic to validate the input
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = self._schema.validate(df)  # Validate against the schema
+
+        # Call the superclass (pd.DataFrame) constructor
+        super().__init__(validated_df)
 
     @classmethod
-    def from_data(cls, data: dict | pd.DataFrame) -> "ClassifaiReverseSearchInput":
-        """Create a validated ClassifaiReverseSearchInput from a dictionary or DataFrame."""
+    def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreReverseSearchInput":
+        """Create a validated VectorStoreReverseSearchInput from a dictionary or DataFrame."""
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
+
+    @classmethod
+    def validate(cls, df: pd.DataFrame) -> "VectorStoreReverseSearchInput":
+        """Validate an existing instance against the schema and return a VectorStoreReverseSearchInput."""
+        validated_df = cls._schema.validate(df)
+        return validated_df
+
+    @property
+    def id(self) -> pd.Series:
+        return self["id"]
+
+    @property
+    def text(self) -> pd.Series:
+        return self["doc_id"]
+
+
+##
+# Reverse Search Output DataClass
+##
+reverseSearchOutputSchema = pa.DataFrameSchema(
+    {
+        "id": pa.Column(str),
+        "doc_id": pa.Column(str),
+        "doc_text": pa.Column(str),
+    }
+)
+
+
+class VectorStoreReverseSearchOutput(pd.DataFrame):
+    _schema = reverseSearchOutputSchema
+
+    def __init__(self, data: dict | pd.DataFrame):
+        """Initialize the class with validated data."""
+        # Use the from_data logic to validate the input
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = self._schema.validate(df)  # Validate against the schema
+
+        # Call the superclass (pd.DataFrame) constructor
+        super().__init__(validated_df)
+
+    @classmethod
+    def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreReverseSearchOutput":
+        """Create a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame."""
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = cls._schema.validate(df)  # Validate against the schema
+        return cls(validated_df)
+
+    @classmethod
+    def validate(cls, df: pd.DataFrame) -> "VectorStoreReverseSearchOutput":
+        """Validate an existing instance against the schema and return a VectorStoreReverseSearchOutputs."""
+        validated_df = cls._schema.validate(df)
+        return validated_df
+
+    @property
+    def query_id(self) -> pd.Series:
+        return self["input_doc_id"]
+
+    @property
+    def doc_id(self) -> pd.Series:
+        return self["retrieved_doc_id"]
+
+    @property
+    def doc_text(self) -> pd.Series:
+        return self["doc_text"]
+
+
+##
+# Embed Input DataClass
+##
+embedInputSchema = pa.DataFrameSchema(
+    {
+        "id": pa.Column(str),
+        "text": pa.Column(str),
+    },
+    coerce=True,
+)
+
+
+class VectorStoreEmbedInput(pd.DataFrame):
+    _schema = embedInputSchema
+
+    def __init__(self, data: dict | pd.DataFrame):
+        """Initialize the class with validated data."""
+        # Use the from_data logic to validate the input
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = self._schema.validate(df)  # Validate against the schema
+
+        # Call the superclass (pd.DataFrame) constructor
+        super().__init__(validated_df)
+
+    @classmethod
+    def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreEmbedInput":
+        """Create a validated VectorStoreEmbedInput from a dictionary or DataFrame."""
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = cls._schema.validate(df)  # Validate against the schema
+        return cls(validated_df)
+
+    @classmethod
+    def validate(cls, df: pd.DataFrame) -> "VectorStoreEmbedInput":
+        """Validate an existing instance against the schema and return a VectorStoreEmbedInput."""
+        validated_df = cls._schema.validate(df)
+        return validated_df
 
     @property
     def id(self) -> pd.Series:
@@ -116,24 +256,52 @@ class ClassifaiReverseSearchInput(pd.DataFrame):
         return self["text"]
 
 
-class ClassifaiReverseSearchOutput(pd.DataFrame):
-    _schema = ReverseSearchOutputSchema
+##
+# Embed Ouput DataClass
+##
+embedOutputSchema = pa.DataFrameSchema(
+    {
+        "id": pa.Column(str),
+        "text": pa.Column(str),
+        "embedding": pa.Column(object, pa.Check(lambda x: isinstance(x, np.ndarray), element_wise=True)),
+    },
+    coerce=True,
+)
+
+
+class VectorStoreEmbedOutput(pd.DataFrame):
+    _schema = embedOutputSchema
+
+    def __init__(self, data: dict | pd.DataFrame):
+        """Initialize the class with validated data."""
+        # Use the from_data logic to validate the input
+        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        validated_df = self._schema.validate(df)  # Validate against the schema
+
+        # Call the superclass (pd.DataFrame) constructor
+        super().__init__(validated_df)
 
     @classmethod
-    def from_data(cls, data: dict | pd.DataFrame) -> "ClassifaiReverseSearchOutput":
-        """Create a validated ClassifaiSearchOutput from a dictionary or DataFrame."""
+    def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreEmbedOutput":
+        """Create a validated VectorStoreEmbedOutput from a dictionary or DataFrame."""
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
 
-    @property
-    def query_id(self) -> pd.Series:
-        return self["query_id"]
+    @classmethod
+    def validate(cls, df: pd.DataFrame) -> "VectorStoreEmbedOutput":
+        """Validate an existing instance against the schema and return a VectorStoreEmbedOutput."""
+        validated_df = cls._schema.validate(df)
+        return validated_df
 
     @property
-    def doc_id(self) -> pd.Series:
-        return self["doc_id"]
+    def id(self) -> pd.Series:
+        return self["id"]
 
     @property
-    def doc_text(self) -> pd.Series:
-        return self["doc_text"]
+    def text(self) -> pd.Series:
+        return self["text"]
+
+    @property
+    def embedding(self) -> pd.Series:
+        return self["embedding"]

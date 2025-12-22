@@ -17,6 +17,7 @@ import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 
+from ..indexers.dataclasses import VectorStoreEmbedInput, VectorStoreSearchInput
 from .pydantic_models import (
     ClassifaiData,
     EmbeddingsList,
@@ -69,15 +70,17 @@ def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
             input_ids = [x.id for x in data.entries]
             documents = [x.description for x in data.entries]
 
-            embeddings = vector_store.embed(documents)
+            input_data = VectorStoreEmbedInput({"id": input_ids, "text": documents})
+
+            output_data = vector_store.embed(input_data)
 
             returnable = []
-            for idx, desc, embed in zip(input_ids, documents, embeddings, strict=True):
+            for _, row in output_data.iterrows():
                 returnable.append(
                     EmbeddingsList(
-                        idx=idx,
-                        description=desc,
-                        embedding=embed.tolist(),
+                        idx=row["id"],
+                        description=row["text"],
+                        embedding=row["embedding"],
                     )
                 )
             return EmbeddingsResponseBody(data=returnable)
@@ -109,10 +112,12 @@ def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
             input_ids = [x.id for x in data.entries]
             queries = [x.description for x in data.entries]
 
-            query_result = vector_store.search(query=queries, ids=input_ids, n_results=n_results)
+            input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
+
+            output_data = vector_store.search(query=input_data, n_results=n_results)
             ##post processing of the pandas dataframe
             formatted_result = convert_dataframe_to_pydantic_response(
-                df=query_result,
+                df=output_data,
                 meta_data=vector_stores[endpoint_index_map[endpoint_name]].meta_data,
             )
 

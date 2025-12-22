@@ -1,17 +1,21 @@
 """Indexers package."""
 
 from .dataclasses import (
-    ClassifaiReverseSearchInput,
-    ClassifaiReverseSearchOutput,
-    ClassifaiSearchInput,
-    ClassifaiSearchOutput,
+    VectorStoreEmbedInput,
+    VectorStoreEmbedOutput,
+    VectorStoreReverseSearchInput,
+    VectorStoreReverseSearchOutput,
+    VectorStoreSearchInput,
+    VectorStoreSearchOutput,
 )
 from .main import VectorStore
 
 __all__ = [
-    "ClassifaiReverseSearchInput",
-    "ClassifaiReverseSearchOutput",
-    "ClassifaiSearchInput",
-    "ClassifaiSearchOutput",
     "VectorStore",
+    "VectorStoreEmbedInput",
+    "VectorStoreEmbedOutput",
+    "VectorStoreReverseSearchInput",
+    "VectorStoreReverseSearchOutput",
+    "VectorStoreSearchInput",
+    "VectorStoreSearchOutput",
 ]
