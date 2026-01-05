@@ -37,7 +37,7 @@ class VectorStoreSearchInput(pd.DataFrame):
     def validate(cls, df: pd.DataFrame) -> "VectorStoreSearchInput":
         """Validate an existing DataFrame against the schema and return a VectorStoreSearchInput."""
         validated_df = cls._schema.validate(df)
-        return validated_df
+        return cls(validated_df)
 
     @property
     def id(self) -> pd.Series:
@@ -87,7 +87,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
     def validate(cls, df: pd.DataFrame) -> "VectorStoreSearchOutput":
         """Validate an existing instance against the schema and return a VectorStoreSearchOutput."""
         validated_df = cls._schema.validate(df)
-        return validated_df
+        return cls(validated_df)
 
     @property
     def query_id(self) -> pd.Series:
@@ -149,7 +149,7 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
     def validate(cls, df: pd.DataFrame) -> "VectorStoreReverseSearchInput":
         """Validate an existing instance against the schema and return a VectorStoreReverseSearchInput."""
         validated_df = cls._schema.validate(df)
-        return validated_df
+        return cls(validated_df)
 
     @property
     def id(self) -> pd.Series:
@@ -195,7 +195,7 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
     def validate(cls, df: pd.DataFrame) -> "VectorStoreReverseSearchOutput":
         """Validate an existing instance against the schema and return a VectorStoreReverseSearchOutputs."""
         validated_df = cls._schema.validate(df)
-        return validated_df
+        return cls(validated_df)
 
     @property
     def query_id(self) -> pd.Series:
@@ -245,7 +245,7 @@ class VectorStoreEmbedInput(pd.DataFrame):
     def validate(cls, df: pd.DataFrame) -> "VectorStoreEmbedInput":
         """Validate an existing instance against the schema and return a VectorStoreEmbedInput."""
         validated_df = cls._schema.validate(df)
-        return validated_df
+        return cls(validated_df)
 
     @property
     def id(self) -> pd.Series:
@@ -292,7 +292,7 @@ class VectorStoreEmbedOutput(pd.DataFrame):
     def validate(cls, df: pd.DataFrame) -> "VectorStoreEmbedOutput":
         """Validate an existing instance against the schema and return a VectorStoreEmbedOutput."""
         validated_df = cls._schema.validate(df)
-        return validated_df
+        return cls(validated_df)
 
     @property
     def id(self) -> pd.Series:

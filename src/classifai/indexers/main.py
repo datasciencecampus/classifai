@@ -329,7 +329,7 @@ class VectorStore:
                 pl.col("id").cast(str),
                 pl.col("doc_id").cast(str),
                 pl.col("text").cast(str).alias("doc_text"),
-                *[pl.col(key).cast(value) for key, value in self.meta_data.items()],
+                *[pl.col(key) for key in self.meta_data],
             ]
         )
 
@@ -550,5 +550,6 @@ class VectorStore:
         vector_store.vector_shape = metadata["vector_shape"]
         vector_store.num_vectors = metadata["num_vectors"]
         vector_store.vectoriser_class = metadata["vectoriser_class"]
+        vector_store.hooks = {}
 
         return vector_store

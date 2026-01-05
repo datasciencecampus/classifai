@@ -102,43 +102,32 @@ class EmbeddingsResponseBody(BaseModel):
     data: list[EmbeddingsList]
 
 
-def convert_dataframe_to_reverse_search_pydantic_response(
-    df: pd.DataFrame, meta_data: dict, ids: list[str]
-) -> RevResultsResponseBody:
+def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta_data: dict) -> RevResultsResponseBody:
     """Convert a Pandas DataFrame into a JSON object conforming to the RevResultsResponseBody Pydantic model.
 
     Args:
-        df (pd.DataFrame): Pandas DataFrame containing query results.
+        df (pd.DataFrame): Pandas DataFrame containing reverse search results.
         meta_data (dict): dictionary of metadata column names mapping to their types.
-        ids (list): list of ids (str) to be reverse-searched.
 
     Returns:
         RevResultsResponseBody: Pydantic model containing the structured response.
     """
     results_list = []
 
-    # Group rows by `query_id`
-    for query_id in ids:
-        group_df = df[df["query_id"] == query_id]
-        if group_df.empty:
-            results_list.append(
-                RevResultsList(
-                    input_id=query_id,
-                    response=[],
-                )
-            )
-            continue
+    # Group rows by `id`
+    grouped = df.groupby("id")
 
+    for input_id, group_df in grouped:
         # Convert group_df to a list of dictionaries
         rows_as_dicts = group_df.to_dict(orient="records")
 
-        # Build the list of ResultEntry objects for the current group
+        # Build the list of RevResultEntry objects for the current group
         response_entries = []
         for row in rows_as_dicts:
             # Extract metadata columns dynamically
-            metadata_values = {meta: row[meta] for meta in meta_data}
+            metadata_values = {meta: row[meta] for meta in meta_data if meta in row}
 
-            # Create a ResultEntry object
+            # Create a RevResultEntry object
             response_entries.append(
                 RevResultEntry(
                     label=row["doc_id"],
@@ -147,15 +136,15 @@ def convert_dataframe_to_reverse_search_pydantic_response(
                 )
             )
 
-        # Create a ResultsList object for the current query_id
+        # Create a RevResultsList object for the current `id`
         results_list.append(
             RevResultsList(
-                input_id=query_id,
+                input_id=input_id,
                 response=response_entries,
             )
         )
 
-    # Create the ResultsResponseBody object
+    # Create the RevResultsResponseBody object
     response_body = RevResultsResponseBody(data=results_list)
 
     return response_body
