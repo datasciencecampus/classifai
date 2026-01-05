@@ -56,6 +56,7 @@ searchOutputSchema = pa.DataFrameSchema(
         "query_id": pa.Column(str),
         "query_text": pa.Column(str),
         "doc_id": pa.Column(str),
+        "doc_text": pa.Column(str),
         "rank": pa.Column(int, pa.Check.ge(0)),
         "score": pa.Column(float),
     },
