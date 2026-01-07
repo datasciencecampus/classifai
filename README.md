@@ -13,6 +13,22 @@ ClassifAI is ideal for tasks like coding survey responses, classifying free-text
 ![ONS Logo](./ONS_Logo_Digital_Colour_Landscape_English_RGB.svg)
 ![ClassifAI ASCII](./classifai.png)
 
+## Table of Contents
+
+- [Feature Overview](#feature-overview)
+  - [Vectorising](#1-vectorising)
+  - [Indexing](#2-indexing)
+  - [Searching](#3-searching)
+  - [Using Generative AI Agents](#4-using-generative-ai-agents)
+  - [Serving](#5-serving)
+- [Quick Start](#quick-start)
+  - [Installation](#installation)
+  - [Example: Indexing and Searching a Document Collection](#example-indexing-and-searching-a-document-collection)
+- [Use Cases and Case Studies](#use-cases-and-case-studies)
+- [Using the Package](#using-the-package)
+- [Contributing to this Repo and Development Setup](#contributing-to-this-repo-and-development-setup)
+- [Contact and Support](#contact-and-support)
+
 
 ## Feature Overview
 
