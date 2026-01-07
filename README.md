@@ -1,85 +1,154 @@
-# classifAI
-A generalised, extendable and modular solution for LLM automated / assisted classification.
+# ClassifAI
+ClassifAI is a beginner-friendly Python package that simplifies semantic search for classification tasks. It is designed to help developers/users categorize or label new text samples by leveraging a database of previously coded examples. Using embedding and vectorisers, the package creates a vector database of labeled data. When a new, uncategorized text sample is provided, ClassifAI performs a semantic search to find the most similar examples from the database. 
 
-The main features offered by the package are;
-1. <b>Vectorising</b> - Creating text embeddings (vectors) from text using a variety of embedding models
-2. <b>Indexing</b> - The process of creating VectorStores from (large) text files
-3. <b>Serving</b> - Making a VectorStore available through a REST-API to search
+The most similar samples can then be used to select the correct code for the unlabelled samples by:
+- Just choosing the most similar labelled sample,
+- Letting some 'human-in-the-loop' choose the correct sample from the top N samples
+- Using an LLM model to automatically decide the correct answer from the top N samples
+- Any other way you, the user of this package, may choose to do this.
+
+
+ClassifAI is ideal for tasks like coding survey responses, classifying free-text data, or building custom classification pipelines with semantic similarity at their core.
+
+![ONS Logo](./ONS_Logo_Digital_Colour_Landscape_English_RGB.svg)
+
+
+## Feature Overview
+
+### 1. Vectorising
+Vectorising is the process of converting text into embeddings (vectors) using a variety of embedding models. These embeddings capture the semantic meaning of the text, enabling efficient similarity searches and comparisons. ClassifAI supports multiple embedding models, allowing users to choose the one that best fits their needs.
+
+![Vectorising Example](#)
+
+---
+
+### 2. Indexing
+Indexing involves creating VectorStores from (large) text files. A VectorStore is a structured database of text embeddings that allows for efficient storage, retrieval, and management of vectorized data. This feature is particularly useful for handling large datasets and performing semantic searches.
+
+![Indexing Example](#)
+
+---
+
+### 3. Searching
+Searching allows users to query the VectorStore to retrieve the most relevant results based on semantic similarity. This feature supports advanced search capabilities, enabling users to find information quickly and efficiently.
+
+![Searching Example](#)
+
+---
+
+### 4. Using Generative AI Agents
+Generative AI agents leverage the power of large language models to perform tasks such as answering questions, summarizing content, or generating new text. These agents interact with the VectorStore to provide context-aware and intelligent responses.
+
+![Generative AI Agents Example](#)
+
+### 5. Serving
+Serving makes a VectorStore available through a REST-API, enabling users to perform semantic searches programmatically. This feature allows seamless integration of the VectorStore into other applications or workflows, making it accessible to a broader audience.
+
+![Serving Example](#)
 
 
 ## Quick Start
 
 #### Installation:
 
-```bash
-pip install git+https://github.com/datasciencecampus/classifAI
-```
-
-Or to install the built wheel
+Install the package directly from GitHub in your Python environment
 
 ```bash
-pip install git+https://github.com/datasciencecampus/classifAI/releases/download/v0.1.0/classifai-0.1.0-py3-none-any.whl
+pip install "git+https://github.com/datasciencecampus/classifAI[huggingface]"
 ```
 
-#### Given a CSV file with header columns "id, text", a user can execute the following commands:
+---
 
-First create a Vectoriser Model, which allows users to pass text to its `.transform()` method to convert the text to a vector.
+###Example: Indexing and Searching a Document Collection
+
+#### Step 1. Vectorize Text
 
 ```python
+from classifai.vectorisers import HuggingFaceVectoriser
 
-#Create a vectoriser model
-from classifai.vectorisers import HuggingfaceVectoriser
-your_vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-L6-v2")
-
-vector = your_vectoriser.transform("ClassifAI_package is the best classification tool ever!")
-
-print(vector.shape, type(vector))
+# Create a vectorizer model
+vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-L6-v2")
+vector = vectoriser.transform("Example text to vectorize")
+print(vector.shape)
 ```
 
-Then pass the vectoriser and a CSV file to a VectorStore constructor to build a vector database that you can interact with through the class.
+#### Step 2: Build a VectorStore
 
 ```python
 from classifai.indexers import VectorStore
 
-your_vector_store = VectorStore(
-    file_name="<PATH_TO_YOUR_CSV_FILE>.csv",
+vector_store = VectorStore(
+    file_name="data.csv",
     data_type="csv",
-    embedder=your_vectoriser,
+    embedder=vectoriser,
     batch_size=8,
-    meta_data={'extra_column_1': int, 'extra_column_2': str},
-    output_dir="my_vector_store"
+    output_dir="vector_store"
 )
 ```
-You can 'search' the VectorStore on your local system. 
-```python
-your_vector_store.search("your query about your data goes here", n_results=5)
 
-#other statistics about the vector store are available
-your_vector_store.num_vectors
-your_vector_store.vector_shape
-```
-The vectors and metadata will be stored in the `my_vector_store/` folder, to be quickly reloaded later.
+#### Step 3: Search the VectorStore
+
 ```python
-reloaded_vector_store = VectorStore.from_filespace('my_vector_store', your_vectoriser)
-reloaded_vector_store.search("your query about your data goes here")
+from classifai.indexers.dataclasses import VectorStoreSearchInput
+
+input_data = VectorStoreSearchInput({'id': [1], 'query':["construction worker scaffolder"]})
+
+results = vector_store.search(input_data, n_results=5)
+print(results)
 ```
 
-When you're happy with your VectorStore model, you can start a REST-API service:
+#### Step 4: Deploy as a REST API
+
 ```python
 from classifai.servers import start_api
 
-start_api(vector_stores=[your_vector_store], endpoint_names=["your_data"], port=8000)
+start_api(vector_stores=[vector_store], endpoint_names=["my_data"], port=8000)
 ```
 
-This will run a FastAPI based REST-API service on your machine and you can find its docs:
 
-`http://localhost:8000`
+## Use Cases and Case Studies
 
-`http://127.0.0.1:8000`
+There are many possible use cases for this kind of semantic search technology
 
----
+- Job Classification: Map job descriptions to standardized codes (e.g., ISCO, SOC).
+- Document Retrieval: Search for similar documents in large text collections.
+- Custom Applications: Build your own classification or retrieval pipelines, deploy with FastAPI, and call it from your own application code.
 
-## Development Setup
+
+Also check out the below case studies where ClassifAI has been used
+
+!!!Use cases that can be shared publically should go here>
+
+
+
+## Using the package
+
+Reading through the above section on Use Cases and Case Studies is a great way to first determine if the ClassifAI package would be useful for you and your work.
+We also provide an extensive set of DEMO jupyter notebooks on how to use the current features of the package.
+In particular, we recommend everyone interest in the package reads and tries out the Jupyter Notebook tutorial called 'general_workflow_demo.ipynb'. This notebook introduces all the core features of the pacakge and could be considered the defacto introduction to using the package.:
+
+1. Creating vector embeddings from text using ClassifAI Vectoriser classes we have pre-built for you.
+2. How to create a VectorStore and a vector database of your labelled data.
+3. How to use a creted VectorStore and search your VectorStore with a new unlabelled sample of data.
+4. How to deploy a VectorStore in a restAPI instance so that you can peform classifications/search over a deployed network connection.
+5. Advice on what tutorials to look at next, after completing this initial demo.
+
+
+The /DEMO folder of this repo has a detailed guide of all the different demos/walkthroughs currently avaialable in the package. Beyond the intro workflow notebook described above, it already includes guides on how to:
+
+- make your own custom vectoriser model that will interact with the core features of the package,
+- Add your own custom 'hook' logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.
+- (even more demos to come soon)
+
+
+## Contributing to this repo and development Setup
+
+If you are a developer working on ClassifAI, this section describes how to set up the repo correctly on your local machine to start working on the codebase. (if you are a 3rd party developer looking to contribute please also read through the CONTRIBUTING.md of the repo.)
+
+<b>NOTE</b>: This section is for developers who are making alterations and changes to the codebase of this repo itself, not for developers who are using the features of the package. For those users, check out the above sections: Featuresm Quick Start, and Using the Package.
+
+
+To begin making changes to the codebase follow the following instructions on your development machine:
 
 1. Clone the repo:
 ```bash
@@ -112,3 +181,7 @@ make check-python
 ```
 
 ---
+
+## Contact and Support
+
+In the event that you come across any issues such as potential bugs in the code or something that may be unclear or not explained in the various DEMO content, please look into the [CONTRIBUTING.md](./CONTRIBUTING.md) file in the repository. It contains sections on Getting Help, Asking Questions, Reporting Bugs, and other guides on working with the package.
