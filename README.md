@@ -11,6 +11,7 @@ The most similar samples can then be used to select the correct code for the unl
 ClassifAI is ideal for tasks like coding survey responses, classifying free-text data, or building custom classification pipelines with semantic similarity at their core.
 
 ![ONS Logo](./ONS_Logo_Digital_Colour_Landscape_English_RGB.svg)
+![ClassifAI ASCII](./classifai.png)
 
 
 ## Feature Overview
