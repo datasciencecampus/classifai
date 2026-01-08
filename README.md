@@ -32,36 +32,42 @@ ClassifAI is ideal for tasks like coding survey responses, classifying free-text
 
 ## Feature Overview
 
-### 1. Vectorising
-Vectorising is the process of converting text into embeddings (vectors) using a variety of embedding models. These embeddings capture the semantic meaning of the text, enabling efficient similarity searches and comparisons. ClassifAI supports multiple embedding models, allowing users to choose the one that best fits their needs.
+At its core, ClassifAI is a tool that facilitates text classification using a semantic seearch over a collection of labelled documents that have been embedded prior to classifying a new text sample:
 
-![Vectorising Example](#)
+
+<!-- ### 1. Vectorising
+Vectorising is the process of converting text into embeddings (vectors) using a variety of embedding models. These embeddings capture the semantic meaning of the text, enabling efficient similarity searches and comparisons. ClassifAI supports multiple embedding models, allowing users to choose the one that best fits their needs.
 
 ---
 
 ### 2. Indexing
 Indexing involves creating VectorStores from (large) text files. A VectorStore is a structured database of text embeddings that allows for efficient storage, retrieval, and management of vectorized data. This feature is particularly useful for handling large datasets and performing semantic searches.
 
-![Indexing Example](#)
-
 ---
 
 ### 3. Searching
 Searching allows users to query the VectorStore to retrieve the most relevant results based on semantic similarity. This feature supports advanced search capabilities, enabling users to find information quickly and efficiently.
 
-![Searching Example](#)
-
 ---
 
-### 4. Using Generative AI Agents
-Generative AI agents leverage the power of large language models to perform tasks such as answering questions, summarizing content, or generating new text. These agents interact with the VectorStore to provide context-aware and intelligent responses.
-
-![Generative AI Agents Example](#)
-
 ### 5. Serving
-Serving makes a VectorStore available through a REST-API, enabling users to perform semantic searches programmatically. This feature allows seamless integration of the VectorStore into other applications or workflows, making it accessible to a broader audience.
+Serving makes a VectorStore available through a REST-API, enabling users to perform semantic searches programmatically. This feature allows seamless integration of the VectorStore into other applications or workflows, making it accessible to a broader audience. -->
 
-![Serving Example](#)
+![ClassifAI Workflow](./vectorstore_search.png)
+
+
+#### Key Features of the package include:
+- Semantic search capabilities,
+
+- Pre-built vectoriser model classes - for converting text to embedding (including GCloud, Huggingface and Ollama support),
+
+- Custom vectoriser model support - create your own Vectoriser model and use it with the ClassifAI framework,
+
+- Built in support for custom hook logic - write your own custom functions that control the flow of data (spell checking, results deduplication, etc),
+
+- Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy RestAPI deployment.
+
+
 
 
 ## Quick Start
@@ -97,7 +103,7 @@ from classifai.indexers import VectorStore
 vector_store = VectorStore(
     file_name="data.csv",
     data_type="csv",
-    embedder=vectoriser,
+    vectoriser=vectoriser,
     batch_size=8,
     output_dir="vector_store"
 )
