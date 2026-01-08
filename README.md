@@ -16,11 +16,6 @@ ClassifAI is ideal for tasks like coding survey responses, classifying free-text
 ## Table of Contents
 
 - [Feature Overview](#feature-overview)
-  - [Vectorising](#1-vectorising)
-  - [Indexing](#2-indexing)
-  - [Searching](#3-searching)
-  - [Using Generative AI Agents](#4-using-generative-ai-agents)
-  - [Serving](#5-serving)
 - [Quick Start](#quick-start)
   - [Installation](#installation)
   - [Example: Indexing and Searching a Document Collection](#example-indexing-and-searching-a-document-collection)
@@ -82,7 +77,7 @@ pip install "git+https://github.com/datasciencecampus/classifAI[huggingface]"
 
 ---
 
-###Example: Indexing and Searching a Document Collection
+### Example: Indexing and Searching a Document Collection
 
 #### Step 1. Vectorize Text
 
@@ -157,7 +152,7 @@ In particular, we recommend everyone interest in the package reads and tries out
 5. Advice on what tutorials to look at next, after completing this initial demo.
 
 
-The [/DEMO folder](./DEMO/) of this repo has a detailed guide of all the different demos/walkthroughs currently avaialable in the package. Beyond the intro workflow notebook described above, it already includes guides on how to:
+The [DEMO folder](./DEMO/) of this repo has a detailed guide of all the different demos/walkthroughs currently avaialable in the package. Beyond the intro workflow notebook described above, it already includes guides on how to:
 
 - [Custom Vectorisers](./DEMO/custom_vectoriser.ipynb)
   - make your own custom vectoriser model that will interact with the core features of the package,

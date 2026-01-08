@@ -54,4 +54,14 @@ It covers:
 
 This notebook is for users who want to implement a vectorisation approach not covered by our existing suite of Vectorisers.
 
+### 3. `custom_preprocessing_and_postprocessing_hooks.ipynb`
+
+This notebook demostrates how to add custom Python code logic to the VectorStore search pipeline, such as performing spell checking on user input, without breaking the data flow of the ClassifAI VectorStore.
+
+It covers:
+* How the VectorStore handles input data and output data
+* How to write 'hooks' - Python functions that can manipulate the input and output data of the different VectorStore methods
+* How to ensure your hooks don't break the dataflow by following the required input and output dataclasses
+* Examples of different kinds of hooks that can be written - [spellchecking, deduplicating results, adding extra info to results based on result ids]
+
 ---
