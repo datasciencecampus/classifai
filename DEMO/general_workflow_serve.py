@@ -1,5 +1,6 @@
 ##### first we load the vectoriser used in the vectorstore creation
 from classifai.indexers import VectorStore
+from classifai.indexers.dataclasses import VectorStoreSearchInput
 from classifai.servers import start_api
 from classifai.vectorisers import HuggingFaceVectoriser
 
@@ -14,7 +15,14 @@ loaded_vectorstore = VectorStore.from_filespace("./DEMO/testdata", vectoriser)
 
 #### look wow! you can search it straight away cause it was loaded back in
 
-print(f"Test search {loaded_vectorstore.search('did the quick brown fox jump over the log?')}")
+search_input_object = VectorStoreSearchInput(
+    {
+        "id": [42],
+        "query": ["a fruit and vegetable farmer"],
+    }
+)
+
+print(f"Test search {loaded_vectorstore.search(search_input_object, n_results=3)}")
 
 
 #### and finally, its easy to search your vectorstore via a restAPI service, just run:
