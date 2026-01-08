@@ -147,8 +147,8 @@ Also check out the below case studies where ClassifAI has been used
 ## Using the package
 
 Reading through the above section on Use Cases and Case Studies is a great way to first determine if the ClassifAI package would be useful for you and your work.
-We also provide an extensive set of DEMO jupyter notebooks on how to use the current features of the package.
-In particular, we recommend everyone interest in the package reads and tries out the Jupyter Notebook tutorial called 'general_workflow_demo.ipynb'. This notebook introduces all the core features of the pacakge and could be considered the defacto introduction to using the package.:
+We also provide an extensive set of DEMO jupyter notebooks on how to use the current features of the package - these can be found in the DEMO folder of the repo or [by clicking here](./DEMO/)
+In particular, we recommend everyone interest in the package reads and tries out the Jupyter Notebook tutorial called ['general_workflow_demo.ipynb'](./DEMO/general_workflow_demo.ipynb). This notebook introduces all the core features of the pacakge and could be considered the defacto introduction to using the package.:
 
 1. Creating vector embeddings from text using ClassifAI Vectoriser classes we have pre-built for you.
 2. How to create a VectorStore and a vector database of your labelled data.
@@ -157,16 +157,18 @@ In particular, we recommend everyone interest in the package reads and tries out
 5. Advice on what tutorials to look at next, after completing this initial demo.
 
 
-The /DEMO folder of this repo has a detailed guide of all the different demos/walkthroughs currently avaialable in the package. Beyond the intro workflow notebook described above, it already includes guides on how to:
+The [/DEMO folder](./DEMO/) of this repo has a detailed guide of all the different demos/walkthroughs currently avaialable in the package. Beyond the intro workflow notebook described above, it already includes guides on how to:
 
-- make your own custom vectoriser model that will interact with the core features of the package,
-- Add your own custom 'hook' logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.
+- [Custom Vectorisers](./DEMO/custom_vectoriser.ipynb)
+  - make your own custom vectoriser model that will interact with the core features of the package,
+- [Custom Pre and Post-processing hooks](./DEMO/custom_preprocessing_and_postprocessing_hooks.ipynb)
+  - Add your own custom 'hook' logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.
 - (even more demos to come soon)
 
 
 ## Contributing to this repo and development Setup
 
-If you are a developer working on ClassifAI, this section describes how to set up the repo correctly on your local machine to start working on the codebase. (if you are a 3rd party developer looking to contribute please also read through the CONTRIBUTING.md of the repo.)
+If you are a developer working on ClassifAI, this section describes how to set up the repo correctly on your local machine to start working on the codebase. (if you are a 3rd party developer looking to contribute please also read through the [CONTRIBUTING.md](./CONTRIBUTING.md) of the repo.)
 
 <b>NOTE</b>: This section is for developers who are making alterations and changes to the codebase of this repo itself, not for developers who are using the features of the package. For those users, check out the above sections: Featuresm Quick Start, and Using the Package.
 
