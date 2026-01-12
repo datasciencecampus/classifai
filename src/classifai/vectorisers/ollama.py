@@ -24,6 +24,7 @@ class OllamaVectoriser(VectoriserBase):
             requires an ollama server to be running locally (`ollama serve`)
         """
         check_deps(["ollama"], extra="ollama")
+
         self.model_name = model_name
 
     def transform(self, texts):
@@ -40,11 +41,10 @@ class OllamaVectoriser(VectoriserBase):
         """
         import ollama  # type: ignore
 
+        # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
 
-        if not isinstance(texts, list):
-            raise TypeError("Input must be a string or a list of strings.")
-
         response = ollama.embed(model=self.model_name, input=texts)
+
         return np.array(response.embeddings)

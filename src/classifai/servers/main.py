@@ -17,6 +17,7 @@ import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 
+from ..indexers.dataclasses import VectorStoreEmbedInput, VectorStoreReverseSearchInput, VectorStoreSearchInput
 from .pydantic_models import (
     ClassifaiData,
     EmbeddingsList,
@@ -29,7 +30,7 @@ from .pydantic_models import (
 )
 
 
-def start_api(vector_stores, endpoint_names, port=8000):
+def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
     """Initialize and start the FastAPI application with dynamically created endpoints.
     This function dynamically registers embedding and search endpoints for each provided
     vector store and endpoint name. It also sets up a default route to redirect users to
@@ -43,6 +44,9 @@ def start_api(vector_stores, endpoint_names, port=8000):
 
 
     """
+    if len(vector_stores) != len(endpoint_names):
+        raise ValueError("The number of vector stores must match the number of endpoint names.")
+
     logging.info("Starting ClassifAI API")
 
     endpoint_index_map = {x: i for i, x in enumerate(endpoint_names)}
@@ -66,15 +70,17 @@ def start_api(vector_stores, endpoint_names, port=8000):
             input_ids = [x.id for x in data.entries]
             documents = [x.description for x in data.entries]
 
-            embeddings = vector_store.embed(documents)
+            input_data = VectorStoreEmbedInput({"id": input_ids, "text": documents})
+
+            output_data = vector_store.embed(input_data)
 
             returnable = []
-            for idx, desc, embed in zip(input_ids, documents, embeddings, strict=True):
+            for _, row in output_data.iterrows():
                 returnable.append(
                     EmbeddingsList(
-                        idx=idx,
-                        description=desc,
-                        embedding=embed.tolist(),
+                        idx=row["id"],
+                        description=row["text"],
+                        embedding=row["embedding"].tolist(),  # Convert numpy array to list
                     )
                 )
             return EmbeddingsResponseBody(data=returnable)
@@ -106,10 +112,12 @@ def start_api(vector_stores, endpoint_names, port=8000):
             input_ids = [x.id for x in data.entries]
             queries = [x.description for x in data.entries]
 
-            query_result = vector_store.search(query=queries, ids=input_ids, n_results=n_results)
-            ##post processing of the pandas dataframe
+            input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
+            output_data = vector_store.search(query=input_data, n_results=n_results)
+
+            ##post processing of the Vectorstore outputobject
             formatted_result = convert_dataframe_to_pydantic_response(
-                df=query_result,
+                df=output_data,
                 meta_data=vector_stores[endpoint_index_map[endpoint_name]].meta_data,
             )
 
@@ -141,12 +149,12 @@ def start_api(vector_stores, endpoint_names, port=8000):
             input_ids = [x.id for x in data.entries]
             queries = [x.code for x in data.entries]
 
-            reverse_query_result = vector_store.reverse_search(query=queries, ids=input_ids, n_results=n_results)
+            input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
+            output_data = vector_store.reverse_search(input_data, n_results=n_results)
 
             formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
-                df=reverse_query_result,
+                df=output_data,
                 meta_data=vector_stores[endpoint_index_map[endpoint_name]].meta_data,
-                ids=input_ids,
             )
             return formatted_result
 
