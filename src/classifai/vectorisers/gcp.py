@@ -25,18 +25,18 @@ class GcpVectoriser(VectoriserBase):
 
     def __init__(
         self,
-        project_id,
+        project_id=None,
         api_key=None,
-        location="europe-west2",
+        location=None,
         model_name="text-embedding-004",
-        task_type="RETRIEVAL_DOCUMENT",
+        task_type="CLASSIFICATION",
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
-            project_id (str): The Google Cloud project ID.
+            project_id (str, optional): The Google Cloud project ID. Defaults to None.
             api_key (str, optional): The API key for authenticating with the GenAI API. Defaults to None.
-            location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
+            location (str, optional): The location of the GenAI API. Defaults to None.
             model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
             task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
@@ -44,6 +44,7 @@ class GcpVectoriser(VectoriserBase):
 
         Raises:
             RuntimeError: If the GenAI client fails to initialize.
+            ValueError: If neither project_id&location nor api_key is provided.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -51,15 +52,24 @@ class GcpVectoriser(VectoriserBase):
         self.model_name = model_name
         self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
-        try:
-            self.vectoriser = genai.Client(
-                vertexai=True,
-                project=project_id,
-                location=location,
-                api_key=api_key,
+        if project_id and location and not api_key:
+            try:
+                self.vectoriser = genai.Client(
+                    vertexai=True,
+                    project=project_id,
+                    location=location,
+                )
+            except Exception as e:
+                raise RuntimeError(f"Failed to initialize GCP Vectoriser with project_id and location: {e}") from e
+        elif api_key and not (project_id or location):
+            try:
+                self.vectoriser = genai.Client(api_key=api_key)
+            except Exception as e:
+                raise RuntimeError(f"Failed to initialize GCP Vectoriser with API key: {e}") from e
+        else:
+            raise ValueError(
+                "You must provide either both project_id and location, or just api_key, but not a combination of these."
             )
-        except Exception as e:
-            raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
@@ -77,13 +87,12 @@ class GcpVectoriser(VectoriserBase):
         if isinstance(texts, str):
             texts = [texts]
 
-        # The Vertex AI call to  embed content
+        # The Vertex AI call to embed content
         embeddings = self.vectoriser.models.embed_content(
             model=self.model_name, contents=texts, config=self.model_config
         )
 
         # Extract embeddings from the response object
-        # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
 
         return result
