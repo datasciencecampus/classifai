@@ -26,7 +26,7 @@ The most similar samples can then be post-processed to choose or further narrow 
 
 ## Why this approach?
 
-The knowledgebase search approach to classification has advantages and disadvantages compared to machine learning approaches that train a model for the task. The balance of these pros and cons makes the approach well-suited to statistical production use cases. To make a fair comparison between machine learning and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)
+The knowledgebase search approach to classification has advantages and disadvantages compared to machine learning approaches that train a model for the task. On balance, this approach is well-suited to statistical production use cases. To make a fair comparison between machine learning and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)
 
 **Advantages**
 
