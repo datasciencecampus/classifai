@@ -31,11 +31,11 @@ The knowledgebase search approach to classification has advantages and disadvant
 **Advantages**
 
 - **Explainability**: it's relatively easy to understand why ClassifAI produced a result, because the matching knowledgebase entries are provided
-- **Agility**: the quality of results can be tweaked by adding or removing a handful of knowledgebase entries
-- **Accountability**: the knowledgebase can be maintained and developed by non-developer methodologists, separate from the developer team
+- **Agility**: the quality of results can be tweaked by adding or removing a handful of knowledgebase entries, without expensive retraining
+- **Accountability**: the knowledgebase can be maintained and developed by professional methodologists, separate from the developer team
 - **Time-to-prototype**: Because no training or feature engineering is needed, it's possible to have a working prototype producing reasonable results in minutes
 - **Accuracy**: the knowledgebase approach can produce results with accuracy comparable to machine learning approaches in like-for-like comparisons
-- **Large, unbalanced label sets**: ML approaches tend not to work well when the set of classifications is large and unbalanced, and/or the training data is sparse for some classifications. Standard statistical classification tasks (e.g. SIC, SOC, COICOP) are characterised by these properties. Knowledgebase search works well in these cases
+- **Large, unbalanced label sets**: ML approaches tend not to work well on label sets like SIC, SOC or COICOP where the set of classifications is large and unbalanced, and the training data may be sparse for some classifications. Knowledgebase search works well in these cases
 
 **Disadvantages**
 
