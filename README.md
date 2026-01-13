@@ -45,34 +45,42 @@ Install the package directly from GitHub in your Python environment
 pip install "git+https://github.com/datasciencecampus/classifAI[huggingface]"
 ```
 
-## Example: Indexing and searching a document collection
+## Example: Indexing and searching a knowledgebase
 
-#### Step 1: Vectorize text
+ClassifAI supports statistical classification through searching a knowledgebase. The knowledgebase is a set of labelled examples that show how different texts (e.g. survey responses) map to statistical classifications.
+The size and quality of the knowledgebase dictates the quality of results you can expect from using the tool.
+
+#### Step 1: Choose a vectoriser
+
+A vectoriser transforms a query text string into an embedding vector. You can choose from embedding models accessed via HuggingFace, Google or Ollama, or build your own vectoriser.
 
 ```python
 from classifai.vectorisers import HuggingFaceVectoriser
 
 # Create a vectorizer model
 vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+# You can use the 'transform' method to call the vectoriser
 vector = vectoriser.transform("Example text to vectorize")
 print(vector.shape)
 ```
 
-#### Step 2: Build a VectorStore
+#### Step 2: Build a vector store
+
+You provide a knowledgebase of labelled examples (currently only allows data to be provided as a csv) to build a vector store
 
 ```python
 from classifai.indexers import VectorStore
 
 vector_store = VectorStore(
-    file_name="data.csv",
-    data_type="csv",
+    file_name="occupations_knowledgebase.csv",
     vectoriser=vectoriser,
     batch_size=8,
     output_dir="vector_store"
 )
 ```
 
-#### Step 3: Search the VectorStore
+#### Step 3: Search the vector store
 
 ```python
 from classifai.indexers.dataclasses import VectorStoreSearchInput
@@ -85,10 +93,12 @@ print(results)
 
 #### Step 4: Deploy as a REST API
 
+You can use ClassifAI as a local package, or deploy it as an API server, using FastAPI.
+
 ```python
 from classifai.servers import start_api
 
-start_api(vector_stores=[vector_store], endpoint_names=["my_data"], port=8000)
+start_api(vector_stores=[vector_store], endpoint_names=["Occupations"], port=8000)
 ```
 
 #### Learn more
