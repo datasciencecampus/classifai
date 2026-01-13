@@ -4,6 +4,8 @@
 
 ClassifAI is a Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
 
+The Office for National Statistics often needs to classify free-text survey responses or other data to standard statistical classifications. The most well-known examples include the Standard Industrial Classification ([SIC](https://www.gov.uk/government/publications/standard-industrial-classification-of-economic-activities-sic)), the Standard Occupational Classification ([SOC](https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc)), and the Classification Of Individual COnsumption according to Purpose ([COICOP](https://en.wikipedia.org/wiki/Classification_of_Individual_Consumption_According_to_Purpose)). The ClassifAI package has been designed specifically to help us build applications, pipelines and analyses for that kind of task.
+
 Use cases:
 
 - **Web apps**: ClassifAI can provide a production-ready, batteries-included REST interface to serve as a backend for web applications that need to code free text
@@ -33,6 +35,7 @@ The knowledgebase search approach to classification has advantages and disadvant
 - **Accountability**: the knowledgebase can be maintained and developed by non-developer methodologists, separate from the developer team
 - **Time-to-prototype**: Because no training or feature engineering is needed, it's possible to have a working prototype producing reasonable results in minutes
 - **Accuracy**: the knowledgebase approach can produce results with accuracy comparable to machine learning approaches in like-for-like comparisons
+- **Large, unbalanced label sets**: ML approaches tend not to work well when the set of classifications is large and unbalanced, and/or the training data is sparse for some classifications. Standard statistical classification tasks (e.g. SIC, SOC, COICOP) are characterised by these properties. Knowledgebase search works well in these cases
 
 **Disadvantages**
 
