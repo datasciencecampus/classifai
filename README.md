@@ -2,26 +2,45 @@
 
 # ClassifAI
 
-ClassifAI is a beginner-friendly Python package that simplifies semantic search for classification tasks. It is designed to help developers/users categorize or label new text samples by leveraging a database of previously coded examples. Using embedding and vectorisers, the package creates a vector database of labeled data. When a new, uncategorized text sample is provided, ClassifAI performs a semantic search to find the most similar examples from the database. 
+ClassifAI is a Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
+
+Use cases:
+
+- **Web apps**: ClassifAI can provide a production-ready, batteries-included REST interface to serve as a backend for web applications that need to code free text
+- **Pipelines**: using either the Python SDK or the REST mode, ClassifAI can be a key ingredient in scheduled statistical processing pipelines
+- **Analysis**: ClassifAI is simple enough to be used for one-off classification tasks. It requires no training or fine-tuning, and can give accurate results out-of-the-box, dependent only on the quality of the knowledgebase.
 
 Key Features of the package include:
 
-- Semantic search 
-- Use included vectorisers (including GCloud, Huggingface and Ollama) or implement your own 
-- Built in support for custom hook logic - write your own custom functions that control the flow of data (spell checking, results deduplication, etc)
-- Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy RestAPI deployment
-
-ClassifAI is ideal for tasks like coding survey responses, classifying free-text data, or building custom classification pipelines with semantic similarity at their core.
+- Use included vectorisers (including GCloud, Huggingface and Ollama embedders) or implement your own 
+- Built in support for custom hook logic - choose from a library of pre-processing and post-processing functions that control the flow of data (spell checking, results deduplication, etc) or write your own hooks
+- Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy REST API deployment
 
 ClassifAI facilitates text classification using a semantic seearch over a collection of labelled documents that have been embedded prior to classifying a new text sample:
 
 ![ClassifAI Workflow](./vectorstore_search.png)
 
-The most similar samples can then be used to select the correct code for the unlabelled samples by:
-- Just choosing the most similar labelled sample,
-- Letting some 'human-in-the-loop' choose the correct sample from the top N samples
-- Using an LLM model to automatically decide the correct answer from the top N samples
-- Any other way you, the user of this package, may choose to do this.
+The most similar samples can then be post-processed to choose or further narrow the selection.  
+
+## Why this approach?
+
+The knowledgebase search approach to classification has advantages and disadvantages compared to machine learning approaches that train a model for the task. The balance of these pros and cons makes the approach well-suited to statistical production use cases. To make a fair comparison between machine learning and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)
+
+**Advantages**
+
+- Explainability: it's relatively easy to understand why ClassifAI produced a result, because the matching knowledgebase entries are clear from the results
+- Agility: the quality of results can be tweaked by adding or removing a handful of knowledgebase entries
+- Accountability: the knowledgebase can be maintained and developed by non-developer methodologists, separate from the developer team
+- Time to prototype: Because no training or feature engineering is needed, it's possible to have a working prototype producing reasonable results in minutes
+- Accuracy: the knowledgebase approach can produce results with accuracy comparable to machine learning approaches in like-for-like comparisons
+
+**Disadvantages**
+
+- Uncertainty quantification: the knowledgebase approach doesn't produce calibrated uncertainty measures out-of-the-box, although there are methods (such as conformal prediction) that show promise
+- Scaling: the knowledgebase approach has been tested and works well on mid-scale data and may not scale as well as ML approaches on big data
+- Cost: Cloud-provided vectorisers have a per-request cost, although this is usually small and outweighed by the cost of developer FTEs
+
+The comparison on other aspects, such as per-request speed or hardware requirements is less clear because no formal comparison has been undertaken. ClassifAI is in production in the ONS and appears to provide results quickly enough for users.
 
 
 ---
