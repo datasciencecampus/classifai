@@ -24,6 +24,7 @@ Key Features of the package include:
 - Built in support for custom hook logic - write your own custom functions that control the flow of data (spell checking, results deduplication, etc)
 - Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy RestAPI deployment
 
+---
 
 
 ## Table of Contents
@@ -41,7 +42,6 @@ Key Features of the package include:
 
 
 
----
 
 
 ## Installation
@@ -149,7 +149,6 @@ During development, you might want to run linters / code vulnerability scans; yo
 make check-python
 ```
 
----
 
 ## Contact and Support
 
