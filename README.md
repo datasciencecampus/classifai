@@ -37,7 +37,7 @@ The knowledgebase search approach to classification has advantages and disadvant
 **Disadvantages**
 
 - **Uncertainty quantification**: the knowledgebase approach doesn't produce calibrated uncertainty measures out-of-the-box, although there are methods (such as conformal prediction) that show promise
-- **Scaling**: the knowledgebase approach has been tested and works well on mid-scale data and may not scale as well as ML approaches on big data
+- **Scaling**: the knowledgebase approach has been tested and works well on mid-scale training data and may not scale as well as ML approaches on big data
 - **Cost**: Cloud-provided vectorisers have a per-request cost, although this is usually small and outweighed by the cost of developer FTEs
 
 The comparison on other aspects, such as per-request speed or hardware requirements is less clear because no formal comparison has been undertaken. ClassifAI is in production in the ONS and appears to provide results quickly enough for users.
