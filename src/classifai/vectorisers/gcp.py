@@ -27,7 +27,7 @@ class GcpVectoriser(VectoriserBase):
         self,
         project_id=None,
         api_key=None,
-        location=None,
+        location="europe-west2",
         model_name="text-embedding-004",
         task_type="CLASSIFICATION",
     ):
@@ -52,7 +52,7 @@ class GcpVectoriser(VectoriserBase):
         self.model_name = model_name
         self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
-        if project_id and location and not api_key:
+        if project_id and not api_key:
             try:
                 self.vectoriser = genai.Client(
                     vertexai=True,
@@ -60,16 +60,14 @@ class GcpVectoriser(VectoriserBase):
                     location=location,
                 )
             except Exception as e:
-                raise RuntimeError(f"Failed to initialize GCP Vectoriser with project_id and location: {e}") from e
-        elif api_key and not (project_id or location):
+                raise RuntimeError(f"Failed to initialize GCP Vectoriser with project_id. {e}") from e
+        elif api_key and not project_id:
             try:
                 self.vectoriser = genai.Client(api_key=api_key)
             except Exception as e:
                 raise RuntimeError(f"Failed to initialize GCP Vectoriser with API key: {e}") from e
         else:
-            raise ValueError(
-                "You must provide either both project_id and location, or just api_key, but not a combination of these."
-            )
+            raise ValueError("You must provide either project_id or api_key, but not both.")
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
