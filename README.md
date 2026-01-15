@@ -4,7 +4,7 @@
 
 ClassifAI is a Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
 
-The Office for National Statistics often needs to classify free-text survey responses or other data to standard statistical classifications. The most well-known examples include the Standard Industrial Classification ([SIC](https://www.gov.uk/government/publications/standard-industrial-classification-of-economic-activities-sic)), the Standard Occupational Classification ([SOC](https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc)), and the Classification Of Individual COnsumption according to Purpose ([COICOP](https://en.wikipedia.org/wiki/Classification_of_Individual_Consumption_According_to_Purpose)). The ClassifAI package has been designed specifically to help us build applications, pipelines and analyses for that kind of task.
+The Office for National Statistics often needs to classify free-text survey responses or other data to standard statistical classifications. The most well-known examples include the Standard Industrial Classification ([SIC](https://www.gov.uk/government/publications/standard-industrial-classification-of-economic-activities-sic)), the Standard Occupational Classification ([SOC](https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc)), and the Classification Of Individual COnsumption according to Purpose ([COICOP](https://en.wikipedia.org/wiki/Classification_of_Individual_Consumption_According_to_Purpose)), as well as international equivalents such as [ISCO](https://esco.ec.europa.eu/en/about-esco/escopedia/escopedia/international-standard-classification-occupations-isco) and [ISIC](https://en.wikipedia.org/wiki/International_Standard_Industrial_Classification). The ClassifAI package has been designed specifically to help us build applications, pipelines and analyses for this kind of task.
 
 Use cases:
 
@@ -14,7 +14,7 @@ Use cases:
 
 Key Features of the package include:
 
-- Use included vectorisers (including GCloud, Huggingface and Ollama embedders) or implement your own 
+- Use included vectorisers (including Google Cloud, Huggingface and Ollama embedders) or implement your own 
 - Built in support for custom hook logic - choose from a library of pre-processing and post-processing functions that control the flow of data (spell checking, results deduplication, etc) or write your own hooks
 - Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy REST API deployment
 
@@ -23,7 +23,7 @@ Key Features of the package include:
 ClassifAI facilitates text classification using semantic search over a knowledgebase (possibly augmented by RAG).
 The knowledgebase is a collection of pieces of text (called "documents" even if they're very short) with a known classification label that serve as a reference for the classification task. They might be canonical definitions of each classification label, or examples of correct labelling, or a combination of those.
 
-**Semantic search** uses a vectoriser (usually a language model) to convert each document into a vector (called an embedding). When a query (another piece of text) arrives from the user, the query is first embedded in the same way as a vector of numbers, then the query embedding is compared to each of the embeddings in the knowledgebase by calculating the cosine of the angle between vectors. The top _N_ closest knowledgebase entries are returned along with the matching labels, documents and distance scores for each one.
+**Semantic search** uses a vectoriser (usually a language model) to convert each document into a vector (called an embedding). When a query (another piece of text) arrives from the user, the query is first embedded in the same way as a vector of numbers, then the query embedding is compared to each of the embeddings in the knowledgebase by calculating similarities between vectors. The top _N_ closest knowledgebase entries are returned along with the matching labels, documents and distance scores for each one.
 
 **Retrieval-augmented generation (RAG)** entails feeding search results into the prompt of a generative language model, with instructions for the model to further process the result. In the context of the package, RAG is constrained to operate on structured result sets and return result sets with the same structure.
 
@@ -33,7 +33,7 @@ The knowledgebase is a collection of pieces of text (called "documents" even if 
 
 ## Why this approach?
 
-The knowledgebase search approach to classification has advantages and disadvantages compared to machine learning approaches that train a model for the task. On balance, this approach is well-suited to statistical production use cases. To make a fair comparison between machine learning and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)
+The knowledgebase search approach to classification has advantages and disadvantages compared to machine learning (ML) approaches that train a model for the task. On balance, this approach is well-suited to statistical production use cases. To make a fair comparison between ML and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)
 
 **Advantages**
 
@@ -41,6 +41,7 @@ The knowledgebase search approach to classification has advantages and disadvant
 - **Agility**: the quality of results can be tweaked by adding or removing a handful of knowledgebase entries, without expensive retraining
 - **Accountability**: the knowledgebase can be maintained and developed by professional methodologists, separate from the developer team
 - **Time-to-prototype**: Because no training or feature engineering is needed, it's possible to have a working prototype producing reasonable results in minutes
+- **Customisation**: the method is easily customisable with the option to easily swap vectorisers, knowledgebases and pre- and post-processing hooks
 - **Accuracy**: the knowledgebase approach can produce results with accuracy comparable to machine learning approaches in like-for-like comparisons
 - **Large, unbalanced label sets**: ML approaches tend not to work well on label sets like SIC, SOC or COICOP where the set of classifications is large and unbalanced, and the training data may be sparse for some classifications. Knowledgebase search works well in these cases
 
@@ -111,6 +112,7 @@ vector_store = VectorStore(
 
 #### Step 3: Search the vector store
 
+The query is provided as a dataframe-like object to the search method, and the results are returned as a dataframe-like object.
 ```python
 from classifai.indexers.dataclasses import VectorStoreSearchInput
 
