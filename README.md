@@ -18,11 +18,18 @@ Key Features of the package include:
 - Built in support for custom hook logic - choose from a library of pre-processing and post-processing functions that control the flow of data (spell checking, results deduplication, etc) or write your own hooks
 - Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy REST API deployment
 
-ClassifAI facilitates text classification using a semantic seearch over a collection of labelled documents that have been embedded prior to classifying a new text sample:
+## What are semantic search and RAG?
+
+ClassifAI facilitates text classification using semantic search over a knowledgebase (possibly augmented by RAG).
+The knowledgebase is a collection of pieces of text (called "documents" even if they're very short) with a known classification label that serve as a reference for the classification task. They might be canonical definitions of each classification label, or examples of correct labelling, or a combination of those.
+
+**Semantic search** uses a vectoriser (usually a language model) to convert each document into a vector (called an embedding). When a query (another piece of text) arrives from the user, the query is first embedded in the same way as a vector of numbers, then the query embedding is compared to each of the embeddings in the knowledgebase by calculating the cosine of the angle between vectors. The top _N_ closest knowledgebase entries are returned along with the matching labels, documents and distance scores for each one.
+
+**Retrieval-augmented generation (RAG)** entails feeding search results into the prompt of a generative language model, with instructions for the model to further process the result. In the context of the package, RAG is constrained to operate on structured result sets and return result sets with the same structure.
 
 ![ClassifAI Workflow](./vectorstore_search.png)
 
-The most similar samples can then be post-processed to choose or further narrow the selection.  
+
 
 ## Why this approach?
 
