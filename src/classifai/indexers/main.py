@@ -12,6 +12,8 @@ Key Features:
 - Batch processing of input files to handle large datasets.
 - Support for CSV file format (additional formats may be added in future updates).
 - Integration with a custom embedder for generating vector embeddings.
+- Support for user-defined hooks for preprocessing and postprocessing.
+- Integreates with an optional AI agent for classifying and transforming search results.
 - Logging for tracking progress and handling errors during processing.
 
 Dependencies:
@@ -60,6 +62,7 @@ class VectorStore:
         file_name (str): the original file with the knowledgebase to build the vector store
         data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
+        agent (object): An optional generate AI agent from the ClassifAI Agents module to transform candidate classification search results
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
@@ -75,6 +78,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser,
+        agent,
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -89,6 +93,7 @@ class VectorStore:
             data_type (str): The type of input data (currently supports only "csv").
             vectoriser (object): The vectoriser object used to transform text into
                                 vector embeddings.
+            agent (object): The generate AI agent used to transform candidate classification search results.
             batch_size (int, optional): The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
             meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
@@ -107,6 +112,7 @@ class VectorStore:
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
+        self.agent = agent if agent is not None else None
         self.batch_size = batch_size
         self.meta_data = meta_data if meta_data is not None else {}
         self.output_dir = output_dir
@@ -457,6 +463,15 @@ class VectorStore:
                 raise ValueError(
                     f"Preprocessing hook returned an invalid VectorStoreSearchOutput object. Error: {e}"
                 ) from e
+
+        # If an agent is defined, use it to transform the results, expecxts a VectorStoreSearchOutput object in return
+        if self.agent is not None:
+            agent_result_df = self.agent.transform(result_df)
+
+            if not isinstance(agent_result_df, VectorStoreSearchOutput):
+                raise ValueError("Agent Prep did not succesfully return a VectorStoreSearchOutput object.")
+
+            return agent_result_df
 
         return result_df
 
