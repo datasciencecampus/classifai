@@ -78,7 +78,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser,
-        agent,
+        agent=None,
         batch_size=8,
         meta_data=None,
         output_dir=None,

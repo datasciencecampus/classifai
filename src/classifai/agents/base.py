@@ -7,13 +7,13 @@ from classifai.indexers.dataclasses import VectorStoreSearchOutput
 ##
 
 
-class GeneratorBase(ABC):
-    """Abstract base class for all Generative RAG models."""
+class Agentase(ABC):
+    """Abstract base class for all Generative and RAG models."""
 
     @abstractmethod
     def transform(
         self,
         results: VectorStoreSearchOutput,
     ) -> VectorStoreSearchOutput:
-        """Passes prompt(s) to the generator and returns the generated text(s) and RAG ranking."""
+        """Passes VectorStoreSearchOutput object, which the Agent manipulates in some way and returns."""
         pass

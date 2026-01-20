@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from classifai.indexers.dataclasses import VectorStoreSearchOutput
 
-from .base import GeneratorBase
+from .base import AgentBase
 
 ########################
 #### SYSTEM PROMPTS FOR DIFFERENT TASK TYPES: currently, Classification or Summarization.
@@ -136,7 +136,7 @@ def format_classification_output(generated_text, result: VectorStoreSearchOutput
 ########################
 
 
-class GcpAgent(GeneratorBase):
+class GcpAgent(AgentBase):
     def __init__(
         self,
         project_id: str,
