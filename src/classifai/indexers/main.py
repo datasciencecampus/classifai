@@ -32,6 +32,7 @@ import os
 import shutil
 import time
 import uuid
+from typing import Literal
 
 import numpy as np
 import polars as pl
@@ -53,6 +54,21 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
+def metricvalid(metric: str):
+    """Test that the given metric is a valid option.
+
+    Args:
+        metric (str): The selected metric for the VectorStore
+
+    Raises:
+        ValueError: If value is not in ["cosine", "dotprod", "l2"]
+
+    """
+    valid_metrics = ["cosine", "dotprod", "l2"]
+    if metric not in valid_metrics:
+        raise ValueError(f"The scoring metric input '{metric}' is not in the valid metrics {valid_metrics}")
+
+
 class VectorStore:
     """A class to model and create 'VectorStore' objects for building and searching vector databases from CSV text files.
 
@@ -60,6 +76,7 @@ class VectorStore:
         file_name (str): the original file with the knowledgebase to build the vector store
         data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
+        scoring_metric(Literal["cosine", "dotprod", "l2"]): The metric to use for scoring
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
@@ -75,6 +92,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser,
+        scoring_metric: Literal["cosine", "dotprod", "l2"] = "cosine",
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -89,6 +107,7 @@ class VectorStore:
             data_type (str): The type of input data (currently supports only "csv").
             vectoriser (object): The vectoriser object used to transform text into
                                 vector embeddings.
+            scoring_metric(Literal["cosine", "dotprod", "l2"]): The metric to use for scoring
             batch_size (int, optional): The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
             meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
@@ -107,6 +126,7 @@ class VectorStore:
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
+        self.scoring_metric = scoring_metric
         self.batch_size = batch_size
         self.meta_data = meta_data if meta_data is not None else {}
         self.output_dir = output_dir
@@ -118,6 +138,9 @@ class VectorStore:
 
         if self.data_type not in ["csv"]:
             raise ValueError(f"Data type '{self.data_type}' not supported. Choose from ['csv'].")
+
+        ## validate scoring metric
+        metricvalid(self.scoring_metric)
 
         if self.output_dir is None:
             logging.info("No output directory specified, attempting to use input file name as output folder name.")
@@ -390,6 +413,12 @@ class VectorStore:
             # Convert the current batch of queries to vectors
             query_vectors = self.vectoriser.transform(query_text_batch)
 
+            ## determine proper metric to use
+            if self.scoring_metric == "dotprod":
+                print("scoring with dotprod")
+            if self.scoring_metric == "cosine":
+                print("scoring with cosine")
+
             # Compute cosine similarity between the query batch and document vectors
             cosine = query_vectors @ self.vectors["embeddings"].to_numpy().T
 
@@ -461,7 +490,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser):
+    def from_filespace(cls, folder_path, vectoriser, scoring_metric: Literal["cosine", "dotprod", "l2"] = "cosine"):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -475,6 +504,7 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The vectoriser object used to transform text into vector embeddings.
+            scoring_metric(Literal["cosine", "dotprod", "l2"]): The metric to use for scoring
 
         Returns:
             VectorStore: An instance of the `VectorStore` class.
@@ -490,6 +520,9 @@ class VectorStore:
             raise ValueError(f"Metadata file not found in {folder_path}")
         with open(metadata_path, encoding="utf-8") as f:
             metadata = json.load(f)
+
+            ## validate scoring metric
+        metricvalid(scoring_metric)
 
         # check that the correct keys exist in metadata
         required_keys = [
@@ -544,6 +577,7 @@ class VectorStore:
         vector_store.file_name = None
         vector_store.data_type = None
         vector_store.vectoriser = vectoriser
+        vector_store.scoring_metric = scoring_metric
         vector_store.batch_size = None
         vector_store.meta_data = deserialized_column_meta_data
         vector_store.vectors = df
