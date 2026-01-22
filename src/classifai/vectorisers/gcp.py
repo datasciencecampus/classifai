@@ -18,9 +18,22 @@ logging.getLogger("google.api_core").setLevel(logging.WARNING)
 class GcpVectoriser(VectoriserBase):
     """A class for embedding text using Google Cloud Platform's GenAI API.
 
+    This class provides functionality to embed text using Google's GenAI API.
+    It supports two authentication methods for setting up the client:
+
+    1. Using `project_id` and `location`: This method requires specifying the Google Cloud project ID
+       and the location of the GenAI API. It is suitable for users who have a Google Cloud project
+       and want to authenticate using project-based credentials. It will require local authentication through
+       the Google Cloud SDK.
+
+    2. Using `api_key`: This method requires providing an API key for authentication. It is suitable
+       for users who want to authenticate using an API key without specifying a project ID and location.
+       This approach does not require local authentication through the Google Cloud SDK.
+
     Attributes:
         model_name (str): The name of the embedding model to use.
         vectoriser (genai.Client): The GenAI client instance for embedding text.
+        model_config (genai.types.EmbedContentConfig): Configuration for the embedding task.
     """
 
     def __init__(
