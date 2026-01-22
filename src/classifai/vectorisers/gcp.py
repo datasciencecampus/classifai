@@ -30,6 +30,7 @@ class GcpVectoriser(VectoriserBase):
         location="europe-west2",
         model_name="text-embedding-004",
         task_type="CLASSIFICATION",
+        **client_kwargs,
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
@@ -41,6 +42,7 @@ class GcpVectoriser(VectoriserBase):
             task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
+            **client_kwargs: Additional keyword arguments to pass to the GenAI client.
 
         Raises:
             RuntimeError: If the GenAI client fails to initialize.
@@ -53,21 +55,21 @@ class GcpVectoriser(VectoriserBase):
         self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
         if project_id and not api_key:
-            try:
-                self.vectoriser = genai.Client(
-                    vertexai=True,
-                    project=project_id,
-                    location=location,
-                )
-            except Exception as e:
-                raise RuntimeError(f"Failed to initialize GCP Vectoriser with project_id. {e}") from e
+            client_kwargs.setdefault("project", project_id)
+            client_kwargs.setdefault("location", location)
         elif api_key and not project_id:
-            try:
-                self.vectoriser = genai.Client(api_key=api_key)
-            except Exception as e:
-                raise RuntimeError(f"Failed to initialize GCP Vectoriser with API key: {e}") from e
+            client_kwargs.setdefault("api_key", api_key)
         else:
-            raise ValueError("You must provide either project_id or api_key, but not both.")
+            raise ValueError(
+                "Provide either 'project_id' and 'location' together, or 'api_key' alone for GCP Vectoriser."
+            )
+
+        try:
+            self.vectoriser = genai.Client(
+                **client_kwargs,
+            )
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize GCP Vectoriser. {e}") from e
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
