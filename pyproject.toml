@@ -59,26 +59,7 @@ ollama = [
     "ollama>=0.5.1"
 ]
 gcp = [
-    "google-ai-generativelanguage>=0.6.15",
-    "google-api-core>=2.24.2",
-    "google-api-python-client>=2.165.0",
-    "google-auth>=2.38.0",
-    "google-auth-httplib2>=0.2.0",
-    "google-cloud-aiplatform>=1.85.0",
-    "google-cloud-appengine-logging>=1.6.1",
-    "google-cloud-audit-log>=0.3.2",
-    "google-cloud-bigquery>=3.30.0",
-    "google-cloud-core>=2.4.3",
-    "google-cloud-logging>=3.11.4",
-    "google-cloud-resource-manager>=1.14.2",
-    "google-cloud-secret-manager>=2.23.2",
-    "google-cloud-storage>=2.19.0",
-    "google-crc32c>=1.7.0",
     "google-genai>=1.8.0",
-    "google-generativeai>=0.8.4",
-    "google-resumable-media>=2.7.2",
-    "googleapis-common-protos>=1.69.2",
-    "grpc-google-iam-v1>=0.14.2"
 ]
 all = [
     "classifai[huggingface,gcp,ollama]"
