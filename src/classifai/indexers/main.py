@@ -61,10 +61,10 @@ def metricvalid(metric: str):
         metric (str): The selected metric for the VectorStore
 
     Raises:
-        ValueError: If value is not in ["cosine", "dotprod", "l2"]
+        ValueError: If value is not in ["cosine", "dotprod", "cosinel2", "dotprodl2"]
 
     """
-    valid_metrics = ["cosine", "dotprod", "l2"]
+    valid_metrics = ["cosine", "dotprod", "cosinel2", "dotprodl2"]
     if metric not in valid_metrics:
         raise ValueError(f"The scoring metric input '{metric}' is not in the valid metrics {valid_metrics}")
 
@@ -76,7 +76,7 @@ class VectorStore:
         file_name (str): the original file with the knowledgebase to build the vector store
         data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
-        scoring_metric(Literal["cosine", "dotprod", "l2"]): The metric to use for scoring
+        scoring_metric(Literal["cosine", "dotprod", "cosinel2", "dotprodl2"]): The metric to use for scoring
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
@@ -92,7 +92,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser,
-        scoring_metric: Literal["cosine", "dotprod", "l2"] = "cosine",
+        scoring_metric: Literal["cosine", "dotprod", "cosinel2", "dotprodl2"] = "cosine",
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -107,7 +107,7 @@ class VectorStore:
             data_type (str): The type of input data (currently supports only "csv").
             vectoriser (object): The vectoriser object used to transform text into
                                 vector embeddings.
-            scoring_metric(Literal["cosine", "dotprod", "l2"]): The metric to use for scoring
+            scoring_metric(Literal["cosine", "dotprod", "cosinel2", "dotprodl2"]): The metric to use for scoring
             batch_size (int, optional): The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
             meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
@@ -414,10 +414,15 @@ class VectorStore:
             query_vectors = self.vectoriser.transform(query_text_batch)
 
             ## determine proper metric to use
-            if self.scoring_metric == "dotprod":
-                print("scoring with dotprod")
-            if self.scoring_metric == "cosine":
-                print("scoring with cosine")
+            # match self.scoring_metric:
+            #     case "dotprod":
+            #         print("scoring with dotprod")
+            #     case "cosine":
+            #         print("scoring with cosine")
+            #     case "dotprodl2":
+            #         print("scoring with dotprodl2")
+            #     case "cosinel2":
+            #         print("scoring with cosinel2")
 
             # Compute cosine similarity between the query batch and document vectors
             cosine = query_vectors @ self.vectors["embeddings"].to_numpy().T
@@ -490,7 +495,9 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser, scoring_metric: Literal["cosine", "dotprod", "l2"] = "cosine"):
+    def from_filespace(
+        cls, folder_path, vectoriser, scoring_metric: Literal["cosine", "dotprod", "cosinel2", "dotprodl2"] = "cosine"
+    ):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -504,7 +511,7 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The vectoriser object used to transform text into vector embeddings.
-            scoring_metric(Literal["cosine", "dotprod", "l2"]): The metric to use for scoring
+            scoring_metric(Literal["cosine", "dotprod", "cosinel2", "dotprodl2"]): The metric to use for scoring
 
         Returns:
             VectorStore: An instance of the `VectorStore` class.
