@@ -420,7 +420,9 @@ class VectorStore:
         )
         return result_df, idx_sorted
 
-    def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=8) -> VectorStoreSearchOutput:
+    def search(
+        self, query: VectorStoreSearchInput, n_results: int = 10, batch_size: int = 8
+    ) -> VectorStoreSearchOutput:
         """Searches the vector store using queries from a VectorStoreSearchInput object and returns
         ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
