@@ -32,12 +32,13 @@ import os
 import shutil
 import time
 import uuid
-from typing import Literal
+from typing import get_args
 
 import numpy as np
 import polars as pl
 from tqdm.autonotebook import tqdm
 
+from ..vectorisers import VectoriserBase
 from .dataclasses import (
     VectorStoreEmbedInput,
     VectorStoreEmbedOutput,
@@ -46,6 +47,7 @@ from .dataclasses import (
     VectorStoreSearchInput,
     VectorStoreSearchOutput,
 )
+from .types import metric_settings
 
 # Configure logging for your application
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -54,17 +56,17 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
-def metricvalid(metric: str):
+def metricvalid(metric: metric_settings):
     """Test that the given metric is a valid option.
 
     Args:
         metric (str): The selected metric for the VectorStore
 
     Raises:
-        ValueError: If value is not in ["cosine", "dotprod", "cosinel2", "dotprodl2"]
+        ValueError: If value is not in ["cosine", "dotprod", "cosinel2", "dotprodl2", "cosinel2squared", "dotprodl2squared"]
 
     """
-    valid_metrics = ["cosine", "dotprod", "cosinel2", "dotprodl2"]
+    valid_metrics = get_args(metric_settings)
     if metric not in valid_metrics:
         raise ValueError(f"The scoring metric input '{metric}' is not in the valid metrics {valid_metrics}")
 
@@ -75,8 +77,8 @@ class VectorStore:
     Attributes:
         file_name (str): the original file with the knowledgebase to build the vector store
         data_type (str): the data type of the original file (curently only csv supported)
-        vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
-        scoring_metric(Literal["cosine", "dotprod", "cosinel2", "dotprodl2"]): The metric to use for scoring
+        vectoriser (VectoriserBase): A Vectoriser object from the corresponding ClassifAI Pacakge module
+        scoring_metric(metric_settings): The metric to use for scoring
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
@@ -91,8 +93,8 @@ class VectorStore:
         self,
         file_name,
         data_type,
-        vectoriser,
-        scoring_metric: Literal["cosine", "dotprod", "cosinel2", "dotprodl2"] = "cosine",
+        vectoriser: VectoriserBase,
+        scoring_metric: metric_settings = "cosine",
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -105,9 +107,9 @@ class VectorStore:
         Args:
             file_name (str): The name of the input CSV file.
             data_type (str): The type of input data (currently supports only "csv").
-            vectoriser (object): The vectoriser object used to transform text into
+            vectoriser (VectoriserBase): The vectoriser object used to transform text into
                                 vector embeddings.
-            scoring_metric(Literal["cosine", "dotprod", "cosinel2", "dotprodl2"]): The metric to use for scoring
+            scoring_metric(metric_settings): The metric to use for scoring
             batch_size (int, optional): The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
             meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
@@ -370,6 +372,54 @@ class VectorStore:
 
         return result_df
 
+    def score(
+        self, query: np.ndarray, n_results: int, query_ids_batch: list[str], query_text_batch: list[str]
+    ) -> tuple[pl.DataFrame, np.ndarray]:
+        """Perform Scoring and return Top Values.
+
+        Args:
+            query(np.ndarray): query for search
+            n_results(int): number of results to return
+            query_ids_batch(list[str]): ids of query batch
+            query_text_batch(list[str]): source text of query batch
+
+        Returns:
+            pl.DataFrame: The Polars DataFrame containing the top n most similar results to the query
+        """
+        if self.scoring_metric.startswith("cosine"):
+            query = query / np.linalg.norm(query, axis=1, keepdims=True)
+
+        result = query @ self.vectors["embeddings"].to_numpy().T
+
+        # Get the top n_results indices for each query in the batch
+        idx = np.argpartition(result, -n_results, axis=1)[:, -n_results:]
+
+        # Sort top n_results indices by their scores in descending order
+        idx_sorted = np.zeros_like(idx)
+        scores = np.zeros_like(idx, dtype=float)
+
+        for j in range(idx.shape[0]):
+            row_scores = result[j, idx[j]]
+            sorted_indices = np.argsort(row_scores)[::-1]
+            idx_sorted[j] = idx[j, sorted_indices]
+            scores[j] = row_scores[sorted_indices]
+
+        if "l2" in self.scoring_metric:
+            scores = 2 * (1 - scores)
+            if not self.scoring_metric.endswith("squared"):
+                scores = np.sqrt(scores)
+
+        # Build a DataFrame for the current batch results
+        result_df = pl.DataFrame(
+            {
+                "query_id": np.repeat(query_ids_batch, n_results),
+                "query_text": np.repeat(query_text_batch, n_results),
+                "rank": np.tile(np.arange(n_results), len(query_text_batch)),
+                "score": scores.flatten(),
+            }
+        )
+        return result_df, idx_sorted
+
     def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=8) -> VectorStoreSearchOutput:
         """Searches the vector store using queries from a VectorStoreSearchInput object and returns
         ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings,
@@ -409,46 +459,11 @@ class VectorStore:
             # Get the current batch of queries
             query_text_batch = query.query.to_list()[i : i + batch_size]
             query_ids_batch = query.id.to_list()[i : i + batch_size]
-
             # Convert the current batch of queries to vectors
             query_vectors = self.vectoriser.transform(query_text_batch)
 
-            ## determine proper metric to use
-            # match self.scoring_metric:
-            #     case "dotprod":
-            #         print("scoring with dotprod")
-            #     case "cosine":
-            #         print("scoring with cosine")
-            #     case "dotprodl2":
-            #         print("scoring with dotprodl2")
-            #     case "cosinel2":
-            #         print("scoring with cosinel2")
-
-            # Compute cosine similarity between the query batch and document vectors
-            cosine = query_vectors @ self.vectors["embeddings"].to_numpy().T
-
-            # Get the top n_results indices for each query in the batch
-            idx = np.argpartition(cosine, -n_results, axis=1)[:, -n_results:]
-
-            # Sort top n_results indices by their scores in descending order
-            idx_sorted = np.zeros_like(idx)
-            scores = np.zeros_like(idx, dtype=float)
-
-            for j in range(idx.shape[0]):
-                row_scores = cosine[j, idx[j]]
-                sorted_indices = np.argsort(row_scores)[::-1]
-                idx_sorted[j] = idx[j, sorted_indices]
-                scores[j] = row_scores[sorted_indices]
-
-            # Build a DataFrame for the current batch results
-            result_df = pl.DataFrame(
-                {
-                    "query_id": np.repeat(query_ids_batch, n_results),
-                    "query_text": np.repeat(query_text_batch, n_results),
-                    "rank": np.tile(np.arange(n_results), len(query_text_batch)),
-                    "score": scores.flatten(),
-                }
-            )
+            # perform scoring and return frame and ids
+            result_df, idx_sorted = self.score(query_vectors, n_results, query_ids_batch, query_text_batch)
 
             # Get the vector store results for the current batch
             ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(["id", "text", *self.meta_data.keys()])
@@ -495,9 +510,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(
-        cls, folder_path, vectoriser, scoring_metric: Literal["cosine", "dotprod", "cosinel2", "dotprodl2"] = "cosine"
-    ):
+    def from_filespace(cls, folder_path, vectoriser: VectoriserBase, scoring_metric: metric_settings = "cosine"):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -510,8 +523,8 @@ class VectorStore:
 
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
-            vectoriser (object): The vectoriser object used to transform text into vector embeddings.
-            scoring_metric(Literal["cosine", "dotprod", "cosinel2", "dotprodl2"]): The metric to use for scoring
+            vectoriser (VectoriserBase): The vectoriser object used to transform text into vector embeddings.
+            scoring_metric(metric_settings): The metric to use for scoring
 
         Returns:
             VectorStore: An instance of the `VectorStore` class.
