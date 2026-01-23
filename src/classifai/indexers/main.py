@@ -171,7 +171,7 @@ class VectorStore:
             os.makedirs(self.output_dir, exist_ok=True)
 
         self._create_vector_store_index()
-
+        self._check_norm_vdb()
         logging.info("Gathering metadata and saving vector store / metadata...")
 
         self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
@@ -371,6 +371,14 @@ class VectorStore:
                 ) from e
 
         return result_df
+
+    def _check_norm_vdb(self):
+        """Normalise Vdb if using cosine similarity."""
+        if "cosine" in self.scoring_metric:
+            embeddings = self.vectors["embeddings"].to_numpy()
+            embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+
+            self.vectors.with_columns(pl.Series("embeddings", embeddings))
 
     def score(
         self, query: np.ndarray, n_results: int, query_ids_batch: list[str], query_text_batch: list[str]
@@ -607,5 +615,5 @@ class VectorStore:
         vector_store.num_vectors = metadata["num_vectors"]
         vector_store.vectoriser_class = metadata["vectoriser_class"]
         vector_store.hooks = {}
-
+        vector_store._check_norm_vdb()
         return vector_store
