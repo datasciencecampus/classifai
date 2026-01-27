@@ -18,30 +18,48 @@ logging.getLogger("google.api_core").setLevel(logging.WARNING)
 class GcpVectoriser(VectoriserBase):
     """A class for embedding text using Google Cloud Platform's GenAI API.
 
+    This class provides functionality to embed text using Google's GenAI API.
+    It supports two authentication methods for setting up the client:
+
+    1. Using `project_id` and `location`: This method requires specifying the Google Cloud project ID
+       and the location of the GenAI API. It is suitable for users who have a Google Cloud project
+       and want to authenticate using project-based credentials. It will require local authentication through
+       the Google Cloud SDK.
+
+    2. Using `api_key`: This method requires providing an API key for authentication. It is suitable
+       for users who want to authenticate using an API key without specifying a project ID and location.
+       This approach does not require local authentication through the Google Cloud SDK.
+
     Attributes:
         model_name (str): The name of the embedding model to use.
         vectoriser (genai.Client): The GenAI client instance for embedding text.
+        model_config (genai.types.EmbedContentConfig): Configuration for the embedding task.
     """
 
     def __init__(
         self,
-        project_id,
+        project_id=None,
+        api_key=None,
         location="europe-west2",
         model_name="text-embedding-004",
         task_type="CLASSIFICATION",
+        **client_kwargs,
     ):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
-            project_id (str): The Google Cloud project ID.
-            location (str, optional): The location of the GenAI API. Defaults to 'europe-west2'.
+            project_id (str, optional): The Google Cloud project ID. Defaults to None.
+            api_key (str, optional): The API key for authenticating with the GenAI API. Defaults to None.
+            location (str, optional): The location of the GenAI API. Defaults to None.
             model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
             task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
+            **client_kwargs: Additional keyword arguments to pass to the GenAI client.
 
         Raises:
             RuntimeError: If the GenAI client fails to initialize.
+            ValueError: If neither project_id&location nor api_key is provided.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -49,14 +67,22 @@ class GcpVectoriser(VectoriserBase):
         self.model_name = model_name
         self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
 
+        if project_id and not api_key:
+            client_kwargs.setdefault("project", project_id)
+            client_kwargs.setdefault("location", location)
+        elif api_key and not project_id:
+            client_kwargs.setdefault("api_key", api_key)
+        else:
+            raise ValueError(
+                "Provide either 'project_id' and 'location' together, or 'api_key' alone for GCP Vectoriser."
+            )
+
         try:
             self.vectoriser = genai.Client(
-                vertexai=True,
-                project=project_id,
-                location=location,
+                **client_kwargs,
             )
         except Exception as e:
-            raise RuntimeError(f"Failed to initialize GCP Vectoriser through ganai.Client API: {e}") from e
+            raise RuntimeError(f"Failed to initialize GCP Vectoriser. {e}") from e
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
@@ -74,13 +100,12 @@ class GcpVectoriser(VectoriserBase):
         if isinstance(texts, str):
             texts = [texts]
 
-        # The Vertex AI call to  embed content
+        # The Vertex AI call to embed content
         embeddings = self.vectoriser.models.embed_content(
             model=self.model_name, contents=texts, config=self.model_config
         )
 
         # Extract embeddings from the response object
-        # embeddings = [embedding[0] for embedding in embeddings]
         result = np.array([res.values for res in embeddings.embeddings])
 
         return result
