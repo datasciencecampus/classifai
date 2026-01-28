@@ -38,6 +38,10 @@ repos:
         args: [ --fix ]
       # Run the formatter.
       - id: ruff-format
+  - repo: https://github.com/fpgmaas/deptry.git
+    rev: 0.24.0
+    hooks:
+      - id: deptry
 
   - repo: local
     hooks:
@@ -61,3 +65,4 @@ repos:
         name: Check commits for secrets, using gitleaks Docker image
         entry: make run-gitleaks
         language: system
+      
