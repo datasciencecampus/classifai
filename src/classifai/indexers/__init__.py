@@ -9,9 +9,10 @@ from .dataclasses import (
     VectorStoreSearchOutput,
 )
 from .main import VectorStore
-from .types import metric_settings
+from .types import MetricSettings
 
 __all__ = [
+    "MetricSettings",
     "VectorStore",
     "VectorStoreEmbedInput",
     "VectorStoreEmbedOutput",
@@ -19,5 +20,4 @@ __all__ = [
     "VectorStoreReverseSearchOutput",
     "VectorStoreSearchInput",
     "VectorStoreSearchOutput",
-    "metric_settings",
 ]

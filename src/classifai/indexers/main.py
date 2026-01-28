@@ -32,7 +32,6 @@ import os
 import shutil
 import time
 import uuid
-from typing import get_args
 
 import numpy as np
 import polars as pl
@@ -47,7 +46,7 @@ from .dataclasses import (
     VectorStoreSearchInput,
     VectorStoreSearchOutput,
 )
-from .types import metric_settings
+from .types import MetricSettings
 
 # Configure logging for your application
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
@@ -56,19 +55,18 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
-def metricvalid(metric: metric_settings):
+def metricvalid(metric: MetricSettings):
     """Test that the given metric is a valid option.
 
     Args:
         metric (str): The selected metric for the VectorStore
 
     Raises:
-        ValueError: If value is not in ["cosine", "dotprod", "cosinel2", "dotprodl2", "cosinel2squared", "dotprodl2squared"]
+        ValueError: If value is not in MetricSettings
 
     """
-    valid_metrics = get_args(metric_settings)
-    if metric not in valid_metrics:
-        raise ValueError(f"The scoring metric input '{metric}' is not in the valid metrics {valid_metrics}")
+    if metric not in MetricSettings:
+        raise ValueError(f"The scoring metric input '{metric}' is not in the valid metrics {list(MetricSettings)}")
 
 
 class VectorStore:
@@ -78,7 +76,7 @@ class VectorStore:
         file_name (str): the original file with the knowledgebase to build the vector store
         data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (VectoriserBase): A Vectoriser object from the corresponding ClassifAI Pacakge module
-        scoring_metric(metric_settings): The metric to use for scoring
+        scoring_metric(MetricSettings): The metric to use for scoring
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
@@ -94,7 +92,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser: VectoriserBase,
-        scoring_metric: metric_settings = "cosine",
+        scoring_metric: MetricSettings | str = MetricSettings.COSINE,
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -109,7 +107,7 @@ class VectorStore:
             data_type (str): The type of input data (currently supports only "csv").
             vectoriser (VectoriserBase): The vectoriser object used to transform text into
                                 vector embeddings.
-            scoring_metric(metric_settings): The metric to use for scoring
+            scoring_metric(MetricSettings): The metric to use for scoring
             batch_size (int, optional): The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
             meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
@@ -520,7 +518,9 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser: VectoriserBase, scoring_metric: metric_settings = "cosine"):
+    def from_filespace(
+        cls, folder_path, vectoriser: VectoriserBase, scoring_metric: MetricSettings | str = MetricSettings.COSINE
+    ):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -534,7 +534,7 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (VectoriserBase): The vectoriser object used to transform text into vector embeddings.
-            scoring_metric(metric_settings): The metric to use for scoring
+            scoring_metric(MetricSettings): The metric to use for scoring
 
         Returns:
             VectorStore: An instance of the `VectorStore` class.
