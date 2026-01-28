@@ -461,7 +461,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser, hooks):
+    def from_filespace(cls, folder_path, vectoriser, hooks: dict | None = None):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
