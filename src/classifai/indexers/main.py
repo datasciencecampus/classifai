@@ -389,7 +389,7 @@ class VectorStore:
 
     def _check_norm_vdb(self):
         """Normalise Vdb if using cosine similarity."""
-        if "cosine" in self.scoring_metric and self.normalize:
+        if "cosine" in self.scoring_metric and not self.normalize:
             logging.warning(
                 "Note: you are using metrics that require norms with un-normed vdb data, this will be normed for search but vdb file will not be changed"
             )
