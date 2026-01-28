@@ -26,6 +26,8 @@ the servers module from ClassifAI, to created scalable, modular, searchable
 vector databases from your own text data.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os
@@ -87,6 +89,7 @@ class VectorStore:
         num_vectors (int): how many vectors are in the vector store
         vectoriser_class (str): the type of vectoriser used to create embeddings
         hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
+        normalize(bool): Flag to choose if to normalize vectors.
     """
 
     def __init__(  # noqa: PLR0913
@@ -100,6 +103,7 @@ class VectorStore:
         output_dir=None,
         overwrite=False,
         hooks=None,
+        normalize=False,
     ):
         """Initializes the VectorStore object by processing the input CSV file and generating
         vector embeddings.
@@ -118,7 +122,7 @@ class VectorStore:
                                 Defaults to None, where input file name will be used.
             overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
             hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
-
+            normalize(bool, optional): A flag to make vectorstore normalize its vdb
 
         Raises:
             ValueError: If the data type is not supported or if the folder name conflicts with an existing folder.
@@ -137,6 +141,7 @@ class VectorStore:
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
         self.hooks = {} if hooks is None else hooks
+        self.normalize = normalize
 
         if self.data_type not in ["csv"]:
             raise ValueError(f"Data type '{self.data_type}' not supported. Choose from ['csv'].")
@@ -171,7 +176,14 @@ class VectorStore:
             os.makedirs(self.output_dir, exist_ok=True)
 
         self._create_vector_store_index()
-        self._check_norm_vdb()
+
+        ## init normalization
+        if normalize:
+            embeddings = self.vectors["embeddings"].to_numpy()
+            embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+
+            self.vectors.with_columns(pl.Series("embeddings", embeddings))
+
         logging.info("Gathering metadata and saving vector store / metadata...")
 
         self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
@@ -182,6 +194,8 @@ class VectorStore:
         self._save_metadata(os.path.join(self.output_dir, "metadata.json"))
 
         logging.info("Vector Store created - files saved to %s", self.output_dir)
+        ## will norm in memory if using cosine metrics
+        self._check_norm_vdb()
 
     def _save_metadata(self, path):
         """Saves metadata about the vector store to a JSON file.
@@ -205,6 +219,7 @@ class VectorStore:
                 "num_vectors": self.num_vectors,
                 "created_at": time.time(),
                 "meta_data": serializable_column_meta_data,
+                "normalized": self.normalize,
             }
 
             with open(path, "w", encoding="utf-8") as f:
@@ -374,7 +389,10 @@ class VectorStore:
 
     def _check_norm_vdb(self):
         """Normalise Vdb if using cosine similarity."""
-        if "cosine" in self.scoring_metric:
+        if "cosine" in self.scoring_metric and self.normalize:
+            logging.warning(
+                "Note: you are using metrics that require norms with un-normed vdb data, this will be normed for search but vdb file will not be changed"
+            )
             embeddings = self.vectors["embeddings"].to_numpy()
             embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
 
@@ -557,13 +575,7 @@ class VectorStore:
         metricvalid(scoring_metric)
 
         # check that the correct keys exist in metadata
-        required_keys = [
-            "vectoriser_class",
-            "vector_shape",
-            "num_vectors",
-            "created_at",
-            "meta_data",
-        ]
+        required_keys = ["vectoriser_class", "vector_shape", "num_vectors", "created_at", "meta_data", "normalized"]
         for key in required_keys:
             if key not in metadata:
                 raise ValueError(f"Metadata file is missing required key: {key}")
@@ -616,6 +628,7 @@ class VectorStore:
         vector_store.vector_shape = metadata["vector_shape"]
         vector_store.num_vectors = metadata["num_vectors"]
         vector_store.vectoriser_class = metadata["vectoriser_class"]
+        vector_store.normalize = metadata["normalized"]
         vector_store.hooks = {}
         vector_store._check_norm_vdb()
         return vector_store
