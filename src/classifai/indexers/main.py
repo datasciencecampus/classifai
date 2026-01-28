@@ -32,12 +32,14 @@ import os
 import shutil
 import time
 import uuid
+from typing import TYPE_CHECKING
 
 import numpy as np
 import polars as pl
 from tqdm.autonotebook import tqdm
 
-from ..vectorisers import VectoriserBase
+if TYPE_CHECKING:
+    from ..vectorisers import VectoriserBase
 from .dataclasses import (
     VectorStoreEmbedInput,
     VectorStoreEmbedOutput,
