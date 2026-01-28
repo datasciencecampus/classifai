@@ -461,7 +461,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser):
+    def from_filespace(cls, folder_path, vectoriser, hooks: dict | None = None):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -475,6 +475,7 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The vectoriser object used to transform text into vector embeddings.
+            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
             VectorStore: An instance of the `VectorStore` class.
@@ -550,6 +551,6 @@ class VectorStore:
         vector_store.vector_shape = metadata["vector_shape"]
         vector_store.num_vectors = metadata["num_vectors"]
         vector_store.vectoriser_class = metadata["vectoriser_class"]
-        vector_store.hooks = {}
+        vector_store.hooks = {} if hooks is None else hooks
 
         return vector_store
