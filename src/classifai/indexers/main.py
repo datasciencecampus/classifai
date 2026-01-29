@@ -97,7 +97,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser: VectoriserBase,
-        scoring_metric: MetricSettings | str = MetricSettings.COSINE,
+        scoring_metric: MetricSettings | str = MetricSettings.INNER_PRODUCT,
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -412,10 +412,25 @@ class VectorStore:
         Returns:
             pl.DataFrame: The Polars DataFrame containing the top n most similar results to the query
         """
-        if self.scoring_metric.startswith("cosine"):
-            query = query / np.linalg.norm(query, axis=1, keepdims=True)
+        docs = self.vectors["embeddings"].to_numpy()
+        if self.scoring_metric == MetricSettings.INNER_PRODUCT:
+            result = query @ docs.T
+        elif self.scoring_metric == MetricSettings.L2_DISTANCE:
+            # Dot products (n_queries, n_docs)
+            dots = query @ docs.T
 
-        result = query @ self.vectors["embeddings"].to_numpy().T
+            # Squared norms
+            q_sq = np.sum(query * query, axis=1, keepdims=True)  # (n_queries, 1)
+            d_sq = np.sum(docs * docs, axis=1, keepdims=True).T  # (1, n_docs)
+
+            # Squared distances
+            dist_sq = q_sq + d_sq - 2.0 * dots
+
+            # Numerical safety: tiny negatives -> 0
+            np.maximum(dist_sq, 0.0, out=dist_sq)
+
+            # True L2 distances
+            result = np.sqrt(dist_sq)  # (n_queries, n_docs)
 
         # Get the top n_results indices for each query in the batch
         idx = np.argpartition(result, -n_results, axis=1)[:, -n_results:]
@@ -429,11 +444,6 @@ class VectorStore:
             sorted_indices = np.argsort(row_scores)[::-1]
             idx_sorted[j] = idx[j, sorted_indices]
             scores[j] = row_scores[sorted_indices]
-
-        if "l2" in self.scoring_metric:
-            scores = 2 * (1 - scores)
-            if not self.scoring_metric.endswith("squared"):
-                scores = np.sqrt(scores)
 
         # Build a DataFrame for the current batch results
         result_df = pl.DataFrame(
@@ -451,7 +461,7 @@ class VectorStore:
     ) -> VectorStoreSearchOutput:
         """Searches the vector store using queries from a VectorStoreSearchInput object and returns
         ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings,
-        computes cosine similarity with stored document vectors, and retrieves the top results.
+        computes similarity scoring with stored document vectors, and retrieves the top results.
 
         Args:
             query (VectorStoreSearchInput): A VectoreStoreSearchInput object containing the text query or list of queries to search for with ids.
@@ -542,7 +552,7 @@ class VectorStore:
         cls,
         folder_path,
         vectoriser: VectoriserBase,
-        scoring_metric: MetricSettings | str = MetricSettings.COSINE,
+        scoring_metric: MetricSettings | str = MetricSettings.INNER_PRODUCT,
         hooks: dict | None = None,
     ):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
