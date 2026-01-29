@@ -97,7 +97,7 @@ class VectorStore:
         file_name,
         data_type,
         vectoriser: VectoriserBase,
-        scoring_metric: MetricSettings | str = MetricSettings.INNER_PRODUCT,
+        scoring_metric: MetricSettings | str = MetricSettings.DOT_PRODUCT,
         batch_size=8,
         meta_data=None,
         output_dir=None,
@@ -413,7 +413,7 @@ class VectorStore:
             pl.DataFrame: The Polars DataFrame containing the top n most similar results to the query
         """
         docs = self.vectors["embeddings"].to_numpy()
-        if self.scoring_metric == MetricSettings.INNER_PRODUCT:
+        if self.scoring_metric == MetricSettings.DOT_PRODUCT:
             result = query @ docs.T
         elif self.scoring_metric == MetricSettings.L2_DISTANCE:
             # Dot products (n_queries, n_docs)
@@ -552,7 +552,7 @@ class VectorStore:
         cls,
         folder_path,
         vectoriser: VectoriserBase,
-        scoring_metric: MetricSettings | str = MetricSettings.INNER_PRODUCT,
+        scoring_metric: MetricSettings | str = MetricSettings.DOT_PRODUCT,
         hooks: dict | None = None,
     ):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
