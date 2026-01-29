@@ -539,7 +539,11 @@ class VectorStore:
 
     @classmethod
     def from_filespace(
-        cls, folder_path, vectoriser: VectoriserBase, scoring_metric: MetricSettings | str = MetricSettings.COSINE
+        cls,
+        folder_path,
+        vectoriser: VectoriserBase,
+        scoring_metric: MetricSettings | str = MetricSettings.COSINE,
+        hooks: dict | None = None,
     ):
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
@@ -555,6 +559,7 @@ class VectorStore:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (VectoriserBase): The vectoriser object used to transform text into vector embeddings.
             scoring_metric(MetricSettings): The metric to use for scoring
+            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
             VectorStore: An instance of the `VectorStore` class.
@@ -629,6 +634,6 @@ class VectorStore:
         vector_store.num_vectors = metadata["num_vectors"]
         vector_store.vectoriser_class = metadata["vectoriser_class"]
         vector_store.normalize = metadata["normalized"]
-        vector_store.hooks = {}
+        vector_store.hooks = {} if hooks is None else hooks
         vector_store._check_norm_vdb()
         return vector_store
