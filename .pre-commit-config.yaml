@@ -38,13 +38,18 @@ repos:
         args: [ --fix ]
       # Run the formatter.
       - id: ruff-format
-  - repo: https://github.com/fpgmaas/deptry.git
-    rev: 0.24.0
-    hooks:
-      - id: deptry
+
 
   - repo: local
     hooks:
+
+    
+      - id: deptry-uv
+        name: deptry (uv)
+        language: system
+        pass_filenames: false # deptry expects a project path, not filenames
+        entry: uv run deptry .
+
       - id: forbid-new-init
         name: Check if __init__.py is added to the src folder
         entry: python
