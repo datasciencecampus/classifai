@@ -3,31 +3,18 @@ name = "classifAI"
 description = "A generalised, extendable and modular solution for LLM automated / assisted classification."
 authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
 readme = "README.md"
-version = "0.1.0"
+version = "0.2.0"
 license = {file = "LICENSE"}
 requires-python = ">=3.10,<4.0"
 #dynamic = ["version"]
 dependencies = [
     "uvicorn>0.34.0",
     "fastapi[standard]>=0.115.11",
-    "fastapi-cli>=0.0.7",
-    "opentelemetry-instrumentation-fastapi>=0.52b1",
-    "typing-inspect>=0.9.0",
-    "typing_extensions>=4.12.2",
-    "python-dotenv>=1.0.1",
     "numpy>=2.2.4",
-    "requests>=2.32.3",
-    "requests-oauthlib>=2.0.0",
-    "requests-toolbelt>=1.0.0",
     "polars>=1.26.0",
     "pandas>=2.3.0",
     "pydantic>=2.9.2",
-    "pydantic-settings>=2.8.1",
-    "pydantic_core>=2.23.4",
-    "fastparquet>=2024.11.0",
-    "pyarrow>=20.0.0",
     "tqdm>=4.67.1",
-    "scikit-learn>=1.7.2",
     "pandera[pandas]>=0.27.0",
 ]
 classifiers = [
@@ -120,6 +107,9 @@ convention = "google"
 quote-style = "double"
 indent-style = "space"
 
+[tool.deptry]
+extend_exclude = ["DEMO"]
+
 [dependency-groups]
 dev = [
     "ipykernel>=6.29.5",
@@ -133,6 +123,7 @@ dev = [
     "mkdocstrings >= 0.29.0",
     "mkdocstrings-python >= 1.16.7",
     "mkdocs-material >= 9.6.9",
+    "deptry>=0.24.0",
     {include-group = "test"},
 ]
 test = [
