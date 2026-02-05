@@ -318,7 +318,9 @@ class VectorStore:
                 ) from e
 
         # polars conversion
-        paired_query = pl.DataFrame({"id": query.id, "doc_id": query.doc_id})
+        paired_query = pl.DataFrame(
+            {"id": query.id.astype(str).to_list(), "doc_id": query.doc_id.astype(str).to_list()}
+        )
 
         # join query with vdb to get matches
         joined_table = paired_query.join(self.vectors.rename({"id": "doc_id"}), on="doc_id", how="inner")
@@ -333,7 +335,7 @@ class VectorStore:
             ]
         )
 
-        result_df = VectorStoreReverseSearchOutput.from_data(final_table.to_pandas())
+        result_df = VectorStoreReverseSearchOutput.from_data(final_table.to_dict(as_series=False))
 
         # Check if there is a user defined postprocess hook for the VectorStore reverse search method
         if "reverse_search_postprocess" in self.hooks:
@@ -444,9 +446,9 @@ class VectorStore:
                 *self.meta_data.keys(),
             ]
         )
-
         # Now that polars has been used for processing convert back to pandas for user familiarity
-        result_df = VectorStoreSearchOutput.from_data(reordered_df.to_pandas())
+        # Specify the 'use_pyarrow=False' option to avoid using pyarrow for conversion
+        result_df = VectorStoreSearchOutput.from_data(reordered_df.to_dict(as_series=False))
 
         # Check if there is a user defined postprocess hook for the VectorStore search method
         if "search_postprocess" in self.hooks:
