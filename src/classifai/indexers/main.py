@@ -447,7 +447,6 @@ class VectorStore:
             ]
         )
         # Now that polars has been used for processing convert back to pandas for user familiarity
-        # Specify the 'use_pyarrow=False' option to avoid using pyarrow for conversion
         result_df = VectorStoreSearchOutput.from_data(reordered_df.to_dict(as_series=False))
 
         # Check if there is a user defined postprocess hook for the VectorStore search method
