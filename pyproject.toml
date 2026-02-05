@@ -37,6 +37,10 @@ namespaces = false
 [tool.setuptools.package-data]
 classifai = []
 
+[tool.deptry.package_module_name_map]
+ollama = "ollama"
+google-genai = "google"
+
 [project.optional-dependencies]
 huggingface = [
     "transformers>=4.52.4",
