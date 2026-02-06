@@ -38,7 +38,6 @@ namespaces = false
 classifai = []
 
 [tool.deptry.package_module_name_map]
-ollama = "ollama"
 google-genai = "google"
 
 [project.optional-dependencies]
