@@ -1,8 +1,7 @@
 """FastAPI server as a package."""
 
-from .main import ClassifAIServer, start_api
+from .main import ClassifAIServer
 
 __all__ = [
     "ClassifAIServer",
-    "start_api",
 ]
