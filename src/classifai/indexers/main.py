@@ -446,7 +446,7 @@ class VectorStore:
                 *self.meta_data.keys(),
             ]
         )
-        # Now that polars has been used for processing convert back to pandas for user familiarity
+        # Now that polars has been used for processing convert back to VectorStoreSearchOutput dataclass for output
         result_df = VectorStoreSearchOutput.from_data(reordered_df.to_dict(as_series=False))
 
         # Check if there is a user defined postprocess hook for the VectorStore search method
