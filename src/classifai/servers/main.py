@@ -177,9 +177,8 @@ def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
     uvicorn.run(app, port=port, log_level="info")
 
 
-class ClassifAIServer:
+class ClassifAIServer(FastAPI):
     def __init__(self, vectorstores, endpointnames):
-        self.server = FastAPI()
         self.endpoint_names = endpointnames
         self.vector_stores = vectorstores
 
@@ -187,7 +186,6 @@ class ClassifAIServer:
             raise ValueError("The number of vector stores must match the number of endpoint names.")
 
         self.vector_stores = dict(zip(endpointnames, vectorstores, strict=False))
-        # self.endpoint_index_map = {x: i for i, x in enumerate(endpointnames)}
 
     def create_embedding_endpoint(self, endpoint_name):
         """Create and register an embedding endpoint for a specific vector store.
@@ -201,7 +199,7 @@ class ClassifAIServer:
         for the provided documents, and returns the results in a structured format.
         """
 
-        @self.server.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
+        @self.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
         async def embedding_endpoint(data: ClassifaiData) -> EmbeddingsResponseBody:
             input_ids = [x.id for x in data.entries]
             documents = [x.description for x in data.entries]
@@ -234,7 +232,7 @@ class ClassifAIServer:
         the vector store and returns the results in a structured format.
         """
 
-        @self.server.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
+        @self.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
         async def search_endpoint(
             data: ClassifaiData,
             n_results: Annotated[
@@ -272,7 +270,7 @@ class ClassifAIServer:
         the vector store and returns the results in a structured format.
         """
 
-        @self.server.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
+        @self.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
         def reverse_search_endpoint(
             data: RevClassifaiData,
             n_results: Annotated[
@@ -295,9 +293,10 @@ class ClassifAIServer:
             return formatted_result
 
     def start(self):
+        """Run the server."""
         logging.info("Starting ClassifAI API")
 
-        uvicorn.run(self.server, port=8000, log_level="info")
+        uvicorn.run(self, port=8000, log_level="info")
 
     def make_endpoints(self):
         for endpoint_name in self.endpoint_names:
@@ -306,7 +305,7 @@ class ClassifAIServer:
             self.create_search_endpoint(endpoint_name)
             self.create_reverse_search_endpoint(endpoint_name)
 
-        @self.server.get("/", description="UI accessibility")
+        @self.get("/", description="UI accessibility")
         def docs():
             """Redirect users to the API documentation page.
 
