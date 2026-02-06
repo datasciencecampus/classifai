@@ -464,10 +464,11 @@ class VectorStore:
                     context={"hook": "reverse_search_preprocess"},
                 ) from e
 
-        # ---- Main reverse-search operation (wrap unexpected failures) -> ClassifaiError
         try:
             # polars conversion
-            paired_query = pl.DataFrame({"id": query.id, "doc_id": query.doc_id})
+            paired_query = pl.DataFrame(
+                {"id": query.id.astype(str).to_list(), "doc_id": query.doc_id.astype(str).to_list()}
+            )
 
             # join query with vdb to get matches
             joined_table = paired_query.join(self.vectors.rename({"id": "doc_id"}), on="doc_id", how="inner")
@@ -482,7 +483,7 @@ class VectorStore:
                 ]
             )
 
-            result_df = VectorStoreReverseSearchOutput.from_data(final_table.to_pandas())
+            result_df = VectorStoreReverseSearchOutput.from_data(final_table.to_dict(as_series=False))
 
         except ClassifaiError:
             raise
