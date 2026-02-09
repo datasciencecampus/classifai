@@ -129,7 +129,7 @@ class VectorStore:
 
         if not isinstance(vectoriser, VectoriserBase):
             raise ConfigurationError(
-                "vectoriser must be an instance of Vectoriser(Base) with a .transform(texts) method.",
+                "Vectoriser must be an instance of Vectoriser(Base) with a .transform() method.",
                 context={"vectoriser_type": type(vectoriser).__name__},
             )
 
@@ -190,7 +190,13 @@ class VectorStore:
         except Exception as e:
             raise IndexBuildError(
                 "Failed to create vector store index.",
-                context={"file_name": self.file_name, "data_type": self.data_type, "batch_size": self.batch_size},
+                context={
+                    "file_name": self.file_name,
+                    "data_type": self.data_type,
+                    "batch_size": self.batch_size,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
         # ---- Save + derived metadata (IO/format problems) -> IndexBuildError
@@ -209,7 +215,7 @@ class VectorStore:
         except Exception as e:
             raise IndexBuildError(
                 "Vector store was created but saving outputs failed.",
-                context={"output_dir": self.output_dir},
+                context={"cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
     def _save_metadata(self, path):
@@ -246,22 +252,10 @@ class VectorStore:
         except ClassifaiError:
             # Preserve package-specific exceptions unchanged
             raise
-        except (TypeError, ValueError) as e:
-            # Usually means something in `meta_data` isn't JSON-serializable
-            raise IndexBuildError(
-                "Failed to serialize vector store metadata to JSON.",
-                context={"path": path},
-            ) from e
-        except OSError as e:
-            # Permission denied, invalid path, disk full, etc.
-            raise IndexBuildError(
-                "Failed to write metadata file.",
-                context={"path": path},
-            ) from e
         except Exception as e:
             raise IndexBuildError(
                 "Unexpected error while saving metadata file.",
-                context={"path": path},
+                context={"path": path, "metadata": metadata, "cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
     def _create_vector_store_index(self):  # noqa: C901
@@ -351,7 +345,12 @@ class VectorStore:
         except Exception as e:
             raise IndexBuildError(
                 "Failed while creating embeddings and building vectors table.",
-                context={"file_name": self.file_name, "vectoriser": self.vectoriser_class},
+                context={
+                    "file_name": self.file_name,
+                    "vectoriser": self.vectoriser_class,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
     def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:
@@ -383,7 +382,7 @@ class VectorStore:
             except Exception as e:
                 raise HookError(
                     "embed_preprocess hook raised an exception.",
-                    context={"hook": "embed_preprocess"},
+                    context={"hook": "embed_preprocess", "cause_type": type(e).__name__, "cause_message": str(e)},
                 ) from e
 
         # ---- Main embed operation
@@ -406,7 +405,12 @@ class VectorStore:
             raise ClassifaiError(
                 "Embedding failed.",
                 code="embed_failed",
-                context={"n_texts": len(query), "vectoriser": self.vectoriser_class},
+                context={
+                    "n_texts": len(query),
+                    "vectoriser": self.vectoriser_class,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
         # ---- Postprocess hook -> HookError
@@ -417,7 +421,7 @@ class VectorStore:
             except Exception as e:
                 raise HookError(
                     "embed_postprocess hook raised an exception.",
-                    context={"hook": "embed_postprocess"},
+                    context={"hook": "embed_postprocess", "cause_type": type(e).__name__, "cause_message": str(e)},
                 ) from e
 
         return results_df
@@ -461,7 +465,11 @@ class VectorStore:
             except Exception as e:
                 raise HookError(
                     "reverse_search_preprocess hook raised an exception.",
-                    context={"hook": "reverse_search_preprocess"},
+                    context={
+                        "hook": "reverse_search_preprocess",
+                        "cause_type": type(e).__name__,
+                        "cause_message": str(e),
+                    },
                 ) from e
 
         try:
@@ -491,7 +499,12 @@ class VectorStore:
             raise ClassifaiError(
                 "Reverse search failed.",
                 code="reverse_search_failed",
-                context={"n_queries": len(query), "n_results": n_results},
+                context={
+                    "n_queries": len(query),
+                    "n_results": n_results,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
         # ---- Postprocess hook -> HookError
@@ -502,7 +515,11 @@ class VectorStore:
             except Exception as e:
                 raise HookError(
                     "reverse_search_postprocess hook raised an exception.",
-                    context={"hook": "reverse_search_postprocess"},
+                    context={
+                        "hook": "reverse_search_postprocess",
+                        "cause_type": type(e).__name__,
+                        "cause_message": str(e),
+                    },
                 ) from e
 
         return result_df
@@ -554,7 +571,7 @@ class VectorStore:
             except Exception as e:
                 raise HookError(
                     "search_preprocess hook raised an exception.",
-                    context={"hook": "search_preprocess"},
+                    context={"hook": "search_preprocess", "cause_type": type(e).__name__, "cause_message": str(e)},
                 ) from e
 
         # ---- Main search (wrap operational failures) -> SearchError / VectorisationError
@@ -639,13 +656,13 @@ class VectorStore:
                         **dict.fromkeys(self.meta_data.keys(), pl.Utf8),
                     }
                 )
-                return VectorStoreSearchOutput.from_data(empty.to_pandas())
+                return VectorStoreSearchOutput.from_data(empty.to_dict(as_series=False))
 
             reordered_df = pl.concat(all_results).select(
                 ["query_id", "query_text", "doc_id", "doc_text", "rank", "score", *self.meta_data.keys()]
             )
 
-            result_df = VectorStoreSearchOutput.from_data(reordered_df.to_pandas())
+            result_df = VectorStoreSearchOutput.from_data(reordered_df.to_dict(as_series=False))
 
         except ClassifaiError:
             raise
@@ -653,7 +670,13 @@ class VectorStore:
             raise ClassifaiError(
                 "Search failed.",
                 code="search_failed",
-                context={"n_queries": len(query), "batch_size": batch_size, "n_results": n_results},
+                context={
+                    "n_queries": len(query),
+                    "batch_size": batch_size,
+                    "n_results": n_results,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
         # ---- Postprocess hook -> DataValidationError if it returns invalid shape/type
@@ -664,7 +687,7 @@ class VectorStore:
             except Exception as e:
                 raise HookError(
                     "search_postprocessing hook raised an exception.",
-                    context={"hook": "search_postprocess"},
+                    context={"hook": "search_postprocess", "cause_type": type(e).__name__, "cause_message": str(e)},
                 ) from e
 
         return result_df
@@ -726,7 +749,7 @@ class VectorStore:
         except Exception as e:
             raise IndexBuildError(
                 "Failed to read metadata.json.",
-                context={"metadata_path": metadata_path},
+                context={"metadata_path": metadata_path, "cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
         # ---- Validate metadata content -> DataValidationError
@@ -760,7 +783,12 @@ class VectorStore:
         except Exception as e:
             raise DataValidationError(
                 "Unable to deserialize metadata column types from metadata in metadata file.",
-                context={"metadata_path": metadata_path, "meta_data": metadata["meta_data"]},
+                context={
+                    "metadata_path": metadata_path,
+                    "meta_data": metadata["meta_data"],
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
         # ---- Load parquet -> IndexBuildError / DataValidationError
@@ -778,7 +806,11 @@ class VectorStore:
         except Exception as e:
             raise IndexBuildError(
                 "Failed to read vectors.parquet.",
-                context={"vectors_path": vectors_path},
+                context={
+                    "vectors_path": vectors_path,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
             ) from e
 
         if df.is_empty():
@@ -805,16 +837,29 @@ class VectorStore:
             )
 
         # ---- Construct instance without __init__ and assign fields
-        vector_store = object.__new__(cls)
-        vector_store.file_name = None
-        vector_store.data_type = None
-        vector_store.vectoriser = vectoriser
-        vector_store.batch_size = None
-        vector_store.meta_data = deserialized_column_meta_data
-        vector_store.vectors = df
-        vector_store.vector_shape = metadata["vector_shape"]
-        vector_store.num_vectors = metadata["num_vectors"]
-        vector_store.vectoriser_class = metadata["vectoriser_class"]
-        vector_store.hooks = {} if hooks is None else hooks
+        try:
+            vector_store = object.__new__(cls)
+            vector_store.file_name = None
+            vector_store.data_type = None
+            vector_store.vectoriser = vectoriser
+            vector_store.batch_size = None
+            vector_store.meta_data = deserialized_column_meta_data
+            vector_store.vectors = df
+            vector_store.vector_shape = metadata["vector_shape"]
+            vector_store.num_vectors = metadata["num_vectors"]
+            vector_store.vectoriser_class = metadata["vectoriser_class"]
+            vector_store.hooks = {} if hooks is None else hooks
+
+        except Exception as e:
+            raise IndexBuildError(
+                "Failed to initialise VectorStore instance from filespace.",
+                context={
+                    "folder_path": folder_path,
+                    "metadata_path": metadata_path,
+                    "vectors_path": vectors_path,
+                    "cause_type": type(e).__name__,
+                    "cause_message": str(e),
+                },
+            ) from e
 
         return vector_store

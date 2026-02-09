@@ -87,7 +87,7 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise ConfigurationError(
                 "Failed to initialize GCP GenAI client.",
-                context={"vectoriser": "gcp"},
+                context={"vectoriser": "gcp", "cause": str(e), "cause_type": type(e).__name__},
             ) from e
 
     def transform(self, texts):
@@ -115,7 +115,13 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise ExternalServiceError(
                 "GCP embedding request failed.",
-                context={"vectoriser": "gcp", "model": self.model_name, "n_texts": len(texts)},
+                context={
+                    "vectoriser": "gcp",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
             ) from e
 
         # Extract embeddings from the response object
@@ -124,7 +130,12 @@ class GcpVectoriser(VectoriserBase):
         except Exception as e:
             raise VectorisationError(
                 "Unexpected embedding response format from GCP.",
-                context={"vectoriser": "gcp", "model": self.model_name},
+                context={
+                    "vectoriser": "gcp",
+                    "model": self.model_name,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
             ) from e
 
         return result

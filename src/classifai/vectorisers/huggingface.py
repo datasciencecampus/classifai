@@ -39,7 +39,13 @@ class HuggingFaceVectoriser(VectoriserBase):
         except Exception as e:
             raise ExternalServiceError(
                 "Failed to load HuggingFace model/tokenizer.",
-                context={"vectoriser": "huggingface", "model": model_name, "revision": model_revision},
+                context={
+                    "vectoriser": "huggingface",
+                    "model": model_name,
+                    "revision": model_revision,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
             ) from e
 
         # Device selection / model placement is local configuration/runtime.
@@ -54,7 +60,13 @@ class HuggingFaceVectoriser(VectoriserBase):
         except Exception as e:
             raise ConfigurationError(
                 "Failed to initialize model on device.",
-                context={"vectoriser": "huggingface", "model": model_name, "device": str(device) if device else "auto"},
+                context={
+                    "vectoriser": "huggingface",
+                    "model": model_name,
+                    "device": str(device) if device else "auto",
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
             ) from e
 
     def transform(self, texts):
@@ -81,14 +93,20 @@ class HuggingFaceVectoriser(VectoriserBase):
         except Exception as e:
             raise VectorisationError(
                 "Tokenization failed.",
-                context={"vectoriser": "huggingface", "model": self.model_name, "n_texts": len(texts)},
+                context={
+                    "vectoriser": "huggingface",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
             ) from e
 
         # Forward pass can fail (OOM, dtype/device mismatch, model bug)
         try:
             with torch.no_grad():
                 outputs = self.model(**inputs)
-        except RuntimeError as e:
+        except Exception as e:
             # RuntimeError is common for CUDA OOM etc.
             raise VectorisationError(
                 "Model forward pass failed (possible OOM/device issue).",
@@ -97,12 +115,9 @@ class HuggingFaceVectoriser(VectoriserBase):
                     "model": self.model_name,
                     "n_texts": len(texts),
                     "device": str(self.device),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
                 },
-            ) from e
-        except Exception as e:
-            raise VectorisationError(
-                "Model forward pass failed.",
-                context={"vectoriser": "huggingface", "model": self.model_name, "n_texts": len(texts)},
             ) from e
 
         # Pooling / output parsing
@@ -119,7 +134,13 @@ class HuggingFaceVectoriser(VectoriserBase):
         except Exception as e:
             raise VectorisationError(
                 "Failed to compute embeddings from model outputs.",
-                context={"vectoriser": "huggingface", "model": self.model_name},
+                context={
+                    "vectoriser": "huggingface",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
             ) from e
 
         return embeddings
