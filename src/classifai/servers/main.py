@@ -39,12 +39,14 @@ from .pydantic_models import (
 
 class ClassifAIServer(FastAPI):
     def __init__(self, vectorstores: list[VectorStore], endpointnames: list[str]):
+        super().__init__()
         self.endpoint_names = endpointnames
 
         if len(vectorstores) != len(self.endpoint_names):
             raise ValueError("The number of vector stores must match the number of endpoint names.")
 
         self.vector_stores: dict[str, VectorStore] = dict(zip(endpointnames, vectorstores, strict=False))
+        self.make_endpoints()
 
     def create_embedding_endpoint(self, endpoint_name: str):
         """Create and register an embedding endpoint for a specific vector store.
