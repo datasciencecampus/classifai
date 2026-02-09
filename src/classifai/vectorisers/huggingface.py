@@ -15,21 +15,44 @@ class HuggingFaceVectoriser(VectoriserBase):
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
     """
 
-    def __init__(self, model_name, device=None, model_revision="main"):
+    def __init__(
+        self,
+        model_name,
+        device=None,
+        model_revision="main",
+        model_kwargs: dict | None = None,
+    ):
         """Initializes the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
             device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
             model_revision (str, optional): The specific model revision to use. Defaults to "main".
+            model_kwargs (dict, optional): Additional keyword arguments to pass to the model. Defaults to None.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
         from transformers import AutoModel, AutoTokenizer  # type: ignore
 
         self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)  # nosec: B615
-        self.model = AutoModel.from_pretrained(model_name, revision=model_revision)  # nosec: B615
+
+        tokenizer_kwargs = dict(model_kwargs or {})
+        model_kwargs = dict(model_kwargs or {})
+
+        # Ensure consistent behavior unless user overrides it
+        tokenizer_kwargs.setdefault("trust_remote_code", False)
+        model_kwargs.setdefault("trust_remote_code", False)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            model_name,
+            revision=model_revision,
+            **tokenizer_kwargs,
+        )  # nosec: B615
+        self.model = AutoModel.from_pretrained(
+            model_name,
+            revision=model_revision,
+            **model_kwargs,
+        )  # nosec: B615
 
         # Use GPU if available and not overridden
         if device:
