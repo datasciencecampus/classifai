@@ -110,6 +110,7 @@ class VectorStore:
 
 
         Raises:
+            ClassifaiError: For any unexpected errors during initialization, with context for debugging.
             DataValidationError: If input arguments are invalid or if there are issues with the input file.
             ConfigurationError: If there are configuration issues, such as output directory problems.
             IndexBuildError: If there are failures during index building or saving outputs.
@@ -173,8 +174,6 @@ class VectorStore:
                         context={"output_dir": self.output_dir},
                     )
             os.makedirs(self.output_dir, exist_ok=True)
-        except ClassifaiError:
-            raise
         except Exception as e:
             raise ConfigurationError(
                 "Failed to prepare output directory.",
