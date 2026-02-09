@@ -8,6 +8,8 @@ VectorStore objects, such that their embed and search methods are exposed on
 restAPI endpoints, in a FastAPI restAPI service started with these functions.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -153,7 +155,7 @@ class ClassifAIServer(FastAPI):
         """Run the server."""
         logging.info("Starting ClassifAI API")
 
-        uvicorn.run(self, port=8000, log_level="info")
+        uvicorn.run(self, port=port, log_level="info")
 
     def make_endpoints(self):
         """Setup the different endpoints."""
