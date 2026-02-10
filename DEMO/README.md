@@ -4,12 +4,7 @@ This directory contains a set of Jupyter notebooks designed to help you understa
 
 ## Prerequisites
 
-Before running the notebooks, make sure you have `classifai` installed. You can install it using pip:
-
-```bash
-pip install "git+<TODO upon release>[huggingface]" 
-# add other optional dependencies if you want to try other vectorisers; e.g. [huggingface,gcp]
-```
+You may wish to download each notebook individually and the demo dataset individually - each notebook contains specific installation instructions on how to set up an environemnt and download the package
 
 ## Running the Demo
 

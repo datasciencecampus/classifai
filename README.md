@@ -72,7 +72,8 @@ The comparison on other aspects, such as per-request speed or hardware requireme
 Install the package directly from GitHub in your Python environment
 
 ```bash
-pip install "git+https://github.com/datasciencecampus/classifAI[huggingface]"
+pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"
+pip install "classifai[huggingface]"
 ```
 
 ## Example: Indexing and searching a knowledgebase
