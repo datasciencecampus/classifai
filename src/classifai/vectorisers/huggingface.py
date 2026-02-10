@@ -13,6 +13,8 @@ class HuggingFaceVectoriser(VectoriserBase):
         tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
         model (transformers.PreTrainedModel): The Huggingface model instance.
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
+        tokenizer_kwargs (dict): Additional keyword arguments passed to the tokenizer.
+        model_kwargs (dict): Additional keyword arguments passed to the model.
     """
 
     def __init__(
@@ -20,6 +22,7 @@ class HuggingFaceVectoriser(VectoriserBase):
         model_name,
         device=None,
         model_revision="main",
+        tokenizer_kwargs: dict | None = None,
         model_kwargs: dict | None = None,
     ):
         """Initializes the HuggingfaceVectoriser with the specified model name and device.
@@ -28,6 +31,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             model_name (str): The name of the Huggingface model to use.
             device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
             model_revision (str, optional): The specific model revision to use. Defaults to "main".
+            tokenizer_kwargs (dict, optional): Additional keyword arguments to pass to the tokenizer. Defaults to None.
             model_kwargs (dict, optional): Additional keyword arguments to pass to the model. Defaults to None.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
@@ -36,7 +40,7 @@ class HuggingFaceVectoriser(VectoriserBase):
 
         self.model_name = model_name
 
-        tokenizer_kwargs = dict(model_kwargs or {})
+        tokenizer_kwargs = dict(tokenizer_kwargs or {})
         model_kwargs = dict(model_kwargs or {})
 
         # Ensure consistent behavior unless user overrides it
