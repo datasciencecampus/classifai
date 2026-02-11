@@ -50,11 +50,6 @@ class ConfigurationError(ClassifaiError):
 
 
 @dataclass(eq=False)
-class DependencyError(ClassifaiError):
-    code: str = "dependency_error"
-
-
-@dataclass(eq=False)
 class DataValidationError(ClassifaiError):
     code: str = "validation_error"
 
