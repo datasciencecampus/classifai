@@ -14,15 +14,26 @@ class HuggingFaceVectoriser(VectoriserBase):
         tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
         model (transformers.PreTrainedModel): The Huggingface model instance.
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
+        tokenizer_kwargs (dict): Additional keyword arguments passed to the tokenizer.
+        model_kwargs (dict): Additional keyword arguments passed to the model.
     """
 
-    def __init__(self, model_name, device=None, model_revision="main"):
+    def __init__(
+        self,
+        model_name,
+        device=None,
+        model_revision="main",
+        tokenizer_kwargs: dict | None = None,
+        model_kwargs: dict | None = None,
+    ):
         """Initializes the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
             device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
             model_revision (str, optional): The specific model revision to use. Defaults to "main".
+            tokenizer_kwargs (dict, optional): Additional keyword arguments to pass to the tokenizer. Defaults to None.
+            model_kwargs (dict, optional): Additional keyword arguments to pass to the model. Defaults to None.
 
         Raises:
             ExternalServiceError: If the model or tokenizer cannot be loaded.
@@ -33,9 +44,17 @@ class HuggingFaceVectoriser(VectoriserBase):
         from transformers import AutoModel, AutoTokenizer  # type: ignore
 
         self.model_name = model_name
+
+        tokenizer_kwargs = dict(tokenizer_kwargs or {})
+        model_kwargs = dict(model_kwargs or {})
+
+        # Ensure consistent behavior unless user overrides it
+        tokenizer_kwargs.setdefault("trust_remote_code", False)
+        model_kwargs.setdefault("trust_remote_code", False)
+
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)  # nosec: B615
-            self.model = AutoModel.from_pretrained(model_name, revision=model_revision)  # nosec: B615
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision, **tokenizer_kwargs)  # nosec: B615
+            self.model = AutoModel.from_pretrained(model_name, revision=model_revision, **model_kwargs)  # nosec: B615
         except Exception as e:
             raise ExternalServiceError(
                 "Failed to load HuggingFace model/tokenizer.",
