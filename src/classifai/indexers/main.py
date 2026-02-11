@@ -321,12 +321,12 @@ class VectorStore:
         paired_query = pl.DataFrame(
             {"id": query.id.astype(str).to_list(), "doc_id": query.doc_id.astype(str).to_list()}
         )
+        paired_query = paired_query.rename({"doc_id": "query_docid"})
+        docs = self.vectors.rename({"id": "doc_id"})
 
-        # join query with vdb to get matches
-        joined_table = paired_query.join(self.vectors.rename({"id": "doc_id"}), on="doc_id", how="inner")
-
+        out = docs.join_where(paired_query, pl.col("doc_id").str.starts_with(pl.col("query_docid")))
         # get formatted table
-        final_table = joined_table.select(
+        final_table = out.select(
             [
                 pl.col("id").cast(str),
                 pl.col("doc_id").cast(str),
