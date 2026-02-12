@@ -76,6 +76,12 @@ pip install "https://github.com/datasciencecampus/classifai/releases/download/v0
 pip install "classifai[huggingface]"
 ```
 
+or if you are using Astral UV
+
+```bash
+uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl[huggingface]"
+```
+
 ## Example: Indexing and searching a knowledgebase
 
 ClassifAI supports statistical classification through searching a knowledgebase. The knowledgebase is a set of labelled examples that show how different texts (e.g. survey responses) map to statistical classifications.
