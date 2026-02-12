@@ -1,6 +1,7 @@
 """A module that provides a wrapper for Huggingface Transformers models to generate text embeddings."""
 
 from classifai._optional import check_deps
+from classifai.exceptions import ConfigurationError, ExternalServiceError, VectorisationError
 
 from .base import VectoriserBase
 
@@ -33,6 +34,10 @@ class HuggingFaceVectoriser(VectoriserBase):
             model_revision (str, optional): The specific model revision to use. Defaults to "main".
             tokenizer_kwargs (dict, optional): Additional keyword arguments to pass to the tokenizer. Defaults to None.
             model_kwargs (dict, optional): Additional keyword arguments to pass to the model. Defaults to None.
+
+        Raises:
+            ExternalServiceError: If the model or tokenizer cannot be loaded.
+            ConfigurationError: If the model cannot be initialized on the specified device.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -47,25 +52,41 @@ class HuggingFaceVectoriser(VectoriserBase):
         tokenizer_kwargs.setdefault("trust_remote_code", False)
         model_kwargs.setdefault("trust_remote_code", False)
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            model_name,
-            revision=model_revision,
-            **tokenizer_kwargs,
-        )  # nosec: B615
-        self.model = AutoModel.from_pretrained(
-            model_name,
-            revision=model_revision,
-            **model_kwargs,
-        )  # nosec: B615
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision, **tokenizer_kwargs)  # nosec: B615
+            self.model = AutoModel.from_pretrained(model_name, revision=model_revision, **model_kwargs)  # nosec: B615
+        except Exception as e:
+            raise ExternalServiceError(
+                "Failed to load HuggingFace model/tokenizer.",
+                context={
+                    "vectoriser": "huggingface",
+                    "model": model_name,
+                    "revision": model_revision,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
-        # Use GPU if available and not overridden
-        if device:
-            self.device = device
-        else:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Device selection / model placement is local configuration/runtime.
+        try:
+            if device is not None:
+                self.device = device
+            else:
+                self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.model.to(self.device)
-        self.model.eval()
+            self.model.to(self.device)
+            self.model.eval()
+        except Exception as e:
+            raise ConfigurationError(
+                "Failed to initialize model on device.",
+                context={
+                    "vectoriser": "huggingface",
+                    "model": model_name,
+                    "device": str(device) if device else "auto",
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the Huggingface model.
@@ -77,7 +98,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            TypeError: If the input is not a string or a list of strings.
+            VectorisationError: If tokenization, model inference, or embedding extraction fails.
         """
         import torch  # type: ignore
 
@@ -85,24 +106,60 @@ class HuggingFaceVectoriser(VectoriserBase):
         if isinstance(texts, str):
             texts = [texts]
 
-        # Tokenise input texts
-        inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
+        # Tokenization / tensor move can fail (e.g., device issues, weird tokenizer config)
+        try:
+            inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt").to(self.device)
+        except Exception as e:
+            raise VectorisationError(
+                "Tokenization failed.",
+                context={
+                    "vectoriser": "huggingface",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
-        # Get model outputs
-        with torch.no_grad():
-            outputs = self.model(**inputs)
+        # Forward pass can fail (OOM, dtype/device mismatch, model bug)
+        try:
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+        except Exception as e:
+            # RuntimeError is common for CUDA OOM etc.
+            raise VectorisationError(
+                "Model forward pass failed (possible OOM/device issue).",
+                context={
+                    "vectoriser": "huggingface",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "device": str(self.device),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
-        # Use mean pooling over the token embeddings
-        token_embeddings = outputs.last_hidden_state  # shape: (batch_size, seq_len, hidden_size)
-        attention_mask = inputs["attention_mask"]
+        # Pooling / output parsing
+        try:
+            token_embeddings = outputs.last_hidden_state
+            attention_mask = inputs["attention_mask"]
 
-        # Perform mean pooling manually
-        mask = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-        summed = torch.sum(token_embeddings * mask, dim=1)
-        counts = torch.clamp(mask.sum(dim=1), min=1e-9)
-        mean_pooled = summed / counts  # shape: (batch_size, hidden_size)
+            mask = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+            summed = torch.sum(token_embeddings * mask, dim=1)
+            counts = torch.clamp(mask.sum(dim=1), min=1e-9)
+            mean_pooled = summed / counts
 
-        # Convert to numpy array
-        embeddings = mean_pooled.cpu().numpy()
+            embeddings = mean_pooled.cpu().numpy()
+        except Exception as e:
+            raise VectorisationError(
+                "Failed to compute embeddings from model outputs.",
+                context={
+                    "vectoriser": "huggingface",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
         return embeddings

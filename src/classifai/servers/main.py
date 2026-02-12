@@ -12,12 +12,16 @@ import logging
 from typing import Annotated
 
 import uvicorn
-
-# New imports
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 
-from ..indexers.dataclasses import VectorStoreEmbedInput, VectorStoreReverseSearchInput, VectorStoreSearchInput
+from ..exceptions import ConfigurationError, DataValidationError
+from ..indexers.dataclasses import (
+    VectorStoreEmbedInput,
+    VectorStoreReverseSearchInput,
+    VectorStoreSearchInput,
+)
+from ..indexers.main import VectorStore
 from .pydantic_models import (
     ClassifaiData,
     EmbeddingsList,
@@ -42,10 +46,52 @@ def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
         endpoint_names (list): A list of endpoint names corresponding to the vector stores.
         port (int, optional): The port on which the API server will run. Defaults to 8000.
 
+    Raises:
+        DataValidationError: If the input parameters are invalid.
+        ConfigurationError: If a vector store is missing required methods.
 
     """
+    # ---- Validate startup args -> DataValidationError / ConfigurationError
+    if not isinstance(vector_stores, list) or not isinstance(endpoint_names, list):
+        raise DataValidationError(
+            "vector_stores and endpoint_names must be lists.",
+            context={
+                "vector_stores_type": type(vector_stores).__name__,
+                "endpoint_names_type": type(endpoint_names).__name__,
+            },
+        )
+
     if len(vector_stores) != len(endpoint_names):
-        raise ValueError("The number of vector stores must match the number of endpoint names.")
+        raise DataValidationError(
+            "The number of vector stores must match the number of endpoint names.",
+            context={"n_vector_stores": len(vector_stores), "n_endpoint_names": len(endpoint_names)},
+        )
+
+    if any(not isinstance(x, str) or not x.strip() for x in endpoint_names):
+        raise DataValidationError(
+            "All endpoint_names must be non-empty strings.",
+            context={"endpoint_names": endpoint_names},
+        )
+
+    if len(set(endpoint_names)) != len(endpoint_names):
+        raise DataValidationError(
+            "endpoint_names must be unique.",
+            context={"endpoint_names": endpoint_names},
+        )
+
+    MAX_PORT, MIN_PORT = 65535, 1
+    if not isinstance(port, int) or port < MIN_PORT or port > MAX_PORT:
+        raise DataValidationError(
+            "port must be an integer between 1 and 65535.",
+            context={"port": port},
+        )
+
+    for i, vs in enumerate(vector_stores):
+        if not isinstance(vs, VectorStore):
+            raise ConfigurationError(
+                "vector_store must be an instance of the VectorStore class.",
+                context={"index": i, "vector_store_type": type(vs).__name__},
+            )
 
     logging.info("Starting ClassifAI API")
 
@@ -141,9 +187,7 @@ def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
             data: RevClassifaiData,
             n_results: Annotated[
                 int,
-                Query(
-                    description="The max number of results to return.",
-                ),
+                Query(description="The max number of results to return.", ge=1),
             ] = 100,
         ) -> RevResultsResponseBody:
             input_ids = [x.id for x in data.entries]
