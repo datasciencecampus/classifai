@@ -46,7 +46,9 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
         port (int, optional): The port on which the API server will run. Defaults to 8000.
 
     Returns:
-        APIRouter: Router with intialized search endpoints    Raises:
+        APIRouter: Router with intialized search endpoints
+
+    Raises:
         DataValidationError: If the input parameters are invalid.
         ConfigurationError: If a vector store is missing required methods.
 
@@ -61,8 +63,6 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
             },
         )
 
-    logging.info("Starting ClassifAI Router")
-    router = APIRouter()
     if len(vector_stores) != len(endpoint_names):
         raise DataValidationError(
             "The number of vector stores must match the number of endpoint names.",
@@ -88,6 +88,8 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
                 context={"index": i, "vector_store_type": type(vs).__name__},
             )
 
+    logging.info("Starting ClassifAI Router")
+    router = APIRouter()
     vector_stores_dict: dict[str, VectorStore] = dict(zip(endpoint_names, vector_stores, strict=True))
     make_endpoints(router, vector_stores_dict)
 
