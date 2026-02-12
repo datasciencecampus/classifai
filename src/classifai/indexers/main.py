@@ -325,6 +325,7 @@ class VectorStore:
         docs = self.vectors.rename({"id": "doc_id"})
 
         out = docs.join_where(paired_query, pl.col("doc_id").str.starts_with(pl.col("query_docid")))
+        out = out.sort(by=["id", "doc_id"], descending=[False, False])
         # get formatted table
         final_table = out.select(
             [
