@@ -23,6 +23,7 @@ import uvicorn
 # New imports
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
+from fastapi.routing import APIRouter
 
 from ..indexers.dataclasses import VectorStoreEmbedInput, VectorStoreReverseSearchInput, VectorStoreSearchInput
 from .pydantic_models import (
@@ -37,142 +38,188 @@ from .pydantic_models import (
 )
 
 
-class ClassifAIServer(FastAPI):
-    def __init__(self, vectorstores: list[VectorStore], endpointnames: list[str]):
-        super().__init__()
-        self.endpoint_names = endpointnames
+def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> APIRouter:
+    """Create and return a FastAPI router with search endpoints.
 
-        if len(vectorstores) != len(self.endpoint_names):
-            raise ValueError("The number of vector stores must match the number of endpoint names.")
+    Args:
+        vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
+        endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
+        port (int, optional): The port on which the API server will run. Defaults to 8000.
 
-        self.vector_stores: dict[str, VectorStore] = dict(zip(endpointnames, vectorstores, strict=False))
-        self.make_endpoints()
+    Returns:
+        APIRouter: Router with intialized search endpoints
+    """
+    logging.info("Starting ClassifAI Router")
+    router = APIRouter()
+    if len(vector_stores) != len(endpoint_names):
+        raise ValueError("The number of vector stores must match the number of endpoint names.")
 
-    def create_embedding_endpoint(self, endpoint_name: str):
-        """Create and register an embedding endpoint for a specific vector store.
+    vector_stores_dict: dict[str, VectorStore] = dict(zip(endpoint_names, vector_stores, strict=True))
+    make_endpoints(router, vector_stores_dict)
 
-        Args:
-            app (FastAPI): The FastAPI application instance.
-            endpoint_name (str): The name of the endpoint to be created.
-            vector_store: The vector store object responsible for generating embeddings.
+    @router.get("/", description="UI accessibility")
+    def docs():
+        """Redirect users to the API documentation page.
 
-        The created endpoint accepts POST requests with input data, generates embeddings
-        for the provided documents, and returns the results in a structured format.
+        Returns:
+            RedirectResponse: A response object that redirects the user to the `/docs` page.
         """
+        start_page = RedirectResponse(url="/docs")
+        return start_page
 
-        @self.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
-        async def embedding_endpoint(data: ClassifaiData) -> EmbeddingsResponseBody:
-            input_ids = [x.id for x in data.entries]
-            documents = [x.description for x in data.entries]
+    return router
 
-            input_data = VectorStoreEmbedInput({"id": input_ids, "text": documents})
 
-            output_data = self.vector_stores[endpoint_name].embed(input_data)
+def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> FastAPI:
+    """Create and return a FastAPI server with search endpoints.
 
-            returnable = []
-            for _, row in output_data.iterrows():
-                returnable.append(
-                    EmbeddingsList(
-                        idx=row["id"],
-                        description=row["text"],
-                        embedding=row["embedding"].tolist(),  # Convert numpy array to list
-                    )
+    Args:
+        vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
+        endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
+        port (int, optional): The port on which the API server will run. Defaults to 8000.
+
+    Returns:
+        FastAPI: Server with intialized search endpoints
+    """
+    logging.info("Generating ClassifAI API")
+
+    app = FastAPI(title="ClassifAI Demo Server", description="This is a demo server of the ClassifAI server")
+    router = get_router(vector_stores, endpoint_names)
+    app.include_router(router)
+    return app
+
+
+def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port: int = 8000):
+    """Create and run a FastAPI server with search endpoints.
+
+    Args:
+        vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
+        endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
+        port (int, optional): The port on which the API server will run. Defaults to 8000.
+    """
+    logging.info("Starting ClassifAI API")
+
+    app = get_server(vector_stores, endpoint_names)
+    uvicorn.run(app, port=port, log_level="info")
+
+
+def make_endpoints(router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
+    """Create and register the different endpoints to your app.
+
+    Args:
+        router (APIRouter | FastAPI): The FastAPI application instance.
+        vector_stores_dict (dict[str, VectorStore]): The name of the endpoint to be created.
+    """
+    for endpoint_name, vector_store in vector_stores_dict.items():
+        logging.info("Registering endpoints for: %s", endpoint_name)
+        create_embedding_endpoint(endpoint_name, vector_store)
+        create_search_endpoint(endpoint_name, vector_store)
+        create_reverse_search_endpoint(endpoint_name, vector_store)
+
+
+def create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+    """Create and register an embedding endpoint for a specific vector store.
+
+    Args:
+        router (APIRouter | FastAPI): The FastAPI application instance.
+        endpoint_name (str): The name of the endpoint to be created.
+        vector_store: The vector store object responsible for generating embeddings.
+
+    The created endpoint accepts POST requests with input data, generates embeddings
+    for the provided documents, and returns the results in a structured format.
+    """
+
+    @router.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
+    async def embedding_endpoint(data: ClassifaiData) -> EmbeddingsResponseBody:
+        input_ids = [x.id for x in data.entries]
+        documents = [x.description for x in data.entries]
+
+        input_data = VectorStoreEmbedInput({"id": input_ids, "text": documents})
+
+        output_data = vector_store.embed(input_data)
+
+        returnable = []
+        for _, row in output_data.iterrows():
+            returnable.append(
+                EmbeddingsList(
+                    idx=row["id"],
+                    description=row["text"],
+                    embedding=row["embedding"].tolist(),  # Convert numpy array to list
                 )
-            return EmbeddingsResponseBody(data=returnable)
-
-    def create_search_endpoint(self, endpoint_name: str):
-        """Create and register a search endpoint for a specific vector store.
-
-        Args:
-            app (FastAPI): The FastAPI application instance.
-            endpoint_name (str): The name of the endpoint to be created.
-            vector_store: The vector store object responsible for performing search operations.
-
-        The created endpoint accepts POST requests with input data and a query parameter
-        specifying the number of results to return. It performs a search operation using
-        the vector store and returns the results in a structured format.
-        """
-
-        @self.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
-        async def search_endpoint(
-            data: ClassifaiData,
-            n_results: Annotated[
-                int,
-                Query(
-                    description="The number of knowledgebase results to return per input query.",
-                    ge=1,  # Ensure at least one result is returned
-                ),
-            ] = 10,
-        ) -> ResultsResponseBody:
-            input_ids = [x.id for x in data.entries]
-            queries = [x.description for x in data.entries]
-
-            input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
-            output_data = self.vector_stores[endpoint_name].search(query=input_data, n_results=n_results)
-
-            ##post processing of the Vectorstore outputobject
-            formatted_result = convert_dataframe_to_pydantic_response(
-                df=output_data,
-                meta_data=self.vector_stores[endpoint_name].meta_data,
             )
+        return EmbeddingsResponseBody(data=returnable)
 
-            return formatted_result
 
-    def create_reverse_search_endpoint(self, endpoint_name: str):
-        """Create and register a reverse_search endpoint for a specific vector store.
+def create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+    """Create and register a search endpoint for a specific vector store.
 
-        Args:
-            app (FastAPI): The FastAPI application instance.
-            endpoint_name (str): The name of the endpoint to be created.
-            vector_store: The vector store object responsible for performing search operations.
+    Args:
+        router (APIRouter | FastAPI): The FastAPI application instance.
+        endpoint_name (str): The name of the endpoint to be created.
+        vector_store: The vector store object responsible for performing search operations.
 
-        The created endpoint accepts POST requests with input data and a query parameter
-        specifying the number of results to return. It performs a reverse search operation using
-        the vector store and returns the results in a structured format.
-        """
+    The created endpoint accepts POST requests with input data and a query parameter
+    specifying the number of results to return. It performs a search operation using
+    the vector store and returns the results in a structured format.
+    """
 
-        @self.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
-        def reverse_search_endpoint(
-            data: RevClassifaiData,
-            n_results: Annotated[
-                int,
-                Query(
-                    description="The max number of results to return.",
-                ),
-            ] = 100,
-        ) -> RevResultsResponseBody:
-            input_ids = [x.id for x in data.entries]
-            queries = [x.code for x in data.entries]
+    @router.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
+    async def search_endpoint(
+        data: ClassifaiData,
+        n_results: Annotated[
+            int,
+            Query(
+                description="The number of knowledgebase results to return per input query.",
+                ge=1,  # Ensure at least one result is returned
+            ),
+        ] = 10,
+    ) -> ResultsResponseBody:
+        input_ids = [x.id for x in data.entries]
+        queries = [x.description for x in data.entries]
 
-            input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
-            output_data = self.vector_stores[endpoint_name].reverse_search(input_data, n_results=n_results)
+        input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
+        output_data = vector_store.search(query=input_data, n_results=n_results)
 
-            formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
-                df=output_data,
-                meta_data=self.vector_stores[endpoint_name].meta_data,
-            )
-            return formatted_result
+        ##post processing of the Vectorstore outputobject
+        formatted_result = convert_dataframe_to_pydantic_response(
+            df=output_data,
+            meta_data=vector_store.meta_data,
+        )
 
-    def start(self, port: int = 8000):
-        """Run the server."""
-        logging.info("Starting ClassifAI API")
+        return formatted_result
 
-        uvicorn.run(self, port=port, log_level="info")
 
-    def make_endpoints(self):
-        """Setup the different endpoints."""
-        for endpoint_name in self.endpoint_names:
-            logging.info("Registering endpoints for: %s", endpoint_name)
-            self.create_embedding_endpoint(endpoint_name)
-            self.create_search_endpoint(endpoint_name)
-            self.create_reverse_search_endpoint(endpoint_name)
+def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+    """Create and register a reverse_search endpoint for a specific vector store.
 
-        @self.get("/", description="UI accessibility")
-        def docs():
-            """Redirect users to the API documentation page.
+    Args:
+        router (APIRouter | FastAPI): The FastAPI application instance.
+        endpoint_name (str): The name of the endpoint to be created.
+        vector_store: The vector store object responsible for performing search operations.
 
-            Returns:
-                RedirectResponse: A response object that redirects the user to the `/docs` page.
-            """
-            start_page = RedirectResponse(url="/docs")
-            return start_page
+    The created endpoint accepts POST requests with input data and a query parameter
+    specifying the number of results to return. It performs a reverse search operation using
+    the vector store and returns the results in a structured format.
+    """
+
+    @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
+    def reverse_search_endpoint(
+        data: RevClassifaiData,
+        n_results: Annotated[
+            int,
+            Query(
+                description="The max number of results to return.",
+            ),
+        ] = 100,
+    ) -> RevResultsResponseBody:
+        input_ids = [x.id for x in data.entries]
+        queries = [x.code for x in data.entries]
+
+        input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
+        output_data = vector_store.reverse_search(input_data, n_results=n_results)
+
+        formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
+            df=output_data,
+            meta_data=vector_store.meta_data,
+        )
+        return formatted_result
