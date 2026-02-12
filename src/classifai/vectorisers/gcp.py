@@ -7,12 +7,15 @@ import logging
 import numpy as np
 
 from classifai._optional import check_deps
+from classifai.exceptions import ConfigurationError, ExternalServiceError, VectorisationError
 
 from .base import VectoriserBase
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
 logging.getLogger("google.api_core").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
 
 
 class GcpVectoriser(VectoriserBase):
@@ -58,8 +61,7 @@ class GcpVectoriser(VectoriserBase):
             **client_kwargs: Additional keyword arguments to pass to the GenAI client.
 
         Raises:
-            RuntimeError: If the GenAI client fails to initialize.
-            ValueError: If neither project_id&location nor api_key is provided.
+            ConfigurationError: If the GenAI client fails to initialize.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -73,8 +75,9 @@ class GcpVectoriser(VectoriserBase):
         elif api_key and not project_id:
             client_kwargs.setdefault("api_key", api_key)
         else:
-            raise ValueError(
-                "Provide either 'project_id' and 'location' together, or 'api_key' alone for GCP Vectoriser."
+            raise ConfigurationError(
+                "Provide either 'project_id' and 'location' together, or 'api_key' alone for GCP Vectoriser.",
+                context={"vectoriser": "gcp"},
             )
 
         try:
@@ -82,7 +85,10 @@ class GcpVectoriser(VectoriserBase):
                 **client_kwargs,
             )
         except Exception as e:
-            raise RuntimeError(f"Failed to initialize GCP Vectoriser. {e}") from e
+            raise ConfigurationError(
+                "Failed to initialize GCP GenAI client.",
+                context={"vectoriser": "gcp", "cause": str(e), "cause_type": type(e).__name__},
+            ) from e
 
     def transform(self, texts):
         """Transforms input text(s) into embeddings using the GenAI API.
@@ -94,18 +100,42 @@ class GcpVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            TypeError: If the input is not a string or a list of strings.
+            ExternalServiceError: If the GenAI API request fails.
+            VectorisationError: If the response format from the GenAI API is unexpected.
         """
         # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
 
         # The Vertex AI call to embed content
-        embeddings = self.vectoriser.models.embed_content(
-            model=self.model_name, contents=texts, config=self.model_config
-        )
+        try:
+            embeddings = self.vectoriser.models.embed_content(
+                model=self.model_name, contents=texts, config=self.model_config
+            )
+        except Exception as e:
+            raise ExternalServiceError(
+                "GCP embedding request failed.",
+                context={
+                    "vectoriser": "gcp",
+                    "model": self.model_name,
+                    "n_texts": len(texts),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
         # Extract embeddings from the response object
-        result = np.array([res.values for res in embeddings.embeddings])
+        try:
+            result = np.array([res.values for res in embeddings.embeddings])
+        except Exception as e:
+            raise VectorisationError(
+                "Unexpected embedding response format from GCP.",
+                context={
+                    "vectoriser": "gcp",
+                    "model": self.model_name,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
         return result
