@@ -10,11 +10,6 @@ restAPI endpoints, in a FastAPI restAPI service started with these functions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from classifai.indexers import VectorStore
-
 import logging
 from typing import Annotated
 
