@@ -250,12 +250,15 @@ def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: s
             int,
             Query(description="The max number of results to return.", ge=1),
         ] = 100,
+        partial_match: Annotated[
+            bool, Query(description="Flag to use partial `starts_with` matching for queries")
+        ] = False,
     ) -> RevResultsResponseBody:
         input_ids = [x.id for x in data.entries]
         queries = [x.code for x in data.entries]
 
         input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
-        output_data = vector_store.reverse_search(input_data, n_results=n_results)
+        output_data = vector_store.reverse_search(input_data, n_results=n_results, partial_match=partial_match)
 
         formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
             df=output_data,
