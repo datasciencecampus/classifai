@@ -155,9 +155,9 @@ def make_endpoints(router: APIRouter | FastAPI, vector_stores_dict: dict[str, Ve
     """
     for endpoint_name, vector_store in vector_stores_dict.items():
         logging.info("Registering endpoints for: %s", endpoint_name)
-        create_embedding_endpoint(endpoint_name, vector_store)
-        create_search_endpoint(endpoint_name, vector_store)
-        create_reverse_search_endpoint(endpoint_name, vector_store)
+        create_embedding_endpoint(router, endpoint_name, vector_store)
+        create_search_endpoint(router, endpoint_name, vector_store)
+        create_reverse_search_endpoint(router, endpoint_name, vector_store)
 
 
 def create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
