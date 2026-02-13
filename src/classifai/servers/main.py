@@ -42,7 +42,6 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
     Args:
         vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
-        port (int, optional): The port on which the API server will run. Defaults to 8000.
 
     Returns:
         APIRouter: Router with intialized search endpoints
