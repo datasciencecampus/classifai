@@ -186,15 +186,18 @@ def start_api(vector_stores, endpoint_names, port=8000):  # noqa: C901
         def reverse_search_endpoint(
             data: RevClassifaiData,
             n_results: Annotated[
-                int,
+                int | None,
                 Query(description="The max number of results to return.", ge=1),
-            ] = 100,
+            ] = None,
+            partial_match: Annotated[
+                bool, Query(description="Flag to use partial `starts_with` matching for queries")
+            ] = False,
         ) -> RevResultsResponseBody:
             input_ids = [x.id for x in data.entries]
             queries = [x.code for x in data.entries]
 
             input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
-            output_data = vector_store.reverse_search(input_data, n_results=n_results)
+            output_data = vector_store.reverse_search(input_data, n_results=n_results, partial_match=partial_match)
 
             formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
                 df=output_data,
