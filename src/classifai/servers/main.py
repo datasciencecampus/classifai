@@ -14,9 +14,8 @@ import logging
 from typing import Annotated
 
 import uvicorn
-from fastapi import FastAPI, Query
+from fastapi import APIRouter, FastAPI, Query
 from fastapi.responses import RedirectResponse
-from fastapi.routing import APIRouter
 
 from ..exceptions import ConfigurationError, DataValidationError
 from ..indexers.dataclasses import (
