@@ -1,5 +1,7 @@
 ![ONS Logo](./ONS_Logo_Digital_Colour_Landscape_English_RGB.svg)
 
+### A tool produced by the UK Office for National Statistics - Central Data Science & AI group
+
 # ClassifAI
 
 ClassifAI is a Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
@@ -69,17 +71,24 @@ The comparison on other aspects, such as per-request speed or hardware requireme
 
 ## Installation
 
-Install the package directly from GitHub in your Python environment
+You can install the package directly from GitHub in your Python environment, using your preferred package manager.
+By default, only the minimum dependencies of the base versions will be installed; you must specify 
+`classifai[all]` to install all sets of optional dependencies, or `classifai[huggingface, ...]` to install one or more specific sets of optional dependencies.
+The current sets of optional dependencies are `[all, huggingface, ollama, gcp]`.
 
+##### Pip
 ```bash
-pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"
-pip install "classifai[huggingface]"
+pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
 ```
 
-or if you are using Astral UV
-
+##### Astral UV
+one-off add to environment:
 ```bash
-uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl[huggingface]"
+uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+```
+persist as an environment requirement:
+```bash
+uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
 ```
 
 ## Example: Indexing and searching a knowledgebase

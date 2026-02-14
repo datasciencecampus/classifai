@@ -35,7 +35,6 @@ import uuid
 from typing import Optional, Self, Union  # noqa: F401
 
 import numpy as np
-import pandas as pd  # for type hinting
 import polars as pl
 from tqdm.autonotebook import tqdm
 
@@ -711,7 +710,7 @@ class VectorStore:
             hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
-            VectorStore: An instance of the `VectorStore` class.
+            (VectorStore): An instance of the `VectorStore` class.
 
         Raises:
             DataValidationError: If input arguments are invalid or if there are issues with the metadata or Parquet files.

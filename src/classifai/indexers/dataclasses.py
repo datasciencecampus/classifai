@@ -5,7 +5,7 @@ import pandera.pandas as pa
 ##
 # Search Input DataClass
 ##
-searchInputSchema = pa.DataFrameSchema(
+searchInputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
     {
         "id": pa.Column(str),
         "query": pa.Column(str),
@@ -15,6 +15,8 @@ searchInputSchema = pa.DataFrameSchema(
 
 
 class VectorStoreSearchInput(pd.DataFrame):
+    """TODO."""
+
     _schema = searchInputSchema
 
     def __init__(self, data: dict | pd.DataFrame):
@@ -51,7 +53,7 @@ class VectorStoreSearchInput(pd.DataFrame):
 ##
 # Search Output DataClass
 ##
-searchOutputSchema = pa.DataFrameSchema(
+searchOutputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
     {
         "query_id": pa.Column(str),
         "query_text": pa.Column(str),
@@ -66,6 +68,8 @@ searchOutputSchema = pa.DataFrameSchema(
 
 
 class VectorStoreSearchOutput(pd.DataFrame):
+    """TODO."""
+
     _schema = searchOutputSchema
 
     def __init__(self, data: dict | pd.DataFrame):
@@ -118,7 +122,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
 ##
 # Reverse Search Input DataClass
 ##
-reverseSearchInputSchema = pa.DataFrameSchema(
+reverseSearchInputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
     {
         "id": pa.Column(str),
         "doc_id": pa.Column(str),
@@ -128,6 +132,8 @@ reverseSearchInputSchema = pa.DataFrameSchema(
 
 
 class VectorStoreReverseSearchInput(pd.DataFrame):
+    """TODO."""
+
     _schema = reverseSearchInputSchema
 
     def __init__(self, data: dict | pd.DataFrame):
@@ -164,7 +170,7 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 ##
 # Reverse Search Output DataClass
 ##
-reverseSearchOutputSchema = pa.DataFrameSchema(
+reverseSearchOutputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
     {
         "id": pa.Column(str),
         "doc_id": pa.Column(str),
@@ -174,6 +180,8 @@ reverseSearchOutputSchema = pa.DataFrameSchema(
 
 
 class VectorStoreReverseSearchOutput(pd.DataFrame):
+    """TODO."""
+
     _schema = reverseSearchOutputSchema
 
     def __init__(self, data: dict | pd.DataFrame):
@@ -214,7 +222,7 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 ##
 # Embed Input DataClass
 ##
-embedInputSchema = pa.DataFrameSchema(
+embedInputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
     {
         "id": pa.Column(str),
         "text": pa.Column(str),
@@ -224,6 +232,8 @@ embedInputSchema = pa.DataFrameSchema(
 
 
 class VectorStoreEmbedInput(pd.DataFrame):
+    """TODO."""
+
     _schema = embedInputSchema
 
     def __init__(self, data: dict | pd.DataFrame):
@@ -260,7 +270,7 @@ class VectorStoreEmbedInput(pd.DataFrame):
 ##
 # Embed Ouput DataClass
 ##
-embedOutputSchema = pa.DataFrameSchema(
+embedOutputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
     {
         "id": pa.Column(str),
         "text": pa.Column(str),
@@ -271,6 +281,8 @@ embedOutputSchema = pa.DataFrameSchema(
 
 
 class VectorStoreEmbedOutput(pd.DataFrame):
+    """TODO."""
+
     _schema = embedOutputSchema
 
     def __init__(self, data: dict | pd.DataFrame):

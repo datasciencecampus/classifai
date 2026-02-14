@@ -1,3 +1,5 @@
+execute: 
+  freeze: auto
 project:
   type: website
   render: 
@@ -9,6 +11,10 @@ project:
     - DEMO/**.qmd
     - README.md
     - DEMO/README.md
+    - classifai/vectorisers/__init__.py
+    - classifai/indexers/__init__.py
+    - classifai/servers/__init__.py
+
 
 website:
   title: "ClassifAI"
@@ -27,6 +33,7 @@ website:
     - id: index
     - title: "Documentation"
     - style: "docked"
+      collapse-level: 1
       contents:
         - section: "Overview"
           contents:
@@ -35,6 +42,7 @@ website:
           contents:
             - section: "Vectorisers Overview"
               contents:
+              - docs/vectorisers.qmd
               - docs/vectorisers.base.VectoriserBase.qmd
               - docs/vectorisers.base.VectoriserBase.transform.qmd
             - section: "Specific Vectorisers"
@@ -44,6 +52,7 @@ website:
               - docs/vectorisers.gcp.GcpVectoriser.qmd
         - section: "Indexers"
           contents:
+            - docs/indexers.qmd
             - docs/indexers.VectorStore.qmd
             - docs/indexers.VectorStore.embed.qmd
             - docs/indexers.VectorStore.search.qmd
@@ -51,12 +60,17 @@ website:
             - docs/indexers.VectorStore.from_filespace.qmd
         - section: "Servers"
           contents:
-            - docs/servers.start_api.qmd
+            - docs/servers.qmd
+            - docs/servers.get_router.qmd
+            - docs/servers.get_server.qmd
+            - docs/servers.run_server.qmd
+            - docs/servers.make_endpoints.qmd
         - section: "DEMO"
           contents:
             - file: DEMO/README.md
             - file: DEMO/general_workflow_demo.ipynb
             - file: DEMO/custom_vectoriser.ipynb
+            - file: DEMO/custom_preprocessing_and_postprocessing_hooks.ipynb
 
 interlinks:
  sources:
@@ -88,6 +102,8 @@ quartodoc:
     - title: Vectorisers
       desc: "Utilities to project text into numerical representation in a semantic vector space"
       contents:
+        - vectorisers
+        - vectorisers.base
         - vectorisers.base.VectoriserBase
         - vectorisers.base.VectoriserBase.transform
         - vectorisers.huggingface.HuggingFaceVectoriser
@@ -96,7 +112,15 @@ quartodoc:
     - title: Indexers
       desc: "Creation of Vector Stores for efficient similarity search and retrieval"
       contents:
+        - indexers
+        - indexers.main
         - indexers.VectorStore
+        - indexers.dataclasses.VectorStoreSearchInput
+        - indexers.dataclasses.VectorStoreSearchOutput
+        - indexers.dataclasses.VectorStoreReverseSearchInput
+        - indexers.dataclasses.VectorStoreReverseSearchOutput
+        - indexers.dataclasses.VectorStoreEmbedInput
+        - indexers.dataclasses.VectorStoreEmbedOutput
         - indexers.VectorStore.embed
         - indexers.VectorStore.search
         - indexers.VectorStore.reverse_search
@@ -104,4 +128,9 @@ quartodoc:
     - title: Servers
       desc: "Expose ClassifAI functionality via Fast-API endpoints"
       contents:
-        - servers.start_api
+        - servers
+        - servers.main
+        - servers.get_router
+        - servers.get_server
+        - servers.run_server
+        - servers.make_endpoints
