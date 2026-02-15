@@ -39,10 +39,10 @@ repos:
       # Run the formatter.
       - id: ruff-format
 
-  - repo: https://github.com/fpgmaas/deptry.git
-    rev: 0.24.0
-    hooks:
-      - id: deptry
+  #- repo: https://github.com/fpgmaas/deptry.git
+  #  rev: 0.24.0
+  #  hooks:
+  #    - id: deptry
 
   - repo: local
     hooks:
@@ -56,3 +56,9 @@ repos:
         name: scan code with bandit
         entry: make check-python-security
         language: system
+
+      - id: deptry-uv
+        name: deptry (uv)
+        language: system
+        pass_filenames: false # deptry expects a project path, not filenames
+        entry: uv run deptry .
