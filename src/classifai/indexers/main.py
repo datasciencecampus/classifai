@@ -632,7 +632,7 @@ class VectorStore:
                     {
                         "query_id": np.repeat(query_ids_batch, n_results),
                         "query_text": np.repeat(query_text_batch, n_results),
-                        "rank": np.tile(np.arange(n_results), len(query_text_batch)),
+                        "rank": np.tile(np.arange(1, n_results + 1), len(query_text_batch)),
                         "score": scores.flatten(),
                     }
                 )

@@ -127,12 +127,16 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
             # Extract metadata columns dynamically
             metadata_values = {meta: row[meta] for meta in meta_data if meta in row}
 
+            # Find other values - added by hooks - any other per-row columns not in reserved/meta
+            other_values = {k: v for k, v in row.items() if k not in ["doc_id", "doc_text"] and k not in meta_data}
+
             # Create a RevResultEntry object
             response_entries.append(
                 RevResultEntry(
                     label=row["doc_id"],
                     description=row["doc_text"],
                     **metadata_values,  # Add metadata dynamically
+                    **other_values,  # Add any extra columns dynamically
                 )
             )
 
@@ -174,6 +178,11 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
             # Extract metadata columns dynamically
             metadata_values = {meta: row[meta] for meta in meta_data}
 
+            # Find other values - added by hooks - any other per-row columns not in reserved/meta
+            other_values = {
+                k: v for k, v in row.items() if k not in ["doc_id", "doc_text", "score", "rank"] and k not in meta_data
+            }
+
             # Create a ResultEntry object
             response_entries.append(
                 ResultEntry(
@@ -182,6 +191,7 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
                     score=row["score"],  # Assuming `score` is a column in the DataFrame
                     rank=row["rank"],  # Assuming `rank` is a column in the DataFrame
                     **metadata_values,  # Add metadata dynamically
+                    **other_values,  # Add any extra columns dynamically
                 )
             )
 
