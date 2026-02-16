@@ -428,9 +428,9 @@ class VectorStore:
     def reverse_search(  # noqa: C901
         self, query: VectorStoreReverseSearchInput, n_results: int | None = None, partial_match: bool = False
     ) -> VectorStoreReverseSearchOutput:
-        """Reverse searches the vector store using a VectorStoreReverseSearchInput object and returns
-        matched results in VectorStoreReverseSearchOutput object. Performs an inner join of the query table with the documents data matching on label,
-        or if using partial matching, matches if document label starts with query label.
+        """Reverse searches the vector store using a VectorStoreReverseSearchInput object
+        and returns matched results in VectorStoreReverseSearchOutput object.
+        If using partial matching, matches if document label starts with query label.
 
         Args:
             query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
@@ -439,7 +439,7 @@ class VectorStore:
 
         Returns:
             result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for query ID, query text,
-                          document ID, document text and any associated metadata columns.
+                document ID, document text and any associated metadata columns.
 
         Raises:
             DataValidationError: Raised if invalid arguments are passed.
@@ -546,7 +546,7 @@ class VectorStore:
 
         Returns:
             result_df (VectorStoreSearchOutput): A VectorStoreSearchOutput object containing search results with columns for query ID, query text,
-                          document ID, document text, rank, score, and any associated metadata columns.
+                document ID, document text, rank, score, and any associated metadata columns.
 
         Raises:
             DataValidationError: Raised if invalid arguments are passed.
