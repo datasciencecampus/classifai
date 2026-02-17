@@ -112,6 +112,18 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
     Returns:
         RevResultsResponseBody: Pydantic model containing the structured response.
     """
+    # identify metadata columns from the DataFrame by checking which columns are in the meta_data dictionary
+    hook_columns = (
+        set(df.columns)
+        .difference(meta_data.keys())
+        .difference(
+            {
+                "id",
+                "doc_id",
+                "doc_text",
+            }
+        )
+    )
     results_list = []
 
     # Group rows by `id`
@@ -128,7 +140,7 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
             metadata_values = {meta: row[meta] for meta in meta_data if meta in row}
 
             # Find other values - added by hooks - any other per-row columns not in reserved/meta
-            other_values = {k: v for k, v in row.items() if k not in ["doc_id", "doc_text"] and k not in meta_data}
+            other_values = {k: v for k, v in row.items() if k in hook_columns}
 
             # Create a RevResultEntry object
             response_entries.append(
@@ -164,6 +176,22 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
     Returns:
         ResultsResponseBody: Pydantic model containing the structured response.
     """
+    # identify metadata columns from the DataFrame by checking which columns are in the meta_data dictionary
+    hook_columns = (
+        set(df.columns)
+        .difference(meta_data.keys())
+        .difference(
+            {
+                "query_id",
+                "query_text",
+                "doc_id",
+                "doc_text",
+                "score",
+                "rank",
+            }
+        )
+    )
+
     # Group rows by `query_id`
     grouped = df.groupby("query_id")
 
@@ -179,9 +207,7 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
             metadata_values = {meta: row[meta] for meta in meta_data}
 
             # Find other values - added by hooks - any other per-row columns not in reserved/meta
-            other_values = {
-                k: v for k, v in row.items() if k not in ["doc_id", "doc_text", "score", "rank"] and k not in meta_data
-            }
+            other_values = {k: v for k, v in row.items() if k in hook_columns}
 
             # Create a ResultEntry object
             response_entries.append(
