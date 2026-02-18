@@ -1,7 +1,5 @@
 """FastAPI server as a package."""
 
-from .main import start_api
+from .main import get_router, run_server
 
-__all__ = [
-    "start_api",
-]
+__all__ = ["get_router", "run_server"]

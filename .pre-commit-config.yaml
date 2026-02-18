@@ -39,8 +39,17 @@ repos:
       # Run the formatter.
       - id: ruff-format
 
+
   - repo: local
     hooks:
+
+    
+      - id: deptry-uv
+        name: deptry (uv)
+        language: system
+        pass_filenames: false # deptry expects a project path, not filenames
+        entry: uv run deptry .
+
       - id: forbid-new-init
         name: Check if __init__.py is added to the src folder
         entry: python
@@ -61,3 +70,4 @@ repos:
         name: Check commits for secrets, using gitleaks Docker image
         entry: make run-gitleaks
         language: system
+      
