@@ -246,7 +246,7 @@ def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: s
     @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
     def reverse_search_endpoint(
         data: RevClassifaiData,
-        n_results: Annotated[
+        max_n_results: Annotated[
             int | Literal[-1],
             Query(description="The max number of results to return, set to -1 to return all results."),
         ] = 100,
@@ -255,14 +255,14 @@ def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: s
         ] = False,
     ) -> RevResultsResponseBody:
         # Enforce the ≥1 rule manually, only when not -1
-        if n_results != -1 and n_results < 1:
-            raise HTTPException(422, "n_results must be -1 or >= 1")
+        if max_n_results != -1 and max_n_results < 1:
+            raise HTTPException(422, "max_n_results must be -1 or >= 1")
 
         input_ids = [x.id for x in data.entries]
         queries = [x.code for x in data.entries]
 
         input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
-        output_data = vector_store.reverse_search(input_data, n_results=n_results, partial_match=partial_match)
+        output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
 
         formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
             df=output_data,
