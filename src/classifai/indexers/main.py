@@ -434,7 +434,7 @@ class VectorStore:
 
         Args:
             query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            n_results (int, optional): Number of top results to return for each query. Default 100.
+            n_results (int, optional): Number of top results to return for each query. Default None (all).
             partial_match (bool, optional): Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
 
         Returns:
