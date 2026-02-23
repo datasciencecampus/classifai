@@ -112,6 +112,18 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
     Returns:
         RevResultsResponseBody: Pydantic model containing the structured response.
     """
+    # identify metadata columns from the DataFrame by checking which columns are in the meta_data dictionary
+    hook_columns = (
+        set(df.columns)
+        .difference(meta_data.keys())
+        .difference(
+            {
+                "id",
+                "doc_id",
+                "doc_text",
+            }
+        )
+    )
     results_list = []
 
     # Group rows by `id`
@@ -127,12 +139,16 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
             # Extract metadata columns dynamically
             metadata_values = {meta: row[meta] for meta in meta_data if meta in row}
 
+            # Find other values - added by hooks - any other per-row columns not in reserved/meta
+            other_values = {k: v for k, v in row.items() if k in hook_columns}
+
             # Create a RevResultEntry object
             response_entries.append(
                 RevResultEntry(
                     label=row["doc_id"],
                     description=row["doc_text"],
                     **metadata_values,  # Add metadata dynamically
+                    **other_values,  # Add any extra columns dynamically
                 )
             )
 
@@ -160,6 +176,22 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
     Returns:
         ResultsResponseBody: Pydantic model containing the structured response.
     """
+    # identify metadata columns from the DataFrame by checking which columns are in the meta_data dictionary
+    hook_columns = (
+        set(df.columns)
+        .difference(meta_data.keys())
+        .difference(
+            {
+                "query_id",
+                "query_text",
+                "doc_id",
+                "doc_text",
+                "score",
+                "rank",
+            }
+        )
+    )
+
     # Group rows by `query_id`
     grouped = df.groupby("query_id")
 
@@ -174,6 +206,9 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
             # Extract metadata columns dynamically
             metadata_values = {meta: row[meta] for meta in meta_data}
 
+            # Find other values - added by hooks - any other per-row columns not in reserved/meta
+            other_values = {k: v for k, v in row.items() if k in hook_columns}
+
             # Create a ResultEntry object
             response_entries.append(
                 ResultEntry(
@@ -182,6 +217,7 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
                     score=row["score"],  # Assuming `score` is a column in the DataFrame
                     rank=row["rank"],  # Assuming `rank` is a column in the DataFrame
                     **metadata_values,  # Add metadata dynamically
+                    **other_values,  # Add any extra columns dynamically
                 )
             )
 
