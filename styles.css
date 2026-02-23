@@ -1,8 +1,9 @@
 /* css styles */
 @import url('https://rsms.me/inter/inter.css');
-html { font-family: 'Inter', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+html { font-family: 'Roboto', 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif;}
 @supports (font-variation-settings: normal) {
-  html { font-family: 'Inter var', sans-serif; }
+  html { font-family: 'Roboto', 'Helvetica Neue', 'Inter', Helvetica, Arial, sans-serif; }
 }
 
 :root {
