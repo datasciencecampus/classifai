@@ -426,7 +426,7 @@ class VectorStore:
         return results_df
 
     def reverse_search(  # noqa: C901
-        self, query: VectorStoreReverseSearchInput, n_results: int | None = None, partial_match: bool = False
+        self, query: VectorStoreReverseSearchInput, max_n_results: int = 100, partial_match: bool = False
     ) -> VectorStoreReverseSearchOutput:
         """Reverse searches the vector store using a VectorStoreReverseSearchInput object
         and returns matched results in VectorStoreReverseSearchOutput object.
@@ -434,7 +434,7 @@ class VectorStore:
 
         Args:
             query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            n_results (int, optional): Number of top results to return for each query. Default 100.
+            max_n_results (int, optional): Number of top results to return for each query, set to -1 to return all results. Default 100.
             partial_match (bool, optional): Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
 
         Returns:
@@ -453,8 +453,10 @@ class VectorStore:
                 context={"got_type": type(query).__name__},
             )
 
-        if n_results is not None and (not isinstance(n_results, int) or n_results < 1):
-            raise DataValidationError("n_results must be an integer >= 1 or None.", context={"n_results": n_results})
+        if not isinstance(max_n_results, int) or (max_n_results < 1 and max_n_results != -1):
+            raise DataValidationError(
+                "max_n_results must be an integer >= 1 or -1.", context={"max_n_results": max_n_results}
+            )
 
         if len(query) == 0:
             raise DataValidationError("query is empty.", context={"n_queries": 0})
@@ -488,8 +490,8 @@ class VectorStore:
                 out = docs.join(paired_query.rename({"query_docid": "doc_id"}), on="doc_id", how="inner")
 
             out = out.sort(by=["id", "doc_id"], descending=[False, False])
-            if n_results is not None:
-                out = out.group_by("id").head(n_results)
+            if max_n_results != -1:
+                out = out.group_by("id").head(max_n_results)
 
             # get formatted table
             final_table = out.select(
@@ -511,7 +513,7 @@ class VectorStore:
                 code="reverse_search_failed",
                 context={
                     "n_queries": len(query),
-                    "n_results": n_results,
+                    "max_n_results": max_n_results,
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
                 },
