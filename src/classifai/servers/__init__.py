@@ -1,10 +1,10 @@
-"""This module provides functionality for creating a start a restAPI service which
-allows a user to call the search methods of different VectorStore objects, from
-an api-endpoint.
+"""This module provides functionality for creating or extending a REST-API service
+which allows a user to call the search methods of one or more VectorStore objects,
+from an API endpoint.
 
-These functions interact with the ClassifAI PackageIndexer modules
-VectorStore objects, such that their embed and search methods are exposed on
-restAPI endpoints, in a FastAPI restAPI service started with these functions.
+These functions interact with the ClassifAI Indexer module's VectorStore objects,
+such that their `embed`, `search` and `reverse_search` methods are exposed on
+REST-API endpoints, via a FastAPI service.
 """
 
 from .main import get_router, get_server, make_endpoints, run_server

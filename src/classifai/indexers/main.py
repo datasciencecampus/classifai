@@ -32,7 +32,6 @@ import os
 import shutil
 import time
 import uuid
-from typing import Optional, Self, Union  # noqa: F401
 
 import numpy as np
 import polars as pl

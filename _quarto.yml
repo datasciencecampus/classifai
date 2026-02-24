@@ -58,6 +58,7 @@ website:
             - docs/indexers.VectorStore.search.qmd
             - docs/indexers.VectorStore.reverse_search.qmd
             - docs/indexers.VectorStore.from_filespace.qmd
+            - docs/indexers.dataclasses.qmd
         - section: "Servers"
           contents:
             - docs/servers.qmd
@@ -115,6 +116,7 @@ quartodoc:
         - indexers
         - indexers.main
         - indexers.VectorStore
+        - indexers.dataclasses
         - indexers.dataclasses.VectorStoreSearchInput
         - indexers.dataclasses.VectorStoreSearchOutput
         - indexers.dataclasses.VectorStoreReverseSearchInput

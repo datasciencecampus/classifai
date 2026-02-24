@@ -18,13 +18,18 @@ class ClassifaiEntry(BaseModel):
 
 
 class ClassifaiData(BaseModel):
-    """Model for a list of many ClassifaiEntry pydantic models, i.e. several queries to be searched in the VectorStore."""
+    """Model for a list of many ClassifaiEntry pydantic models, i.e. several queries to be searched
+    in the VectorStore.
+    """
 
     entries: list[ClassifaiEntry] = Field(description="array of search queries to be searched in the VectorStore")
 
 
 class ResultEntry(BaseModel):
-    """Atomic model for a single row of vector store result data (i.e. a single vectorstore entry) , includes 'label', 'description', 'score' and 'rank' which are expected as str, str, float and int types respectively."""
+    """Atomic model for a single row of vector store result data (i.e. a single vectorstore entry),
+    includes 'label', 'description', 'score' and 'rank' which are expected as str, str, float and
+    int types respectively.
+    """
 
     label: str
     description: str
@@ -32,41 +37,53 @@ class ResultEntry(BaseModel):
     rank: int
 
     class Config:  # pylint: disable=R0903
-        """Sub-class to permit additional extra metadata (e.g., metadata columns from vectorstore construction)."""
+        """Sub-class to permit additional extra metadata (e.g., metadata columns from vectorstore
+        construction).
+        """
 
         extra = Extra.allow
 
 
 class ResultsList(BaseModel):
-    """Model for a list of many ResultEntry pydantic models, representing a ranked list of vector store search results."""
+    """Model for a list of many ResultEntry pydantic models, representing a ranked list of vector
+    store search results.
+    """
 
     input_id: str
     response: list[ResultEntry]
 
 
 class ResultsResponseBody(BaseModel):
-    """Model for set of ranked lists, corresponding to multiple input queries and their own ranked ResultsLists."""
+    """Model for set of ranked lists, corresponding to multiple input queries and their own ranked
+    ResultsLists.
+    """
 
     data: list[ResultsList]
 
 
 class RevClassifaiEntry(BaseModel):
-    """Atomic model for a single row of reverse search data includes 'id' and 'code' which are expected as str type."""
+    """Atomic model for a single row of reverse search data includes 'id' and 'code' which are expected
+    as str type.
+    """
 
     id: str = Field(examples=["1"])
     code: str = Field(
-        examples=["0001"], description="VectorStore row entry 'ID' to be looked up, searched in the 'id' column."
+        examples=["0001"], description="VectorStore row entry 'ID' to be looked up, searched in the 'id'column."
     )
 
 
 class RevClassifaiData(BaseModel):
-    """Model for a list of many RevClassifaiEntry pydantic models, i.e. several vectorstore row entry codes to be looked up in the VectorStore."""
+    """Model for a list of many RevClassifaiEntry pydantic models, i.e. several vectorstore row entry
+    codes to be looked up in the VectorStore.
+    """
 
     entries: list[RevClassifaiEntry] = Field(description="array of VectorStore row entry IDs to be retrieved")
 
 
 class RevResultEntry(BaseModel):
-    """Atomic model for single reverse search result entry, includes 'label' and 'description' which are expected as str types."""
+    """Atomic model for single reverse search result entry, includes 'label' and 'description' which
+    are expected as str types.
+    """
 
     label: str
     description: str
@@ -76,14 +93,18 @@ class RevResultEntry(BaseModel):
 
 
 class RevResultsList(BaseModel):
-    """Model for a list of many RevResultEntry pydnatic models, representing a list of vector store entries found matching an input RevClassifaiEntry 'id'."""
+    """Model for a list of many RevResultEntry pydnatic models, representing a list of vector store
+    entries found matching an input RevClassifaiEntry 'id'.
+    """
 
     input_id: str
     response: list[RevResultEntry]
 
 
 class RevResultsResponseBody(BaseModel):
-    """Model for set of reverse ranked lists, corresponding to multiple input RevClassifaiEntry and their own RevResultsList."""
+    """Model for set of reverse ranked lists, corresponding to multiple input RevClassifaiEntry and
+    their own RevResultsList.
+    """
 
     data: list[RevResultsList]
 
@@ -103,7 +124,8 @@ class EmbeddingsResponseBody(BaseModel):
 
 
 def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta_data: dict) -> RevResultsResponseBody:
-    """Convert a Pandas DataFrame into a JSON object conforming to the RevResultsResponseBody Pydantic model.
+    """Convert a Pandas DataFrame into a JSON object conforming to the RevResultsResponseBody Pydantic
+    model.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing reverse search results.

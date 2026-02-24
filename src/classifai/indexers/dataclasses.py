@@ -2,22 +2,25 @@ import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 
-##
-# Search Input DataClass
-##
-searchInputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "id": pa.Column(str),
-        "query": pa.Column(str),
-    },
-    coerce=True,
-)
-
 
 class VectorStoreSearchInput(pd.DataFrame):
-    """TODO."""
+    """DataFrame-like object for forming and validating search query input data.
 
-    _schema = searchInputSchema
+    This class validates and represents input queries for vector store searches.
+    Each row contains a unique query identifier and the associated query text.
+
+    Attributes:
+        id (pd.Series): Unique identifier for each query.
+        query (pd.Series): The query text to search for.
+    """
+
+    _schema: pa.DataFrameSchema = pa.DataFrameSchema(
+        {
+            "id": pa.Column(str),
+            "query": pa.Column(str),
+        },
+        coerce=True,
+    )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
@@ -50,27 +53,34 @@ class VectorStoreSearchInput(pd.DataFrame):
         return self["query"]
 
 
-##
-# Search Output DataClass
-##
-searchOutputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "query_id": pa.Column(str),
-        "query_text": pa.Column(str),
-        "doc_id": pa.Column(str),
-        "doc_text": pa.Column(str),
-        "rank": pa.Column(int, pa.Check.ge(0)),
-        "score": pa.Column(float),
-    },
-    ordered=True,
-    coerce=True,
-)
-
-
 class VectorStoreSearchOutput(pd.DataFrame):
-    """TODO."""
+    """DataFrame-like object for storing and validating search results with rankings
+    and similarity scores.
 
-    _schema = searchOutputSchema
+    This class represents the output of vector store search operations, containing
+    query information, matched documents, and similarity rankings.
+
+    Attributes:
+        query_id (pd.Series): Identifier for the source query.
+        query_text (pd.Series): The original query text.
+        doc_id (pd.Series): Identifier for the retrieved document.
+        doc_text (pd.Series): The text content of the retrieved document.
+        rank (pd.Series): The ranking position of the result (0-indexed, non-negative).
+        score (pd.Series): The similarity score or relevance metric.
+    """
+
+    _schema = pa.DataFrameSchema(
+        {
+            "query_id": pa.Column(str),
+            "query_text": pa.Column(str),
+            "doc_id": pa.Column(str),
+            "doc_text": pa.Column(str),
+            "rank": pa.Column(int, pa.Check.ge(0)),
+            "score": pa.Column(float),
+        },
+        ordered=True,
+        coerce=True,
+    )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
@@ -119,22 +129,25 @@ class VectorStoreSearchOutput(pd.DataFrame):
         return self["score"]
 
 
-##
-# Reverse Search Input DataClass
-##
-reverseSearchInputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "id": pa.Column(str),
-        "doc_id": pa.Column(str),
-    },
-    coerce=True,
-)
-
-
 class VectorStoreReverseSearchInput(pd.DataFrame):
-    """TODO."""
+    """DataFrame-like object for forming and validating reverse search query
+    input data.
 
-    _schema = reverseSearchInputSchema
+    This class validates and represents input for reverse searches, which find
+    similar documents to a given document in the vector store.
+
+    Attributes:
+        id (pd.Series): Unique identifier for the reverse search query.
+        doc_id (pd.Series): The document ID to find similar documents for.
+    """
+
+    _schema = pa.DataFrameSchema(
+        {
+            "id": pa.Column(str),
+            "doc_id": pa.Column(str),
+        },
+        coerce=True,
+    )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
@@ -167,22 +180,25 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
         return self["doc_id"]
 
 
-##
-# Reverse Search Output DataClass
-##
-reverseSearchOutputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "id": pa.Column(str),
-        "doc_id": pa.Column(str),
-        "doc_text": pa.Column(str),
-    }
-)
-
-
 class VectorStoreReverseSearchOutput(pd.DataFrame):
-    """TODO."""
+    """DataFrame-like object for storing reverse search results.
 
-    _schema = reverseSearchOutputSchema
+    This class represents the output of vector store reverse search operations,
+    containing knowledgebase examples with the same label as in the query.
+
+    Attributes:
+        query_id (pd.Series): Identifier for the input label for lookup in the knowledgebase.
+        doc_id (pd.Series): Identifier for the knowledgebase example retrieved.
+        doc_text (pd.Series): The text content of the retrieved example.
+    """
+
+    _schema = pa.DataFrameSchema(
+        {
+            "id": pa.Column(str),
+            "doc_id": pa.Column(str),
+            "doc_text": pa.Column(str),
+        }
+    )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
@@ -219,22 +235,24 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
         return self["doc_text"]
 
 
-##
-# Embed Input DataClass
-##
-embedInputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "id": pa.Column(str),
-        "text": pa.Column(str),
-    },
-    coerce=True,
-)
-
-
 class VectorStoreEmbedInput(pd.DataFrame):
-    """TODO."""
+    """DataFrame-like object for forming and validating text data to be embedded.
 
-    _schema = embedInputSchema
+    This class validates and represents input texts that will be converted to
+    vector embeddings by the vector store.
+
+    Attributes:
+        id (pd.Series): Unique identifier for each text item.
+        text (pd.Series): The text content to be embedded.
+    """
+
+    _schema = pa.DataFrameSchema(
+        {
+            "id": pa.Column(str),
+            "text": pa.Column(str),
+        },
+        coerce=True,
+    )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
@@ -267,23 +285,27 @@ class VectorStoreEmbedInput(pd.DataFrame):
         return self["text"]
 
 
-##
-# Embed Ouput DataClass
-##
-embedOutputSchema: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "id": pa.Column(str),
-        "text": pa.Column(str),
-        "embedding": pa.Column(object, pa.Check(lambda x: isinstance(x, np.ndarray), element_wise=True)),
-    },
-    coerce=True,
-)
-
-
 class VectorStoreEmbedOutput(pd.DataFrame):
-    """TODO."""
+    """DataFrame-like object for storing and validating embedded vectors and associated
+    metadata.
 
-    _schema = embedOutputSchema
+    This class represents the output of embedding operations, containing the
+    original text data along with their computed vector embeddings.
+
+    Attributes:
+        id (pd.Series): Unique identifier for each embedded item.
+        text (pd.Series): The original text that was embedded.
+        embedding (pd.Series): The computed vector embedding (numpy array).
+    """
+
+    _schema = pa.DataFrameSchema(
+        {
+            "id": pa.Column(str),
+            "text": pa.Column(str),
+            "embedding": pa.Column(object, pa.Check(lambda x: isinstance(x, np.ndarray), element_wise=True)),
+        },
+        coerce=True,
+    )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
