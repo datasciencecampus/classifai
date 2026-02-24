@@ -425,18 +425,21 @@ class VectorStore:
 
         return results_df
 
-    def reverse_search(self, query: VectorStoreReverseSearchInput, n_results=100) -> VectorStoreReverseSearchOutput:
-        """Reverse searches the vector store using a VectorStoreReverseSearchInput object and returns
-        matched results in VectorStoreReverseSearchOutput object. In batches, converts users text queries into vector embeddings,
-        computes cosine similarity with stored document vectors, and retrieves the top results.
+    def reverse_search(  # noqa: C901
+        self, query: VectorStoreReverseSearchInput, max_n_results: int = 100, partial_match: bool = False
+    ) -> VectorStoreReverseSearchOutput:
+        """Reverse searches the vector store using a VectorStoreReverseSearchInput object
+        and returns matched results in VectorStoreReverseSearchOutput object.
+        If using partial matching, matches if document label starts with query label.
 
         Args:
             query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            n_results (int, optional): Number of top results to return for each query. Default 100.
+            max_n_results (int, optional): Number of top results to return for each query, set to -1 to return all results. Default 100.
+            partial_match (bool, optional): Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
 
         Returns:
             result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for query ID, query text,
-                          document ID, document text and any associated metadata columns.
+                document ID, document text and any associated metadata columns.
 
         Raises:
             DataValidationError: Raised if invalid arguments are passed.
@@ -450,8 +453,10 @@ class VectorStore:
                 context={"got_type": type(query).__name__},
             )
 
-        if not isinstance(n_results, int) or n_results < 1:
-            raise DataValidationError("n_results must be an integer >= 1.", context={"n_results": n_results})
+        if not isinstance(max_n_results, int) or (max_n_results < 1 and max_n_results != -1):
+            raise DataValidationError(
+                "max_n_results must be an integer >= 1 or -1.", context={"max_n_results": max_n_results}
+            )
 
         if len(query) == 0:
             raise DataValidationError("query is empty.", context={"n_queries": 0})
@@ -476,12 +481,20 @@ class VectorStore:
             paired_query = pl.DataFrame(
                 {"id": query.id.astype(str).to_list(), "doc_id": query.doc_id.astype(str).to_list()}
             )
+            paired_query = paired_query.rename({"doc_id": "query_docid"})
+            docs = self.vectors.rename({"id": "doc_id"})
 
-            # join query with vdb to get matches
-            joined_table = paired_query.join(self.vectors.rename({"id": "doc_id"}), on="doc_id", how="inner")
+            if partial_match:
+                out = docs.join_where(paired_query, pl.col("doc_id").str.starts_with(pl.col("query_docid")))
+            else:
+                out = docs.join(paired_query.rename({"query_docid": "doc_id"}), on="doc_id", how="inner")
+
+            out = out.sort(by=["id", "doc_id"], descending=[False, False])
+            if max_n_results != -1:
+                out = out.group_by("id").head(max_n_results)
 
             # get formatted table
-            final_table = joined_table.select(
+            final_table = out.select(
                 [
                     pl.col("id").cast(str),
                     pl.col("doc_id").cast(str),
@@ -500,7 +513,7 @@ class VectorStore:
                 code="reverse_search_failed",
                 context={
                     "n_queries": len(query),
-                    "n_results": n_results,
+                    "max_n_results": max_n_results,
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
                 },
@@ -535,7 +548,7 @@ class VectorStore:
 
         Returns:
             result_df (VectorStoreSearchOutput): A VectorStoreSearchOutput object containing search results with columns for query ID, query text,
-                          document ID, document text, rank, score, and any associated metadata columns.
+                document ID, document text, rank, score, and any associated metadata columns.
 
         Raises:
             DataValidationError: Raised if invalid arguments are passed.
@@ -621,7 +634,7 @@ class VectorStore:
                     {
                         "query_id": np.repeat(query_ids_batch, n_results),
                         "query_text": np.repeat(query_text_batch, n_results),
-                        "rank": np.tile(np.arange(n_results), len(query_text_batch)),
+                        "rank": np.tile(np.arange(1, n_results + 1), len(query_text_batch)),
                         "score": scores.flatten(),
                     }
                 )

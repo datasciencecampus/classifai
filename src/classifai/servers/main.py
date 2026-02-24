@@ -11,10 +11,10 @@ restAPI endpoints, in a FastAPI restAPI service started with these functions.
 from __future__ import annotations
 
 import logging
-from typing import Annotated
+from typing import Annotated, Literal
 
 import uvicorn
-from fastapi import APIRouter, FastAPI, Query
+from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 
 from ..exceptions import ConfigurationError, DataValidationError
@@ -245,16 +245,23 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
     @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
     def reverse_search_endpoint(
         data: RevClassifaiData,
-        n_results: Annotated[
-            int,
-            Query(description="The max number of results to return.", ge=1),
+        max_n_results: Annotated[
+            int | Literal[-1],
+            Query(description="The max number of results to return, set to -1 to return all results."),
         ] = 100,
+        partial_match: Annotated[
+            bool, Query(description="Flag to use partial `starts_with` matching for queries")
+        ] = False,
     ) -> RevResultsResponseBody:
+        # Enforce the ≥1 rule manually, only when not -1
+        if max_n_results != -1 and max_n_results < 1:
+            raise HTTPException(422, "max_n_results must be -1 or >= 1")
+
         input_ids = [x.id for x in data.entries]
         queries = [x.code for x in data.entries]
 
         input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
-        output_data = vector_store.reverse_search(input_data, n_results=n_results)
+        output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
 
         formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
             df=output_data,
