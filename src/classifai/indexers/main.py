@@ -101,12 +101,12 @@ class VectorStore:
                                 vector embeddings.
             batch_size (int): [optional] The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
-            meta_data (dict): key,value pair metadata column names to extract from the input file and their types.
+            meta_data (dict): [optional] key,value pair metadata column names to extract from the input file and their types.
                                 Defaults to None.
             output_dir (str): [optional] The directory where the vector store will be saved.
                                 Defaults to None, where input file name will be used.
-            overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
-            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+            overwrite (bool): [optional] If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
+            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
 
         Raises:
@@ -434,8 +434,8 @@ class VectorStore:
 
         Args:
             query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            max_n_results (int, optional): Number of top results to return for each query, set to -1 to return all results. Default 100.
-            partial_match (bool, optional): Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
+            max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results. Default 100.
+            partial_match (bool): [optional] Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
 
         Returns:
             result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for query ID, query text,
@@ -543,8 +543,8 @@ class VectorStore:
 
         Args:
             query (VectorStoreSearchInput): A VectoreStoreSearchInput object containing the text query or list of queries to search for with ids.
-            n_results (int, optional): Number of top results to return for each query. Default 10.
-            batch_size (int, optional): The batch size for processing queries. Default 8.
+            n_results (int): [optional] Number of top results to return for each query. Default 10.
+            batch_size (int): [optional] The batch size for processing queries. Default 8.
 
         Returns:
             result_df (VectorStoreSearchOutput): A VectorStoreSearchOutput object containing search results with columns for query ID, query text,
@@ -719,7 +719,7 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The vectoriser object used to transform text into vector embeddings.
-            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
             (VectorStore): An instance of the `VectorStore` class.

@@ -32,10 +32,10 @@ class HuggingFaceVectoriser(VectoriserBase):
 
         Args:
             model_name (str): The name of the Huggingface model to use.
-            device (torch.device, optional): The device to use for computation. Defaults to GPU if available, otherwise CPU.
-            model_revision (str, optional): The specific model revision to use. Defaults to "main".
-            tokenizer_kwargs (dict, optional): Additional keyword arguments to pass to the tokenizer. Defaults to None.
-            model_kwargs (dict, optional): Additional keyword arguments to pass to the model. Defaults to None.
+            device (torch.device): [optional] The device to use for computation. Defaults to GPU if available, otherwise CPU.
+            model_revision (str): [optional] The specific model revision to use. Defaults to "main".
+            tokenizer_kwargs (dict): [optional] Additional keyword arguments to pass to the tokenizer. Defaults to None.
+            model_kwargs (dict): [optional] Additional keyword arguments to pass to the model. Defaults to None.
 
         Raises:
             ExternalServiceError: If the model or tokenizer cannot be loaded.

@@ -58,7 +58,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
     and similarity scores.
 
     This class represents the output of vector store search operations, containing
-    query information, matched documents, and similarity rankings.
+    query information, matched documents, scores, and similarity rankings.
 
     Attributes:
         query_id (pd.Series): Identifier for the source query.

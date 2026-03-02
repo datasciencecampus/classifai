@@ -51,14 +51,14 @@ class GcpVectoriser(VectoriserBase):
         """Initializes the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
-            project_id (str, optional): The Google Cloud project ID. Defaults to None.
-            api_key (str, optional): The API key for authenticating with the GenAI API. Defaults to None.
-            location (str, optional): The location of the GenAI API. Defaults to None.
-            model_name (str, optional): The name of the embedding model. Defaults to "text-embedding-004".
-            task_type (str, optional): The embedding task. Defaults to "CLASSIFICATION".
+            project_id (str): [optional] The Google Cloud project ID. Defaults to None.
+            api_key (str): [optional] The API key for authenticating with the GenAI API. Defaults to None.
+            location (str): [optional] The location of the GenAI API. Defaults to None.
+            model_name (str): [optional] The name of the embedding model. Defaults to "text-embedding-004".
+            task_type (str): [optional] The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
-            **client_kwargs: Additional keyword arguments to pass to the GenAI client.
+            **client_kwargs: [optional] Additional keyword arguments to pass to the GenAI client.
 
         Raises:
             ConfigurationError: If the GenAI client fails to initialize.
