@@ -181,3 +181,9 @@ cython_debug/
 
 # VSCode configuration
 .vscode/
+
+/.quarto/
+**/*.quarto_ipynb
+_site/
+docs/
+

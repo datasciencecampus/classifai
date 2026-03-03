@@ -1,0 +1,138 @@
+execute: 
+  freeze: auto
+project:
+  type: website
+  render: 
+    - index.qmd
+    - docs/**.qmd
+    - classifai/**.py
+    - DEMO/**.ipynb
+    - DEMO/**.py
+    - DEMO/**.qmd
+    - README.md
+    - DEMO/README.md
+    - classifai/vectorisers/__init__.py
+    - classifai/indexers/__init__.py
+    - classifai/servers/__init__.py
+
+
+website:
+  title: "ClassifAI"
+  page-navigation: true
+  navbar:
+    background: light
+    search: true
+    left:
+      - file: docs/index.qmd
+        text: "Documentation"
+    right:
+      - icon: github
+        href: https://github.com/datasciencecampus/classifai
+
+  sidebar:
+    - id: index
+    - title: "Documentation"
+    - style: "docked"
+      collapse-level: 1
+      contents:
+        - section: "Overview"
+          contents:
+            - docs/index.qmd
+        - section: "Vectorisers"
+          contents:
+            - section: "Vectorisers Overview"
+              contents:
+              - docs/vectorisers.qmd
+              - docs/vectorisers.base.VectoriserBase.qmd
+              - docs/vectorisers.base.VectoriserBase.transform.qmd
+            - section: "Specific Vectorisers"
+              contents:
+              - docs/vectorisers.huggingface.HuggingFaceVectoriser.qmd
+              - docs/vectorisers.ollama.OllamaVectoriser.qmd
+              - docs/vectorisers.gcp.GcpVectoriser.qmd
+        - section: "Indexers"
+          contents:
+            - docs/indexers.qmd
+            - docs/indexers.VectorStore.qmd
+            - docs/indexers.VectorStore.embed.qmd
+            - docs/indexers.VectorStore.search.qmd
+            - docs/indexers.VectorStore.reverse_search.qmd
+            - docs/indexers.VectorStore.from_filespace.qmd
+            - docs/indexers.dataclasses.qmd
+        - section: "Servers"
+          contents:
+            - docs/servers.qmd
+            - docs/servers.get_router.qmd
+            - docs/servers.get_server.qmd
+            - docs/servers.run_server.qmd
+            - docs/servers.make_endpoints.qmd
+        - section: "DEMO"
+          contents:
+            - file: DEMO/README.md
+            - file: DEMO/general_workflow_demo.ipynb
+            - file: DEMO/custom_vectoriser.ipynb
+            - file: DEMO/custom_preprocessing_and_postprocessing_hooks.ipynb
+
+interlinks:
+ sources:
+   python:
+     url: https://docs.python.org/3/
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    grid:
+      sidebar-width: 400px
+      body-width: 900px
+      margin-width: 200px
+      gutter-width: 1.0rem
+
+quartodoc:
+  style: pkgdown
+  dir: docs
+  renderer:
+    style: _renderer.py
+    show_signature_annotations: false
+  # renderer:
+  #   style: markdown
+  package: classifai
+  parser: google
+  sections:
+    - title: Vectorisers
+      desc: "Utilities to project text into numerical representation in a semantic vector space"
+      contents:
+        - vectorisers
+        - vectorisers.base
+        - vectorisers.base.VectoriserBase
+        - vectorisers.base.VectoriserBase.transform
+        - vectorisers.huggingface.HuggingFaceVectoriser
+        - vectorisers.ollama.OllamaVectoriser
+        - vectorisers.gcp.GcpVectoriser
+    - title: Indexers
+      desc: "Creation of Vector Stores for efficient similarity search and retrieval"
+      contents:
+        - indexers
+        - indexers.main
+        - indexers.VectorStore
+        - indexers.dataclasses
+        - indexers.dataclasses.VectorStoreSearchInput
+        - indexers.dataclasses.VectorStoreSearchOutput
+        - indexers.dataclasses.VectorStoreReverseSearchInput
+        - indexers.dataclasses.VectorStoreReverseSearchOutput
+        - indexers.dataclasses.VectorStoreEmbedInput
+        - indexers.dataclasses.VectorStoreEmbedOutput
+        - indexers.VectorStore.embed
+        - indexers.VectorStore.search
+        - indexers.VectorStore.reverse_search
+        - indexers.VectorStore.from_filespace
+    - title: Servers
+      desc: "Expose ClassifAI functionality via Fast-API endpoints"
+      contents:
+        - servers
+        - servers.main
+        - servers.get_router
+        - servers.get_server
+        - servers.run_server
+        - servers.make_endpoints

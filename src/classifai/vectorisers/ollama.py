@@ -28,11 +28,11 @@ class OllamaVectoriser(VectoriserBase):
 
         self.model_name = model_name
 
-    def transform(self, texts):
+    def transform(self, texts: str | list[str]) -> np.ndarray:
         """Transforms input text(s) into embeddings using the Huggingface model.
 
         Args:
-            texts (str or list of str): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str ,list [str]): The input text(s) to embed. Can be a single string or a list of strings.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.

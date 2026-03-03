@@ -110,7 +110,6 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
     Args:
         vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
-        port (int, optional): The port on which the API server will run. Defaults to 8000.
 
     Returns:
         FastAPI: Server with intialized search endpoints
@@ -129,7 +128,7 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
     Args:
         vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
-        port (int, optional): The port on which the API server will run. Defaults to 8000.
+        port (int): [optional] The port on which the API server will run. Defaults to 8000.
     """
     logging.info("Starting ClassifAI API")
 
@@ -153,12 +152,12 @@ def make_endpoints(router: APIRouter | FastAPI, vector_stores_dict: dict[str, Ve
     """
     for endpoint_name, vector_store in vector_stores_dict.items():
         logging.info("Registering endpoints for: %s", endpoint_name)
-        create_embedding_endpoint(router, endpoint_name, vector_store)
-        create_search_endpoint(router, endpoint_name, vector_store)
-        create_reverse_search_endpoint(router, endpoint_name, vector_store)
+        _create_embedding_endpoint(router, endpoint_name, vector_store)
+        _create_search_endpoint(router, endpoint_name, vector_store)
+        _create_reverse_search_endpoint(router, endpoint_name, vector_store)
 
 
-def create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
     """Create and register an embedding endpoint for a specific vector store.
 
     Args:
@@ -191,7 +190,7 @@ def create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, v
         return EmbeddingsResponseBody(data=returnable)
 
 
-def create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
     """Create and register a search endpoint for a specific vector store.
 
     Args:
@@ -230,7 +229,7 @@ def create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vect
         return formatted_result
 
 
-def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
     """Create and register a reverse_search endpoint for a specific vector store.
 
     Args:

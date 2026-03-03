@@ -71,7 +71,7 @@ class VectorStore:
         data_type (str): the data type of the original file (curently only csv supported)
         vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
-        meta_data (dict[str:type]): key-value pairs of metadata to extract from the input file and their correpsonding types
+        meta_data (dict): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the VectorStore will be saved
         vectors (np.array): a numpy array of vectors for the vector DB
         vector_shape (int): the dimension of the vectors
@@ -99,14 +99,14 @@ class VectorStore:
             data_type (str): The type of input data (currently supports only "csv").
             vectoriser (object): The vectoriser object used to transform text into
                                 vector embeddings.
-            batch_size (int, optional): The batch size for processing the input file and batching to
+            batch_size (int): [optional] The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
-            meta_data (dict, optional): key,value pair metadata column names to extract from the input file and their types.
+            meta_data (dict): [optional] key,value pair metadata column names to extract from the input file and their types.
                                 Defaults to None.
-            output_dir (str, optional): The directory where the vector store will be saved.
+            output_dir (str): [optional] The directory where the vector store will be saved.
                                 Defaults to None, where input file name will be used.
-            overwrite (bool, optional): If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
-            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+            overwrite (bool): [optional] If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
+            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
 
         Raises:
@@ -217,7 +217,7 @@ class VectorStore:
                 context={"cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
-    def _save_metadata(self, path):
+    def _save_metadata(self, path: str):
         """Saves metadata about the vector store to a JSON file.
 
         Args:
@@ -434,8 +434,8 @@ class VectorStore:
 
         Args:
             query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            max_n_results (int, optional): Number of top results to return for each query, set to -1 to return all results. Default 100.
-            partial_match (bool, optional): Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
+            max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results. Default 100.
+            partial_match (bool): [optional] Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
 
         Returns:
             result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for query ID, query text,
@@ -543,8 +543,8 @@ class VectorStore:
 
         Args:
             query (VectorStoreSearchInput): A VectoreStoreSearchInput object containing the text query or list of queries to search for with ids.
-            n_results (int, optional): Number of top results to return for each query. Default 10.
-            batch_size (int, optional): The batch size for processing queries. Default 8.
+            n_results (int): [optional] Number of top results to return for each query. Default 10.
+            batch_size (int): [optional] The batch size for processing queries. Default 8.
 
         Returns:
             result_df (VectorStoreSearchOutput): A VectorStoreSearchOutput object containing search results with columns for query ID, query text,
@@ -719,10 +719,10 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The vectoriser object used to transform text into vector embeddings.
-            hooks (dict, optional): A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
-            VectorStore: An instance of the `VectorStore` class.
+            (VectorStore): An instance of the `VectorStore` class.
 
         Raises:
             DataValidationError: If input arguments are invalid or if there are issues with the metadata or Parquet files.
