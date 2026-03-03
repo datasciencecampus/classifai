@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from classifai.exceptions import HookError
 from classifai.indexers.dataclasses import (
-    VectorStoreEmbeddingInput,
-    VectorStoreEmbeddingOutput,
+    VectorStoreEmbedInput,
+    VectorStoreEmbedOutput,
     VectorStoreReverseSearchInput,
     VectorStoreReverseSearchOutput,
     VectorStoreSearchInput,
@@ -25,16 +25,16 @@ class PreProcessingHookBase(ABC):
 
     @abstractmethod
     def __call__(
-        self, input_data: VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbeddingInput
-    ) -> VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbeddingInput:
+        self, input_data: VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbedInput
+    ) -> VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbedInput:
         """Defines the behavior of the hook when called."""
         processed_input = input_data  # Placeholder for processing logic
         if not isinstance(
-            processed_input, (VectorStoreSearchInput, VectorStoreReverseSearchInput, VectorStoreEmbeddingInput)
+            processed_input, (VectorStoreSearchInput, VectorStoreReverseSearchInput, VectorStoreEmbedInput)
         ):
             raise HookError(
                 "Output must be an instance of VectorStoreSearchInput, "
-                "VectorStoreReverseSearchInput, or VectorStoreEmbeddingInput.",
+                "VectorStoreReverseSearchInput, or VectorStoreEmbedInput.",
                 context={"hook_type": "pre_processing"},
             )
         if not isinstance(processed_input, type(input_data)):
@@ -60,16 +60,16 @@ class PostProcessingHookBase(ABC):
 
     @abstractmethod
     def __call__(
-        self, output: VectorStoreSearchOutput | VectorStoreReverseSearchOutput | VectorStoreEmbeddingOutput
-    ) -> VectorStoreSearchOutput | VectorStoreReverseSearchOutput | VectorStoreEmbeddingOutput:
+        self, output: VectorStoreSearchOutput | VectorStoreReverseSearchOutput | VectorStoreEmbedOutput
+    ) -> VectorStoreSearchOutput | VectorStoreReverseSearchOutput | VectorStoreEmbedOutput:
         """Defines the behavior of the hook when called."""
         processed_output = output  # Placeholder for processing logic
         if not isinstance(
-            processed_output, (VectorStoreSearchOutput, VectorStoreReverseSearchOutput, VectorStoreEmbeddingOutput)
+            processed_output, (VectorStoreSearchOutput, VectorStoreReverseSearchOutput, VectorStoreEmbedOutput)
         ):
             raise HookError(
                 "Output must be an instance of VectorStoreSearchOutput, "
-                "VectorStoreReverseSearchOutput, or VectorStoreEmbeddingOutput.",
+                "VectorStoreReverseSearchOutput, or VectorStoreEmbedOutput.",
                 context={"hook_type": "post_processing"},
             )
         if not isinstance(processed_output, type(output)):

@@ -1,24 +1,24 @@
 from classifai.exceptions import HookError
 from classifai.indexers.dataclasses import (
-    VectorStoreEmbeddingInput,
+    VectorStoreEmbedInput,
     VectorStoreReverseSearchInput,
     VectorStoreSearchInput,
 )
-
-from .default_hooks import PreProcessingHookBase
+from classifai.indexers.default_hooks.hook_factory import PreProcessingHookBase
 
 
 class CapitalisationStandardisingHook(PreProcessingHookBase):
     """A pre-processing hook to handle upper-/lower-/sentence-/title-casing."""
 
-    def __init__(self, method: str = "lower"):
+    def __init__(self, method: str = "lower", colname: str = "query"):
         """Inititialises the hook with the specified method for standardising capitalisation.
 
         Args:
             method (str): Method for standardisation. Must be one of "lower", "upper", "sentence"
                           or "title". Defaults to "lower".
+            colname (str): The name of one of the fields of the Input object which is to be capitalised.
         """
-        if self.method not in {"lower", "upper", "sentence", "title"}:
+        if method not in {"lower", "upper", "sentence", "title"}:
             raise HookError(
                 "Invalid method for CapitalisationStandardisingHook. "
                 "Must be one of 'lower', 'upper', 'sentence', or 'title'.",
@@ -32,12 +32,27 @@ class CapitalisationStandardisingHook(PreProcessingHookBase):
             self.method = lambda text: text.capitalize() if text else text
         elif method == "title":
             self.method = str.title
+        self.colname = colname
+        self._setup()
+
+    def _setup(self):
+        """No setup required."""
+        pass
 
     def __call__(
-        self, input_data: VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbeddingInput
-    ) -> VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbeddingInput:
+        self, input_data: VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbedInput
+    ) -> VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbedInput:
         """Standardises capitalisation in the input data as specified by 'method' attribute."""
+        if self.colname not in input_data.columns:
+            raise HookError("Invalid column name passed.", context={"pre_processing": "Capitalisation"})
+        if self.colname not in input_data.select_dtypes(include=["object"]).columns:
+            raise HookError(
+                f"colname is of type {input_data[self.colname].dtype}, expected 'str'.",
+                context={"pre_processing": "Capitalisation"},
+            )
+
         processed_input = input_data.copy()
-        processed_input["text"] = processed_input["text"].apply(self.method)
-        processed_input = processed_input.validate()  # Ensure the processed input still conforms to the schema
+        processed_input[self.colname] = processed_input[self.colname].apply(self.method)
+        # Ensure the processed input still conforms to the schema
+        processed_input = input_data.__class__.validate(processed_input)
         return processed_input

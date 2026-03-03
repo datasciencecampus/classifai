@@ -1,7 +1,10 @@
+import io
+import json
 import logging
+from collections.abc import Callable
 
 from classifai._optional import check_deps
-from classifai.exceptions import ConfigurationError
+from classifai.exceptions import ConfigurationError, HookError
 from classifai.indexers.dataclasses import VectorStoreSearchOutput
 
 try:
@@ -9,7 +12,7 @@ try:
 except ImportError:
     check_deps(["google-genai"], extra="gcp")
 
-from .hook_factory import PostProcessingHookBase
+from classifai.indexers.default_hooks.hook_factory import PostProcessingHookBase
 
 logging.getLogger("google.auth").setLevel(logging.WARNING)
 logging.getLogger("google.cloud").setLevel(logging.WARNING)
@@ -23,6 +26,7 @@ class RAGHook(PostProcessingHookBase):
         self,
         context_prompt: str = "",
         response_template: str = "",
+        llm_response_parser: Callable[[VectorStoreSearchOutput, str], list] | None = None,
         project_id: str | None = None,
         api_key: str | None = None,
         location: str = "europe-west2",
@@ -34,6 +38,10 @@ class RAGHook(PostProcessingHookBase):
         Args:
             context_prompt (str): [optional] A prompt to provide context to the LLM for RAG. Defaults to "".
             response_template (str): [optional] A template for formatting the response. Defaults to "{}".
+            llm_response_parser (Callable[[VectorStoreSearchOutput, str], list]): A callable method for parsing
+                the LLM response (str) within the context of the search output for a single query
+                (VectorStoreSearchOutput). Defaults to using `_default_parse_LLM_response`, which assumes the
+                response to be a valid JSON array of strings.
             project_id (str): [optional] The Google Cloud project ID. Defaults to None.
             api_key (str): [optional] The API key for authenticating with the GenAI API. Defaults to None.
             location (str): [optional] The location of the GenAI API. Defaults to None.
@@ -47,6 +55,7 @@ class RAGHook(PostProcessingHookBase):
         self.model_name = model_name
         self.context_prompt = context_prompt
         self.response_template = response_template
+        self.llm_response_parser = llm_response_parser or self._default_parse_LLM_response
 
         if project_id and not api_key:
             client_kwargs.setdefault("project", project_id)
@@ -60,9 +69,9 @@ class RAGHook(PostProcessingHookBase):
             )
         self.client_kwargs = client_kwargs
 
-        self._setup_rag_hook()
+        self._setup()
 
-    def _setup_rag_hook(self) -> None:
+    def _setup(self) -> None:
         """Set up for the RAG hook.
 
         Args:
@@ -91,6 +100,10 @@ class RAGHook(PostProcessingHookBase):
         Returns:
             str: The formatted prompt for the LLM.
         """
+        schema_info_buffer = io.StringIO()
+        search_subset.head(n=0).info(verbose=True, show_counts=False, memory_usage=False, buf=schema_info_buffer)
+        schema_info = schema_info_buffer.getvalue()
+        schema_info_buffer.close()
         return f"""
         Instructions:
         -------------
@@ -100,7 +113,7 @@ class RAGHook(PostProcessingHookBase):
         Input Format:
         -------------
         The Data will be a Pandas DataFrame, converted to JSON. The schema of the DataFrame is described as follows:
-        {search_subset.head(n=0).info(verbose=True, show_counts=False, memory_usage=False)}
+        {schema_info}
 
         Output Format:
         --------------
@@ -111,6 +124,42 @@ class RAGHook(PostProcessingHookBase):
         -----
         {search_subset.to_json()}
         """
+
+    @staticmethod
+    def _default_parse_LLM_response(search_subset: VectorStoreSearchOutput, llm_response: str) -> list[str]:
+        """Parse the LLM response as JSON, expected to form a list of strings.
+
+        Args:
+            search_subset (VectorStoreSearchOutput): The search output corresponding to a single query.
+            llm_response (str): The raw text response from the LLM.
+
+        Returns:
+            (list[str]): The parsed response, which can be assigned to the `RAG_response` column.
+
+        Raises:
+            ValueError: If the LLM response cannot be parsed as JSON.
+        """
+        try:
+            parsed_response = json.loads(llm_response)
+            if not isinstance(parsed_response, list):
+                raise HookError(
+                    "LLM response could not be parsed from JSON as a list", context={"postprocessing": "RAGHook"}
+                )
+            if len(parsed_response) != len(search_subset):
+                raise HookError(
+                    "LLM response length does not match search output length", context={"postprocessing": "RAGHook"}
+                )
+        except json.JSONDecodeError as e:
+            raise HookError(
+                "The LLM response could not be parsed as valid JSON",
+                context={"postprocessing": "RAGHook", "error": f"{e}", "response": llm_response},
+            ) from e
+        except Exception as e:
+            raise HookError(
+                "The LLM response parsing failed for an unknown reason",
+                context={"postprocessing": "RAGHook", "error": f"{e}"},
+            ) from None
+        return parsed_response
 
     def _call_llm(self, search_output: VectorStoreSearchOutput) -> str:
         """Calls the LLM to generate responses for each query in the search output, using the formatted prompts.
@@ -123,7 +172,8 @@ class RAGHook(PostProcessingHookBase):
 
         Notes:
             - This method adds a new column `RAG_response` to the VectorStoreSearchOutput object. The format of the response
-              is user-specified, via the `response_template` parameter of the hook.
+              is user-specified, via the `response_template` parameter of the hook, and is parsed by the `llm_response_parser`
+              parameter of the hook (defaulting to attempting to parse the response as a JSON array of strings if omitted).
             - Each unique query in the search output is processed separately, with a prompt formatted using the
               `_format_prompt_single_query` method.
         """
@@ -133,12 +183,13 @@ class RAGHook(PostProcessingHookBase):
         for query_id in distinct_queries:
             search_subset = search_output[search_output["query_id"] == query_id]
             prompt = self._format_prompt_single_query(search_subset, query_id)
-            updated_search_output.loc[search_subset.index, "RAG_response"] = (
-                self.client.models.generate_content(  # await ...
-                    model=self.model_name,
-                    contents=prompt,
-                    config=genai.types.GenerateContentConfig(system_instruction=self.context_prompt),
-                )
+            response = self.client.models.generate_content(  # await ...
+                model=self.model_name,
+                contents=prompt,
+                config=genai.types.GenerateContentConfig(system_instruction=self.context_prompt),
+            )
+            updated_search_output.loc[search_subset.index, "RAG_response"] = self.llm_response_parser(
+                search_subset, response.text
             )
         return updated_search_output
 
