@@ -1,7 +1,8 @@
 ---
 name: CI
 permissions:
-  contents: write
+  pull-requests: write
+  contents: read
 
 on:
   push:
