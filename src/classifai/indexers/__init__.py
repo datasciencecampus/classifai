@@ -35,9 +35,15 @@ from .dataclasses import (
     VectorStoreSearchInput,
     VectorStoreSearchOutput,
 )
+from .hooks import (
+    CapitalisationStandardisingHook,
+    HookBase,
+)
 from .main import VectorStore
 
 __all__ = [
+    "CapitalisationStandardisingHook",
+    "HookBase",
     "VectorStore",
     "VectorStoreEmbedInput",
     "VectorStoreEmbedOutput",
