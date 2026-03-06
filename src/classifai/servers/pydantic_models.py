@@ -2,7 +2,7 @@
 """Pydantic Classes to model request and response data for ClassifAI FastAPI RESTful API."""
 
 import pandas as pd
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ClassifaiEntry(BaseModel):
@@ -36,12 +36,7 @@ class ResultEntry(BaseModel):
     score: float
     rank: int
 
-    class Config:  # pylint: disable=R0903
-        """Sub-class to permit additional extra metadata (e.g., metadata columns from vectorstore
-        construction).
-        """
-
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
 
 class ResultsList(BaseModel):
@@ -88,8 +83,7 @@ class RevResultEntry(BaseModel):
     label: str
     description: str
 
-    class Config:
-        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
+    model_config = ConfigDict(extra="allow")
 
 
 class RevResultsList(BaseModel):
@@ -177,7 +171,7 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
         # Create a RevResultsList object for the current `id`
         results_list.append(
             RevResultsList(
-                input_id=input_id,
+                input_id=str(input_id),
                 response=response_entries,
             )
         )
