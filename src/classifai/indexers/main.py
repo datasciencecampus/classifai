@@ -158,9 +158,6 @@ class VectorStore:
         self.output_dir = output_dir
         self.hooks = {} if hooks is None else hooks
         self.vectoriser_class = vectoriser.__class__.__name__
-        ## these are all to be filled in from vectors creation
-        self.vector_shape: int | None = None
-        self.num_vectors: int | None = None
 
         # ---- Output directory handling (filesystem problems) -> ConfigurationError
         try:
