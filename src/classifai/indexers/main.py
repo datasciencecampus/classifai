@@ -98,7 +98,7 @@ class VectorStore:
         Args:
             file_name (str | os.PathLike): The name of the input CSV file.
             data_type (str): The type of input data (currently supports only "csv").
-            vectoriser (vectoriserBase): The vectoriser object used to transform text into
+            vectoriser (VectoriserBase): The vectoriser object used to transform text into
                                 vector embeddings.
             batch_size (int): [optional] The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
