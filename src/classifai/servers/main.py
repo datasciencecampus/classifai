@@ -260,7 +260,7 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
         input_ids = [x.id for x in data.entries]
         queries = [x.code for x in data.entries]
 
-        input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
+        input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_label": queries})
         output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
 
         formatted_result = convert_dataframe_to_reverse_search_pydantic_response(

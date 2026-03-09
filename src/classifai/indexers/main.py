@@ -274,8 +274,8 @@ class VectorStore:
             if self.data_type == "csv":
                 self.vectors = pl.read_csv(
                     self.file_name,
-                    columns=["id", "text", *self.meta_data.keys()],
-                    dtypes=self.meta_data | {"id": str, "text": str},
+                    columns=["label", "text", *self.meta_data.keys()],
+                    dtypes=self.meta_data | {"label": str, "text": str},
                 )
                 self.vectors = self.vectors.with_columns(
                     pl.Series("uuid", [str(uuid.uuid4()) for _ in range(self.vectors.height)])
@@ -433,13 +433,13 @@ class VectorStore:
         If using partial matching, matches if document label starts with query label.
 
         Args:
-            query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results. Default 100.
-            partial_match (bool): [optional] Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
+            query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the doc labels to look up and a corresponding id for each label.
+            max_n_results (int): [optional] Number of top results to return for each reverse search query, set to -1 to return all results. Default 100.
+            partial_match (bool): [optional] Set the search behaviour to use `join_where` to match query checks that document label `startsWith` query. Default False
 
         Returns:
-            result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for query ID, query text,
-                document ID, document text and any associated metadata columns.
+            result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for id, doc label,
+                retrieved document label, document text and any associated metadata columns.
 
         Raises:
             DataValidationError: Raised if invalid arguments are passed.
@@ -479,17 +479,25 @@ class VectorStore:
         try:
             # polars conversion
             paired_query = pl.DataFrame(
-                {"id": query.id.astype(str).to_list(), "doc_id": query.doc_id.astype(str).to_list()}
+                {"id": query.id.astype(str).to_list(), "doc_label": query.doc_label.astype(str).to_list()}
             )
-            paired_query = paired_query.rename({"doc_id": "query_docid"})
-            docs = self.vectors.rename({"id": "doc_id"})
+
+            # rename vectors dataframe for reverse search return column names and joining
+            docs = self.vectors.rename({"label": "retrieved_doc_label", "text": "retrieved_doc_text"}).with_columns(
+                pl.col("retrieved_doc_label").alias("retrieved_doc_label_copy")
+            )
 
             if partial_match:
-                out = docs.join_where(paired_query, pl.col("doc_id").str.starts_with(pl.col("query_docid")))
+                out = docs.join_where(paired_query, pl.col("retrieved_doc_label").str.starts_with(pl.col("doc_label")))
             else:
-                out = docs.join(paired_query.rename({"query_docid": "doc_id"}), on="doc_id", how="inner")
+                out = paired_query.join(
+                    docs,
+                    left_on="doc_label",
+                    right_on="retrieved_doc_label",
+                    how="inner",
+                ).rename({"retrieved_doc_label_copy": "retrieved_doc_label"})
 
-            out = out.sort(by=["id", "doc_id"], descending=[False, False])
+            out = out.sort(by=["id", "doc_label"], descending=[False, False])
             if max_n_results != -1:
                 out = out.group_by("id").head(max_n_results)
 
@@ -497,8 +505,9 @@ class VectorStore:
             final_table = out.select(
                 [
                     pl.col("id").cast(str),
-                    pl.col("doc_id").cast(str),
-                    pl.col("text").cast(str).alias("doc_text"),
+                    pl.col("doc_label").cast(str),
+                    pl.col("retrieved_doc_label").cast(str),
+                    pl.col("retrieved_doc_text").cast(str),
                     *[pl.col(key) for key in self.meta_data],
                 ]
             )
@@ -548,7 +557,7 @@ class VectorStore:
 
         Returns:
             result_df (VectorStoreSearchOutput): A VectorStoreSearchOutput object containing search results with columns for query ID, query text,
-                document ID, document text, rank, score, and any associated metadata columns.
+                document label, document text, rank, score, and any associated metadata columns.
 
         Raises:
             DataValidationError: Raised if invalid arguments are passed.
@@ -639,12 +648,14 @@ class VectorStore:
                     }
                 )
 
-                ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(["id", "text", *self.meta_data.keys()])
-                merged_df = result_df.hstack(ranked_docs).rename({"id": "doc_id", "text": "doc_text"})
+                ranked_docs = self.vectors[idx_sorted.flatten().tolist()].select(
+                    ["label", "text", *self.meta_data.keys()]
+                )
+                merged_df = result_df.hstack(ranked_docs).rename({"label": "doc_label", "text": "doc_text"})
 
                 merged_df = merged_df.with_columns(
                     [
-                        pl.col("doc_id").cast(str),
+                        pl.col("doc_label").cast(str),
                         pl.col("doc_text").cast(str),
                         pl.col("rank").cast(int),
                         pl.col("score").cast(float),
@@ -661,7 +672,7 @@ class VectorStore:
                     schema={
                         "query_id": pl.Utf8,
                         "query_text": pl.Utf8,
-                        "doc_id": pl.Utf8,
+                        "doc_label": pl.Utf8,
                         "doc_text": pl.Utf8,
                         "rank": pl.Int64,
                         "score": pl.Float64,
@@ -671,7 +682,7 @@ class VectorStore:
                 return VectorStoreSearchOutput.from_data(empty.to_dict(as_series=False))
 
             reordered_df = pl.concat(all_results).select(
-                ["query_id", "query_text", "doc_id", "doc_text", "rank", "score", *self.meta_data.keys()]
+                ["query_id", "query_text", "doc_label", "doc_text", "rank", "score", *self.meta_data.keys()]
             )
 
             result_df = VectorStoreSearchOutput.from_data(reordered_df.to_dict(as_series=False))
@@ -811,7 +822,7 @@ class VectorStore:
                 context={"folder_path": folder_path, "vectors_path": vectors_path},
             )
 
-        required_columns = ["id", "text", "embeddings", "uuid", *deserialized_column_meta_data.keys()]
+        required_columns = ["label", "text", "embeddings", "uuid", *deserialized_column_meta_data.keys()]
 
         try:
             df = pl.read_parquet(vectors_path, columns=required_columns)
