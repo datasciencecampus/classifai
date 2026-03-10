@@ -32,6 +32,7 @@ import os
 import shutil
 import time
 import uuid
+from typing import Literal
 
 import numpy as np
 import polars as pl
@@ -67,12 +68,12 @@ class VectorStore:
     """A class to model and create 'VectorStore' objects for building and searching vector databases from CSV text files.
 
     Attributes:
-        file_name (str): the original file with the knowledgebase to build the vector store
-        data_type (str): the data type of the original file (curently only csv supported)
-        vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
+        file_name (str | os.PathLike[str]): the original file with the knowledgebase to build the vector store
+        data_type (Literal["csv"]): the data type of the original file (curently only csv supported)
+        vectoriser (VectoriserBase): A Vectoriser object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict): key-value pairs of metadata to extract from the input file and their correpsonding types
-        output_dir (str): the path to the output directory where the VectorStore will be saved
+        output_dir (str | os.PathLike[str]): the path to the output directory where the VectorStore will be saved
         vectors (np.array): a numpy array of vectors for the vector DB
         vector_shape (int): the dimension of the vectors
         num_vectors (int): how many vectors are in the vector store
@@ -82,12 +83,12 @@ class VectorStore:
 
     def __init__(  # noqa: C901, PLR0912, PLR0913, PLR0915
         self,
-        file_name,
-        data_type,
-        vectoriser,
-        batch_size=8,
-        meta_data=None,
-        output_dir=None,
+        file_name: str | os.PathLike[str],
+        data_type: Literal["csv"],
+        vectoriser: VectoriserBase,
+        batch_size: int = 8,
+        meta_data: dict | None = None,
+        output_dir: str | os.PathLike[str] | None = None,
         overwrite=False,
         hooks=None,
     ):
@@ -95,9 +96,9 @@ class VectorStore:
         vector embeddings.
 
         Args:
-            file_name (str): The name of the input CSV file.
+            file_name (str | os.PathLike): The name of the input CSV file.
             data_type (str): The type of input data (currently supports only "csv").
-            vectoriser (object): The vectoriser object used to transform text into
+            vectoriser (VectoriserBase): The vectoriser object used to transform text into
                                 vector embeddings.
             batch_size (int): [optional] The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
@@ -116,8 +117,10 @@ class VectorStore:
             IndexBuildError: If there are failures during index building or saving outputs.
         """
         # ---- Input validation (caller mistakes) -> DataValidationError / ConfigurationError
-        if not isinstance(file_name, str) or not file_name.strip():
-            raise DataValidationError("file_name must be a non-empty string.", context={"file_name": file_name})
+        if not isinstance(file_name, (str, os.PathLike)) or not os.fspath(file_name).strip():
+            raise DataValidationError(
+                "file_name must be a non-empty string or os.PathLike.", context={"file_name": file_name}
+            )
 
         if not os.path.exists(file_name):
             raise DataValidationError("Input file does not exist.", context={"file_name": file_name})
@@ -146,17 +149,15 @@ class VectorStore:
             raise DataValidationError("hooks must be a dict or None.", context={"hooks_type": type(hooks).__name__})
 
         # ---- Assign fields
+        ## all these fields are all initalised from inputs
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
         self.batch_size = batch_size
         self.meta_data = meta_data if meta_data is not None else {}
         self.output_dir = output_dir
-        self.vectors = None
-        self.vector_shape = None
-        self.num_vectors = None
-        self.vectoriser_class = vectoriser.__class__.__name__
         self.hooks = {} if hooks is None else hooks
+        self.vectoriser_class = vectoriser.__class__.__name__
 
         # ---- Output directory handling (filesystem problems) -> ConfigurationError
         try:
@@ -182,7 +183,7 @@ class VectorStore:
 
         # ---- Build index (wrap every unexpected failure) -> IndexBuildError
         try:
-            self._create_vector_store_index()
+            self._create_vector_store_index(os.fspath(self.file_name))
         except ClassifaiError:
             # preserve already-classified errors (e.g. vectoriser raised DataValidationError)
             raise
@@ -257,13 +258,16 @@ class VectorStore:
                 context={"path": path, "metadata": metadata, "cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
-    def _create_vector_store_index(self):  # noqa: C901
+    def _create_vector_store_index(self, file_name: str):  # noqa: C901
         """Processes text strings in batches, generates vector embeddings, and creates the
         vector store.
         Called from the constructor once other metadata has been set.
         Iterates over data in batches, stores batch data and generated embeddings.
         Creates a Polars DataFrame with the captured data and embeddings, and saves it as
         a Parquet file in the output_dir attribute, and stores in the vectors attribute.
+
+        Args:
+            file_name (str): The filename of csv to read in
 
         Raises:
             DataValidationError: If there are issues reading or validating the input file.
@@ -273,9 +277,9 @@ class VectorStore:
         try:
             if self.data_type == "csv":
                 self.vectors = pl.read_csv(
-                    self.file_name,
+                    file_name,
                     columns=["id", "text", *self.meta_data.keys()],
-                    dtypes=self.meta_data | {"id": str, "text": str},
+                    schema_overrides=self.meta_data | {"id": str, "text": str},
                 )
                 self.vectors = self.vectors.with_columns(
                     pl.Series("uuid", [str(uuid.uuid4()) for _ in range(self.vectors.height)])
@@ -705,7 +709,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser, hooks: dict | None = None):  # noqa: C901, PLR0912, PLR0915
+    def from_filespace(cls, folder_path: str | os.PathLike[str], vectoriser: VectoriserBase, hooks: dict | None = None):  # noqa: C901, PLR0912, PLR0915
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -717,8 +721,8 @@ class VectorStore:
         needing to reprocess the original text data.
 
         Args:
-            folder_path (str): The folder path containing the metadata and Parquet files.
-            vectoriser (object): The vectoriser object used to transform text into vector embeddings.
+            folder_path (str | os.PathLike): The folder path containing the metadata and Parquet files.
+            vectoriser (VectoriserBase): The vectoriser object used to transform text into vector embeddings.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
@@ -730,7 +734,7 @@ class VectorStore:
             IndexBuildError: If there are failures during loading or parsing the files.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError / ConfigurationError
-        if not isinstance(folder_path, str) or not folder_path.strip():
+        if not isinstance(folder_path, (str, os.PathLike)) or not os.fspath(folder_path).strip():
             raise DataValidationError("folder_path must be a non-empty string.", context={"folder_path": folder_path})
 
         if not os.path.isdir(folder_path):
