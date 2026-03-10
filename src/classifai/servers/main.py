@@ -129,6 +129,10 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
         vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the `vector_stores`.
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
+
+    Raises:
+        DataValidationError: Raised if the input port is out of bounds.
+
     """
     logging.info("Starting ClassifAI API")
 
