@@ -1,29 +1,32 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a vector index from a text file.
+"""This module provides functionality for creating a vector index from a CSV (text)
+file.
 It defines the `VectorStore` class, which is used to model and create vector databases
-from CSV text files using a vectoriser object.
+from CSV text files using a `Vectoriser` object.
 
-This class interacts with the Vectoriser class from the vectorisers submodule,
-expecting that any vector model used to generate embeddings used in the
-VectorStore objects is an instance of one of these classes, most notably
-that each vectoriser object should have a transform method.
+This class requires a `Vectoriser` object from the vectorisers submodule,
+to convert the CSV's text data into vector embeddings which are then stored in the
+VectorStore objects.
 
 Key Features:
-- Batch processing of input files to handle large datasets.
-- Support for CSV file format (additional formats may be added in future updates).
-- Integration with a custom embedder for generating vector embeddings.
-- Logging for tracking progress and handling errors during processing.
 
-Dependencies:
-- polars: For handling data in tabular format and saving it as a Parquet file.
-- tqdm: For displaying progress bars during batch processing.
-- numpy: for vector cosine similarity calculations
-- A custom file iterator (`iter_csv`) for reading input files in batches.
+    - Batch processing of input files to handle large datasets.
+    - Support for CSV file format (additional formats may be added in future updates).
+    - Integration with a custom embedder for generating vector embeddings.
+    - Logging for tracking progress and handling errors during processing.
 
-Usage:
-This module is intended to be used with the Vectoriers mdodule and the
-the servers module from ClassifAI, to created scalable, modular, searchable
-vector databases from your own text data.
+VectorStore Class:
+
+    - The `VectorStore` class is initialized with a `Vectoriser` object and a CSV knowledgebase.
+    - Additional columns in the CSV may be specified as metadata to be included in the vector database.
+    - Upon creation, the `VectorStore` is saved in parquet format for efficient, and quick
+    reloading via the `VectorStore`'s `.from_filespace()` method.
+    - A new piece of text data (or label) can be queried against the `VectorStore` in the following ways:
+        - `.search()`: to find the most semantically similar pieces of text in the vector database.
+        - `.reverse_search()`: to find all examples in the knowledgebase that have a given label.
+        - `.embed()`: to generate a vector embedding for a given piece of text data.
+    - 'Hook' methods may be specified to perform pre-processing on input data before embedding,
+    and post-processing on the output of the search methods.
 """
 
 import json
@@ -64,56 +67,57 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 
 class VectorStore:
-    """A class to model and create 'VectorStore' objects for building and searching vector databases from CSV text files.
+    """A class to model and create `VectorStore` objects for building and searching vector databases from CSV text files.
 
     Attributes:
-        file_name (str): the original file with the knowledgebase to build the vector store
-        data_type (str): the data type of the original file (curently only csv supported)
-        vectoriser (object): A Vectoriser object from the corresponding ClassifAI Pacakge module
+        file_name (str): the data file contatining the knowledgebase to build the `VectorStore`
+        data_type (str): the data type of the data file (curently only csv supported)
+        vectoriser (object): A `Vectoriser` object from the corresponding ClassifAI Pacakge module
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict): key-value pairs of metadata to extract from the input file and their correpsonding types
-        output_dir (str): the path to the output directory where the VectorStore will be saved
-        vectors (np.array): a numpy array of vectors for the vector DB
+        output_dir (str): the path to the output directory where the `VectorStore` will be saved
+        vectors (np.array): a numpy array of vectors for the vector database
         vector_shape (int): the dimension of the vectors
-        num_vectors (int): how many vectors are in the vector store
+        num_vectors (int): the number of records saved in the `VectorStore`
         vectoriser_class (str): the type of vectoriser used to create embeddings
         hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 
     def __init__(  # noqa: C901, PLR0912, PLR0913, PLR0915
         self,
-        file_name,
-        data_type,
-        vectoriser,
-        batch_size=8,
-        meta_data=None,
-        output_dir=None,
-        overwrite=False,
-        hooks=None,
+        file_name: str,
+        data_type: str,
+        vectoriser: VectoriserBase,
+        batch_size: int = 8,
+        meta_data: dict | None = None,
+        output_dir: str | None = None,
+        overwrite: bool = False,
+        hooks: dict | None = None,
     ):
-        """Initializes the VectorStore object by processing the input CSV file and generating
+        """Initializes the `VectorStore` object by processing the input CSV file and generating
         vector embeddings.
 
         Args:
             file_name (str): The name of the input CSV file.
             data_type (str): The type of input data (currently supports only "csv").
-            vectoriser (object): The vectoriser object used to transform text into
-                                vector embeddings.
+            vectoriser (object): The `Vectoriser` object used to transform text into
+                                 vector embeddings.
             batch_size (int): [optional] The batch size for processing the input file and batching to
             vectoriser. Defaults to 8.
             meta_data (dict): [optional] key,value pair metadata column names to extract from the input file and their types.
-                                Defaults to None.
-            output_dir (str): [optional] The directory where the vector store will be saved.
-                                Defaults to None, where input file name will be used.
-            overwrite (bool): [optional] If True, allows overwriting existing folders with the same name. Defaults to false to prevent accidental overwrites.
-            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+                                Defaults to `None`.
+            output_dir (str): [optional] The directory where the `VectorStore` will be saved.
+                                Defaults to `None`, where input file name will be used.
+            overwrite (bool): [optional] If `True`, allows overwriting existing folders with the same name.
+                                Defaults to `False` to prevent accidental overwrites.
+            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
 
 
         Raises:
-            ClassifaiError: For any unexpected errors during initialization, with context for debugging.
-            DataValidationError: If input arguments are invalid or if there are issues with the input file.
-            ConfigurationError: If there are configuration issues, such as output directory problems.
-            IndexBuildError: If there are failures during index building or saving outputs.
+            `ClassifaiError`: For any unexpected errors during initialization, with context for debugging.
+            `DataValidationError`: If input arguments are invalid or if there are issues with the input file.
+            `ConfigurationError`: If there are configuration issues, such as output directory problems.
+            `IndexBuildError`: If there are failures during index building or saving outputs.
         """
         # ---- Input validation (caller mistakes) -> DataValidationError / ConfigurationError
         if not isinstance(file_name, str) or not file_name.strip():
@@ -218,14 +222,14 @@ class VectorStore:
             ) from e
 
     def _save_metadata(self, path: str):
-        """Saves metadata about the vector store to a JSON file.
+        """Saves metadata about the `VectorStore` to a JSON file.
 
         Args:
             path (str): The file path where the metadata JSON file will be saved.
 
         Raises:
-            DataValidationError: If the path argument is invalid.
-            IndexBuildError: If there are failures during serialization or file writing.
+            `DataValidationError`:` If the path argument is invalid.
+            `IndexBuildError`: If there are failures during serialization or file writing.
         """
         if not isinstance(path, str) or not path.strip():
             raise DataValidationError("path must be a non-empty string.", context={"path": path})
@@ -259,15 +263,15 @@ class VectorStore:
 
     def _create_vector_store_index(self):  # noqa: C901
         """Processes text strings in batches, generates vector embeddings, and creates the
-        vector store.
+        `VectorStore`.
         Called from the constructor once other metadata has been set.
         Iterates over data in batches, stores batch data and generated embeddings.
         Creates a Polars DataFrame with the captured data and embeddings, and saves it as
         a Parquet file in the output_dir attribute, and stores in the vectors attribute.
 
         Raises:
-            DataValidationError: If there are issues reading or validating the input file.
-            IndexBuildError: If there are failures during embedding or building the vectors table.
+            `DataValidationError`: If there are issues reading or validating the input file.
+            `IndexBuildError`: If there are failures during embedding or building the vectors table.
         """
         # ---- Reading source data (validation/format issues) -> DataValidationError / IndexBuildError
         try:
@@ -353,18 +357,20 @@ class VectorStore:
             ) from e
 
     def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:
-        """Converts text into vector embeddings using the vectoriser and returns a VectorStoreEmbedOutput dataframe with columns 'id', 'text', and 'embedding'.
+        """Converts text (provided via a `VectorStoreEmbedInput` object) into vector embeddings using the `Vectoriser` and
+        returns a `VectorStoreEmbedOutput` dataframe with  columns `id`, `text`, and `embedding`.
 
         Args:
-            query (VectorStoreEmbedInput): The VectorStoreEmbedInput object containing the strings to be embedded and their ids.
+            query (VectorStoreEmbedInput): The `VectorStoreEmbedInput` object containing the strings to be embedded and their ids.
 
         Returns:
-            VectorStoreEmbedOutput: The output object containing the embeddings along with their corresponding ids and texts.
+            VectorStoreEmbedOutput: The `VectorStoreEmbedOutput` object containing the embeddings along with their corresponding
+            ids and texts.
 
         Raises:
-            DataValidationError: Raised if invalid arguments are passed.
-            HookError: Raised if user-defined hooks fail.
-            ClassifaiError: Raised if embedding operation fails.
+            `DataValidationError`: Raised if invalid arguments are passed.
+            `HookError`: Raised if user-defined hooks fail.
+            `ClassifaiError`: Raised if embedding operation fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
         if not isinstance(query, VectorStoreEmbedInput):
@@ -428,23 +434,26 @@ class VectorStore:
     def reverse_search(  # noqa: C901
         self, query: VectorStoreReverseSearchInput, max_n_results: int = 100, partial_match: bool = False
     ) -> VectorStoreReverseSearchOutput:
-        """Reverse searches the vector store using a VectorStoreReverseSearchInput object
-        and returns matched results in VectorStoreReverseSearchOutput object.
+        """Reverse searches the `VectorStore` using a `VectorStoreReverseSearchInput` object
+        and returns matched results in `VectorStoreReverseSearchOutput` object.
         If using partial matching, matches if document label starts with query label.
 
         Args:
-            query (VectorStoreReverseSearchInput): A VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.
-            max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results. Default 100.
-            partial_match (bool): [optional] Set the search behaviour to use `join_where` to match query checks that document id `startsWith` query. Default False
+            query (VectorStoreReverseSearchInput): A `VectorStoreReverseSearchInput` object containing the text query or
+                list of queries to search for with ids.
+            max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results.
+                Defaults to 100.
+            partial_match (bool): [optional] If `True`, the search behaviour is set to return results where the `document_id`
+                is prefixed by the query. Defaults to `False`.
 
         Returns:
-            result_df (VectorStoreReverseSearchOutput): A VectorStoreReverseSearchOutput object containing reverse search results with columns for query ID, query text,
-                document ID, document text and any associated metadata columns.
+            result_df (VectorStoreReverseSearchOutput): A `VectorStoreReverseSearchOutput` object containing reverse search
+                results with columns for `query_id`, `query_text`, `document_id`, `document_text` and any associated metadata columns.
 
         Raises:
-            DataValidationError: Raised if invalid arguments are passed.
-            HookError: Raised if user-defined hooks fail.
-            ClassifaiError: Raised if reverse search operation fails.
+            `DataValidationError`: Raised if invalid arguments are passed.
+            `HookError`: Raised if user-defined hooks fail.
+            `ClassifaiError`: Raised if reverse search operation fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
         if not isinstance(query, VectorStoreReverseSearchInput):
@@ -537,24 +546,24 @@ class VectorStore:
         return result_df
 
     def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=8) -> VectorStoreSearchOutput:  # noqa: C901, PLR0912, PLR0915
-        """Searches the vector store using queries from a VectorStoreSearchInput object and returns
-        ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings,
+        """Searches the `VectorStore` using queries from a `VectorStoreSearchInput` object and returns
+        ranked results in `VectorStoreSearchOutput` object. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
-            query (VectorStoreSearchInput): A VectoreStoreSearchInput object containing the text query or list of queries to search for with ids.
+            query (VectorStoreSearchInput): A `VectorStoreSearchInput` object containing the text query or list of queries to search for with ids.
             n_results (int): [optional] Number of top results to return for each query. Default 10.
             batch_size (int): [optional] The batch size for processing queries. Default 8.
 
         Returns:
-            result_df (VectorStoreSearchOutput): A VectorStoreSearchOutput object containing search results with columns for query ID, query text,
-                document ID, document text, rank, score, and any associated metadata columns.
+            result_df (VectorStoreSearchOutput): A `VectorStoreSearchOutput` object containing search results with columns for `query_id`, `query_text`,
+                `document_id`, `document_text`, `rank`, `score`, and any associated metadata columns.
 
         Raises:
-            DataValidationError: Raised if invalid arguments are passed.
-            ConfigurationError: Raised if the vector store is not initialized.
-            HookError: Raised if user-defined hooks fail.
-            VectorisationError: Raised if embedding queries fails.
+            `DataValidationError`: Raised if invalid arguments are passed.
+            `ConfigurationError`: Raised if the vector store is not initialized.
+            `HookError`: Raised if user-defined hooks fail.
+            `VectorisationError`: Raised if embedding queries fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
         if not isinstance(query, VectorStoreSearchInput):
@@ -718,7 +727,7 @@ class VectorStore:
 
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
-            vectoriser (object): The vectoriser object used to transform text into vector embeddings.
+            vectoriser (object): The `Vectoriser` object used to transform text into vector embeddings.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
@@ -726,7 +735,7 @@ class VectorStore:
 
         Raises:
             DataValidationError: If input arguments are invalid or if there are issues with the metadata or Parquet files.
-            ConfigurationError: If there are configuration issues, such as vectoriser mismatches.
+            ConfigurationError: If there are configuration issues, such as `Vectoriser` mismatches.
             IndexBuildError: If there are failures during loading or parsing the files.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError / ConfigurationError
