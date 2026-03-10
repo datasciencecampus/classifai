@@ -1,5 +1,8 @@
 ---
 name: CI
+permissions:
+  checks: write
+  contents: read
 
 on:
   push:
