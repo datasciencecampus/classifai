@@ -1,11 +1,4 @@
-"""This module provides classes for creating and utilizing embedding models from different services.
-The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules.
-Generally Vectorisers are used to convert text data into numerical embeddings that can be used for
-machine learning tasks.
-
-###########################
-###########################
-# Vectoriser Overview
+"""# Vectoriser Overview.
 
 In our Package, Vectoriser have a simple role:
     - Take in text data (as a string or list of strings)
@@ -18,28 +11,23 @@ It is possible for users to implement their own Vectoriser classes by inheriting
 
 ###########################
 ###########################
-# Implemented Vectorisers
+# Vectoriser Base Class.
 
-We provide several quick implementations of Vectorisers that interface with popular services and libraries.
+The `VectoriserBase` class provides as the abstract base class for all vectoriser implementations.
+It defines the structure and contract that all vectoriser subclasses must adhere to.
 
-The module contains the following 'ready-made' classes:
-- `GcpVectoriser`: A class for embedding text using Google Cloud Platform's GenAI API.
-- `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
-models to generate text embeddings.
-- `OllamaVectoriser`: A general wrapper class for using a locally running ollama
-server to generate text embeddings.
+Key Responsibilities:
+    - Enforce the implementation of a `transform` method in all subclasses.
+    - Describes the input parameters and return types of the transform method.
+    - Provide a consistent interface for converting text data (as a string or list of strings)
+      into numerical embeddings (as a numpy array).
 
-Each class is designed to interface with a specific service that provides embedding model
-functionality.
+To create a custom vectoriser, users should inherit from `VectoriserBase` and implement the
+`transform` method. This method is expected to take text input and return the corresponding
+embeddings as a numpy array.
 
-The `GcpVectoriser` class leverages Google's GenAI API,
-
-The `HuggingFaceVectoriser` class utilizes models from the Huggingface Transformers library.
-
-The `OllamaVectoriser` class can use any local/downloaded model which can be served by ollama.
-
-These classes abstract the underlying implementation details, providing a simple and consistent
-interface for embedding text using different services.
+By adhering to this base class, all vectoriser implementations maintain a uniform interface,
+making it easier to integrate and switch between different vectoriser implementations.
 """
 
 from abc import ABC, abstractmethod
