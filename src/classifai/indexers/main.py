@@ -365,7 +365,7 @@ class VectorStore:
 
         Returns:
             (VectorStoreEmbedOutput): The `VectorStoreEmbedOutput` object containing the embeddings along with their corresponding
-            ids and texts.
+                ids and texts.
 
         Raises:
             `DataValidationError`: Raised if invalid arguments are passed.
