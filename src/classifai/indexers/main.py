@@ -364,7 +364,7 @@ class VectorStore:
             query (VectorStoreEmbedInput): The `VectorStoreEmbedInput` object containing the strings to be embedded and their ids.
 
         Returns:
-            VectorStoreEmbedOutput: The `VectorStoreEmbedOutput` object containing the embeddings along with their corresponding
+            (VectorStoreEmbedOutput): The `VectorStoreEmbedOutput` object containing the embeddings along with their corresponding
             ids and texts.
 
         Raises:
@@ -447,7 +447,7 @@ class VectorStore:
                 is prefixed by the query. Defaults to `False`.
 
         Returns:
-            result_df (VectorStoreReverseSearchOutput): A `VectorStoreReverseSearchOutput` object containing reverse search
+            (VectorStoreReverseSearchOutput): A `VectorStoreReverseSearchOutput` object containing reverse search
                 results with columns for `query_id`, `query_text`, `document_id`, `document_text` and any associated metadata columns.
 
         Raises:
@@ -556,7 +556,7 @@ class VectorStore:
             batch_size (int): [optional] The batch size for processing queries. Default 8.
 
         Returns:
-            result_df (VectorStoreSearchOutput): A `VectorStoreSearchOutput` object containing search results with columns for `query_id`, `query_text`,
+            (VectorStoreSearchOutput): A `VectorStoreSearchOutput` object containing search results with columns for `query_id`, `query_text`,
                 `document_id`, `document_text`, `rank`, `score`, and any associated metadata columns.
 
         Raises:
