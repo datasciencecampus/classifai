@@ -1,0 +1,1219 @@
+[
+  {
+    "objectID": "DEMO/README.html",
+    "href": "DEMO/README.html",
+    "title": "Overview of Demonstrations & Examples",
+    "section": "",
+    "text": "This directory contains a set of Jupyter notebooks designed to help you understand and use classifai effectively.\n\n\n\nThis demo series includes several Jupyter notebooks:\n\n\nThis introduces the core features of classifai.\nIt covers:\n\nImporting the package and its main components.\nInitialising a Vectoriser for converting text to vector representation.\nCreating a VectorStore - a database of labelled examples, and their vector representations, linked with a Vectoriser to allow supplied text to be searched against the vector database using cosine similarity to rank the labelled examples in order of semantic similarity.\nCreating a FastAPI server to expose the VectorStore’s functionality via a REST API.\n\nThis notebook is intended for prospective users to get a quick overview of what the package can do, and as a ‘jumping off point’ for new projects.\n\n\n\nThis notebook demonstrates how to create a new, custom Vectoriser by extending the base VectoriserBase class.\nIt covers:\n\nCreating a new OneHotVectoriser class, extended from VectoriserBase.\nSetting up a VectorStore which uses the new Vectoriser.\n\nThis notebook is for users who want to implement a vectorisation approach not covered by our existing suite of Vectorisers.\n\n\n\nThis notebook demostrates how to add custom Python code logic to the VectorStore search pipeline, such as performing spell checking on user input, without breaking the data flow of the ClassifAI VectorStore.\nIt covers:\n\nHow the VectorStore handles input data and output data\nHow to write ‘hooks’ - Python functions that can manipulate the input and output data of the different VectorStore methods\nHow to ensure your hooks don’t break the dataflow by following the required input and output dataclasses\nExamples of different kinds of hooks that can be written - [spellchecking, deduplicating results, adding extra info to results based on result ids]\n\n\n\n\n\n\n\n\n\n\nCreate a virtual environment:\npython -m venv .venv\n\n\n\nCreate a virtual environment:\nuv venv\n\n\n\n(macOS / Linux):\nsource .venv/bin/activate\nActivate it (Windows):\nsource .venv/Scripts/activate\n\n\n\n\n\n\npip install \"https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl\"\n\n\n\none-off:\nuv pip install \"https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl\"\nadd as project dependency:\nuv add \"https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl\"\n\n\n\n\n\n\npip install \"classifai[&lt;dependency&gt;]\"\nwhere &lt;dependency&gt; is one or more of huggingface,gcp,ollama, or all to install all of them. ##### Using uv\none-off installation\nuv pip install \"classifai[&lt;dependency&gt;]\"\nadd as project dependency\nuv add \"classifai[&lt;dependency&gt;]\"\n\n\n\n\n\n\nYou may wish to download each notebook individually and the demo dataset individually - each notebook contains specific installation instructions on how to set up an environemnt and download the package\n\n\n\nTo start the demo, launch Jupyter Notebook or JupyterLab from your terminal in this directory:\njupyter notebook\nOr, if you prefer JupyterLab:\njupyter lab\nThen, open the notebooks in your browser. We recommend going through the the general_workflow_demo.ipynb notebook for a broad overview of the package before moving onto the custom_vectoriser.ipynb notebook, which covers a more advanced use-case.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Overview of Demonstrations & Examples"
+    ]
+  },
+  {
+    "objectID": "DEMO/README.html#notebooks-overview",
+    "href": "DEMO/README.html#notebooks-overview",
+    "title": "Overview of Demonstrations & Examples",
+    "section": "",
+    "text": "This demo series includes several Jupyter notebooks:\n\n\nThis introduces the core features of classifai.\nIt covers:\n\nImporting the package and its main components.\nInitialising a Vectoriser for converting text to vector representation.\nCreating a VectorStore - a database of labelled examples, and their vector representations, linked with a Vectoriser to allow supplied text to be searched against the vector database using cosine similarity to rank the labelled examples in order of semantic similarity.\nCreating a FastAPI server to expose the VectorStore’s functionality via a REST API.\n\nThis notebook is intended for prospective users to get a quick overview of what the package can do, and as a ‘jumping off point’ for new projects.\n\n\n\nThis notebook demonstrates how to create a new, custom Vectoriser by extending the base VectoriserBase class.\nIt covers:\n\nCreating a new OneHotVectoriser class, extended from VectoriserBase.\nSetting up a VectorStore which uses the new Vectoriser.\n\nThis notebook is for users who want to implement a vectorisation approach not covered by our existing suite of Vectorisers.\n\n\n\nThis notebook demostrates how to add custom Python code logic to the VectorStore search pipeline, such as performing spell checking on user input, without breaking the data flow of the ClassifAI VectorStore.\nIt covers:\n\nHow the VectorStore handles input data and output data\nHow to write ‘hooks’ - Python functions that can manipulate the input and output data of the different VectorStore methods\nHow to ensure your hooks don’t break the dataflow by following the required input and output dataclasses\nExamples of different kinds of hooks that can be written - [spellchecking, deduplicating results, adding extra info to results based on result ids]",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Overview of Demonstrations & Examples"
+    ]
+  },
+  {
+    "objectID": "DEMO/README.html#installation-of-classifai",
+    "href": "DEMO/README.html#installation-of-classifai",
+    "title": "Overview of Demonstrations & Examples",
+    "section": "",
+    "text": "Create a virtual environment:\npython -m venv .venv\n\n\n\nCreate a virtual environment:\nuv venv\n\n\n\n(macOS / Linux):\nsource .venv/bin/activate\nActivate it (Windows):\nsource .venv/Scripts/activate\n\n\n\n\n\n\npip install \"https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl\"\n\n\n\none-off:\nuv pip install \"https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl\"\nadd as project dependency:\nuv add \"https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl\"\n\n\n\n\n\n\npip install \"classifai[&lt;dependency&gt;]\"\nwhere &lt;dependency&gt; is one or more of huggingface,gcp,ollama, or all to install all of them. ##### Using uv\none-off installation\nuv pip install \"classifai[&lt;dependency&gt;]\"\nadd as project dependency\nuv add \"classifai[&lt;dependency&gt;]\"",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Overview of Demonstrations & Examples"
+    ]
+  },
+  {
+    "objectID": "DEMO/README.html#prerequisites",
+    "href": "DEMO/README.html#prerequisites",
+    "title": "Overview of Demonstrations & Examples",
+    "section": "",
+    "text": "You may wish to download each notebook individually and the demo dataset individually - each notebook contains specific installation instructions on how to set up an environemnt and download the package",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Overview of Demonstrations & Examples"
+    ]
+  },
+  {
+    "objectID": "DEMO/README.html#running-the-demo",
+    "href": "DEMO/README.html#running-the-demo",
+    "title": "Overview of Demonstrations & Examples",
+    "section": "",
+    "text": "To start the demo, launch Jupyter Notebook or JupyterLab from your terminal in this directory:\njupyter notebook\nOr, if you prefer JupyterLab:\njupyter lab\nThen, open the notebooks in your browser. We recommend going through the the general_workflow_demo.ipynb notebook for a broad overview of the package before moving onto the custom_vectoriser.ipynb notebook, which covers a more advanced use-case.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Overview of Demonstrations & Examples"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#demo-data",
+    "href": "DEMO/general_workflow_demo.html#demo-data",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "Demo Data",
+    "text": "Demo Data\nThis demo uses a mock dataset that is freely available on the ClassifAI repo, if yo have not downloaded the entire DEMO folder to run this notebook, the minimum data you require is the DEMO/data/testdata.csv file, which you should place in your working directory in a DEMO folder - (or you can just change the filepath later in this demo notebook)",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#vectorising",
+    "href": "DEMO/general_workflow_demo.html#vectorising",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "Vectorising",
+    "text": "Vectorising\n\n\n\nVectoriser_image\n\n\n\nWe provide several vectoriser classes that you can use to convert text to embeddings/vectors;\nfrom classifai.vectorisers import (\n    HuggingFaceVectoriser,\n    GcpVectoriser,\n    OllamaVectoriser\n)\nIf none of these match your needs, you can define a custom vectoriser by extending our base class;\nfrom classifai.vectorisers import VectoriserBase\nThere is another DEMO notebook, called custom_vectoriser.ipynb which provides a walk through of extending the base class to make a custom One-Hot Encoder Vectoriser model.\n\n\n\nInitialising a vectoriser:\nWe’ll download and use a locally-hosted, small HuggingFace model;\n\nfrom classifai.vectorisers import HuggingFaceVectoriser\n\n# Our embedding model is pulled down from HuggingFace, or used straight away if previously downloaded\n# This also works with many different huggingface models!\nvectoriser = HuggingFaceVectoriser(model_name=\"sentence-transformers/all-MiniLM-L6-v2\")\n\n# The `.transform()` method converts text to a vector, or several texts to an array of vectors\nmy_first_vector = vectoriser.transform(\"classifai is a great tool for building AI applications.\")\nlist_of_vectors = vectoriser.transform([\"bag-of-words isn't as good as classifAI\", \"tf-idf isn't as good as classifAI\"])\n\n\nmy_first_vector.shape, list_of_vectors.shape\n\n\n\nThe Vectoriser API is simple; it takes in a string or a list and strings, and returns a Numpy ndArray object.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#indexing",
+    "href": "DEMO/general_workflow_demo.html#indexing",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "Indexing",
+    "text": "Indexing\n\nThe VectorStore class creates a vector database by converting a set of labelled texts to embeddings, using an associated Vectoriser.\n\nOnce created, it can be ‘searched’, using the vectoriser to embed queries as vectors and calculate their semantic similarity to the labelled texts in the VectorStore\n\n\n\nVectorStore_image\n\n\n\nfrom classifai.indexers import VectorStore\n\nmy_vector_store = VectorStore(\n    file_name=\"data/testdata.csv\",\n    data_type=\"csv\",\n    vectoriser=vectoriser,\n    meta_data={\"colour\": str, \"language\": str},\n    overwrite=True,\n)\n\n\n\n\nVectorStore Data Objects\nWe’ve created a VectorStore with the code above. As we’ll see in the next few code cells, we can ‘search’ the vector store by passing a ‘query’ to it to get top K results that are similar to the query.\n But how do we pass the queries to the VectorStore? \nClassifAI provides specialised Pandas datframe objects for each kind of request that can be made to the VectorStore - this provides a clear and consistent interface for sending data to the VectorStore (and also receiving data from the vectorstore).\nFirst lets look at the VectorStoreSearchInput data object:\n\nfrom classifai.indexers.dataclasses import VectorStoreSearchInput\n\ninput_data = VectorStoreSearchInput(\n    {\"id\": [1, 2], \"query\": [\"What is the colour of the sky?\", \"What language is spoken in Brazil?\"]}\n)\n\ninput_data\n\nIn the above cell, we’re building the object that the VectorStore takes in to do the search process. Our input expects two columns of data, id and query, as above. And this data can be passed to our VectorStoreSearchInput class, as a dictionary  or alreadt as a Pandas dataframe. \nIf you try to remove some of the data, say the ‘id’ column. Our data class object will inform you that you’re missing some data. In this sense the data classes keep you right when working with the Package.\nLook at the type of the input_data object we created, notice that it is not of type Pandas, but our own custom type. Under the hood this is doing the additional work to validate the data your passing in.\n\n\nOnce created, you can search the vector store by calling the .search() method\nActually calling the VectorStore is very simple once we have that data object\n\nmy_vector_store.search(input_data)\n\n\n# you could pass your query(s) inline with the object as well: (AND specify how many results you want per query)\nmy_vector_store.search(VectorStoreSearchInput({\"id\": [999], \"query\": \"is the desert large?\"}), n_results=5)\n\n\n\nYou can also search by id by calling the .reverse_search method on the object\nWe call a different method for this on the vectorstore reverse_search() - and it has its own data class object - VectorStoreReverseSearchInput\n\nfrom classifai.indexers.dataclasses import VectorStoreReverseSearchInput\n\ninput_data_2 = VectorStoreReverseSearchInput({\"id\": [\"1\", \"2\"], \"doc_id\": [\"1100\", \"1056\"]})\n\nmy_vector_store.reverse_search(input_data_2)",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#with-reverse-search-you-can-do-partial-matching",
+    "href": "DEMO/general_workflow_demo.html#with-reverse-search-you-can-do-partial-matching",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "With reverse search you can do partial matching!",
+    "text": "With reverse search you can do partial matching!\nuse the partial match flag to check if the ids/labels start with our query id\n\ninput_data_3 = VectorStoreReverseSearchInput({\"id\": [\"1\", \"2\"], \"doc_id\": [\"1100\", \"105\"]})\n\nmy_vector_store.reverse_search(input_data_3, partial_match=True)\n\n\n## use n_results to limit the amount of results per-item\n\nmy_vector_store.reverse_search(input_data_3, n_results=2, partial_match=True)\n\n\nVectorStore Embed method\nIts also possible to get the vector embeddings for each from some input text or queries by calling the VectorStore .embed() method.\nOnce again, this method has its own data class to inferace with: VectorStoreEmbedInput\n\nfrom classifai.indexers.dataclasses import VectorStoreEmbedInput\n\ninput_data_3 = VectorStoreEmbedInput(\n    {\n        \"id\": [\"a\", \"b\"],\n        \"text\": [\n            \"The quick brown fox jumps over the lazy dog.\",\n            \"Classifai is an amazing library for AI applications.\",\n        ],\n    }\n)\n\nmy_vector_store.embed(input_data_3)\n\n\n\nThe Output Dataclass Objects!\nWe’ve seen an input data classes for each of our VectorStore’s methods: embed, search, and reverse Search…\nbut these VectorStore methods also have  output dataclass objects  too, which provide a consistent output interface for you to work with.\n\nIn all cases, for output and input data class objects, the column names are specific:\n\n## The VectorStoreEmbedOutput object:\n\nembed_output = my_vector_store.embed(input_data_3)\nprint(type(embed_output))\nembed_output\n\n\n## The VectorStoreReverseSearchOutput object:\n\nreverse_search_output = my_vector_store.reverse_search(input_data_2)\nprint(type(reverse_search_output))\nreverse_search_output\n\n\n## The VectorStoreSearchOutput object:\n\nsearch_output = my_vector_store.search(input_data)\nprint(type(search_output))\nsearch_output\n\n\n\n\nInstantiating Data Class Objects\nThe dataclass objects are central to passing and receiving data from the VectorStore. You can therefore instantiate them with the traditional init method, or directly with the method .from_data which achieves the same affect.\nHowever in future updates we intend to add more methods, for example ‘from_csv’ which we anticipate would allow users process large files of queries more easily.\n\ninput_data_4 = VectorStoreSearchInput({\"id\": [3], \"query\": [\"What is the colour of grass?\"]})\n\n### IS THE SAME AS:\n\ninput_data_5 = VectorStoreSearchInput.from_data({\"id\": [3], \"query\": [\"What is the colour of grass?\"]})",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#serving-up-your-vectorstore",
+    "href": "DEMO/general_workflow_demo.html#serving-up-your-vectorstore",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "Serving up your VectorStore!",
+    "text": "Serving up your VectorStore!\n\nSo you’ve created a VectorStore, with your chosen Vectoriser; that makes vectors and you can search it…\n\n\nNow, how do I host it so others can use it?\n\n\n\nServer_Image\n\n\n\n\nTo Serve an api all we need to do is create a Vectorizer, and a Vector store, then pass it into out server start_api function for it to begin serving fast api endpoints for out VectorStore.\n\n\nWe have a demo script at ./DEMO/general_workflow_serve.py\n\n\nHere’s a an example of what it does\n##### first we load the vectoriser used in the vectorstore creation\nfrom classifai.indexers import VectorStore\nfrom classifai.servers import start_api\nfrom classifai.vectorisers import HuggingFaceVectoriser\n\n# Our embedding model is pulled down from HuggingFace, or used straight away if previously downloaded\n# This also works with many different huggingface models!\nvectoriser = HuggingFaceVectoriser(model_name=\"sentence-transformers/all-MiniLM-L6-v2\")\n\n\n#### now we can load the vectorstore back in without having to create it again\nloaded_vectorstore = VectorStore.from_filespace(\"./DEMO/testdata\", vectoriser)\n\n\n#### look wow! you can search it straight away cause it was loaded back in\n\nprint(f\"Test search {loaded_vectorstore.search('did the quick brown fox jump over the log?')}\")\n\n\n#### and finally, its easy to search your vectorstore via a restAPI service, just run:\nstart_api([loaded_vectorstore], endpoint_names=[\"my_vectorstore\"])\n\n# Look at https://0.0.0.0:8000/docs to see the Swagger API documentation and test in the browser",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#running-the-server",
+    "href": "DEMO/general_workflow_demo.html#running-the-server",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "Running the server",
+    "text": "Running the server\n\nTo serve the demo simply run ./DEMOS/general_workflow_serve.py to see it in action!",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/general_workflow_demo.html#roundup",
+    "href": "DEMO/general_workflow_demo.html#roundup",
+    "title": "✨ ClassifAI Demo - Introduction & Basic Usage ✨",
+    "section": "Roundup",
+    "text": "Roundup\n\nThat’s it - you should now have made a running restAPI service that lets you search the texts you indexed in the test CSV.\n\n\nCheck out the GitHub repo, where there is a quick start guide in the Readme.md 😊",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "✨ ClassifAI Demo - Introduction & Basic Usage ✨"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_preprocessing_and_postprocessing_hooks.html",
+    "href": "DEMO/custom_preprocessing_and_postprocessing_hooks.html",
+    "title": "VectorStore pre- and post- processing logic with Hooks🪝",
+    "section": "",
+    "text": "This notebook provides a guide on how to implement custom, user-defined pre- and post-processing ‘hooks’. Hooks provide a way to modify the traditional data flow of the ClassifAI package so that you might, for example:\n\nRemove punctuation from input queries before the VectorStore search process begins,\nCapitalising all text in an input query to the Vectorstore search process,\nDeduplicate results based on the doc_id column so that duplicate knowledgebase entries are not returned,\nPrevent users of the package from retrieving certain documents in your vectorstore,\nRemoving hate speech from any input text.\n\nHooks work by defining functions that operate on the input and output dataclasses of each of our VectorStore functions/methods.\nKey Sections: - a recap of how the dataclasses for the VectorStore work, and how they ensure the proper flow of data in our package, - how hooks can be implemented by working with the dataclass objects, - examples of several different hook implementations, some of which were already mentioned above.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "VectorStore pre- and post- processing logic with <i>Hooks</i>🪝"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#overview",
+    "href": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#overview",
+    "title": "VectorStore pre- and post- processing logic with Hooks🪝",
+    "section": "",
+    "text": "This notebook provides a guide on how to implement custom, user-defined pre- and post-processing ‘hooks’. Hooks provide a way to modify the traditional data flow of the ClassifAI package so that you might, for example:\n\nRemove punctuation from input queries before the VectorStore search process begins,\nCapitalising all text in an input query to the Vectorstore search process,\nDeduplicate results based on the doc_id column so that duplicate knowledgebase entries are not returned,\nPrevent users of the package from retrieving certain documents in your vectorstore,\nRemoving hate speech from any input text.\n\nHooks work by defining functions that operate on the input and output dataclasses of each of our VectorStore functions/methods.\nKey Sections: - a recap of how the dataclasses for the VectorStore work, and how they ensure the proper flow of data in our package, - how hooks can be implemented by working with the dataclass objects, - examples of several different hook implementations, some of which were already mentioned above.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "VectorStore pre- and post- processing logic with <i>Hooks</i>🪝"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#recap-of-vectorstore-dataclasses",
+    "href": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#recap-of-vectorstore-dataclasses",
+    "title": "VectorStore pre- and post- processing logic with Hooks🪝",
+    "section": "Recap of VectorStore Dataclasses",
+    "text": "Recap of VectorStore Dataclasses\nThe majority of the following points are already covered in the recommended first notebook demo, general_workflow_demo.ipynb. So if you are unfamiliar with the package, that is a good place to start before this notebook, and for an intro to the VectorStore, its methods, and how it works with dataclasses.\n\nClassifAI uses Pandas dataframe-like dataclasses to specify what data need to be passed as input to the VectorStore methods/functions, and what data can be expected to be returned by those methods\nThe VectorStore class, responsible for performing different actions with your data, has three key methods/functions:\n\nsearch()\n\nTakes in a body of text and searches the vector store for semantically similar knowledgebase samples.\n\nreverse_search()\n\nTakes in document IDs and searches the vector store for entries with those IDs.\n\nembed()\n\nTakes in a body of text and uses the vectoriser model to convert the text into embeddings.\n\n\n\nFor each of these three core methods, we have created an input dataclass and an output dataclass. These dataclasses define pandas-like objects that specify what data needs to be passed to each method and also perform runtime checks to ensure you’ve passed the correct columns in a dataframe to the appropriate VectorStore method.\nFor example, the figure below illustrates the input and output dataclasses of the VectorStore.search() method:\n\n\n\nVectorStore Search Dataflow\n\n\nThis shows that the VectorStore.search() method expects: - An input dataclass object with columns [id, query]. - To output an output dataclass object with columns [query_id, query_text, doc_id, doc_text, rank, score].\nThe use of these dataclasses both helps the user of the package to understand what data needs to be provided to the Vectorstore and how a user should interact with the objects being returned by these VectorStore functions. Additionally, this ensures robustness of the package by checking that the correct columns are present in the data before operating on it.\nThe reverse_search() and embed() VectorStore functions have their own input and output data classes with their own validity column data checks. The names of each set are intuitively:\n\n\n\n\n\n\n\n\nVectorStore Method\nInput Dataclass\nOutput Dataclass\n\n\n\n\nVectorStore.search()\nVectorStoreSearchInput\nVectorStoreSearchOutput\n\n\nVectorStore.reverse_search()\nVectorStoreReverseSearchInput\nVectorStoreReverseSearchOutput\n\n\nVectorStore.embed()\nVectorStoreEmbedInput\nVectorStoreEmbedOutput\n\n\n\nUsers of the package can use the schema of each of these input and output dataclasses to understand how to interface with these main methods of the VectorStore class.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "VectorStore pre- and post- processing logic with <i>Hooks</i>🪝"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#hooks-and-custom-dataflows",
+    "href": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#hooks-and-custom-dataflows",
+    "title": "VectorStore pre- and post- processing logic with Hooks🪝",
+    "section": "Hooks and custom dataflows",
+    "text": "Hooks and custom dataflows\nWe have implemented ‘hooks’ where users can write a function that will manipulate the content of a dataclasses object before or after it passes through the VectorStore.\nAs long as your custom hook function takes as input an instance of a dataclass, and outputs a valid instance of the same type, then your custom function should run as a part of the end to end VectorStore process.\nFor example: you might want to preprocess the input to the VectorStore.search() method to remove punctuation from the texts:\n\n\n\nVectorStore Search Dataflow\n\n\nIn a later part of the demo, we showcase how to implement this punctuation removing function, and apply it to the vectorstore. The important concept here is that the hook function takes in a VectorStoreSearchInput object, and outputs a valid VectorStoreSearchInput object.\nThis can then be attached to a VectorStore to run every time the VectorStore search method is called. You can also apply other hooks to other dataclasses and their respective VectorStore methods and chain togtether these custom operations that manipulate the input and output dataclasses of the VectorStore methods.\nFor example, implmenting 2 hooks for the input and output dataclasses of the VectorStore search method would provide a dataflow:\n\n\n\nEnd to end Search with 2 hooks\n\n\nThe above diagram shows a case where two hooks would be implemented: One that operates on the dataclass VectorStoreSearchInputthat is passed to the Vectortore search method; and a second hook operating on the VectorStoreSearchOutput dataclass that is returned from the VectorStore search method.\nHooks can perform pretty much any operation, as long as they accept and return a valid dataclass object - we hope that this provides a lot of freedom to users to be able to transform and manipulate data as needed using ClassifAI.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "VectorStore pre- and post- processing logic with <i>Hooks</i>🪝"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#example-hook-implementations",
+    "href": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#example-hook-implementations",
+    "title": "VectorStore pre- and post- processing logic with Hooks🪝",
+    "section": "Example Hook implementations",
+    "text": "Example Hook implementations\nThis section now shows how to define your hook functions, and inject them into the VectorStore so that the hooks run when the corresponding method is called.\nSpecifically we’ll look at: - a pre-processing function that removes punctuation from input user queries, - a post-processing function removes results rows that have duplicate ids to other rows of the results.\n\nWe will then make a final post-processing function that injects additional SOC definition data to the VectorStore results dataframe and show how this can be chained together with the deduplication code, to make a multi-step post-processing function!\n\n\nPre-requisite\nIf you are new to the package, its recommended to follow through the general_workflow.ipynb notebook tutorial first. That interactive DEMO will showcase the core features of the ClassifAI package. This current notebook provides examples of how to modify the flow of data which is initially described in the general_workflow.ipynb notebook.\nCheck out the ClassifAI repository DEMO folder for all our notebook walkthrough tutorials including those mentioned above:\nhttps://github.com/datasciencecampus/classifai/tree/main/DEMO\n\n\nIf you can run the following cell in this notebook, you should be good to go!\n\nfrom classifai.vectorisers import HuggingFaceVectoriser\n\nprint(\"done!\")\n\n\n\nAlternatively, to test without running a notebook, run the following from your command line;\npython -c \"import classifai\"\n\n\n\nDemo Data\nThis demo uses a mock dataset that is freely available on the ClassifAI repo, if yo have not downloaded the entire DEMO folder to run this notebook, the minimum data you require is the DEMO/data/testdata.csv file, which you should place in your working directory in a DEMO folder - (or you can just change the filepath later in this demo notebook)\n\n\nNormal vectorstore setup\nWe can start by loading a normal vectorstore up with no additional preprocessing/hooks. We can use one of our fake example known datasets is known to have several rows of data with the same ID value. (You can get this from the github repo at the folder location specified in the code)\n\nfrom classifai.indexers import VectorStore\n\nvectoriser = HuggingFaceVectoriser(model_name=\"sentence-transformers/all-MiniLM-L6-v2\")\n\n\nmy_vector_store = VectorStore(\n    file_name=\"data/fake_soc_dataset.csv\",\n    data_type=\"csv\",\n    vectoriser=vectoriser,\n    overwrite=True,\n)\n\nThe below code uses our dataclasses to set up some data to pass to the VectorStore search method, notice that: * an exclaimation mark in the query (that in some cases we may want to sanitise) is shown in the results. * Also the results for the below query should also show several rows with the same 'doc_id' value (because our example data file had multiple entries with the same id label)\n\nfrom classifai.indexers.dataclasses import VectorStoreSearchInput\n\ninput_data = VectorStoreSearchInput({\"id\": [1], \"query\": [\"a fruit and vegetable farmer!!!\"]})\n\nmy_vector_store.search(input_data, n_results=10)\n\n\n\nMaking pre- and post- processing hooks\nSo lets write some functions that will remove punctuation on the user’s input query, before the main logic of the Vectorstore.search() method begins, and remove rows with duplicate IDs from the results dataframe just before the results are retutned from the Vectorstore.search() method\n\ninput_data = VectorStoreSearchInput({\"id\": [1], \"query\": [\"a fruit and vegetable farmer!!!\"]})\n\ninput_data\n\n\nimport string\n\nfrom classifai.indexers.dataclasses import VectorStoreSearchOutput\n\n\ndef remove_punctuation(input_data: VectorStoreSearchInput) -&gt; VectorStoreSearchInput:\n    # we want to modify the 'texts' field in the input_data pydantic model, which is a list of texts\n    # this line removes punctuation from each string with list comprehension\n    sanitized_texts = [x.translate(str.maketrans(\"\", \"\", string.punctuation)) for x in input_data[\"query\"]]\n\n    input_data[\"query\"] = sanitized_texts\n\n    # Return the dictionary of input data with desired modified values at each desired key\n    return input_data\n\n\ndef drop_duplicates(input_data: VectorStoreSearchOutput) -&gt; VectorStoreSearchOutput:\n    # we want to depuplicate the ranking attribute of the pydantic model which is a pandas dataframe\n    # specifically we want to drop all but the first occurrence of each unique 'doc_id' value for each subset of query results\n    input_data = input_data.drop_duplicates(subset=[\"query_id\", \"doc_id\"], keep=\"first\")\n\n    # BE CAREFUL: drop_duplicates returns an object of type DataFrame, not VectorStoreSearchOutput so we need to convert back  to that type after this operation\n    input_data = VectorStoreSearchOutput(input_data)\n\n    return input_data\n\n\n\nAdding our Hooks to the VectorStore\nNow when we initialise the Vectorstore we can declare our custom functions in the hooks dictionary.\nThe Vectorstore codebase looks for specifically named dictionary entries in the Hooks dictionary, to decide what pre and post processing hooks to run. There are hooks for each major methods of VectorStore class.\nEach dictionary entry uses the method name of the class and ’_preprocessor’ or ’_postprocessor’ appended to the name. Currenlty the implemented method hooks are:\n\nfor the VectorStore class:\n\nsearch_preprocess\nsearch_postprocess\nreverse_search_preprocess\nreverse_search_postprocess\n\n\nFor our case in this excercise, we are implementig the search_preprocessor and search_postprocessor methods in the VectorStore.\nHowever if we could also add to add a preprocessing or postprocessing hook to a VectorStore reverse search method in a similar manner",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "VectorStore pre- and post- processing logic with <i>Hooks</i>🪝"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#roundup",
+    "href": "DEMO/custom_preprocessing_and_postprocessing_hooks.html#roundup",
+    "title": "VectorStore pre- and post- processing logic with Hooks🪝",
+    "section": "Roundup",
+    "text": "Roundup\n\nWe wrote and combined several hooks on the Vectorstore class to:\n\nremove punctuation from queries before the VectorStore.search() method is executed\nremove duplicates from the results list per query ranking and fixed the ranking\ninjected data into our dataflow outside of constructing a vectorstore\nchained several Vectorstore.search() postprocessing steps together into one function that calls other functions\n\nIn this scenario we effectively showed how to deduplicate the rows of the results dataframe and add additional context columns of information in the form of the id_definitions. Hopefully, it is clear that you can add many pre- or post-processing steps this way, or by writing all steps in one big function - Hooks give you the flexibility and choice here.\nHooks let you disrupt the normal flow of data in the VectorStores. In this case we just had a small amount of dictionary data being added in, however the hooks allow for more complex scenarios:\n\nusing a 3rd party API to do automated corrective spell checking before passing your queries to the search method\nmaking an SQL query call to a database to get the extra information you want to inject in each row\nhandle errors when the API or database fails and choose what should be returned in these cases\n\n\n\nKey Takeaway:\n\nWhen writing your custom hook, remember that your custom hook function should take a single argument - a specific dataclass, and it should output that same dataclass with the modified rows, columns and values. How you implement the logic to update the values is up to you but it must satify the requirements of that dataclass type.\nDepending on which kind of hook you are writing, you need to adhere to the rules of the corresponding dataclass for that hook. For example, in the above demonstration we focused on writing search() preprocessing hooks that manipulate the VectorStoreSearchInput dataclass. However, if you were to write a reverse_search() preprocessing hook, your hook function would need to manipulate the VectorStoreReverseSearchInput dataclass, which has a different set of rules for the columns that must be present and the datatypes of those columns. This extends to each of the hook categories, each of which corresponds to a specific dataclass with its own ruleset.\n\n\n\nNext Steps and Challenges:\n\nWe focused soley on showcasing pre- and post-processing hooks for the VectorStore search method in this notebook:\n\nSee if you can implement some pre- and post- processing hooks for the VectorStore reverse search method:\n\ntry adding a new column of data to the reverse search results\nmake it so that if the user tries to reverse search for a specific ID that is ‘secret’ then that row is removed from the input data.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "VectorStore pre- and post- processing logic with <i>Hooks</i>🪝"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.ollama.OllamaVectoriser.html",
+    "href": "docs/vectorisers.ollama.OllamaVectoriser.html",
+    "title": "vectorisers.ollama.OllamaVectoriser",
+    "section": "",
+    "text": "vectorisers.ollama.OllamaVectoriser(model_name)\nA wrapper class allowing a locally-running ollama server to generate text embeddings.\nThe OllamaVectoriser interacts with a locally-running Ollama server, which must be set up by the user separately. In general, Ollama can run the same encoder-based models as the HuggingFaceVectoriser. A future goal is to extend the OllamaVectoriser to interface with an external Ollama server, allowing separation of embedding generation from the user’s local environment.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nmodel_name\nstr\nThe name of the local model to use.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\nvectorisers.ollama.OllamaVectoriser.transform(texts)\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntexts\n(str, list[str])\nThe input text(s) to embed. Can be a single string or a list of strings.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nnp.ndarray\nnumpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nExternalServiceError\nIf the Ollama service fails to generate embeddings.\n\n\n\nVectorisationError\nIf embedding extraction from the Ollama response fails.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.ollama.OllamaVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.ollama.OllamaVectoriser.html#attributes",
+    "href": "docs/vectorisers.ollama.OllamaVectoriser.html#attributes",
+    "title": "vectorisers.ollama.OllamaVectoriser",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nmodel_name\nstr\nThe name of the local model to use.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.ollama.OllamaVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.ollama.OllamaVectoriser.html#methods",
+    "href": "docs/vectorisers.ollama.OllamaVectoriser.html#methods",
+    "title": "vectorisers.ollama.OllamaVectoriser",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\nvectorisers.ollama.OllamaVectoriser.transform(texts)\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntexts\n(str, list[str])\nThe input text(s) to embed. Can be a single string or a list of strings.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nnp.ndarray\nnumpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nExternalServiceError\nIf the Ollama service fails to generate embeddings.\n\n\n\nVectorisationError\nIf embedding extraction from the Ollama response fails.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.ollama.OllamaVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.gcp.GcpVectoriser.html",
+    "href": "docs/vectorisers.gcp.GcpVectoriser.html",
+    "title": "vectorisers.gcp.GcpVectoriser",
+    "section": "",
+    "text": "vectorisers.gcp.GcpVectoriser(\n    project_id=None,\n    api_key=None,\n    location='europe-west2',\n    model_name='text-embedding-004',\n    task_type='CLASSIFICATION',\n    **client_kwargs,\n)\nA class for embedding text using Google Cloud Platform’s GenAI API.\nThis class provides functionality to embed text using Google’s GenAI API. It supports two authentication methods for setting up the client:\n\nUsing project_id and location: This method requires specifying the Google Cloud project ID and the location of the GenAI API. It is suitable for users who have a Google Cloud project and want to authenticate using project-based credentials. It will require local authentication through the Google Cloud SDK.\nUsing api_key: This method requires providing an API key for authentication. It is suitable for users who want to authenticate using an API key without specifying a project ID and location. This approach does not require local authentication through the Google Cloud SDK.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nmodel_name\nstr\nThe name of the embedding model to use.\n\n\nvectoriser\ngenai.Client\nThe GenAI client instance for embedding text.\n\n\nmodel_config\ngenai.types.EmbedContentConfig\nConfiguration for the embedding task.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings using the GenAI API.\n\n\n\n\n\nvectorisers.gcp.GcpVectoriser.transform(texts)\nTransforms input text(s) into embeddings using the GenAI API.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntexts\n(str, list[str])\nThe input text(s) to embed. Can be a single string or a list of strings.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nnp.ndarray\nnumpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nExternalServiceError\nIf the GenAI API request fails.\n\n\n\nVectorisationError\nIf the response format from the GenAI API is unexpected.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.gcp.GcpVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.gcp.GcpVectoriser.html#attributes",
+    "href": "docs/vectorisers.gcp.GcpVectoriser.html#attributes",
+    "title": "vectorisers.gcp.GcpVectoriser",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nmodel_name\nstr\nThe name of the embedding model to use.\n\n\nvectoriser\ngenai.Client\nThe GenAI client instance for embedding text.\n\n\nmodel_config\ngenai.types.EmbedContentConfig\nConfiguration for the embedding task.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.gcp.GcpVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.gcp.GcpVectoriser.html#methods",
+    "href": "docs/vectorisers.gcp.GcpVectoriser.html#methods",
+    "title": "vectorisers.gcp.GcpVectoriser",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings using the GenAI API.\n\n\n\n\n\nvectorisers.gcp.GcpVectoriser.transform(texts)\nTransforms input text(s) into embeddings using the GenAI API.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntexts\n(str, list[str])\nThe input text(s) to embed. Can be a single string or a list of strings.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nnp.ndarray\nnumpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nExternalServiceError\nIf the GenAI API request fails.\n\n\n\nVectorisationError\nIf the response format from the GenAI API is unexpected.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.gcp.GcpVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.base.VectoriserBase.transform.html",
+    "href": "docs/vectorisers.base.VectoriserBase.transform.html",
+    "title": "vectorisers.base.VectoriserBase.transform",
+    "section": "",
+    "text": "vectorisers.base.VectoriserBase.transform\nvectorisers.base.VectoriserBase.transform(texts)\nTransforms input text(s) into embeddings.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Vectorisers Overview",
+      "vectorisers.base.VectoriserBase.transform"
+    ]
+  },
+  {
+    "objectID": "docs/servers.run_server.html",
+    "href": "docs/servers.run_server.html",
+    "title": "servers.run_server",
+    "section": "",
+    "text": "servers.run_server(vector_stores, endpoint_names, port=8000)\nCreate and run a FastAPI server with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\nport\nint\n[optional] The port on which the API server will run. Defaults to 8000.\n8000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid, e.g. port value is out of bounds.",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.run_server"
+    ]
+  },
+  {
+    "objectID": "docs/servers.run_server.html#parameters",
+    "href": "docs/servers.run_server.html#parameters",
+    "title": "servers.run_server",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\nport\nint\n[optional] The port on which the API server will run. Defaults to 8000.\n8000",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.run_server"
+    ]
+  },
+  {
+    "objectID": "docs/servers.run_server.html#raises",
+    "href": "docs/servers.run_server.html#raises",
+    "title": "servers.run_server",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid, e.g. port value is out of bounds.",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.run_server"
+    ]
+  },
+  {
+    "objectID": "docs/servers.make_endpoints.html",
+    "href": "docs/servers.make_endpoints.html",
+    "title": "servers.make_endpoints",
+    "section": "",
+    "text": "servers.make_endpoints(router, vector_stores_dict)\nCreate and register the different endpoints to your app.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nrouter\nAPIRouter | FastAPI\nThe FastAPI application instance.\nrequired\n\n\nvector_stores_dict\ndict[str, VectorStore]\nThe name of the endpoint to be created.\nrequired",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.make_endpoints"
+    ]
+  },
+  {
+    "objectID": "docs/servers.make_endpoints.html#parameters",
+    "href": "docs/servers.make_endpoints.html#parameters",
+    "title": "servers.make_endpoints",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nrouter\nAPIRouter | FastAPI\nThe FastAPI application instance.\nrequired\n\n\nvector_stores_dict\ndict[str, VectorStore]\nThe name of the endpoint to be created.\nrequired",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.make_endpoints"
+    ]
+  },
+  {
+    "objectID": "docs/servers.get_server.html",
+    "href": "docs/servers.get_server.html",
+    "title": "servers.get_server",
+    "section": "",
+    "text": "servers.get_server(vector_stores, endpoint_names)\nCreate and return a FastAPI server with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFastAPI\nServer with intialized search endpoints",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_server"
+    ]
+  },
+  {
+    "objectID": "docs/servers.get_server.html#parameters",
+    "href": "docs/servers.get_server.html#parameters",
+    "title": "servers.get_server",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_server"
+    ]
+  },
+  {
+    "objectID": "docs/servers.get_server.html#returns",
+    "href": "docs/servers.get_server.html#returns",
+    "title": "servers.get_server",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nFastAPI\nServer with intialized search endpoints",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_server"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.html",
+    "href": "docs/indexers.html",
+    "title": "indexers",
+    "section": "",
+    "text": "indexers\nindexers\nThis module provides functionality for creating a VectorStore from a CSV (text) file. It defines the VectorStore class, which is used to model and create vector databases from CSV text files using a Vectoriser object.\nThis class requires a Vectoriser object from the vectorisers submodule, to convert the CSV’s text data into vector embeddings which are then stored in the VectorStore objects.\nKey Features:\n\nBatch processing of input files to handle large datasets.\nSupport for CSV file format (additional formats may be added in future updates).\nIntegration with a custom embedder for generating vector embeddings.\nLogging for tracking progress and handling errors during processing.\n\nVectorStore Class:\n\nThe VectorStore class is initialized with a Vectoriser object and a CSV knowledgebase.\nAdditional columns in the CSV may be specified as metadata to be included in the vector database.\nUpon creation, the VectorStore is saved in parquet format for efficient, and quick reloading via the VectorStore’s .from_filespace() method.\nA new piece of text data (or label) can be queried against the VectorStore in the following ways:\n\n.search(): to find the most semantically similar pieces of text in the vector database.\n.reverse_search(): to find all examples in the knowledgebase that have a given label.\n.embed(): to generate a vector embedding for a given piece of text data.\n\n‘Hook’ methods may be specified to perform pre-processing on input data before embedding, and post-processing on the output of the search methods.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.html",
+    "href": "docs/indexers.dataclasses.html",
+    "title": "indexers.dataclasses",
+    "section": "",
+    "text": "indexers.dataclasses\nThis module defines dataclasses for structuring and validating input and output data for VectorStore search, reverse_search and embedding operations in the ClassifAI framework.\n\n\n\n\n\nName\nDescription\n\n\n\n\nVectorStoreEmbedInput\nDataFrame-like object for forming and validating text data to be embedded.\n\n\nVectorStoreEmbedOutput\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\n\n\nVectorStoreReverseSearchInput\nDataFrame-like object for forming and validating reverse search query input data.\n\n\nVectorStoreReverseSearchOutput\nDataFrame-like object for storing reverse search results.\n\n\nVectorStoreSearchInput\nDataFrame-like object for forming and validating search query input data.\n\n\nVectorStoreSearchOutput\nDataFrame-like object for storing and validating search results with rankings\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput(data)\nDataFrame-like object for forming and validating text data to be embedded.\nThis class validates and represents input texts that will be converted to vector embeddings by the vector store.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each text item.\n\n\ntext\npd.Series\nThe text content to be embedded.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.from_data(data)\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput(data)\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\nThis class represents the output of embedding operations, containing the original text data along with their computed vector embeddings.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each embedded item.\n\n\ntext\npd.Series\nThe original text that was embedded.\n\n\nembedding\npd.Series\nThe computed vector embedding (numpy array).\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.from_data(data)\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput(data)\nDataFrame-like object for forming and validating reverse search query input data.\nThis class validates and represents input for reverse searches, which find similar documents to a given document in the vector store.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for the reverse search query.\n\n\ndoc_id\npd.Series\nThe document ID to find similar documents for.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.from_data(data)\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput(data)\nDataFrame-like object for storing reverse search results.\nThis class represents the output of vector store reverse search operations, containing knowledgebase examples with the same label as in the query.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the input label for lookup in the knowledgebase.\n\n\ndoc_id\npd.Series\nIdentifier for the knowledgebase example retrieved.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved example.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.from_data(data)\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchInput(data)\nDataFrame-like object for forming and validating search query input data.\nThis class validates and represents input queries for vector store searches. Each row contains a unique query identifier and the associated query text.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each query.\n\n\nquery\npd.Series\nThe query text to search for.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.from_data(data)\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.validate(df)\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput(data)\nDataFrame-like object for storing and validating search results with rankings and similarity scores.\nThis class represents the output of vector store search operations, containing query information, matched documents, scores, and similarity rankings.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the source query.\n\n\nquery_text\npd.Series\nThe original query text.\n\n\ndoc_id\npd.Series\nIdentifier for the retrieved document.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved document.\n\n\nrank\npd.Series\nThe ranking position of the result (0-indexed, non-negative).\n\n\nscore\npd.Series\nThe similarity score or relevance metric.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreSearchOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.from_data(data)\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreSearchOutput.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.dataclasses"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.html#classes",
+    "href": "docs/indexers.dataclasses.html#classes",
+    "title": "indexers.dataclasses",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nVectorStoreEmbedInput\nDataFrame-like object for forming and validating text data to be embedded.\n\n\nVectorStoreEmbedOutput\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\n\n\nVectorStoreReverseSearchInput\nDataFrame-like object for forming and validating reverse search query input data.\n\n\nVectorStoreReverseSearchOutput\nDataFrame-like object for storing reverse search results.\n\n\nVectorStoreSearchInput\nDataFrame-like object for forming and validating search query input data.\n\n\nVectorStoreSearchOutput\nDataFrame-like object for storing and validating search results with rankings\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput(data)\nDataFrame-like object for forming and validating text data to be embedded.\nThis class validates and represents input texts that will be converted to vector embeddings by the vector store.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each text item.\n\n\ntext\npd.Series\nThe text content to be embedded.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.from_data(data)\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput(data)\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\nThis class represents the output of embedding operations, containing the original text data along with their computed vector embeddings.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each embedded item.\n\n\ntext\npd.Series\nThe original text that was embedded.\n\n\nembedding\npd.Series\nThe computed vector embedding (numpy array).\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.from_data(data)\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput(data)\nDataFrame-like object for forming and validating reverse search query input data.\nThis class validates and represents input for reverse searches, which find similar documents to a given document in the vector store.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for the reverse search query.\n\n\ndoc_id\npd.Series\nThe document ID to find similar documents for.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.from_data(data)\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput(data)\nDataFrame-like object for storing reverse search results.\nThis class represents the output of vector store reverse search operations, containing knowledgebase examples with the same label as in the query.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the input label for lookup in the knowledgebase.\n\n\ndoc_id\npd.Series\nIdentifier for the knowledgebase example retrieved.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved example.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.from_data(data)\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchInput(data)\nDataFrame-like object for forming and validating search query input data.\nThis class validates and represents input queries for vector store searches. Each row contains a unique query identifier and the associated query text.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each query.\n\n\nquery\npd.Series\nThe query text to search for.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.from_data(data)\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.validate(df)\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput(data)\nDataFrame-like object for storing and validating search results with rankings and similarity scores.\nThis class represents the output of vector store search operations, containing query information, matched documents, scores, and similarity rankings.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the source query.\n\n\nquery_text\npd.Series\nThe original query text.\n\n\ndoc_id\npd.Series\nIdentifier for the retrieved document.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved document.\n\n\nrank\npd.Series\nThe ranking position of the result (0-indexed, non-negative).\n\n\nscore\npd.Series\nThe similarity score or relevance metric.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreSearchOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.from_data(data)\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreSearchOutput.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.dataclasses"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreSearchInput.html",
+    "href": "docs/indexers.dataclasses.VectorStoreSearchInput.html",
+    "title": "indexers.dataclasses.VectorStoreSearchInput",
+    "section": "",
+    "text": "indexers.dataclasses.VectorStoreSearchInput(data)\nDataFrame-like object for forming and validating search query input data.\nThis class validates and represents input queries for vector store searches. Each row contains a unique query identifier and the associated query text.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each query.\n\n\nquery\npd.Series\nThe query text to search for.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.from_data(data)\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.validate(df)\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreSearchInput.html#attributes",
+    "href": "docs/indexers.dataclasses.VectorStoreSearchInput.html#attributes",
+    "title": "indexers.dataclasses.VectorStoreSearchInput",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each query.\n\n\nquery\npd.Series\nThe query text to search for."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreSearchInput.html#methods",
+    "href": "docs/indexers.dataclasses.VectorStoreSearchInput.html#methods",
+    "title": "indexers.dataclasses.VectorStoreSearchInput",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.from_data(data)\nCreate a validated VectorStoreSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchInput.validate(df)\nValidate an existing DataFrame against the schema and return a VectorStoreSearchInput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreReverseSearchInput.html",
+    "href": "docs/indexers.dataclasses.VectorStoreReverseSearchInput.html",
+    "title": "indexers.dataclasses.VectorStoreReverseSearchInput",
+    "section": "",
+    "text": "indexers.dataclasses.VectorStoreReverseSearchInput(data)\nDataFrame-like object for forming and validating reverse search query input data.\nThis class validates and represents input for reverse searches, which find similar documents to a given document in the vector store.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for the reverse search query.\n\n\ndoc_id\npd.Series\nThe document ID to find similar documents for.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.from_data(data)\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreReverseSearchInput.html#attributes",
+    "href": "docs/indexers.dataclasses.VectorStoreReverseSearchInput.html#attributes",
+    "title": "indexers.dataclasses.VectorStoreReverseSearchInput",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for the reverse search query.\n\n\ndoc_id\npd.Series\nThe document ID to find similar documents for."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreReverseSearchInput.html#methods",
+    "href": "docs/indexers.dataclasses.VectorStoreReverseSearchInput.html#methods",
+    "title": "indexers.dataclasses.VectorStoreReverseSearchInput",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.from_data(data)\nCreate a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchInput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreEmbedInput.html",
+    "href": "docs/indexers.dataclasses.VectorStoreEmbedInput.html",
+    "title": "indexers.dataclasses.VectorStoreEmbedInput",
+    "section": "",
+    "text": "indexers.dataclasses.VectorStoreEmbedInput(data)\nDataFrame-like object for forming and validating text data to be embedded.\nThis class validates and represents input texts that will be converted to vector embeddings by the vector store.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each text item.\n\n\ntext\npd.Series\nThe text content to be embedded.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.from_data(data)\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedInput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreEmbedInput.html#attributes",
+    "href": "docs/indexers.dataclasses.VectorStoreEmbedInput.html#attributes",
+    "title": "indexers.dataclasses.VectorStoreEmbedInput",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each text item.\n\n\ntext\npd.Series\nThe text content to be embedded."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreEmbedInput.html#methods",
+    "href": "docs/indexers.dataclasses.VectorStoreEmbedInput.html#methods",
+    "title": "indexers.dataclasses.VectorStoreEmbedInput",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedInput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.from_data(data)\nCreate a validated VectorStoreEmbedInput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedInput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedInput."
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.reverse_search.html",
+    "href": "docs/indexers.VectorStore.reverse_search.html",
+    "title": "indexers.VectorStore.reverse_search",
+    "section": "",
+    "text": "indexers.VectorStore.reverse_search(\n    query,\n    max_n_results=100,\n    partial_match=False,\n)\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object and returns matched results in VectorStoreReverseSearchOutput object. If using partial matching, matches if document label starts with query label.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreReverseSearchInput\nA VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nmax_n_results\nint\n[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.\n100\n\n\npartial_match\nbool\n[optional] If True, the search behaviour is set to return results where the document_id is prefixed by the query. Defaults to False.\nFalse\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreReverseSearchOutput\nA VectorStoreReverseSearchOutput object containing reverse search results with columns for query_id, query_text, document_id, document_text and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if reverse search operation fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.reverse_search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.reverse_search.html#parameters",
+    "href": "docs/indexers.VectorStore.reverse_search.html#parameters",
+    "title": "indexers.VectorStore.reverse_search",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreReverseSearchInput\nA VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nmax_n_results\nint\n[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.\n100\n\n\npartial_match\nbool\n[optional] If True, the search behaviour is set to return results where the document_id is prefixed by the query. Defaults to False.\nFalse",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.reverse_search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.reverse_search.html#returns",
+    "href": "docs/indexers.VectorStore.reverse_search.html#returns",
+    "title": "indexers.VectorStore.reverse_search",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nVectorStoreReverseSearchOutput\nA VectorStoreReverseSearchOutput object containing reverse search results with columns for query_id, query_text, document_id, document_text and any associated metadata columns.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.reverse_search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.reverse_search.html#raises",
+    "href": "docs/indexers.VectorStore.reverse_search.html#raises",
+    "title": "indexers.VectorStore.reverse_search",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if reverse search operation fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.reverse_search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.from_filespace.html",
+    "href": "docs/indexers.VectorStore.from_filespace.html",
+    "title": "indexers.VectorStore.from_filespace",
+    "section": "",
+    "text": "indexers.VectorStore.from_filespace(folder_path, vectoriser, hooks=None)\nCreates a VectorStore instance from stored metadata and Parquet files. This method reads the metadata and vectors from the specified folder, validates the contents, and initializes a VectorStore object with the loaded data. It checks that the metadata contains the required keys, that the Parquet file exists and is not empty, and that the vectoriser class matches the one used to create the vectors. If any checks fail, it raises a ValueError with an appropriate message. This method is useful for loading previously created vector stores without needing to reprocess the original text data.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfolder_path\nstr\nThe folder path containing the metadata and Parquet files.\nrequired\n\n\nvectoriser\nobject\nThe Vectoriser object used to transform text into vector embeddings.\nrequired\n\n\nhooks\ndict\n[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStore\nAn instance of the VectorStore class.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nIf input arguments are invalid or if there are issues with the metadata or Parquet files.\n\n\n\nConfigurationError\nIf there are configuration issues, such as Vectoriser mismatches.\n\n\n\nIndexBuildError\nIf there are failures during loading or parsing the files.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.from_filespace"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.from_filespace.html#parameters",
+    "href": "docs/indexers.VectorStore.from_filespace.html#parameters",
+    "title": "indexers.VectorStore.from_filespace",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nfolder_path\nstr\nThe folder path containing the metadata and Parquet files.\nrequired\n\n\nvectoriser\nobject\nThe Vectoriser object used to transform text into vector embeddings.\nrequired\n\n\nhooks\ndict\n[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.\nNone",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.from_filespace"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.from_filespace.html#returns",
+    "href": "docs/indexers.VectorStore.from_filespace.html#returns",
+    "title": "indexers.VectorStore.from_filespace",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nVectorStore\nAn instance of the VectorStore class.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.from_filespace"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.from_filespace.html#raises",
+    "href": "docs/indexers.VectorStore.from_filespace.html#raises",
+    "title": "indexers.VectorStore.from_filespace",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nDataValidationError\nIf input arguments are invalid or if there are issues with the metadata or Parquet files.\n\n\n\nConfigurationError\nIf there are configuration issues, such as Vectoriser mismatches.\n\n\n\nIndexBuildError\nIf there are failures during loading or parsing the files.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.from_filespace"
+    ]
+  },
+  {
+    "objectID": "docs/index.html",
+    "href": "docs/index.html",
+    "title": "Function reference",
+    "section": "",
+    "text": "Utilities to project text into numerical representation in a semantic vector space\n\n\n\nvectorisers\nThis module provides classes for creating and utilizing embedding models from user-created solutions or\n\n\nvectorisers.base\nThis module provides classes for creating and utilizing embedding models from different services.\n\n\nvectorisers.base.VectoriserBase\nAbstract base class for all vectorisers.\n\n\nvectorisers.base.VectoriserBase.transform\nTransforms input text(s) into embeddings.\n\n\nvectorisers.huggingface.HuggingFaceVectoriser\nA general wrapper class for Huggingface Transformers models to generate text embeddings.\n\n\nvectorisers.ollama.OllamaVectoriser\nA wrapper class allowing a locally-running ollama server to generate text embeddings.\n\n\nvectorisers.gcp.GcpVectoriser\nA class for embedding text using Google Cloud Platform’s GenAI API.\n\n\n\n\n\n\nCreation of Vector Stores for efficient similarity search and retrieval\n\n\n\nindexers\nThis module provides functionality for creating a VectorStore from a CSV (text)\n\n\nindexers.main\nThis module provides functionality for creating a VectorStore from a CSV (text)\n\n\nindexers.VectorStore\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\nindexers.dataclasses\nThis module defines dataclasses for structuring and validating input and output data for\n\n\nindexers.dataclasses.VectorStoreSearchInput\nDataFrame-like object for forming and validating search query input data.\n\n\nindexers.dataclasses.VectorStoreSearchOutput\nDataFrame-like object for storing and validating search results with rankings\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput\nDataFrame-like object for forming and validating reverse search query input data.\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput\nDataFrame-like object for storing reverse search results.\n\n\nindexers.dataclasses.VectorStoreEmbedInput\nDataFrame-like object for forming and validating text data to be embedded.\n\n\nindexers.dataclasses.VectorStoreEmbedOutput\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\n\n\nindexers.VectorStore.embed\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and\n\n\nindexers.VectorStore.search\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns\n\n\nindexers.VectorStore.reverse_search\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object\n\n\nindexers.VectorStore.from_filespace\nCreates a VectorStore instance from stored metadata and Parquet files.\n\n\n\n\n\n\nExpose ClassifAI functionality via Fast-API endpoints\n\n\n\nservers\nThis module provides functionality for creating or extending a REST-API service\n\n\nservers.main\nThis module provides functionality for creating a start a restAPI service which\n\n\nservers.get_router\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\nservers.get_server\nCreate and return a FastAPI server with search endpoints.\n\n\nservers.run_server\nCreate and run a FastAPI server with search endpoints.\n\n\nservers.make_endpoints\nCreate and register the different endpoints to your app.",
+    "crumbs": [
+      "Documentation",
+      "Overview",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#vectorisers",
+    "href": "docs/index.html#vectorisers",
+    "title": "Function reference",
+    "section": "",
+    "text": "Utilities to project text into numerical representation in a semantic vector space\n\n\n\nvectorisers\nThis module provides classes for creating and utilizing embedding models from user-created solutions or\n\n\nvectorisers.base\nThis module provides classes for creating and utilizing embedding models from different services.\n\n\nvectorisers.base.VectoriserBase\nAbstract base class for all vectorisers.\n\n\nvectorisers.base.VectoriserBase.transform\nTransforms input text(s) into embeddings.\n\n\nvectorisers.huggingface.HuggingFaceVectoriser\nA general wrapper class for Huggingface Transformers models to generate text embeddings.\n\n\nvectorisers.ollama.OllamaVectoriser\nA wrapper class allowing a locally-running ollama server to generate text embeddings.\n\n\nvectorisers.gcp.GcpVectoriser\nA class for embedding text using Google Cloud Platform’s GenAI API.",
+    "crumbs": [
+      "Documentation",
+      "Overview",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#indexers",
+    "href": "docs/index.html#indexers",
+    "title": "Function reference",
+    "section": "",
+    "text": "Creation of Vector Stores for efficient similarity search and retrieval\n\n\n\nindexers\nThis module provides functionality for creating a VectorStore from a CSV (text)\n\n\nindexers.main\nThis module provides functionality for creating a VectorStore from a CSV (text)\n\n\nindexers.VectorStore\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\nindexers.dataclasses\nThis module defines dataclasses for structuring and validating input and output data for\n\n\nindexers.dataclasses.VectorStoreSearchInput\nDataFrame-like object for forming and validating search query input data.\n\n\nindexers.dataclasses.VectorStoreSearchOutput\nDataFrame-like object for storing and validating search results with rankings\n\n\nindexers.dataclasses.VectorStoreReverseSearchInput\nDataFrame-like object for forming and validating reverse search query input data.\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput\nDataFrame-like object for storing reverse search results.\n\n\nindexers.dataclasses.VectorStoreEmbedInput\nDataFrame-like object for forming and validating text data to be embedded.\n\n\nindexers.dataclasses.VectorStoreEmbedOutput\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\n\n\nindexers.VectorStore.embed\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and\n\n\nindexers.VectorStore.search\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns\n\n\nindexers.VectorStore.reverse_search\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object\n\n\nindexers.VectorStore.from_filespace\nCreates a VectorStore instance from stored metadata and Parquet files.",
+    "crumbs": [
+      "Documentation",
+      "Overview",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "docs/index.html#servers",
+    "href": "docs/index.html#servers",
+    "title": "Function reference",
+    "section": "",
+    "text": "Expose ClassifAI functionality via Fast-API endpoints\n\n\n\nservers\nThis module provides functionality for creating or extending a REST-API service\n\n\nservers.main\nThis module provides functionality for creating a start a restAPI service which\n\n\nservers.get_router\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\nservers.get_server\nCreate and return a FastAPI server with search endpoints.\n\n\nservers.run_server\nCreate and run a FastAPI server with search endpoints.\n\n\nservers.make_endpoints\nCreate and register the different endpoints to your app.",
+    "crumbs": [
+      "Documentation",
+      "Overview",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Package Overview",
+    "section": "",
+    "text": "ONS Logo"
+  },
+  {
+    "objectID": "index.html#what-are-semantic-search-and-rag",
+    "href": "index.html#what-are-semantic-search-and-rag",
+    "title": "Package Overview",
+    "section": "What are semantic search and RAG?",
+    "text": "What are semantic search and RAG?\nClassifAI facilitates text classification using semantic search over a knowledgebase (possibly augmented by RAG). The knowledgebase is a collection of pieces of text (called “documents” even if they’re very short) with a known classification label that serve as a reference for the classification task. They might be canonical definitions of each classification label, or examples of correct labelling, or a combination of those.\nSemantic search uses a vectoriser (usually a language model) to convert each document into a vector (called an embedding). When a query (another piece of text) arrives from the user, the query is first embedded in the same way as a vector of numbers, then the query embedding is compared to each of the embeddings in the knowledgebase by calculating similarities between vectors. The top N closest knowledgebase entries are returned along with the matching labels, documents and distance scores for each one.\nRetrieval-augmented generation (RAG) entails feeding search results into the prompt of a generative language model, with instructions for the model to further process the result. In the context of the package, RAG is constrained to operate on structured result sets and return result sets with the same structure.\n\n\n\nClassifAI Workflow"
+  },
+  {
+    "objectID": "index.html#why-this-approach",
+    "href": "index.html#why-this-approach",
+    "title": "Package Overview",
+    "section": "Why this approach?",
+    "text": "Why this approach?\nThe knowledgebase search approach to classification has advantages and disadvantages compared to machine learning (ML) approaches that train a model for the task. On balance, this approach is well-suited to statistical production use cases. To make a fair comparison between ML and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)\nAdvantages\n\nExplainability: it’s relatively easy to understand why ClassifAI produced a result, because the matching knowledgebase entries are provided\nAgility: the quality of results can be tweaked by adding or removing a handful of knowledgebase entries, without expensive retraining\nAccountability: the knowledgebase can be maintained and developed by professional methodologists, separate from the developer team\nTime-to-prototype: Because no training or feature engineering is needed, it’s possible to have a working prototype producing reasonable results in minutes\nCustomisation: the method is easily customisable with the option to easily swap vectorisers, knowledgebases and pre- and post-processing hooks\nAccuracy: the knowledgebase approach can produce results with accuracy comparable to machine learning approaches in like-for-like comparisons\nLarge, unbalanced label sets: ML approaches tend not to work well on label sets like SIC, SOC or COICOP where the set of classifications is large and unbalanced, and the training data may be sparse for some classifications. Knowledgebase search works well in these cases\n\nDisadvantages\n\nUncertainty quantification: the knowledgebase approach doesn’t produce calibrated uncertainty measures out-of-the-box, although there are methods (such as conformal prediction) that show promise\nScaling: the knowledgebase approach has been tested and works well on mid-scale training data and may not scale as well as ML approaches on big data\nCost: Cloud-provided vectorisers have a per-request cost, although this is usually small and outweighed by the cost of developer FTEs\n\nThe comparison on other aspects, such as per-request speed or hardware requirements is less clear because no formal comparison has been undertaken. ClassifAI is in production in the ONS and appears to provide results quickly enough for users."
+  },
+  {
+    "objectID": "index.html#table-of-contents",
+    "href": "index.html#table-of-contents",
+    "title": "Package Overview",
+    "section": "Table of Contents",
+    "text": "Table of Contents\n\nInstallation\nExample: Indexing and Searching a Document Collection\nDev set-up and contributing\nContact and Support"
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "Package Overview",
+    "section": "Installation",
+    "text": "Installation\nYou can install the package directly from GitHub in your Python environment, using your preferred package manager. By default, only the minimum dependencies of the base versions will be installed; you must specify classifai[all] to install all sets of optional dependencies, or classifai[huggingface, ...] to install one or more specific sets of optional dependencies. The current sets of optional dependencies are [all, huggingface, ollama, gcp].\n\nPip\npip install \"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 0.2.1&gt;/classifai-&lt;version e.g. 0.2.1&gt;-py3-none-any.whl\"\n\n\nAstral UV\nOne-off add to environment:\nuv pip install \"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 0.2.1&gt;/classifai-&lt;version e.g. 0.2.1&gt;-py3-none-any.whl\"\nPersist as an environment requirement:\nuv add \"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 0.2.1&gt;/classifai-&lt;version e.g. 0.2.1&gt;-py3-none-any.whl\""
+  },
+  {
+    "objectID": "index.html#example-indexing-and-searching-a-knowledgebase",
+    "href": "index.html#example-indexing-and-searching-a-knowledgebase",
+    "title": "Package Overview",
+    "section": "Example: Indexing and searching a knowledgebase",
+    "text": "Example: Indexing and searching a knowledgebase\nClassifAI supports statistical classification through searching a knowledgebase. The knowledgebase is a set of labelled examples that show how different texts (e.g. survey responses) map to statistical classifications. The size and quality of the knowledgebase dictates the quality of results you can expect from using the tool.\n\nStep 1: Choose a vectoriser\nA vectoriser transforms a query text string into an embedding vector. You can choose from embedding models accessed via HuggingFace, Google or Ollama, or build your own vectoriser.\nfrom classifai.vectorisers import HuggingFaceVectoriser\n\n# Create a vectorizer model\nvectoriser = HuggingFaceVectoriser(model_name=\"sentence-transformers/all-MiniLM-L6-v2\")\n\n# You can use the 'transform' method to call the vectoriser\nvector = vectoriser.transform(\"Example text to vectorize\")\nprint(vector.shape)\n\n\nStep 2: Build a vector store\nYou provide a knowledgebase of labelled examples (currently only allows data to be provided as a csv) to build a vector store\nfrom classifai.indexers import VectorStore\n\nvector_store = VectorStore(\n    file_name=\"occupations_knowledgebase.csv\",\n    vectoriser=vectoriser,\n    batch_size=8,\n    output_dir=\"vector_store\"\n)\n\n\nStep 3: Search the vector store\nThe query is provided as a dataframe-like object to the search method, and the results are returned as a dataframe-like object.\nfrom classifai.indexers.dataclasses import VectorStoreSearchInput\n\ninput_data = VectorStoreSearchInput({'id': [1], 'query':[\"construction worker scaffolder\"]})\n\nresults = vector_store.search(input_data, n_results=5)\nprint(results)\n\n\nStep 4: Deploy as a REST API\nIn addition to using ClassifAI as a local package, you can use it to create / attach to a FastAPI REST API. You can create a new FastAPI application which you can modify as required, connect it to an existing FastAPI application, or deploy it immediately as an REST API service using uvicorn.\nfrom classifai.servers import get_server, get_router, run_server\n\n...\n\n# Create and expose the API routing to be attached to an existing FastAPI service;\napp = get_server(vector_stores=[vector_store], endpoint_names=[\"Occupations\"])\n\n# Create and expose the API routing to be attached to an existing FastAPI service;\nrouting = get_server(vector_stores=[vector_store], endpoint_names=[\"Occupations\"])\n\n# Directly spin up a new locally-hosted FastAPI server with `uvicorn`;\nrun_server(vector_stores=[vector_store], endpoint_names=[\"Occupations\"], port=8000)\n\n\nLearn more\nFurther guides and tutorials can be found in the DEMO folder of this repo. It currently includes the following notebooks:\n\nGeneral workflow\nCustom vectorisers\n\nmake your own custom vectoriser model that will interact with the core features of the package,\n\nCustom pre- and post-processing hooks\n\nAdd your own custom ‘hook’ logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.\n\n(more demos to come soon)"
+  },
+  {
+    "objectID": "index.html#contributing-to-this-repo-and-development-setup",
+    "href": "index.html#contributing-to-this-repo-and-development-setup",
+    "title": "Package Overview",
+    "section": "Contributing to this repo and development Setup",
+    "text": "Contributing to this repo and development Setup\nIf you are a developer working on ClassifAI, this section describes how to set up the repo correctly on your local machine to start working on the codebase. 3rd party developers please also read CONTRIBUTING.md\nNOTE: This section is for developers who are making alterations and changes to the codebase of this repo itself, not for developers who are using the features of the package.\nTo begin making changes to the codebase follow the following instructions on your development machine:\n\nClone the repo:\n\ngit clone git@github.com:datasciencecampus/classifAI.git\n\ncd classifAI\n\nSet up pre-commit hooks:\n\nmake setup-git-hooks\n(or, if you don’t have Docker available)\nmake setup-git-hooks-no-docker\n\nCreate / activate the virtual environment:\n\nuv lock\n\nuv sync\nAnd that’s you good to go!\nDuring development, you might want to run linters / code vulnerability scans; you can do so at any point via\nmake check-python"
+  },
+  {
+    "objectID": "index.html#contact-and-support",
+    "href": "index.html#contact-and-support",
+    "title": "Package Overview",
+    "section": "Contact and Support",
+    "text": "Contact and Support\nIn the event that you come across any issues such as potential bugs in the code or something that may be unclear or not explained in the various DEMO content, please read CONTRIBUTING.md file for instructions. It contains sections on Getting Help, Asking Questions, Reporting Bugs, and other guides on working with the package."
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.embed.html",
+    "href": "docs/indexers.VectorStore.embed.html",
+    "title": "indexers.VectorStore.embed",
+    "section": "",
+    "text": "indexers.VectorStore.embed(query)\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and returns a VectorStoreEmbedOutput dataframe with columns id, text, and embedding.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreEmbedInput\nThe VectorStoreEmbedInput object containing the strings to be embedded and their ids.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreEmbedOutput\nThe VectorStoreEmbedOutput object containing the embeddings along with their corresponding ids and texts.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if embedding operation fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.embed"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.embed.html#parameters",
+    "href": "docs/indexers.VectorStore.embed.html#parameters",
+    "title": "indexers.VectorStore.embed",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreEmbedInput\nThe VectorStoreEmbedInput object containing the strings to be embedded and their ids.\nrequired",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.embed"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.embed.html#returns",
+    "href": "docs/indexers.VectorStore.embed.html#returns",
+    "title": "indexers.VectorStore.embed",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nVectorStoreEmbedOutput\nThe VectorStoreEmbedOutput object containing the embeddings along with their corresponding ids and texts.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.embed"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.embed.html#raises",
+    "href": "docs/indexers.VectorStore.embed.html#raises",
+    "title": "indexers.VectorStore.embed",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if embedding operation fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.embed"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.html",
+    "href": "docs/indexers.VectorStore.html",
+    "title": "indexers.VectorStore",
+    "section": "",
+    "text": "indexers.VectorStore(\n    file_name,\n    data_type,\n    vectoriser,\n    batch_size=8,\n    meta_data=None,\n    output_dir=None,\n    overwrite=False,\n    hooks=None,\n)\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nfile_name\nstr\nthe data file contatining the knowledgebase to build the VectorStore\n\n\ndata_type\nstr\nthe data type of the data file (curently only csv supported)\n\n\nvectoriser\nVectoriserBase\nA Vectoriser object from the corresponding ClassifAI Pacakge module\n\n\nbatch_size\nint\nthe batch size to pass to the vectoriser when embedding\n\n\nmeta_data\ndict\nkey-value pairs of metadata to extract from the input file and their correpsonding types\n\n\noutput_dir\nstr\nthe path to the output directory where the VectorStore will be saved\n\n\nvectors\nnp.array\na numpy array of vectors for the vector database\n\n\nvector_shape\nint\nthe dimension of the vectors\n\n\nnum_vectors\nint\nthe number of records saved in the VectorStore\n\n\nvectoriser_class\nstr\nthe type of Vectoriser used to create embeddings\n\n\nhooks\ndict\nA dictionary of user-defined hooks for preprocessing and postprocessing.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nembed\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and\n\n\nfrom_filespace\nCreates a VectorStore instance from stored metadata and Parquet files.\n\n\nreverse_search\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object\n\n\nsearch\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns\n\n\n\n\n\nindexers.VectorStore.embed(query)\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and returns a VectorStoreEmbedOutput dataframe with columns id, text, and embedding.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreEmbedInput\nThe VectorStoreEmbedInput object containing the strings to be embedded and their ids.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreEmbedOutput\nThe VectorStoreEmbedOutput object containing the embeddings along with their corresponding ids and texts.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if embedding operation fails.\n\n\n\n\n\n\n\nindexers.VectorStore.from_filespace(folder_path, vectoriser, hooks=None)\nCreates a VectorStore instance from stored metadata and Parquet files. This method reads the metadata and vectors from the specified folder, validates the contents, and initializes a VectorStore object with the loaded data. It checks that the metadata contains the required keys, that the Parquet file exists and is not empty, and that the vectoriser class matches the one used to create the vectors. If any checks fail, it raises a ValueError with an appropriate message. This method is useful for loading previously created vector stores without needing to reprocess the original text data.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfolder_path\nstr\nThe folder path containing the metadata and Parquet files.\nrequired\n\n\nvectoriser\nobject\nThe Vectoriser object used to transform text into vector embeddings.\nrequired\n\n\nhooks\ndict\n[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStore\nAn instance of the VectorStore class.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nIf input arguments are invalid or if there are issues with the metadata or Parquet files.\n\n\n\nConfigurationError\nIf there are configuration issues, such as Vectoriser mismatches.\n\n\n\nIndexBuildError\nIf there are failures during loading or parsing the files.\n\n\n\n\n\n\n\nindexers.VectorStore.reverse_search(\n    query,\n    max_n_results=100,\n    partial_match=False,\n)\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object and returns matched results in VectorStoreReverseSearchOutput object. If using partial matching, matches if document label starts with query label.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreReverseSearchInput\nA VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nmax_n_results\nint\n[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.\n100\n\n\npartial_match\nbool\n[optional] If True, the search behaviour is set to return results where the document_id is prefixed by the query. Defaults to False.\nFalse\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreReverseSearchOutput\nA VectorStoreReverseSearchOutput object containing reverse search results with columns for query_id, query_text, document_id, document_text and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if reverse search operation fails.\n\n\n\n\n\n\n\nindexers.VectorStore.search(query, n_results=10, batch_size=8)\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreSearchInput\nA VectorStoreSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nn_results\nint\n[optional] Number of top results to return for each query. Default 10.\n10\n\n\nbatch_size\nint\n[optional] The batch size for processing queries. Default 8.\n8\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreSearchOutput\nA VectorStoreSearchOutput object containing search results with columns for query_id, query_text, document_id, document_text, rank, score, and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nConfigurationError\nRaised if the vector store is not initialized.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nVectorisationError\nRaised if embedding queries fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.html#attributes",
+    "href": "docs/indexers.VectorStore.html#attributes",
+    "title": "indexers.VectorStore",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nfile_name\nstr\nthe data file contatining the knowledgebase to build the VectorStore\n\n\ndata_type\nstr\nthe data type of the data file (curently only csv supported)\n\n\nvectoriser\nVectoriserBase\nA Vectoriser object from the corresponding ClassifAI Pacakge module\n\n\nbatch_size\nint\nthe batch size to pass to the vectoriser when embedding\n\n\nmeta_data\ndict\nkey-value pairs of metadata to extract from the input file and their correpsonding types\n\n\noutput_dir\nstr\nthe path to the output directory where the VectorStore will be saved\n\n\nvectors\nnp.array\na numpy array of vectors for the vector database\n\n\nvector_shape\nint\nthe dimension of the vectors\n\n\nnum_vectors\nint\nthe number of records saved in the VectorStore\n\n\nvectoriser_class\nstr\nthe type of Vectoriser used to create embeddings\n\n\nhooks\ndict\nA dictionary of user-defined hooks for preprocessing and postprocessing.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.html#methods",
+    "href": "docs/indexers.VectorStore.html#methods",
+    "title": "indexers.VectorStore",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nembed\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and\n\n\nfrom_filespace\nCreates a VectorStore instance from stored metadata and Parquet files.\n\n\nreverse_search\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object\n\n\nsearch\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns\n\n\n\n\n\nindexers.VectorStore.embed(query)\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and returns a VectorStoreEmbedOutput dataframe with columns id, text, and embedding.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreEmbedInput\nThe VectorStoreEmbedInput object containing the strings to be embedded and their ids.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreEmbedOutput\nThe VectorStoreEmbedOutput object containing the embeddings along with their corresponding ids and texts.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if embedding operation fails.\n\n\n\n\n\n\n\nindexers.VectorStore.from_filespace(folder_path, vectoriser, hooks=None)\nCreates a VectorStore instance from stored metadata and Parquet files. This method reads the metadata and vectors from the specified folder, validates the contents, and initializes a VectorStore object with the loaded data. It checks that the metadata contains the required keys, that the Parquet file exists and is not empty, and that the vectoriser class matches the one used to create the vectors. If any checks fail, it raises a ValueError with an appropriate message. This method is useful for loading previously created vector stores without needing to reprocess the original text data.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfolder_path\nstr\nThe folder path containing the metadata and Parquet files.\nrequired\n\n\nvectoriser\nobject\nThe Vectoriser object used to transform text into vector embeddings.\nrequired\n\n\nhooks\ndict\n[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStore\nAn instance of the VectorStore class.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nIf input arguments are invalid or if there are issues with the metadata or Parquet files.\n\n\n\nConfigurationError\nIf there are configuration issues, such as Vectoriser mismatches.\n\n\n\nIndexBuildError\nIf there are failures during loading or parsing the files.\n\n\n\n\n\n\n\nindexers.VectorStore.reverse_search(\n    query,\n    max_n_results=100,\n    partial_match=False,\n)\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object and returns matched results in VectorStoreReverseSearchOutput object. If using partial matching, matches if document label starts with query label.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreReverseSearchInput\nA VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nmax_n_results\nint\n[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.\n100\n\n\npartial_match\nbool\n[optional] If True, the search behaviour is set to return results where the document_id is prefixed by the query. Defaults to False.\nFalse\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreReverseSearchOutput\nA VectorStoreReverseSearchOutput object containing reverse search results with columns for query_id, query_text, document_id, document_text and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if reverse search operation fails.\n\n\n\n\n\n\n\nindexers.VectorStore.search(query, n_results=10, batch_size=8)\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreSearchInput\nA VectorStoreSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nn_results\nint\n[optional] Number of top results to return for each query. Default 10.\n10\n\n\nbatch_size\nint\n[optional] The batch size for processing queries. Default 8.\n8\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreSearchOutput\nA VectorStoreSearchOutput object containing search results with columns for query_id, query_text, document_id, document_text, rank, score, and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nConfigurationError\nRaised if the vector store is not initialized.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nVectorisationError\nRaised if embedding queries fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.search.html",
+    "href": "docs/indexers.VectorStore.search.html",
+    "title": "indexers.VectorStore.search",
+    "section": "",
+    "text": "indexers.VectorStore.search(query, n_results=10, batch_size=8)\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreSearchInput\nA VectorStoreSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nn_results\nint\n[optional] Number of top results to return for each query. Default 10.\n10\n\n\nbatch_size\nint\n[optional] The batch size for processing queries. Default 8.\n8\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreSearchOutput\nA VectorStoreSearchOutput object containing search results with columns for query_id, query_text, document_id, document_text, rank, score, and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nConfigurationError\nRaised if the vector store is not initialized.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nVectorisationError\nRaised if embedding queries fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.search.html#parameters",
+    "href": "docs/indexers.VectorStore.search.html#parameters",
+    "title": "indexers.VectorStore.search",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreSearchInput\nA VectorStoreSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nn_results\nint\n[optional] Number of top results to return for each query. Default 10.\n10\n\n\nbatch_size\nint\n[optional] The batch size for processing queries. Default 8.\n8",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.search.html#returns",
+    "href": "docs/indexers.VectorStore.search.html#returns",
+    "title": "indexers.VectorStore.search",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nVectorStoreSearchOutput\nA VectorStoreSearchOutput object containing search results with columns for query_id, query_text, document_id, document_text, rank, score, and any associated metadata columns.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.VectorStore.search.html#raises",
+    "href": "docs/indexers.VectorStore.search.html#raises",
+    "title": "indexers.VectorStore.search",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nConfigurationError\nRaised if the vector store is not initialized.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nVectorisationError\nRaised if embedding queries fails.",
+    "crumbs": [
+      "Documentation",
+      "Indexers",
+      "indexers.VectorStore.search"
+    ]
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreEmbedOutput.html",
+    "href": "docs/indexers.dataclasses.VectorStoreEmbedOutput.html",
+    "title": "indexers.dataclasses.VectorStoreEmbedOutput",
+    "section": "",
+    "text": "indexers.dataclasses.VectorStoreEmbedOutput(data)\nDataFrame-like object for storing and validating embedded vectors and associated metadata.\nThis class represents the output of embedding operations, containing the original text data along with their computed vector embeddings.\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each embedded item.\n\n\ntext\npd.Series\nThe original text that was embedded.\n\n\nembedding\npd.Series\nThe computed vector embedding (numpy array).\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.from_data(data)\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreEmbedOutput.html#attributes",
+    "href": "docs/indexers.dataclasses.VectorStoreEmbedOutput.html#attributes",
+    "title": "indexers.dataclasses.VectorStoreEmbedOutput",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nid\npd.Series\nUnique identifier for each embedded item.\n\n\ntext\npd.Series\nThe original text that was embedded.\n\n\nembedding\npd.Series\nThe computed vector embedding (numpy array)."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreEmbedOutput.html#methods",
+    "href": "docs/indexers.dataclasses.VectorStoreEmbedOutput.html#methods",
+    "title": "indexers.dataclasses.VectorStoreEmbedOutput",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.from_data(data)\nCreate a validated VectorStoreEmbedOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreEmbedOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreEmbedOutput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html",
+    "href": "docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html",
+    "title": "indexers.dataclasses.VectorStoreReverseSearchOutput",
+    "section": "",
+    "text": "indexers.dataclasses.VectorStoreReverseSearchOutput(data)\nDataFrame-like object for storing reverse search results.\nThis class represents the output of vector store reverse search operations, containing knowledgebase examples with the same label as in the query.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the input label for lookup in the knowledgebase.\n\n\ndoc_id\npd.Series\nIdentifier for the knowledgebase example retrieved.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved example.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.from_data(data)\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html#attributes",
+    "href": "docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html#attributes",
+    "title": "indexers.dataclasses.VectorStoreReverseSearchOutput",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the input label for lookup in the knowledgebase.\n\n\ndoc_id\npd.Series\nIdentifier for the knowledgebase example retrieved.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved example."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html#methods",
+    "href": "docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html#methods",
+    "title": "indexers.dataclasses.VectorStoreReverseSearchOutput",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs.\n\n\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.from_data(data)\nCreate a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreReverseSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreReverseSearchOutputs."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreSearchOutput.html",
+    "href": "docs/indexers.dataclasses.VectorStoreSearchOutput.html",
+    "title": "indexers.dataclasses.VectorStoreSearchOutput",
+    "section": "",
+    "text": "indexers.dataclasses.VectorStoreSearchOutput(data)\nDataFrame-like object for storing and validating search results with rankings and similarity scores.\nThis class represents the output of vector store search operations, containing query information, matched documents, scores, and similarity rankings.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the source query.\n\n\nquery_text\npd.Series\nThe original query text.\n\n\ndoc_id\npd.Series\nIdentifier for the retrieved document.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved document.\n\n\nrank\npd.Series\nThe ranking position of the result (0-indexed, non-negative).\n\n\nscore\npd.Series\nThe similarity score or relevance metric.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreSearchOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.from_data(data)\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreSearchOutput."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreSearchOutput.html#attributes",
+    "href": "docs/indexers.dataclasses.VectorStoreSearchOutput.html#attributes",
+    "title": "indexers.dataclasses.VectorStoreSearchOutput",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nquery_id\npd.Series\nIdentifier for the source query.\n\n\nquery_text\npd.Series\nThe original query text.\n\n\ndoc_id\npd.Series\nIdentifier for the retrieved document.\n\n\ndoc_text\npd.Series\nThe text content of the retrieved document.\n\n\nrank\npd.Series\nThe ranking position of the result (0-indexed, non-negative).\n\n\nscore\npd.Series\nThe similarity score or relevance metric."
+  },
+  {
+    "objectID": "docs/indexers.dataclasses.VectorStoreSearchOutput.html#methods",
+    "href": "docs/indexers.dataclasses.VectorStoreSearchOutput.html#methods",
+    "title": "indexers.dataclasses.VectorStoreSearchOutput",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nfrom_data\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\nvalidate\nValidate an existing instance against the schema and return a VectorStoreSearchOutput.\n\n\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.from_data(data)\nCreate a validated VectorStoreSearchOutput from a dictionary or DataFrame.\n\n\n\nindexers.dataclasses.VectorStoreSearchOutput.validate(df)\nValidate an existing instance against the schema and return a VectorStoreSearchOutput."
+  },
+  {
+    "objectID": "docs/indexers.main.html",
+    "href": "docs/indexers.main.html",
+    "title": "indexers.main",
+    "section": "",
+    "text": "indexers.main\nThis module provides functionality for creating a VectorStore from a CSV (text) file. It defines the VectorStore class, which is used to model and create vector databases from CSV text files using a Vectoriser object.\nThis class requires a Vectoriser object from the vectorisers submodule, to convert the CSV’s text data into vector embeddings which are then stored in the VectorStore objects.\nKey Features:\n\nBatch processing of input files to handle large datasets.\nSupport for CSV file format (additional formats may be added in future updates).\nIntegration with a custom embedder for generating vector embeddings.\nLogging for tracking progress and handling errors during processing.\n\nVectorStore Class:\n\nThe VectorStore class is initialized with a Vectoriser object and a CSV knowledgebase.\nAdditional columns in the CSV may be specified as metadata to be included in the vector database.\nUpon creation, the VectorStore is saved in parquet format for efficient, and quick reloading via the VectorStore’s .from_filespace() method.\nA new piece of text data (or label) can be queried against the VectorStore in the following ways:\n\n.search(): to find the most semantically similar pieces of text in the vector database.\n.reverse_search(): to find all examples in the knowledgebase that have a given label.\n.embed(): to generate a vector embedding for a given piece of text data.\n\n‘Hook’ methods may be specified to perform pre-processing on input data before embedding, and post-processing on the output of the search methods.\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nVectorStore\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\n\n\n\nindexers.main.VectorStore(\n    file_name,\n    data_type,\n    vectoriser,\n    batch_size=8,\n    meta_data=None,\n    output_dir=None,\n    overwrite=False,\n    hooks=None,\n)\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nfile_name\nstr\nthe data file contatining the knowledgebase to build the VectorStore\n\n\ndata_type\nstr\nthe data type of the data file (curently only csv supported)\n\n\nvectoriser\nVectoriserBase\nA Vectoriser object from the corresponding ClassifAI Pacakge module\n\n\nbatch_size\nint\nthe batch size to pass to the vectoriser when embedding\n\n\nmeta_data\ndict\nkey-value pairs of metadata to extract from the input file and their correpsonding types\n\n\noutput_dir\nstr\nthe path to the output directory where the VectorStore will be saved\n\n\nvectors\nnp.array\na numpy array of vectors for the vector database\n\n\nvector_shape\nint\nthe dimension of the vectors\n\n\nnum_vectors\nint\nthe number of records saved in the VectorStore\n\n\nvectoriser_class\nstr\nthe type of Vectoriser used to create embeddings\n\n\nhooks\ndict\nA dictionary of user-defined hooks for preprocessing and postprocessing.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nembed\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and\n\n\nfrom_filespace\nCreates a VectorStore instance from stored metadata and Parquet files.\n\n\nreverse_search\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object\n\n\nsearch\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns\n\n\n\n\n\nindexers.main.VectorStore.embed(query)\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and returns a VectorStoreEmbedOutput dataframe with columns id, text, and embedding.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreEmbedInput\nThe VectorStoreEmbedInput object containing the strings to be embedded and their ids.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreEmbedOutput\nThe VectorStoreEmbedOutput object containing the embeddings along with their corresponding ids and texts.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if embedding operation fails.\n\n\n\n\n\n\n\nindexers.main.VectorStore.from_filespace(folder_path, vectoriser, hooks=None)\nCreates a VectorStore instance from stored metadata and Parquet files. This method reads the metadata and vectors from the specified folder, validates the contents, and initializes a VectorStore object with the loaded data. It checks that the metadata contains the required keys, that the Parquet file exists and is not empty, and that the vectoriser class matches the one used to create the vectors. If any checks fail, it raises a ValueError with an appropriate message. This method is useful for loading previously created vector stores without needing to reprocess the original text data.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfolder_path\nstr\nThe folder path containing the metadata and Parquet files.\nrequired\n\n\nvectoriser\nobject\nThe Vectoriser object used to transform text into vector embeddings.\nrequired\n\n\nhooks\ndict\n[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStore\nAn instance of the VectorStore class.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nIf input arguments are invalid or if there are issues with the metadata or Parquet files.\n\n\n\nConfigurationError\nIf there are configuration issues, such as Vectoriser mismatches.\n\n\n\nIndexBuildError\nIf there are failures during loading or parsing the files.\n\n\n\n\n\n\n\nindexers.main.VectorStore.reverse_search(\n    query,\n    max_n_results=100,\n    partial_match=False,\n)\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object and returns matched results in VectorStoreReverseSearchOutput object. If using partial matching, matches if document label starts with query label.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreReverseSearchInput\nA VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nmax_n_results\nint\n[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.\n100\n\n\npartial_match\nbool\n[optional] If True, the search behaviour is set to return results where the document_id is prefixed by the query. Defaults to False.\nFalse\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreReverseSearchOutput\nA VectorStoreReverseSearchOutput object containing reverse search results with columns for query_id, query_text, document_id, document_text and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if reverse search operation fails.\n\n\n\n\n\n\n\nindexers.main.VectorStore.search(query, n_results=10, batch_size=8)\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreSearchInput\nA VectorStoreSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nn_results\nint\n[optional] Number of top results to return for each query. Default 10.\n10\n\n\nbatch_size\nint\n[optional] The batch size for processing queries. Default 8.\n8\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreSearchOutput\nA VectorStoreSearchOutput object containing search results with columns for query_id, query_text, document_id, document_text, rank, score, and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nConfigurationError\nRaised if the vector store is not initialized.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nVectorisationError\nRaised if embedding queries fails."
+  },
+  {
+    "objectID": "docs/indexers.main.html#classes",
+    "href": "docs/indexers.main.html#classes",
+    "title": "indexers.main",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nVectorStore\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\n\n\n\nindexers.main.VectorStore(\n    file_name,\n    data_type,\n    vectoriser,\n    batch_size=8,\n    meta_data=None,\n    output_dir=None,\n    overwrite=False,\n    hooks=None,\n)\nA class to model and create VectorStore objects for building and searching vector databases from CSV text files.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nfile_name\nstr\nthe data file contatining the knowledgebase to build the VectorStore\n\n\ndata_type\nstr\nthe data type of the data file (curently only csv supported)\n\n\nvectoriser\nVectoriserBase\nA Vectoriser object from the corresponding ClassifAI Pacakge module\n\n\nbatch_size\nint\nthe batch size to pass to the vectoriser when embedding\n\n\nmeta_data\ndict\nkey-value pairs of metadata to extract from the input file and their correpsonding types\n\n\noutput_dir\nstr\nthe path to the output directory where the VectorStore will be saved\n\n\nvectors\nnp.array\na numpy array of vectors for the vector database\n\n\nvector_shape\nint\nthe dimension of the vectors\n\n\nnum_vectors\nint\nthe number of records saved in the VectorStore\n\n\nvectoriser_class\nstr\nthe type of Vectoriser used to create embeddings\n\n\nhooks\ndict\nA dictionary of user-defined hooks for preprocessing and postprocessing.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nembed\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and\n\n\nfrom_filespace\nCreates a VectorStore instance from stored metadata and Parquet files.\n\n\nreverse_search\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object\n\n\nsearch\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns\n\n\n\n\n\nindexers.main.VectorStore.embed(query)\nConverts text (provided via a VectorStoreEmbedInput object) into vector embeddings using the Vectoriser and returns a VectorStoreEmbedOutput dataframe with columns id, text, and embedding.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreEmbedInput\nThe VectorStoreEmbedInput object containing the strings to be embedded and their ids.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreEmbedOutput\nThe VectorStoreEmbedOutput object containing the embeddings along with their corresponding ids and texts.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if embedding operation fails.\n\n\n\n\n\n\n\nindexers.main.VectorStore.from_filespace(folder_path, vectoriser, hooks=None)\nCreates a VectorStore instance from stored metadata and Parquet files. This method reads the metadata and vectors from the specified folder, validates the contents, and initializes a VectorStore object with the loaded data. It checks that the metadata contains the required keys, that the Parquet file exists and is not empty, and that the vectoriser class matches the one used to create the vectors. If any checks fail, it raises a ValueError with an appropriate message. This method is useful for loading previously created vector stores without needing to reprocess the original text data.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfolder_path\nstr\nThe folder path containing the metadata and Parquet files.\nrequired\n\n\nvectoriser\nobject\nThe Vectoriser object used to transform text into vector embeddings.\nrequired\n\n\nhooks\ndict\n[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStore\nAn instance of the VectorStore class.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nIf input arguments are invalid or if there are issues with the metadata or Parquet files.\n\n\n\nConfigurationError\nIf there are configuration issues, such as Vectoriser mismatches.\n\n\n\nIndexBuildError\nIf there are failures during loading or parsing the files.\n\n\n\n\n\n\n\nindexers.main.VectorStore.reverse_search(\n    query,\n    max_n_results=100,\n    partial_match=False,\n)\nReverse searches the VectorStore using a VectorStoreReverseSearchInput object and returns matched results in VectorStoreReverseSearchOutput object. If using partial matching, matches if document label starts with query label.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreReverseSearchInput\nA VectorStoreReverseSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nmax_n_results\nint\n[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.\n100\n\n\npartial_match\nbool\n[optional] If True, the search behaviour is set to return results where the document_id is prefixed by the query. Defaults to False.\nFalse\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreReverseSearchOutput\nA VectorStoreReverseSearchOutput object containing reverse search results with columns for query_id, query_text, document_id, document_text and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nClassifaiError\nRaised if reverse search operation fails.\n\n\n\n\n\n\n\nindexers.main.VectorStore.search(query, n_results=10, batch_size=8)\nSearches the VectorStore using queries from a VectorStoreSearchInput object and returns ranked results in VectorStoreSearchOutput object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nquery\nVectorStoreSearchInput\nA VectorStoreSearchInput object containing the text query or list of queries to search for with ids.\nrequired\n\n\nn_results\nint\n[optional] Number of top results to return for each query. Default 10.\n10\n\n\nbatch_size\nint\n[optional] The batch size for processing queries. Default 8.\n8\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorStoreSearchOutput\nA VectorStoreSearchOutput object containing search results with columns for query_id, query_text, document_id, document_text, rank, score, and any associated metadata columns.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if invalid arguments are passed.\n\n\n\nConfigurationError\nRaised if the vector store is not initialized.\n\n\n\nHookError\nRaised if user-defined hooks fail.\n\n\n\nVectorisationError\nRaised if embedding queries fails."
+  },
+  {
+    "objectID": "docs/servers.get_router.html",
+    "href": "docs/servers.get_router.html",
+    "title": "servers.get_router",
+    "section": "",
+    "text": "servers.get_router(vector_stores, endpoint_names)\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the vector stores.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nAPIRouter\nRouter with intialized search endpoints\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid.\n\n\n\nConfigurationError\nRaised if one or more of the vector_stores are invalid.",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_router"
+    ]
+  },
+  {
+    "objectID": "docs/servers.get_router.html#parameters",
+    "href": "docs/servers.get_router.html#parameters",
+    "title": "servers.get_router",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the vector stores.\nrequired",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_router"
+    ]
+  },
+  {
+    "objectID": "docs/servers.get_router.html#returns",
+    "href": "docs/servers.get_router.html#returns",
+    "title": "servers.get_router",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nAPIRouter\nRouter with intialized search endpoints",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_router"
+    ]
+  },
+  {
+    "objectID": "docs/servers.get_router.html#raises",
+    "href": "docs/servers.get_router.html#raises",
+    "title": "servers.get_router",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid.\n\n\n\nConfigurationError\nRaised if one or more of the vector_stores are invalid.",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers.get_router"
+    ]
+  },
+  {
+    "objectID": "docs/servers.main.html",
+    "href": "docs/servers.main.html",
+    "title": "servers.main",
+    "section": "",
+    "text": "servers.main\nThis module provides functionality for creating a start a restAPI service which allows a user to call the search methods of different VectorStore objects, from an api-endpoint.\nThese functions interact with the ClassifAI PackageIndexer modules VectorStore objects, such that their embed and search methods are exposed on restAPI endpoints, in a FastAPI restAPI service started with these functions.\n\n\n\n\n\nName\nDescription\n\n\n\n\nget_router\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\nget_server\nCreate and return a FastAPI server with search endpoints.\n\n\nmake_endpoints\nCreate and register the different endpoints to your app.\n\n\nrun_server\nCreate and run a FastAPI server with search endpoints.\n\n\n\n\n\nservers.main.get_router(vector_stores, endpoint_names)\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the vector stores.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nAPIRouter\nRouter with intialized search endpoints\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid.\n\n\n\nConfigurationError\nRaised if one or more of the vector_stores are invalid.\n\n\n\n\n\n\n\nservers.main.get_server(vector_stores, endpoint_names)\nCreate and return a FastAPI server with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFastAPI\nServer with intialized search endpoints\n\n\n\n\n\n\n\nservers.main.make_endpoints(router, vector_stores_dict)\nCreate and register the different endpoints to your app.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nrouter\nAPIRouter | FastAPI\nThe FastAPI application instance.\nrequired\n\n\nvector_stores_dict\ndict[str, VectorStore]\nThe name of the endpoint to be created.\nrequired\n\n\n\n\n\n\n\nservers.main.run_server(vector_stores, endpoint_names, port=8000)\nCreate and run a FastAPI server with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\nport\nint\n[optional] The port on which the API server will run. Defaults to 8000.\n8000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid, e.g. port value is out of bounds."
+  },
+  {
+    "objectID": "docs/servers.main.html#functions",
+    "href": "docs/servers.main.html#functions",
+    "title": "servers.main",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\nget_router\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\nget_server\nCreate and return a FastAPI server with search endpoints.\n\n\nmake_endpoints\nCreate and register the different endpoints to your app.\n\n\nrun_server\nCreate and run a FastAPI server with search endpoints.\n\n\n\n\n\nservers.main.get_router(vector_stores, endpoint_names)\nCreate and return a FastAPI.APIRouter with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the vector stores.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nAPIRouter\nRouter with intialized search endpoints\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid.\n\n\n\nConfigurationError\nRaised if one or more of the vector_stores are invalid.\n\n\n\n\n\n\n\nservers.main.get_server(vector_stores, endpoint_names)\nCreate and return a FastAPI server with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFastAPI\nServer with intialized search endpoints\n\n\n\n\n\n\n\nservers.main.make_endpoints(router, vector_stores_dict)\nCreate and register the different endpoints to your app.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nrouter\nAPIRouter | FastAPI\nThe FastAPI application instance.\nrequired\n\n\nvector_stores_dict\ndict[str, VectorStore]\nThe name of the endpoint to be created.\nrequired\n\n\n\n\n\n\n\nservers.main.run_server(vector_stores, endpoint_names, port=8000)\nCreate and run a FastAPI server with search endpoints.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nvector_stores\nlist[VectorStore]\nA list of VectorStore objects, each responsible for handling embedding and search operations for a specific endpoint.\nrequired\n\n\nendpoint_names\nlist[str]\nA list of endpoint names corresponding to the VectorStores to be exposed.\nrequired\n\n\nport\nint\n[optional] The port on which the API server will run. Defaults to 8000.\n8000\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nDataValidationError\nRaised if the input parameters are invalid, e.g. port value is out of bounds."
+  },
+  {
+    "objectID": "docs/servers.html",
+    "href": "docs/servers.html",
+    "title": "servers",
+    "section": "",
+    "text": "servers\nservers\nThis module provides functionality for creating or extending a REST-API service which allows a user to call the search methods of one or more VectorStore objects, from an API endpoint.\nThese functions interact with the ClassifAI Indexer module’s VectorStore objects, such that their embed, search and reverse_search methods are exposed on REST-API endpoints, via a FastAPI app.\nFull API documentation for FastAPI endpoints and Pydantic Models can be found in autogenerated app Swagger docs at /docs. To do this without providing your own data, run the initial demo to make a test VectorStore with /DEMO/general_workflow_demo.ipynb then run it as a demo server at /DEMO/general_workflow_serve.py.",
+    "crumbs": [
+      "Documentation",
+      "Servers",
+      "servers"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.base.VectoriserBase.html",
+    "href": "docs/vectorisers.base.VectoriserBase.html",
+    "title": "vectorisers.base.VectoriserBase",
+    "section": "",
+    "text": "vectorisers.base.VectoriserBase()\nAbstract base class for all vectorisers.\n\n\n\n\n\nName\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings.\n\n\n\n\n\nvectorisers.base.VectoriserBase.transform(texts)\nTransforms input text(s) into embeddings.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Vectorisers Overview",
+      "vectorisers.base.VectoriserBase"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.base.VectoriserBase.html#methods",
+    "href": "docs/vectorisers.base.VectoriserBase.html#methods",
+    "title": "vectorisers.base.VectoriserBase",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings.\n\n\n\n\n\nvectorisers.base.VectoriserBase.transform(texts)\nTransforms input text(s) into embeddings.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Vectorisers Overview",
+      "vectorisers.base.VectoriserBase"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.base.html",
+    "href": "docs/vectorisers.base.html",
+    "title": "vectorisers.base",
+    "section": "",
+    "text": "vectorisers.base\nThis module provides classes for creating and utilizing embedding models from different services. The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules. Generally Vectorisers are used to convert text data into numerical embeddings that can be used for machine learning tasks."
+  },
+  {
+    "objectID": "docs/vectorisers.base.html#classes",
+    "href": "docs/vectorisers.base.html#classes",
+    "title": "vectorisers.base",
+    "section": "Classes",
+    "text": "Classes\n\n\n\nName\nDescription\n\n\n\n\nVectoriserBase\nAbstract base class for all vectorisers.\n\n\n\n\nVectoriserBase\nvectorisers.base.VectoriserBase()\nAbstract base class for all vectorisers.\n\nMethods\n\n\n\nName\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings.\n\n\n\n\ntransform\nvectorisers.base.VectoriserBase.transform(texts)\nTransforms input text(s) into embeddings."
+  },
+  {
+    "objectID": "docs/vectorisers.huggingface.HuggingFaceVectoriser.html",
+    "href": "docs/vectorisers.huggingface.HuggingFaceVectoriser.html",
+    "title": "vectorisers.huggingface.HuggingFaceVectoriser",
+    "section": "",
+    "text": "vectorisers.huggingface.HuggingFaceVectoriser(\n    model_name,\n    device=None,\n    model_revision='main',\n    tokenizer_kwargs=None,\n    model_kwargs=None,\n)\nA general wrapper class for Huggingface Transformers models to generate text embeddings.\nThe HuggingFaceVectoriser accepts most encoder-based models from the Huggingface Transformers library, and provides a simple interface to generate embeddings from text data. Additional configuration options, such as trust_remote or a HuggingFaceAPI token can be passed via the tokenizer_kwargs and model_kwargs parameters.\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\nmodel_name\nstr\nThe name of the Huggingface model to use.\n\n\ntokenizer\ntransformers.PreTrainedTokenizer\nThe tokenizer for the specified model.\n\n\nmodel\ntransformers.PreTrainedModel\nThe Huggingface model instance.\n\n\ndevice\ntorch.device\nThe device (CPU or GPU) on which the model is loaded.\n\n\ntokenizer_kwargs\ndict\nAdditional keyword arguments passed to the tokenizer.\n\n\nmodel_kwargs\ndict\nAdditional keyword arguments passed to the model.\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\nvectorisers.huggingface.HuggingFaceVectoriser.transform(texts)\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntexts\n(str, list[str])\nThe input text(s) to embed. Can be a single string or a list of strings.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nnp_ndarray\nnumpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorisationError\nIf tokenization, model inference, or embedding extraction fails.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.huggingface.HuggingFaceVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.huggingface.HuggingFaceVectoriser.html#attributes",
+    "href": "docs/vectorisers.huggingface.HuggingFaceVectoriser.html#attributes",
+    "title": "vectorisers.huggingface.HuggingFaceVectoriser",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\nmodel_name\nstr\nThe name of the Huggingface model to use.\n\n\ntokenizer\ntransformers.PreTrainedTokenizer\nThe tokenizer for the specified model.\n\n\nmodel\ntransformers.PreTrainedModel\nThe Huggingface model instance.\n\n\ndevice\ntorch.device\nThe device (CPU or GPU) on which the model is loaded.\n\n\ntokenizer_kwargs\ndict\nAdditional keyword arguments passed to the tokenizer.\n\n\nmodel_kwargs\ndict\nAdditional keyword arguments passed to the model.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.huggingface.HuggingFaceVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.huggingface.HuggingFaceVectoriser.html#methods",
+    "href": "docs/vectorisers.huggingface.HuggingFaceVectoriser.html#methods",
+    "title": "vectorisers.huggingface.HuggingFaceVectoriser",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\ntransform\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\nvectorisers.huggingface.HuggingFaceVectoriser.transform(texts)\nTransforms input text(s) into embeddings using the Huggingface model.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntexts\n(str, list[str])\nThe input text(s) to embed. Can be a single string or a list of strings.\nrequired\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nnp_ndarray\nnumpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nVectorisationError\nIf tokenization, model inference, or embedding extraction fails.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Specific Vectorisers",
+      "vectorisers.huggingface.HuggingFaceVectoriser"
+    ]
+  },
+  {
+    "objectID": "docs/vectorisers.html",
+    "href": "docs/vectorisers.html",
+    "title": "vectorisers",
+    "section": "",
+    "text": "vectorisers\nvectorisers\nThis module provides classes for creating and utilizing embedding models from user-created solutions or third-party services. The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules. Generally Vectorisers are used to convert text data into numerical embeddings that can be used for machine learning tasks.\n\n\n\n\n\n\n\n\nVectoriser Overview\nIn our Package, Vectoriser have a simple role:\n\nTake in text data (as a string or list of strings)\nOutput numerical embeddings (as a numpy array)\nEach Vectortiser should provide a transform method to perform this conversion.\n\nIt is possible for users to implement their own Vectoriser classes by inheriting from the VectoriserBase abstract base class and implementing the transform method.\n\n\n\n\n\n\n\n\nImplemented Vectorisers\nWe provide several robust implementations of Vectorisers that interface with popular services and libraries.\nThe module contains the following ‘ready-made’ classes:\n\nGcpVectoriser: A class for embedding text using Google Cloud Platform’s GenAI API.\nHuggingFaceVectoriser: A general wrapper class for Huggingface Transformers models to generate text embeddings.\nOllamaVectoriser: A general wrapper class for using a locally running ollama server to generate text embeddings.\n\nEach class is designed to interface with a specific service that provides embedding model functionality.\nThe GcpVectoriser class leverages Google’s GenAI API,\nThe HuggingFaceVectoriser class utilizes models from the Huggingface Transformers library.\nThe OllamaVectoriser class can use any local/downloaded model which can be served by ollama.\nThese classes abstract the underlying implementation details, providing a simple and consistent interface for embedding text using different services.\n\n\n\n\n\n\n\n\nFurther Reading\nThe “Creating Your Own Vectoriser” demo (DEMO/custom_vectoriser.ipynb) notebook contains detailed instructions / examples on implementation of custom Vectorisers, and using them to within VectorStore objects.",
+    "crumbs": [
+      "Documentation",
+      "Vectorisers",
+      "Vectorisers Overview",
+      "vectorisers"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html",
+    "href": "DEMO/custom_vectoriser.html",
+    "title": "Creating Your Own Vectoriser",
+    "section": "",
+    "text": "ClassifAI is a tool to help in the creation and serving of searchable vector databases, for text classification tasks.\nIt has three core components:\nThis notebook showcases how to create your own custom Vectoriser - we already provide several out-of-the-box Vectoriser classes for converting text to embeddings that essentially provide shortcuts for several common methods i.e. gcloud embedding services, Huggingface models, and Ollama.\nBut what if you wanted to make your own custom embedding vectoriser model, that uses your own fancy embedding method….",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html#in-this-notebook",
+    "href": "DEMO/custom_vectoriser.html#in-this-notebook",
+    "title": "Creating Your Own Vectoriser",
+    "section": "In this Notebook…",
+    "text": "In this Notebook…\nWe will show: * The core workings of the Vectotiser Class and its responsibilities * How to create a custom One-Hot Encoding Vectoriser that will integrate seamlessly with the rest of ClassifAI * The custom One-Hot Encoding Vectoriser being used with the Indexer module to create and search a VectorStore",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html#demo-data",
+    "href": "DEMO/custom_vectoriser.html#demo-data",
+    "title": "Creating Your Own Vectoriser",
+    "section": "Demo Data",
+    "text": "Demo Data\nThis demo uses a mock dataset that is freely available on the ClassifAI repo, if yo have not downloaded the entire DEMO folder to run this notebook, the minimum data you require is the DEMO/data/testdata.csv file, which you should place in your working directory in a DEMO folder - (or you can just change the filepath later in this demo notebook)",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html#the-vectoriser",
+    "href": "DEMO/custom_vectoriser.html#the-vectoriser",
+    "title": "Creating Your Own Vectoriser",
+    "section": "The Vectoriser",
+    "text": "The Vectoriser\n\n\n\nServer_Image\n\n\nAs seen above, a Vectorisers’ sole responsibility is to convert text to a vector representation. Each Vectoriser class must implement a transform() method that will:\n\naccept a string or list of N strings as an argument\nreturn a numpy array of dimension [N,Y] where N matches the number of input strings, and Y is the embedding dimension)\n\nBy enforcing this, the Indexers and Servers modules can reliably work with any Vectoriser object to perform the various search/classification functions required by ClassifAI.\nAll a developer has to consider when building their own Vectoriser is the logic of this transform() method.",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html#lets-build-an-one-hot-encoding-vectoriser",
+    "href": "DEMO/custom_vectoriser.html#lets-build-an-one-hot-encoding-vectoriser",
+    "title": "Creating Your Own Vectoriser",
+    "section": "Lets build an One-Hot-Encoding Vectoriser",
+    "text": "Lets build an One-Hot-Encoding Vectoriser\nOne-hot encoding is a simple method of converting from text to vector format. Each element in a one-hot encoded vector \\((v)\\) represents the presence or absence of a particular word in a large vocabulary. Therefore the length of the vector represents the size of the vocabulary. Each word in a sentence is transformed so that the corresponding positional elements in the one-hot encoding vector will be set to 1. So, all sentences that contain the word ‘dog’ should all have the same element, \\(v_i\\), of their vectors set to 1, which is the element that represents the presence of the word dog. Finally, if the converted sentence only contains 5 words, then the vector will only have 5 non-zero elements at most.\n\n# we're going to use scikit learns countvectoriser to create our one hot embeddings - install in the terminal or uncomment the below code\n# !pip install scikit-learn\n\n\n# One-hot encoding vectoriser implememntation.\n\n# 1. Class must inherit from the VectoriserBase class.\n# 2. The class must implement the transform method.\n\n\n# importing sklearns CountVectorizer, a common library tool for vectorisation.\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\n\n# importing the base Vectoriser class, which we will build upon\nfrom classifai.vectorisers import VectoriserBase\n\n\nclass OneHotVectoriser(VectoriserBase):\n    def __init__(self, vocabulary: list[str]):\n        if not vocabulary:\n            raise ValueError(\"Vocabulary cannot be empty.\")\n        self.vectorizer = CountVectorizer(binary=True, vocabulary=vocabulary)\n\n    def transform(self, texts: str | list[str]) -&gt; np.ndarray:\n        # checking if the input is a string and converting to a list if so\n        if isinstance(texts, str):\n            texts = [texts]\n\n        # we add some light type checking to make sure the input is correct\n        if not isinstance(texts, list):\n            raise TypeError(\"Input must be a string or a list of strings.\")\n\n        # Generate one-hot encodings using the CountVectorizer from Scikit-learn\n        one_hot_matrix = self.vectorizer.transform(texts).toarray()\n        return one_hot_matrix\n\nWe’ve written our custom vectoriser to accept a vocabulary as an argument during instantiation.\nYou could hardcode a specific vocabulary, but doing it this way would make our class reusable so that we could instantiate different OneHotVectorisers with different vocabularies\nWe’re going to download and use Google’s 10,000 most common words - a very well known file - as our vocab for our first custom one hot encoder model.\n\nimport os\n\nimport requests\n\n### First we need to download the vocabulary\n\n# Check if the file already exists locally\nif not os.path.exists(\"google-10000-english.txt\"):\n    # download file\n    url = \"https://raw.github.com/first20hours/google-10000-english/master/google-10000-english.txt\"\n    # Path to save the file locally\n    output_file = \"google-10000-english.txt\"\n\n    # Download the file\n    response = requests.get(url, timeout=10)\n    if response.status_code == requests.codes.ok:\n        with open(output_file, \"w\") as file:\n            file.write(response.text)\n        print(f\"File downloaded and saved as {output_file}\")\n    else:\n        print(f\"Failed to download file. HTTP Status Code: {response.status_code}\")\n\n\n# Load vocabulary from the downloaded file\nwith open(\"google-10000-english.txt\") as file:\n    vocabulary = [line.strip() for line in file.readlines()]\n\nprint(f\"Vocabulary loaded with {len(vocabulary)} words.\")\n# Now we can create an instance of the OneHotVectoriser with the loaded vocabulary\n\n\n# Now we can create an instance of the OneHotVectoriser with the loaded vocabulary\n\nfirst_onehot_vectoriser = OneHotVectoriser(vocabulary=vocabulary)\n\nThats it! Lets try it out by passing some text to the transform method!\nLets verify a few things, and ensure that the input accepts texts and lists of texts. and also that its returning the right numpy arrays!\n\nvector_one = first_onehot_vectoriser.transform(\"The quick brown fox jumped over the log\")\n\nprint(f\"One-hot vector shape: {vector_one.shape}\")\nprint(f\"One-hot vector type: {type(vector_one)}\")\nprint(\"-----\")\nprint(vector_one)\n\n\n# we can also see how many elements of the vector are non-zero (should be equal to the number of unique words in the input text)\nprint(f\"Number of non-zero elements in the vector: {np.count_nonzero(vector_one)}\")\n\n\n# We can also pass a list of strings to the transform method\nvector_two = first_onehot_vectoriser.transform(\n    [\"The quick brown fox jumped over the log\", \"Slow and steady wins the race\"]\n)\nprint(f\"One-hot vector shape: {vector_two.shape}\")\nprint(f\"One-hot vector type: {type(vector_two)}\")\nprint(\"-----\")\nprint(vector_two)",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html#lets-use-one-hot-encoding-vectoriser-to-create-a-vectorstore",
+    "href": "DEMO/custom_vectoriser.html#lets-use-one-hot-encoding-vectoriser-to-create-a-vectorstore",
+    "title": "Creating Your Own Vectoriser",
+    "section": "Lets Use One-Hot-Encoding Vectoriser to create a VectorStore!",
+    "text": "Lets Use One-Hot-Encoding Vectoriser to create a VectorStore!\nIf you followed along with the code above, you should now have a custom vectoriser in memory and it should be fully compatiable with the rest of the Package.\nWe are now going to steal the second section of the oo_prototype_demo.ipynb script and build a VectorStore with the ‘data/testdata.csv’ file.\n\nfrom classifai.indexers import VectorStore\n\nmy_vector_store = VectorStore(\n    file_name=\"data/testdata.csv\",\n    data_type=\"csv\",\n    vectoriser=first_onehot_vectoriser,  # or switch to the GcpVectoriser if you have it :)\n    batch_size=10,\n    overwrite=True,\n)\n\nWe’ve build a vector store! Now to search it with a query\nWe first need to formt our input data to the VectorStore’s search() method. We want our data in a VectorStoreSearchInput data object:\nThe different method of our VectorStore expect these dataclass objects, in order to validate the data being passed to the VectorStore\n\nfrom classifai.indexers.dataclasses import VectorStoreSearchInput\n\ninput_data = VectorStoreSearchInput({\"id\": [1], \"query\": [\"places with a vast delta\"]})\n\ninput_data\n\n\nonehot_search_results = my_vector_store.search(input_data)\n\nonehot_search_results",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "DEMO/custom_vectoriser.html#thats-it",
+    "href": "DEMO/custom_vectoriser.html#thats-it",
+    "title": "Creating Your Own Vectoriser",
+    "section": "That’s it!",
+    "text": "That’s it!\nThat’s everything these is to it. By implementing the transform method that\n\nAccepts strings or a list of srings,\nReturns a numpy array\n\nwe can create our own custom vectoriser such as the one-hot encoding model shown here. Check out the other DEMO notebooks to see how use the Vectorstore and Vectorisers in other ways and how to deploy your search system over a RestAPI service :)",
+    "crumbs": [
+      "Documentation",
+      "DEMO",
+      "Creating Your Own Vectoriser"
+    ]
+  },
+  {
+    "objectID": "README.html",
+    "href": "README.html",
+    "title": "ClassifAI",
+    "section": "",
+    "text": "ONS Logo"
+  },
+  {
+    "objectID": "README.html#what-are-semantic-search-and-rag",
+    "href": "README.html#what-are-semantic-search-and-rag",
+    "title": "ClassifAI",
+    "section": "What are semantic search and RAG?",
+    "text": "What are semantic search and RAG?\nClassifAI facilitates text classification using semantic search over a knowledgebase (possibly augmented by RAG). The knowledgebase is a collection of pieces of text (called “documents” even if they’re very short) with a known classification label that serve as a reference for the classification task. They might be canonical definitions of each classification label, or examples of correct labelling, or a combination of those.\nSemantic search uses a vectoriser (usually a language model) to convert each document into a vector (called an embedding). When a query (another piece of text) arrives from the user, the query is first embedded in the same way as a vector of numbers, then the query embedding is compared to each of the embeddings in the knowledgebase by calculating similarities between vectors. The top N closest knowledgebase entries are returned along with the matching labels, documents and distance scores for each one.\nRetrieval-augmented generation (RAG) entails feeding search results into the prompt of a generative language model, with instructions for the model to further process the result. In the context of the package, RAG is constrained to operate on structured result sets and return result sets with the same structure.\n\n\n\nClassifAI Workflow"
+  },
+  {
+    "objectID": "README.html#why-this-approach",
+    "href": "README.html#why-this-approach",
+    "title": "ClassifAI",
+    "section": "Why this approach?",
+    "text": "Why this approach?\nThe knowledgebase search approach to classification has advantages and disadvantages compared to machine learning (ML) approaches that train a model for the task. On balance, this approach is well-suited to statistical production use cases. To make a fair comparison between ML and knowledgebase search, it helps to think of the knowledgebase as training data, and compare the performance when the size of the training dataset is similar to the size of a knowledgebase (tens to low hundreds of thousands)\nAdvantages\n\nExplainability: it’s relatively easy to understand why ClassifAI produced a result, because the matching knowledgebase entries are provided\nAgility: the quality of results can be tweaked by adding or removing a handful of knowledgebase entries, without expensive retraining\nAccountability: the knowledgebase can be maintained and developed by professional methodologists, separate from the developer team\nTime-to-prototype: Because no training or feature engineering is needed, it’s possible to have a working prototype producing reasonable results in minutes\nCustomisation: the method is easily customisable with the option to easily swap vectorisers, knowledgebases and pre- and post-processing hooks\nAccuracy: the knowledgebase approach can produce results with accuracy comparable to machine learning approaches in like-for-like comparisons\nLarge, unbalanced label sets: ML approaches tend not to work well on label sets like SIC, SOC or COICOP where the set of classifications is large and unbalanced, and the training data may be sparse for some classifications. Knowledgebase search works well in these cases\n\nDisadvantages\n\nUncertainty quantification: the knowledgebase approach doesn’t produce calibrated uncertainty measures out-of-the-box, although there are methods (such as conformal prediction) that show promise\nScaling: the knowledgebase approach has been tested and works well on mid-scale training data and may not scale as well as ML approaches on big data\nCost: Cloud-provided vectorisers have a per-request cost, although this is usually small and outweighed by the cost of developer FTEs\n\nThe comparison on other aspects, such as per-request speed or hardware requirements is less clear because no formal comparison has been undertaken. ClassifAI is in production in the ONS and appears to provide results quickly enough for users."
+  },
+  {
+    "objectID": "README.html#table-of-contents",
+    "href": "README.html#table-of-contents",
+    "title": "ClassifAI",
+    "section": "Table of Contents",
+    "text": "Table of Contents\n\nInstallation\nExample: Indexing and Searching a Document Collection\nDev set-up and contributing\nContact and Support"
+  },
+  {
+    "objectID": "README.html#installation",
+    "href": "README.html#installation",
+    "title": "ClassifAI",
+    "section": "Installation",
+    "text": "Installation\nYou can install the package directly from GitHub in your Python environment, using your preferred package manager. By default, only the minimum dependencies of the base versions will be installed; you must specify classifai[all] to install all sets of optional dependencies, or classifai[huggingface, ...] to install one or more specific sets of optional dependencies. The current sets of optional dependencies are [all, huggingface, ollama, gcp].\n\nPip\npip install \"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 0.2.1&gt;/classifai-&lt;version e.g. 0.2.1&gt;-py3-none-any.whl\"\n\n\nAstral UV\nOne-off add to environment:\nuv pip install \"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 0.2.1&gt;/classifai-&lt;version e.g. 0.2.1&gt;-py3-none-any.whl\"\nPersist as an environment requirement:\nuv add \"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 0.2.1&gt;/classifai-&lt;version e.g. 0.2.1&gt;-py3-none-any.whl\""
+  },
+  {
+    "objectID": "README.html#example-indexing-and-searching-a-knowledgebase",
+    "href": "README.html#example-indexing-and-searching-a-knowledgebase",
+    "title": "ClassifAI",
+    "section": "Example: Indexing and searching a knowledgebase",
+    "text": "Example: Indexing and searching a knowledgebase\nClassifAI supports statistical classification through searching a knowledgebase. The knowledgebase is a set of labelled examples that show how different texts (e.g. survey responses) map to statistical classifications. The size and quality of the knowledgebase dictates the quality of results you can expect from using the tool.\n\nStep 1: Choose a vectoriser\nA vectoriser transforms a query text string into an embedding vector. You can choose from embedding models accessed via HuggingFace, Google or Ollama, or build your own vectoriser.\nfrom classifai.vectorisers import HuggingFaceVectoriser\n\n# Create a vectorizer model\nvectoriser = HuggingFaceVectoriser(model_name=\"sentence-transformers/all-MiniLM-L6-v2\")\n\n# You can use the 'transform' method to call the vectoriser\nvector = vectoriser.transform(\"Example text to vectorize\")\nprint(vector.shape)\n\n\nStep 2: Build a vector store\nYou provide a knowledgebase of labelled examples (currently only allows data to be provided as a csv) to build a vector store\nfrom classifai.indexers import VectorStore\n\nvector_store = VectorStore(\n    file_name=\"occupations_knowledgebase.csv\",\n    vectoriser=vectoriser,\n    batch_size=8,\n    output_dir=\"vector_store\"\n)\n\n\nStep 3: Search the vector store\nThe query is provided as a dataframe-like object to the search method, and the results are returned as a dataframe-like object.\nfrom classifai.indexers.dataclasses import VectorStoreSearchInput\n\ninput_data = VectorStoreSearchInput({'id': [1], 'query':[\"construction worker scaffolder\"]})\n\nresults = vector_store.search(input_data, n_results=5)\nprint(results)\n\n\nStep 4: Deploy as a REST API\nIn addition to using ClassifAI as a local package, you can use it to create / attach to a FastAPI REST API. You can create a new FastAPI application which you can modify as required, connect it to an existing FastAPI application, or deploy it immediately as an REST API service using uvicorn.\nfrom classifai.servers import get_server, get_router, run_server\n\n...\n\n# Create and expose the API routing to be attached to an existing FastAPI service;\napp = get_server(vector_stores=[vector_store], endpoint_names=[\"Occupations\"])\n\n# Create and expose the API routing to be attached to an existing FastAPI service;\nrouting = get_server(vector_stores=[vector_store], endpoint_names=[\"Occupations\"])\n\n# Directly spin up a new locally-hosted FastAPI server with `uvicorn`;\nrun_server(vector_stores=[vector_store], endpoint_names=[\"Occupations\"], port=8000)\n\n\nLearn more\nFurther guides and tutorials can be found in the DEMO folder of this repo. It currently includes the following notebooks:\n\nGeneral workflow\nCustom vectorisers\n\nmake your own custom vectoriser model that will interact with the core features of the package,\n\nCustom pre- and post-processing hooks\n\nAdd your own custom ‘hook’ logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.\n\n(more demos to come soon)"
+  },
+  {
+    "objectID": "README.html#contributing-to-this-repo-and-development-setup",
+    "href": "README.html#contributing-to-this-repo-and-development-setup",
+    "title": "ClassifAI",
+    "section": "Contributing to this repo and development Setup",
+    "text": "Contributing to this repo and development Setup\nIf you are a developer working on ClassifAI, this section describes how to set up the repo correctly on your local machine to start working on the codebase. 3rd party developers please also read CONTRIBUTING.md\nNOTE: This section is for developers who are making alterations and changes to the codebase of this repo itself, not for developers who are using the features of the package.\nTo begin making changes to the codebase follow the following instructions on your development machine:\n\nClone the repo:\n\ngit clone git@github.com:datasciencecampus/classifAI.git\n\ncd classifAI\n\nSet up pre-commit hooks:\n\nmake setup-git-hooks\n(or, if you don’t have Docker available)\nmake setup-git-hooks-no-docker\n\nCreate / activate the virtual environment:\n\nuv lock\n\nuv sync\nAnd that’s you good to go!\nDuring development, you might want to run linters / code vulnerability scans; you can do so at any point via\nmake check-python"
+  },
+  {
+    "objectID": "README.html#contact-and-support",
+    "href": "README.html#contact-and-support",
+    "title": "ClassifAI",
+    "section": "Contact and Support",
+    "text": "Contact and Support\nIn the event that you come across any issues such as potential bugs in the code or something that may be unclear or not explained in the various DEMO content, please read CONTRIBUTING.md file for instructions. It contains sections on Getting Help, Asking Questions, Reporting Bugs, and other guides on working with the package."
+  }
+]
