@@ -6,7 +6,7 @@ from CSV text files using a `Vectoriser` object.
 
 This class requires a `Vectoriser` object from the vectorisers submodule,
 to convert the CSV's text data into vector embeddings which are then stored in the
-VectorStore objects.
+`VectorStore` objects.
 
 Key Features:
 
