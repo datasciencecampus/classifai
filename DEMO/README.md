@@ -54,7 +54,7 @@ It covers:
 
 ## Installation of classifai
 
-#### 0) [optional] Create and activate a virtual environment from the command line
+#### *0)* [optional] Create and activate a virtual environment from the command line
 
 ##### Using pip + venv
 
@@ -78,7 +78,7 @@ Activate it (Windows):
 
 `source .venv/Scripts/activate`
 
-#### 1) Install the classifai package
+#### *1)* Install the classifai package
 
 ##### Using pip
 
@@ -95,7 +95,7 @@ add as project dependency:
 `uv add "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
 
 
-#### 2) Install optional dependencies
+#### *2)* Install optional dependencies
 
 ##### Using pip
 
