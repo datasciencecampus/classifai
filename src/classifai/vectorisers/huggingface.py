@@ -11,6 +11,11 @@ from .base import VectoriserBase
 class HuggingFaceVectoriser(VectoriserBase):
     """A general wrapper class for Huggingface Transformers models to generate text embeddings.
 
+    The `HuggingFaceVectoriser` accepts most encoder-based models from the Huggingface Transformers library,
+    and provides a simple interface to generate embeddings from text data. Additional configuration options,
+    such as `trust_remote` or a HuggingFaceAPI token can be passed via the `tokenizer_kwargs` and `model_kwargs`
+    parameters.
+
     Attributes:
         model_name (str): The name of the Huggingface model to use.
         tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
