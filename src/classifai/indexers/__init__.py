@@ -1,5 +1,5 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a vector index from a CSV (text)
+"""This module provides functionality for creating a `VectorStore` from a CSV (text)
 file.
 It defines the `VectorStore` class, which is used to model and create vector databases
 from CSV text files using a `Vectoriser` object.
