@@ -37,14 +37,14 @@ from .pydantic_models import (
 
 
 def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> APIRouter:
-    """Create and return a FastAPI.APIRouter with search endpoints.
+    """Create and return a `FastAPI.APIRouter` with search endpoints.
 
     Args:
         vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
 
     Returns:
-        APIRouter: Router with intialized search endpoints
+        (APIRouter): Router with intialized search endpoints
 
     Raises:
         DataValidationError: Raised if the input parameters are invalid.
@@ -96,7 +96,7 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
         """Redirect users to the API documentation page.
 
         Returns:
-            RedirectResponse: A response object that redirects the user to the `/docs` page.
+            (RedirectResponse): A response object that redirects the user to the `/docs` page.
         """
         start_page = RedirectResponse(url="/docs")
         return start_page
@@ -112,7 +112,7 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
         endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
 
     Returns:
-        FastAPI: Server with intialized search endpoints
+        (FastAPI): Server with intialized search endpoints
     """
     logging.info("Generating ClassifAI API")
 
@@ -129,6 +129,9 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
         vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
+
+    Raises:
+        DataValidationError: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
     """
     logging.info("Starting ClassifAI API")
 
