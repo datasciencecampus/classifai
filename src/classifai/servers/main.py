@@ -47,8 +47,8 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
         (APIRouter): Router with intialized search endpoints
 
     Raises:
-        DataValidationError: Raised if the input parameters are invalid.
-        ConfigurationError: Raised if one or more of the `vector_stores` are invalid.
+        `DataValidationError`: Raised if the input parameters are invalid.
+        `ConfigurationError`: Raised if one or more of the `vector_stores` are invalid.
 
     """
     # ---- Validate startup args -> DataValidationError / ConfigurationError

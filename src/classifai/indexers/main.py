@@ -734,9 +734,9 @@ class VectorStore:
             (VectorStore): An instance of the `VectorStore` class.
 
         Raises:
-            DataValidationError: If input arguments are invalid or if there are issues with the metadata or Parquet files.
-            ConfigurationError: If there are configuration issues, such as `Vectoriser` mismatches.
-            IndexBuildError: If there are failures during loading or parsing the files.
+            `DataValidationError`: If input arguments are invalid or if there are issues with the metadata or Parquet files.
+            `ConfigurationError`: If there are configuration issues, such as `Vectoriser` mismatches.
+            `IndexBuildError`: If there are failures during loading or parsing the files.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError / ConfigurationError
         if not isinstance(folder_path, str) or not folder_path.strip():
