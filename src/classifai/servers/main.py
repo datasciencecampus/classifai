@@ -131,7 +131,7 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
 
     Raises:
-        DataValidationError: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
+        `DataValidationError`: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
     """
     logging.info("Starting ClassifAI API")
 
