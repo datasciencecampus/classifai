@@ -82,11 +82,11 @@ pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecam
 ```
 
 ##### Astral UV
-one-off add to environment:
+One-off add to environment:
 ```bash
 uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
 ```
-persist as an environment requirement:
+Persist as an environment requirement:
 ```bash
 uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
 ```

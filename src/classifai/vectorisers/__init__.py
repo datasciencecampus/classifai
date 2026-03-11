@@ -27,10 +27,10 @@ We provide several robust implementations of Vectorisers that interface with pop
 
 The module contains the following 'ready-made' classes:
 
-  * GcpVectoriser: A class for embedding text using Google Cloud Platform's GenAI API.
-  * HuggingFaceVectoriser: A general wrapper class for Huggingface Transformers
+  * `GcpVectoriser`: A class for embedding text using Google Cloud Platform's GenAI API.
+  * `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
     models to generate text embeddings.
-  * OllamaVectoriser: A general wrapper class for using a locally running ollama
+  * `OllamaVectoriser`: A general wrapper class for using a locally running ollama
     server to generate text embeddings.
 
 Each class is designed to interface with a specific service that provides embedding model
