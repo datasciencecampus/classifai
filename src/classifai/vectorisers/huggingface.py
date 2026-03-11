@@ -43,8 +43,8 @@ class HuggingFaceVectoriser(VectoriserBase):
             model_kwargs (dict): [optional] Additional keyword arguments to pass to the model. Defaults to None.
 
         Raises:
-            ExternalServiceError: If the model or tokenizer cannot be loaded.
-            ConfigurationError: If the model cannot be initialized on the specified device.
+            `ExternalServiceError`: If the model or tokenizer cannot be loaded.
+            `ConfigurationError`: If the model cannot be initialized on the specified device.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -105,7 +105,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            VectorisationError: If tokenization, model inference, or embedding extraction fails.
+            `VectorisationError`: If tokenization, model inference, or embedding extraction fails.
         """
         import torch  # type: ignore
 

@@ -44,8 +44,8 @@ class OllamaVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            ExternalServiceError: If the Ollama service fails to generate embeddings.
-            VectorisationError: If embedding extraction from the Ollama response fails.
+            `ExternalServiceError`: If the Ollama service fails to generate embeddings.
+            `VectorisationError`: If embedding extraction from the Ollama response fails.
         """
         import ollama  # type: ignore
 
