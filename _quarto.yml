@@ -18,6 +18,7 @@ project:
 
 website:
   title: "ClassifAI"
+  favicon: ons_favicon.ico
   page-navigation: true
   navbar:
     background: light

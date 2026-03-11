@@ -1,3 +1,7 @@
+"""This module defines dataclasses for structuring and validating input and output data for
+`VectorStore` search, reverse_search and embedding operations in the ClassifAI framework.
+"""
+
 import numpy as np
 import pandas as pd
 import pandera.pandas as pa
@@ -130,8 +134,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
 
 
 class VectorStoreReverseSearchInput(pd.DataFrame):
-    """DataFrame-like object for forming and validating reverse search query
-    input data.
+    """DataFrame-like object for forming and validating reverse search query input data.
 
     This class validates and represents input for reverse searches, which find
     similar documents to a given document in the vector store.
@@ -286,8 +289,7 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
 
 class VectorStoreEmbedOutput(pd.DataFrame):
-    """DataFrame-like object for storing and validating embedded vectors and associated
-    metadata.
+    """DataFrame-like object for storing and validating embedded vectors and associated metadata.
 
     This class represents the output of embedding operations, containing the
     original text data along with their computed vector embeddings.

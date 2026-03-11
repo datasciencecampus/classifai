@@ -11,6 +11,11 @@ from .base import VectoriserBase
 class HuggingFaceVectoriser(VectoriserBase):
     """A general wrapper class for Huggingface Transformers models to generate text embeddings.
 
+    The `HuggingFaceVectoriser` accepts most encoder-based models from the Huggingface Transformers library,
+    and provides a simple interface to generate embeddings from text data. Additional configuration options,
+    such as `trust_remote` or a HuggingFaceAPI token can be passed via the `tokenizer_kwargs` and `model_kwargs`
+    parameters.
+
     Attributes:
         model_name (str): The name of the Huggingface model to use.
         tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
@@ -38,8 +43,8 @@ class HuggingFaceVectoriser(VectoriserBase):
             model_kwargs (dict): [optional] Additional keyword arguments to pass to the model. Defaults to None.
 
         Raises:
-            ExternalServiceError: If the model or tokenizer cannot be loaded.
-            ConfigurationError: If the model cannot be initialized on the specified device.
+            `ExternalServiceError`: If the model or tokenizer cannot be loaded.
+            `ConfigurationError`: If the model cannot be initialized on the specified device.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -100,7 +105,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            VectorisationError: If tokenization, model inference, or embedding extraction fails.
+            `VectorisationError`: If tokenization, model inference, or embedding extraction fails.
         """
         import torch  # type: ignore
 
