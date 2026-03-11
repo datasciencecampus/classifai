@@ -79,7 +79,7 @@ class VectorStore:
         vectors (np.array): a numpy array of vectors for the vector database
         vector_shape (int): the dimension of the vectors
         num_vectors (int): the number of records saved in the `VectorStore`
-        vectoriser_class (str): the type of vectoriser used to create embeddings
+        vectoriser_class (str): the type of `Vectoriser` used to create embeddings
         hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
     """
 

@@ -50,7 +50,7 @@ interface for embedding text using different services.
 # Further Reading
 
 The "Creating Your Own Vectoriser" demo (`DEMO/custom_vectoriser.ipynb`) notebook contains detailed
-instructions / examples on implementation of  custom `Vectoriser`s, and using them to create `VectorStore`
+instructions / examples on implementation of  custom `Vectoriser`s, and using them to within `VectorStore`
 objects.
 """
 
