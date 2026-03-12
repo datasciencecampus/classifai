@@ -11,6 +11,12 @@ from .base import VectoriserBase
 class OllamaVectoriser(VectoriserBase):
     """A wrapper class allowing a locally-running ollama server to generate text embeddings.
 
+    The `OllamaVectoriser` interacts with a locally-running Ollama server, which must be set
+    up by the user separately.
+    In general, Ollama can run the same encoder-based models as the `HuggingFaceVectoriser`.
+    A future goal is to extend the `OllamaVectoriser` to interface with an _external_ Ollama
+    server, allowing separation of embedding generation from the user's local environment.
+
     Attributes:
         model_name (str): The name of the local model to use.
     """
@@ -38,8 +44,8 @@ class OllamaVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            ExternalServiceError: If the Ollama service fails to generate embeddings.
-            VectorisationError: If embedding extraction from the Ollama response fails.
+            `ExternalServiceError`: If the Ollama service fails to generate embeddings.
+            `VectorisationError`: If embedding extraction from the Ollama response fails.
         """
         import ollama  # type: ignore
 
