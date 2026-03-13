@@ -53,7 +53,7 @@ class DeduplicationHook(HookBase):
 
         for query in df_gpby["query_id"].unique():
             batch = df_gpby[df_gpby["query_id"] == query]
-            new_rank = pd.factorize(batch["rank"], sort=True)[0]
+            new_rank = pd.factorize(batch["rank"], sort=True)[0] + 1
             df_gpby.loc[batch.index, "rank"] = new_rank
 
         for col in set(input_data.columns).difference(set(df_gpby.columns)):
