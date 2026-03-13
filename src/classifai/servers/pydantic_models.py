@@ -141,15 +141,16 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
         .difference(
             {
                 "id",
-                "doc_id",
-                "doc_text",
+                "doc_label",
+                "retrieved_doc_label",
+                "retrieved_doc_text",
             }
         )
     )
     results_list = []
 
     # Group rows by `id`
-    grouped = df.groupby("id")
+    grouped = df.groupby("doc_label")
 
     for input_id, group_df in grouped:
         # Convert group_df to a list of dictionaries
@@ -167,8 +168,8 @@ def convert_dataframe_to_reverse_search_pydantic_response(df: pd.DataFrame, meta
             # Create a RevResultEntry object
             response_entries.append(
                 RevResultEntry(
-                    label=row["doc_id"],
-                    description=row["doc_text"],
+                    label=row["retrieved_doc_label"],
+                    description=row["retrieved_doc_text"],
                     **metadata_values,  # Add metadata dynamically
                     **other_values,  # Add any extra columns dynamically
                 )
@@ -206,7 +207,7 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
             {
                 "query_id",
                 "query_text",
-                "doc_id",
+                "doc_label",
                 "doc_text",
                 "score",
                 "rank",
@@ -234,7 +235,7 @@ def convert_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) ->
             # Create a ResultEntry object
             response_entries.append(
                 ResultEntry(
-                    label=row["doc_id"],
+                    label=row["doc_label"],
                     description=row["doc_text"],
                     score=row["score"],  # Assuming `score` is a column in the DataFrame
                     rank=row["rank"],  # Assuming `rank` is a column in the DataFrame
