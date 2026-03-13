@@ -14,8 +14,9 @@ class CapitalisationStandardisingHook(HookBase):
         """Inititialises the hook with the specified method for standardising capitalisation.
 
         Args:
-            method (str): Method for standardisation. Must be one of "lower", "upper", "sentence"
-                          or "title". Defaults to "lower".
+            method (str): Method for standardisation. Must be one of "lower" (like this),
+                         "upper" (LIKE THIS), "sentence" (Like this), or "title" (Like This).
+                         Defaults to "lower".
             colname (str): The name of one of the fields of the Input object which is to be capitalised.
                            Defaults to "query".
         """
