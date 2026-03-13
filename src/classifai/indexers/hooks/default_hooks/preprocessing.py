@@ -35,11 +35,6 @@ class CapitalisationStandardisingHook(HookBase):
         elif method == "title":
             self.method = str.title
         self.colname = colname
-        self._setup()
-
-    def _setup(self):
-        """No setup required."""
-        pass
 
     def __call__(
         self, input_data: VectorStoreSearchInput | VectorStoreReverseSearchInput | VectorStoreEmbedInput

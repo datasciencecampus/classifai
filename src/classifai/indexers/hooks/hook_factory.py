@@ -19,11 +19,6 @@ class HookBase(ABC):
         self.hook_type: str = "generic"  # Placeholder for hook type, can be overridden by subclasses
         # or set via kwargs
         self.kwargs = kwargs
-        self._setup()
-
-    def _setup(self):  # noqa: B027
-        """Performs any setup / initialisation required by the hook."""
-        pass
 
     @abstractmethod
     def __call__(
