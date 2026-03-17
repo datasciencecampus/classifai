@@ -356,7 +356,7 @@ class VectorStore:
                 },
             ) from e
 
-    def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:
+    def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:  #  noqa: C901
         """Converts text (provided via a `VectorStoreEmbedInput` object) into vector embeddings using the `Vectoriser` and
         returns a `VectorStoreEmbedOutput` dataframe with  columns `id`, `text`, and `embedding`.
 
@@ -382,8 +382,11 @@ class VectorStore:
         # ---- Preprocess hook -> HookError
         if "embed_preprocess" in self.hooks:
             try:
-                modified_query = self.hooks["embed_preprocess"](query)
-                query = VectorStoreEmbedInput.validate(modified_query)
+                if not isinstance(self.hooks["embed_preprocess"], list):
+                    self.hooks["embed_preprocess"] = [self.hooks["embed_preprocess"]]
+                for hook in self.hooks["embed_preprocess"]:
+                    query = hook(query)
+                query = VectorStoreEmbedInput.validate(query)
             except Exception as e:
                 raise HookError(
                     "embed_preprocess hook raised an exception.",
@@ -421,8 +424,11 @@ class VectorStore:
         # ---- Postprocess hook -> HookError
         if "embed_postprocess" in self.hooks:
             try:
-                modified_results_df = self.hooks["embed_postprocess"](results_df)
-                results_df = VectorStoreEmbedOutput.validate(modified_results_df)
+                if not isinstance(self.hooks["embed_postprocess"], list):
+                    self.hooks["embed_postprocess"] = [self.hooks["embed_postprocess"]]
+                for hook in self.hooks["embed_postprocess"]:
+                    results_df = hook(results_df)
+                results_df = VectorStoreEmbedOutput.validate(results_df)
             except Exception as e:
                 raise HookError(
                     "embed_postprocess hook raised an exception.",
@@ -431,7 +437,7 @@ class VectorStore:
 
         return results_df
 
-    def reverse_search(  # noqa: C901
+    def reverse_search(  # noqa: C901, PLR0912
         self, query: VectorStoreReverseSearchInput, max_n_results: int = 100, partial_match: bool = False
     ) -> VectorStoreReverseSearchOutput:
         """Reverse searches the `VectorStore` using a `VectorStoreReverseSearchInput` object
@@ -473,8 +479,11 @@ class VectorStore:
         # ---- Preprocess hook -> HookError
         if "reverse_search_preprocess" in self.hooks:
             try:
-                modified_query = self.hooks["reverse_search_preprocess"](query)
-                query = VectorStoreReverseSearchInput.validate(modified_query)
+                if not isinstance(self.hooks["reverse_search_preprocess"], list):
+                    self.hooks["reverse_search_preprocess"] = [self.hooks["reverse_search_preprocess"]]
+                for hook in self.hooks["reverse_search_preprocess"]:
+                    query = hook(query)
+                query = VectorStoreReverseSearchInput.validate(query)
             except Exception as e:
                 raise HookError(
                     "reverse_search_preprocess hook raised an exception.",
@@ -531,8 +540,11 @@ class VectorStore:
         # ---- Postprocess hook -> HookError
         if "reverse_search_postprocess" in self.hooks:
             try:
-                modified_result_df = self.hooks["reverse_search_postprocess"](result_df)
-                result_df = VectorStoreReverseSearchOutput.validate(modified_result_df)
+                if not isinstance(self.hooks["reverse_search_postprocess"], list):
+                    self.hooks["reverse_search_postprocess"] = [self.hooks["reverse_search_postprocess"]]
+                for hook in self.hooks["reverse_search_postprocess"]:
+                    result_df = hook(result_df)
+                result_df = VectorStoreReverseSearchOutput.validate(result_df)
             except Exception as e:
                 raise HookError(
                     "reverse_search_postprocess hook raised an exception.",
@@ -587,8 +599,11 @@ class VectorStore:
         # ---- Preprocess hook -> DataValidationError if it returns invalid shape/type
         if "search_preprocess" in self.hooks:
             try:
-                modified_query = self.hooks["search_preprocess"](query)
-                query = VectorStoreSearchInput.validate(modified_query)
+                if not isinstance(self.hooks["search_preprocess"], list):
+                    self.hooks["search_preprocess"] = [self.hooks["search_preprocess"]]
+                for hook in self.hooks["search_preprocess"]:
+                    query = hook(query)
+                query = VectorStoreSearchInput.validate(query)
             except Exception as e:
                 raise HookError(
                     "search_preprocess hook raised an exception.",
@@ -703,8 +718,11 @@ class VectorStore:
         # ---- Postprocess hook -> DataValidationError if it returns invalid shape/type
         if "search_postprocess" in self.hooks:
             try:
-                modified_result_df = self.hooks["search_postprocess"](result_df)
-                result_df = VectorStoreSearchOutput.validate(modified_result_df)
+                if not isinstance(self.hooks["search_postprocess"], list):
+                    self.hooks["search_postprocess"] = [self.hooks["search_postprocess"]]
+                for hook in self.hooks["search_postprocess"]:
+                    result_df = hook(result_df)
+                result_df = VectorStoreSearchOutput.validate(result_df)
             except Exception as e:
                 raise HookError(
                     "search_postprocessing hook raised an exception.",
