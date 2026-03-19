@@ -31,9 +31,6 @@ class DeduplicationHook(HookBase):
         self.score_aggregation_method = score_aggregation_method
         if self.score_aggregation_method == "max":
             self.score_aggregator = self._max_score
-        # Softmax not supported until normalisation is implemented.
-        # elif self.score_aggregation_method == "softmax":
-        #     self.score_aggregator = ...
         elif self.score_aggregation_method == "mean":
             self.score_aggregator = self._mean_score
 
