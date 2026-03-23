@@ -140,7 +140,7 @@ class EmbedResponseEntry(BaseModel):
 
 
 class EmbedResponseBody(BaseModel):
-    """Model for set of list of `EmbedResponseEntry` pydantic objects, for all row entries submmitted to embedding `VectorStore` method."""
+    """Model for set of list of `EmbedResponseEntry` Pydantic objects, for all row entries submmitted to embedding `VectorStore` method."""
 
     data: list[EmbedResponseEntry] = Field(
         description="array of embedding results, with their corresponding text and id"
