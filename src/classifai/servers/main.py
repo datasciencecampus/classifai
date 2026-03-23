@@ -11,10 +11,10 @@ restAPI endpoints, in a FastAPI restAPI service started with these functions.
 from __future__ import annotations
 
 import logging
-from typing import Annotated
+from typing import Annotated, Literal
 
 import uvicorn
-from fastapi import APIRouter, FastAPI, Query
+from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 
 from ..exceptions import ConfigurationError, DataValidationError
@@ -37,18 +37,18 @@ from .pydantic_models import (
 
 
 def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> APIRouter:
-    """Create and return a FastAPI router with search endpoints.
+    """Create and return a `FastAPI.APIRouter` with search endpoints.
 
     Args:
-        vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
+        vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
 
     Returns:
-        APIRouter: Router with intialized search endpoints
+        (APIRouter): Router with intialized search endpoints
 
     Raises:
-        DataValidationError: If the input parameters are invalid.
-        ConfigurationError: If a vector store is missing required methods.
+        `DataValidationError`: Raised if the input parameters are invalid.
+        `ConfigurationError`: Raised if one or more of the `vector_stores` are invalid.
 
     """
     # ---- Validate startup args -> DataValidationError / ConfigurationError
@@ -96,7 +96,7 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
         """Redirect users to the API documentation page.
 
         Returns:
-            RedirectResponse: A response object that redirects the user to the `/docs` page.
+            (RedirectResponse): A response object that redirects the user to the `/docs` page.
         """
         start_page = RedirectResponse(url="/docs")
         return start_page
@@ -105,15 +105,14 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
 
 
 def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> FastAPI:
-    """Create and return a FastAPI server with search endpoints.
+    """Create and return a `FastAPI` server with search endpoints.
 
     Args:
-        vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
-        endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
-        port (int, optional): The port on which the API server will run. Defaults to 8000.
+        vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
+        endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
 
     Returns:
-        FastAPI: Server with intialized search endpoints
+        (FastAPI): Server with intialized search endpoints
     """
     logging.info("Generating ClassifAI API")
 
@@ -124,12 +123,15 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
 
 
 def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port: int = 8000):
-    """Create and run a FastAPI server with search endpoints.
+    """Create and run a `FastAPI` server with search endpoints.
 
     Args:
-        vector_stores (list[VectorStore]): A list of vector store objects, each responsible for handling embedding and search operations for a specific endpoint.
-        endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
-        port (int, optional): The port on which the API server will run. Defaults to 8000.
+        vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
+        endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
+        port (int): [optional] The port on which the API server will run. Defaults to 8000.
+
+    Raises:
+        `DataValidationError`: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
     """
     logging.info("Starting ClassifAI API")
 
@@ -153,16 +155,16 @@ def make_endpoints(router: APIRouter | FastAPI, vector_stores_dict: dict[str, Ve
     """
     for endpoint_name, vector_store in vector_stores_dict.items():
         logging.info("Registering endpoints for: %s", endpoint_name)
-        create_embedding_endpoint(router, endpoint_name, vector_store)
-        create_search_endpoint(router, endpoint_name, vector_store)
-        create_reverse_search_endpoint(router, endpoint_name, vector_store)
+        _create_embedding_endpoint(router, endpoint_name, vector_store)
+        _create_search_endpoint(router, endpoint_name, vector_store)
+        _create_reverse_search_endpoint(router, endpoint_name, vector_store)
 
 
-def create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
-    """Create and register an embedding endpoint for a specific vector store.
+def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+    """Create and register an embedding endpoint for a specific `VectorStore`.
 
     Args:
-        router (APIRouter | FastAPI): The FastAPI application instance.
+        router (APIRouter | FastAPI): The `FastAPI` application instance.
         endpoint_name (str): The name of the endpoint to be created.
         vector_store: The vector store object responsible for generating embeddings.
 
@@ -191,13 +193,13 @@ def create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, v
         return EmbeddingsResponseBody(data=returnable)
 
 
-def create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
-    """Create and register a search endpoint for a specific vector store.
+def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+    """Create and register a search endpoint for a specific `VectorStore`.
 
     Args:
-        router (APIRouter | FastAPI): The FastAPI application instance.
+        router (APIRouter | FastAPI): The `FastAPI` application instance.
         endpoint_name (str): The name of the endpoint to be created.
-        vector_store: The vector store object responsible for performing search operations.
+        vector_store: The `VectorStore` object responsible for performing search operations.
 
     The created endpoint accepts POST requests with input data and a query parameter
     specifying the number of results to return. It performs a search operation using
@@ -230,13 +232,13 @@ def create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vect
         return formatted_result
 
 
-def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
+def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
     """Create and register a reverse_search endpoint for a specific vector store.
 
     Args:
-        router (APIRouter | FastAPI): The FastAPI application instance.
+        router (APIRouter | FastAPI): The `FastAPI` application instance.
         endpoint_name (str): The name of the endpoint to be created.
-        vector_store: The vector store object responsible for performing search operations.
+        vector_store: The `VectorStore` object responsible for performing search operations.
 
     The created endpoint accepts POST requests with input data and a query parameter
     specifying the number of results to return. It performs a reverse search operation using
@@ -246,19 +248,23 @@ def create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: s
     @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
     def reverse_search_endpoint(
         data: RevClassifaiData,
-        n_results: Annotated[
-            int,
-            Query(description="The max number of results to return.", ge=1),
+        max_n_results: Annotated[
+            int | Literal[-1],
+            Query(description="The max number of results to return, set to -1 to return all results."),
         ] = 100,
         partial_match: Annotated[
             bool, Query(description="Flag to use partial `starts_with` matching for queries")
         ] = False,
     ) -> RevResultsResponseBody:
+        # Enforce the ≥1 rule manually, only when not -1
+        if max_n_results != -1 and max_n_results < 1:
+            raise HTTPException(422, "max_n_results must be -1 or >= 1")
+
         input_ids = [x.id for x in data.entries]
         queries = [x.code for x in data.entries]
 
         input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
-        output_data = vector_store.reverse_search(input_data, n_results=n_results, partial_match=partial_match)
+        output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
 
         formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
             df=output_data,

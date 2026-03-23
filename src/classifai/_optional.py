@@ -23,7 +23,7 @@ def check_deps(reqs: list[str], extra: str | None = None) -> None:
 
     Args:
         reqs (list[str]): A list of package names to check.
-        extra (str, optional): The name of the extra installation group. Defaults to None.
+        extra (str): [optional] The name of the extra installation group. Defaults to None.
 
     Raises:
         OptionalDependencyError: If any of the required packages are not installed.
