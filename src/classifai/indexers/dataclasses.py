@@ -191,17 +191,17 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
     Attributes:
         id (pd.Series): Identifier for the input label for lookup in the knowledgebase.
-        doc_label (pd.Series): Identifier for the knowledgebase example retrieved.
-        retrieved_doc_label (pd.Series): Identifier for the retrieved document with the same label.
-        retrieved_doc_text (pd.Series): The text content of the retrieved example.
+        searched_doc_label (pd.Series): Identifier for the knowledgebase label being looked up.
+        doc_label (pd.Series): Identifier for the retrieved document with the same label.
+        doc_text (pd.Series): The text content of the retrieved example.
     """
 
     _schema = pa.DataFrameSchema(
         {
             "id": pa.Column(str),
+            "searched_doc_label": pa.Column(str),
             "doc_label": pa.Column(str),
-            "retrieved_doc_label": pa.Column(str),
-            "retrieved_doc_text": pa.Column(str),
+            "doc_text": pa.Column(str),
         }
     )
 
@@ -233,15 +233,15 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
     @property
     def doc_label(self) -> pd.Series:
-        return self["doc_label"]
+        return self["searched_doc_label"]
 
     @property
     def retrieved_doc_label(self) -> pd.Series:
-        return self["retrieved_doc_label"]
+        return self["doc_label"]
 
     @property
     def retrieved_doc_text(self) -> pd.Series:
-        return self["retrived_doc_text"]
+        return self["doc_text"]
 
 
 class VectorStoreEmbedInput(pd.DataFrame):
