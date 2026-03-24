@@ -194,8 +194,8 @@ def convert_reverse_search_dataframe_to_pydantic_response(
             # Create a ReverseSearchResponseEntry object
             response_entries.append(
                 ReverseSearchResponseEntry(
-                    retrieved_doc_label=row["doc_label"],
-                    retrieved_doc_text=row["doc_text"],
+                    doc_label=row["doc_label"],
+                    doc_text=row["doc_text"],
                     **metadata_values,  # Add metadata dynamically
                     **other_values,  # Add any extra columns dynamically
                 )
@@ -205,7 +205,7 @@ def convert_reverse_search_dataframe_to_pydantic_response(
         results_list.append(
             ReverseSearchResponseSet(
                 input_id=input_id,
-                doc_label=group_df["searched_doc_label"].iloc[
+                searched_doc_label=group_df["searched_doc_label"].iloc[
                     0
                 ],  # Assuming `doc_label` is the same for all rows in the group
                 entries=response_entries,
