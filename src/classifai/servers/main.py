@@ -25,14 +25,15 @@ from ..indexers.dataclasses import (
 )
 from ..indexers.main import VectorStore
 from .pydantic_models import (
-    ClassifaiData,
-    EmbeddingsList,
-    EmbeddingsResponseBody,
-    ResultsResponseBody,
-    RevClassifaiData,
-    RevResultsResponseBody,
-    convert_dataframe_to_pydantic_response,
-    convert_dataframe_to_reverse_search_pydantic_response,
+    EmbedRequestSet,
+    EmbedResponseBody,
+    ReverseSearchRequestSet,
+    ReverseSearchResponseBody,
+    SearchRequestSet,
+    SearchResponseBody,
+    convert_embedding_dataframe_to_pydantic_response,
+    convert_reverse_search_dataframe_to_pydantic_response,
+    convert_search_dataframe_to_pydantic_response,
 )
 
 
@@ -173,24 +174,18 @@ def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, 
     """
 
     @router.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
-    async def embedding_endpoint(data: ClassifaiData) -> EmbeddingsResponseBody:
+    async def embedding_endpoint(data: EmbedRequestSet) -> EmbedResponseBody:
         input_ids = [x.id for x in data.entries]
-        documents = [x.description for x in data.entries]
+        input_texts = [x.text for x in data.entries]
 
-        input_data = VectorStoreEmbedInput({"id": input_ids, "text": documents})
-
+        # Creat the input dataclass object and pass it to the vectorstore to get results.
+        input_data = VectorStoreEmbedInput({"id": input_ids, "text": input_texts})
         output_data = vector_store.embed(input_data)
 
-        returnable = []
-        for _, row in output_data.iterrows():
-            returnable.append(
-                EmbeddingsList(
-                    idx=row["id"],
-                    description=row["text"],
-                    embedding=row["embedding"].tolist(),  # Convert numpy array to list
-                )
-            )
-        return EmbeddingsResponseBody(data=returnable)
+        # post processing of the Vectorstore output åobject
+        formatted_result = convert_embedding_dataframe_to_pydantic_response(output_data)
+
+        return formatted_result
 
 
 def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
@@ -208,7 +203,7 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
 
     @router.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
     async def search_endpoint(
-        data: ClassifaiData,
+        data: SearchRequestSet,
         n_results: Annotated[
             int,
             Query(
@@ -216,15 +211,17 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
                 ge=1,  # Ensure at least one result is returned
             ),
         ] = 10,
-    ) -> ResultsResponseBody:
+    ) -> SearchResponseBody:
+        # Creat the input dataclass object and pass it to the vectorstore to get results.
         input_ids = [x.id for x in data.entries]
-        queries = [x.description for x in data.entries]
+        queries = [x.query for x in data.entries]
 
+        # Creat the input dataclass object and pass it to the vectorstore to get results.
         input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
         output_data = vector_store.search(query=input_data, n_results=n_results)
 
-        ##post processing of the Vectorstore outputobject
-        formatted_result = convert_dataframe_to_pydantic_response(
+        # post processing of the Vectorstore output åobject
+        formatted_result = convert_search_dataframe_to_pydantic_response(
             df=output_data,
             meta_data=vector_store.meta_data,
         )
@@ -247,7 +244,7 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
 
     @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
     def reverse_search_endpoint(
-        data: RevClassifaiData,
+        data: ReverseSearchRequestSet,
         max_n_results: Annotated[
             int | Literal[-1],
             Query(description="The max number of results to return, set to -1 to return all results."),
@@ -255,18 +252,21 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
         partial_match: Annotated[
             bool, Query(description="Flag to use partial `starts_with` matching for queries")
         ] = False,
-    ) -> RevResultsResponseBody:
+    ) -> ReverseSearchResponseBody:
         # Enforce the ≥1 rule manually, only when not -1
         if max_n_results != -1 and max_n_results < 1:
             raise HTTPException(422, "max_n_results must be -1 or >= 1")
 
+        # Creat the input dataclass object and pass it to the vectorstore to get results.
         input_ids = [x.id for x in data.entries]
-        queries = [x.code for x in data.entries]
+        queries = [x.doc_label for x in data.entries]
 
-        input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_id": queries})
+        # Creat the input dataclass object and pass it to the vectorstore to get results.
+        input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_label": queries})
         output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
 
-        formatted_result = convert_dataframe_to_reverse_search_pydantic_response(
+        # post processing of the Vectorstore output object
+        formatted_result = convert_reverse_search_dataframe_to_pydantic_response(
             df=output_data,
             meta_data=vector_store.meta_data,
         )

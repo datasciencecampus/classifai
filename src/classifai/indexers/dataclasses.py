@@ -67,7 +67,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
     Attributes:
         query_id (pd.Series): Identifier for the source query.
         query_text (pd.Series): The original query text.
-        doc_id (pd.Series): Identifier for the retrieved document.
+        doc_label (pd.Series): Identifier for the retrieved document.
         doc_text (pd.Series): The text content of the retrieved document.
         rank (pd.Series): The ranking position of the result (0-indexed, non-negative).
         score (pd.Series): The similarity score or relevance metric.
@@ -77,7 +77,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
         {
             "query_id": pa.Column(str),
             "query_text": pa.Column(str),
-            "doc_id": pa.Column(str),
+            "doc_label": pa.Column(str),
             "doc_text": pa.Column(str),
             "rank": pa.Column(int, pa.Check.ge(0)),
             "score": pa.Column(float),
@@ -117,8 +117,8 @@ class VectorStoreSearchOutput(pd.DataFrame):
         return self["query_text"]
 
     @property
-    def doc_id(self) -> pd.Series:
-        return self["doc_id"]
+    def doc_label(self) -> pd.Series:
+        return self["doc_label"]
 
     @property
     def doc_text(self) -> pd.Series:
@@ -141,13 +141,13 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
     Attributes:
         id (pd.Series): Unique identifier for the reverse search query.
-        doc_id (pd.Series): The document ID to find similar documents for.
+        doc_label (pd.Series): The document ID to find similar documents for.
     """
 
     _schema = pa.DataFrameSchema(
         {
             "id": pa.Column(str),
-            "doc_id": pa.Column(str),
+            "doc_label": pa.Column(str),
         },
         coerce=True,
     )
@@ -179,8 +179,8 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
         return self["id"]
 
     @property
-    def text(self) -> pd.Series:
-        return self["doc_id"]
+    def doc_label(self) -> pd.Series:
+        return self["doc_label"]
 
 
 class VectorStoreReverseSearchOutput(pd.DataFrame):
@@ -190,15 +190,17 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
     containing knowledgebase examples with the same label as in the query.
 
     Attributes:
-        query_id (pd.Series): Identifier for the input label for lookup in the knowledgebase.
-        doc_id (pd.Series): Identifier for the knowledgebase example retrieved.
+        id (pd.Series): Identifier for the input label for lookup in the knowledgebase.
+        searched_doc_label (pd.Series): Identifier for the knowledgebase label being looked up.
+        doc_label (pd.Series): Identifier for the retrieved document with the same label.
         doc_text (pd.Series): The text content of the retrieved example.
     """
 
     _schema = pa.DataFrameSchema(
         {
             "id": pa.Column(str),
-            "doc_id": pa.Column(str),
+            "searched_doc_label": pa.Column(str),
+            "doc_label": pa.Column(str),
             "doc_text": pa.Column(str),
         }
     )
@@ -226,15 +228,19 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
         return cls(validated_df)
 
     @property
-    def query_id(self) -> pd.Series:
-        return self["input_doc_id"]
+    def id(self) -> pd.Series:
+        return self["id"]
 
     @property
-    def doc_id(self) -> pd.Series:
-        return self["retrieved_doc_id"]
+    def doc_label(self) -> pd.Series:
+        return self["searched_doc_label"]
 
     @property
-    def doc_text(self) -> pd.Series:
+    def retrieved_doc_label(self) -> pd.Series:
+        return self["doc_label"]
+
+    @property
+    def retrieved_doc_text(self) -> pd.Series:
         return self["doc_text"]
 
 
