@@ -454,7 +454,7 @@ class VectorStore:
 
         Returns:
             (VectorStoreReverseSearchOutput): A `VectorStoreReverseSearchOutput` object containing reverse search
-                results with columns for `id`, `doc_label`, `retrieved_doc_label`, `retrieved_doc_text` and any associated metadata columns.
+                results with columns for `id`, `searched_doc_label`, retrieved `doc_label`, `doc_text` and any associated metadata columns.
 
         Raises:
             `DataValidationError`: Raised if invalid arguments are passed.
@@ -497,25 +497,25 @@ class VectorStore:
         try:
             # polars conversion
             paired_query = pl.DataFrame(
-                {"id": query.id.astype(str).to_list(), "doc_label": query.doc_label.astype(str).to_list()}
+                {"id": query.id.astype(str).to_list(), "searched_doc_label": query.doc_label.astype(str).to_list()}
             )
 
             # rename vectors dataframe for reverse search return column names and joining
-            docs = self.vectors.rename({"label": "retrieved_doc_label", "text": "retrieved_doc_text"}).with_columns(
-                pl.col("retrieved_doc_label").alias("retrieved_doc_label_copy")
+            docs = self.vectors.rename({"label": "doc_label", "text": "doc_text"}).with_columns(
+                pl.col("doc_label").alias("doc_label_copy")
             )
 
             if partial_match:
-                out = docs.join_where(paired_query, pl.col("retrieved_doc_label").str.starts_with(pl.col("doc_label")))
+                out = docs.join_where(paired_query, pl.col("doc_label").str.starts_with(pl.col("searched_doc_label")))
             else:
                 out = paired_query.join(
                     docs,
-                    left_on="doc_label",
-                    right_on="retrieved_doc_label",
+                    left_on="searched_doc_label",
+                    right_on="doc_label",
                     how="inner",
-                ).rename({"retrieved_doc_label_copy": "retrieved_doc_label"})
+                ).rename({"doc_label_copy": "doc_label"})
 
-            out = out.sort(by=["id", "doc_label"], descending=[False, False])
+            out = out.sort(by=["id", "searched_doc_label"], descending=[False, False])
             if max_n_results != -1:
                 out = out.group_by("id").head(max_n_results)
 
@@ -523,9 +523,9 @@ class VectorStore:
             final_table = out.select(
                 [
                     pl.col("id").cast(str),
+                    pl.col("searched_doc_label").cast(str),
                     pl.col("doc_label").cast(str),
-                    pl.col("retrieved_doc_label").cast(str),
-                    pl.col("retrieved_doc_text").cast(str),
+                    pl.col("doc_text").cast(str),
                     *[pl.col(key) for key in self.meta_data],
                 ]
             )

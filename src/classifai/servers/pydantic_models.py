@@ -74,12 +74,12 @@ class ReverseSearchRequestSet(BaseModel):
 
 
 class ReverseSearchResponseEntry(BaseModel):
-    """Atomic model for single reverse search result entry, includes `retrieved_doc_label` and `retrieved_doc_text` which
+    """Atomic model for single reverse search result entry, includes retrieved `doc_label` and `doc_text` which
     are expected as str types.
     """
 
-    retrieved_doc_label: str
-    retrieved_doc_text: str
+    doc_label: str
+    doc_text: str
 
     class Config:
         extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
@@ -87,13 +87,13 @@ class ReverseSearchResponseEntry(BaseModel):
 
 class ReverseSearchResponseSet(BaseModel):
     """Model for a list of many `ReverseSearchResponseEntry` pydnatic models, representing a list of `VectorStore`
-    entries found (partially) matching an input 'doc_label' and corresponding input `id`.
+    entries found (partially) matching an input 'searched_doc_label' and corresponding input `id`.
     """
 
     input_id: str = Field(
         description="The id of the vectorstore row entry input for which these are the reverse search results."
     )
-    doc_label: str = Field(
+    searched_doc_label: str = Field(
         description="The vectorstore row entry label that was looked up in the reverse search query."
     )
     entries: list[ReverseSearchResponseEntry] = Field(
@@ -167,9 +167,9 @@ def convert_reverse_search_dataframe_to_pydantic_response(
         .difference(
             {
                 "id",
+                "searched_doc_label",
                 "doc_label",
-                "retrieved_doc_label",
-                "retrieved_doc_text",
+                "doc_text",
             }
         )
     )
@@ -194,8 +194,8 @@ def convert_reverse_search_dataframe_to_pydantic_response(
             # Create a ReverseSearchResponseEntry object
             response_entries.append(
                 ReverseSearchResponseEntry(
-                    retrieved_doc_label=row["retrieved_doc_label"],
-                    retrieved_doc_text=row["retrieved_doc_text"],
+                    doc_label=row["doc_label"],
+                    doc_text=row["doc_text"],
                     **metadata_values,  # Add metadata dynamically
                     **other_values,  # Add any extra columns dynamically
                 )
@@ -205,7 +205,9 @@ def convert_reverse_search_dataframe_to_pydantic_response(
         results_list.append(
             ReverseSearchResponseSet(
                 input_id=input_id,
-                doc_label=group_df["doc_label"].iloc[0],  # Assuming `doc_label` is the same for all rows in the group
+                searched_doc_label=group_df["searched_doc_label"].iloc[
+                    0
+                ],  # Assuming `doc_label` is the same for all rows in the group
                 entries=response_entries,
             )
         )
