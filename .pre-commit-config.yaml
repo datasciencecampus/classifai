@@ -48,7 +48,7 @@ repos:
         name: deptry (uv)
         language: system
         pass_filenames: false # deptry expects a project path, not filenames
-        entry: uv run deptry  --per-rule-ignores "DEP003=plum,DEP004=quartodoc|numpydoc" .
+        entry: uv run deptry --per-rule-ignores "DEP003=plum,DEP004=quartodoc|numpydoc" .
 
       - id: forbid-new-init
         name: Check if __init__.py is added to the src folder

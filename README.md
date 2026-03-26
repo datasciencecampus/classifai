@@ -4,7 +4,7 @@
 
 # ClassifAI
 
-ClassifAI is a Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
+ClassifAI is a free, open-source (MIT Licence) Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
 
 The Office for National Statistics often needs to classify free-text survey responses or other data to standard statistical classifications. The most well-known examples include the Standard Industrial Classification ([SIC](https://www.gov.uk/government/publications/standard-industrial-classification-of-economic-activities-sic)), the Standard Occupational Classification ([SOC](https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc)), and the Classification Of Individual COnsumption according to Purpose ([COICOP](https://en.wikipedia.org/wiki/Classification_of_Individual_Consumption_According_to_Purpose)), as well as international equivalents such as [ISCO](https://esco.ec.europa.eu/en/about-esco/escopedia/escopedia/international-standard-classification-occupations-isco) and [ISIC](https://en.wikipedia.org/wiki/International_Standard_Industrial_Classification). The ClassifAI package has been designed specifically to help us build applications, pipelines and analyses for this kind of task.
 
@@ -82,11 +82,11 @@ pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecam
 ```
 
 ##### Astral UV
-one-off add to environment:
+One-off add to environment:
 ```bash
 uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
 ```
-persist as an environment requirement:
+Persist as an environment requirement:
 ```bash
 uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
 ```
@@ -140,12 +140,23 @@ print(results)
 
 #### Step 4: Deploy as a REST API
 
-You can use ClassifAI as a local package, or deploy it as an API server, using FastAPI.
+In addition to using ClassifAI as a local package, you can use it to create / attach to a FastAPI REST API.
+You can create a new FastAPI application which you can modify as required, connect it to an existing FastAPI 
+application, or deploy it immediately as an REST API service using `uvicorn`.
 
 ```python
-from classifai.servers import start_api
+from classifai.servers import get_server, get_router, run_server
 
-start_api(vector_stores=[vector_store], endpoint_names=["Occupations"], port=8000)
+...
+
+# Create and expose the API routing to be attached to an existing FastAPI service;
+app = get_server(vector_stores=[vector_store], endpoint_names=["Occupations"])
+
+# Create and expose the API routing to be attached to an existing FastAPI service;
+routing = get_server(vector_stores=[vector_store], endpoint_names=["Occupations"])
+
+# Directly spin up a new locally-hosted FastAPI server with `uvicorn`;
+run_server(vector_stores=[vector_store], endpoint_names=["Occupations"], port=8000)
 ```
 
 #### Learn more
