@@ -1,4 +1,4 @@
-id,text,colour,country,language
+label,text,colour,country,language
 0001,The sun rises in the east.,Orange,India,Hindi
 0002,The moon shines at night.,White,USA,English
 0003,Rivers flow to the sea.,Blue,Brazil,Portuguese

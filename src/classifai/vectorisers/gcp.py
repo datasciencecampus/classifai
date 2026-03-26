@@ -61,7 +61,7 @@ class GcpVectoriser(VectoriserBase):
             **client_kwargs: [optional] Additional keyword arguments to pass to the GenAI client.
 
         Raises:
-            ConfigurationError: If the GenAI client fails to initialize.
+            `ConfigurationError`: If the GenAI client fails to initialize.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -100,8 +100,8 @@ class GcpVectoriser(VectoriserBase):
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
 
         Raises:
-            ExternalServiceError: If the GenAI API request fails.
-            VectorisationError: If the response format from the GenAI API is unexpected.
+            `ExternalServiceError`: If the GenAI API request fails.
+            `VectorisationError`: If the response format from the GenAI API is unexpected.
         """
         # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
