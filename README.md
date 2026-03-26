@@ -149,11 +149,11 @@ from classifai.servers import get_server, get_router, run_server
 
 ...
 
-# Create and expose the API routing to be attached to an existing FastAPI service;
+# Create a FastAPI restAPI application object;
 app = get_server(vector_stores=[vector_store], endpoint_names=["Occupations"])
 
 # Create and expose the API routing to be attached to an existing FastAPI service;
-routing = get_server(vector_stores=[vector_store], endpoint_names=["Occupations"])
+routing = get_router(vector_stores=[vector_store], endpoint_names=["Occupations"])
 
 # Directly spin up a new locally-hosted FastAPI server with `uvicorn`;
 run_server(vector_stores=[vector_store], endpoint_names=["Occupations"], port=8000)

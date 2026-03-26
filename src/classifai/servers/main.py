@@ -1,6 +1,6 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a start a restAPI service which
-allows a user to call the search methods of different VectorStore objects, from
+"""This module provides functionality for creating a start a restAPI service.
+This allows a user to call the search methods of different VectorStore objects, from
 an api-endpoint.
 
 These functions interact with the ClassifAI PackageIndexer modules
