@@ -165,9 +165,11 @@ Further guides and tutorials can be found in the [DEMO folder](./DEMO/) of this 
 
 - [General workflow](./DEMO/general_workflow_demo.ipynb)
 - [Custom vectorisers](./DEMO/custom_vectoriser.ipynb)
-  - make your own custom vectoriser model that will interact with the core features of the package,
-- [Custom pre- and post-processing hooks](./DEMO/custom_preprocessing_and_postprocessing_hooks.ipynb)
+  - make your own custom vectoriser model that will interact with the core features of the package.
+- [Custom pre- and post-processing hooks](./DEMO/using_hooks.ipynb)
   - Add your own custom 'hook' logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.
+- [AI agents in ClassifAI](./DEMO/ai_agent_hooks.ipynb)
+  - Utilise the premade RAG hook to perform AI agent tasks with the VectorStore
 - (more demos to come soon)
 
 ## Contributing to this repo and development Setup

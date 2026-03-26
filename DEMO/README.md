@@ -54,7 +54,7 @@ It covers:
 
 * Examples of different kinds of hooks that can be written - [spellchecking, deduplicating results, adding extra info to results based on result ids]
 
-### 4. # AI agents in ClassifAI for classification and other tasks ✨ : `ai_agent_hooks.ipynb`
+### 4. AI agents in ClassifAI for classification and other tasks ✨ : `ai_agent_hooks.ipynb`
 
 This notebooks describes how Generative AI Agents can be used with the VectorStore for different tasks such as classification, utilising Hooks and showcasing a pre-made hook class - RagHook.
 

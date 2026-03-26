@@ -446,7 +446,7 @@ class VectorStore:
 
         Args:
             query (VectorStoreReverseSearchInput): A `VectorStoreReverseSearchInput` object containing the `doc_labels` to
-            look up in the `VectorStore` and their corresponding ids.
+                look up in the `VectorStore` and their corresponding ids.
             max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results.
                 Defaults to 100.
             partial_match (bool): [optional] If `True`, the search behaviour is set to return results where the `doc_label`
