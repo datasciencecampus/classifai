@@ -4,7 +4,8 @@ from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
-from google import genai
+from classifai._optional import check_deps
+#from google import genai
 
 from classifai.exceptions import ConfigurationError, HookError
 from classifai.indexers.dataclasses import VectorStoreSearchOutput
@@ -106,6 +107,9 @@ class RagHook(HookBase):
         Raises:
             ConfigurationError: If the GenAI client fails to initialize.
         """
+        check_deps(["google-genai"], extra="gcp")
+        from google import genai  # type: ignore
+
         self.model_name = model_name
         self.context_prompt = context_prompt
         self.response_template = response_template
