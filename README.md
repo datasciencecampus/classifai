@@ -78,17 +78,17 @@ The current sets of optional dependencies are `[all, huggingface, ollama, gcp]`.
 
 ##### Pip
 ```bash
-pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 1.0.0>/classifai-<version e.g. 1.0.0>-py3-none-any.whl"
 ```
 
 ##### Astral UV
 One-off add to environment:
 ```bash
-uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 1.0.0>/classifai-<version e.g. 1.0.0>-py3-none-any.whl"
 ```
 Persist as an environment requirement:
 ```bash
-uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 1.0.0>/classifai-<version e.g. 1.0.0>-py3-none-any.whl"
 ```
 
 ## Example: Indexing and searching a knowledgebase
