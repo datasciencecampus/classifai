@@ -4,9 +4,8 @@ from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
-from classifai._optional import check_deps
-#from google import genai
 
+from classifai._optional import check_deps
 from classifai.exceptions import ConfigurationError, HookError
 from classifai.indexers.dataclasses import VectorStoreSearchOutput
 from classifai.indexers.hooks.hook_factory import HookBase
@@ -130,6 +129,7 @@ class RagHook(HookBase):
 
         try:
             self.client = genai.Client(**self.client_kwargs)  # .aio
+            self.config_generator = genai.types.GenerateContentConfig  # type: ignore
         except Exception as e:
             raise ConfigurationError(
                 "Failed to initialize GCP GenAI client.",
@@ -234,7 +234,7 @@ class RagHook(HookBase):
             response = self.client.models.generate_content(  # await ...
                 model=self.model_name,
                 contents=prompt,
-                config=genai.types.GenerateContentConfig(system_instruction=self.context_prompt),
+                config=self.config_generator(system_instruction=self.context_prompt),
             )
             updated_search_output.loc[search_subset.index, "RAG_response"] = self.llm_response_parser(
                 search_subset, response.text
