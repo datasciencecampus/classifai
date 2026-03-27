@@ -72,7 +72,8 @@ website:
             - file: DEMO/README.md
             - file: DEMO/general_workflow_demo.ipynb
             - file: DEMO/custom_vectoriser.ipynb
-            - file: DEMO/custom_preprocessing_and_postprocessing_hooks.ipynb
+            - file: DEMO/using_hooks.ipynb
+            - file: DEMO/ai_agent_hooks.ipynb
 
 interlinks:
  sources:

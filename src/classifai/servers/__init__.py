@@ -1,5 +1,5 @@
-"""This module provides functionality for creating or extending a REST-API service
-which allows a user to call the search methods of one or more `VectorStore` objects,
+"""This module provides functionality for creating or extending a REST-API service.
+This allows a user to call the search methods of one or more `VectorStore` objects,
 from an API endpoint.
 
 These functions interact with the ClassifAI Indexer module's `VectorStore` objects,

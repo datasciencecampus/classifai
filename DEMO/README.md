@@ -36,7 +36,7 @@ It covers:
 
 This notebook is for users who want to implement a vectorisation approach not covered by our existing suite of Vectorisers.
 
-### 3. VectorStore pre- and post- processing logic with _Hooks_ 🪝 : `custom_preprocessing_and_postprocessing_hooks.ipynb`
+### 3. VectorStore pre- and post- processing logic with _Hooks_ 🪝 : `using_hooks.ipynb`
 
 This notebook demostrates how to add custom Python code logic to the VectorStore search pipeline, such as performing spell checking on user input, without breaking the data flow of the ClassifAI VectorStore.
 
@@ -46,9 +46,25 @@ It covers:
 
 * How to write 'hooks' - Python functions that can manipulate the input and output data of the different VectorStore methods
 
+* The Hook base class, which can be used to create your own hooks.
+
+* Pre-made hooks that come read-made with ClassifAI that you can import straight away.
+
 * How to ensure your hooks don't break the dataflow by following the required input and output dataclasses
 
 * Examples of different kinds of hooks that can be written - [spellchecking, deduplicating results, adding extra info to results based on result ids]
+
+### 4. AI agents in ClassifAI for classification and other tasks ✨ : `ai_agent_hooks.ipynb`
+
+This notebooks describes how Generative AI Agents can be used with the VectorStore for different tasks such as classification, utilising Hooks and showcasing a pre-made hook class - RagHook.
+
+It covers:
+
+* A general introduction to Classification in ClassifAI and the advantages of using Generative AI to achieve this.
+
+* An overview of Retrieval Augmented Generation RAG and how this operates with ClassifAI Hooks and search results.
+
+* A showcase of the pre-made `RagHook` class and performing different RAG type tasks on `VectorStoreSearchOutput` results including classification, reranking and keyword identication, and how to customise the specific task using this class.
 
 ---
 

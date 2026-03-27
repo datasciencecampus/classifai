@@ -149,11 +149,11 @@ from classifai.servers import get_server, get_router, run_server
 
 ...
 
-# Create and expose the API routing to be attached to an existing FastAPI service;
+# Create a FastAPI restAPI application object;
 app = get_server(vector_stores=[vector_store], endpoint_names=["Occupations"])
 
 # Create and expose the API routing to be attached to an existing FastAPI service;
-routing = get_server(vector_stores=[vector_store], endpoint_names=["Occupations"])
+routing = get_router(vector_stores=[vector_store], endpoint_names=["Occupations"])
 
 # Directly spin up a new locally-hosted FastAPI server with `uvicorn`;
 run_server(vector_stores=[vector_store], endpoint_names=["Occupations"], port=8000)
@@ -164,10 +164,13 @@ run_server(vector_stores=[vector_store], endpoint_names=["Occupations"], port=80
 Further guides and tutorials can be found in the [DEMO folder](./DEMO/) of this repo. It currently includes the following notebooks:
 
 - [General workflow](./DEMO/general_workflow_demo.ipynb)
+  - A general introduction to using the ClassifAI package.
 - [Custom vectorisers](./DEMO/custom_vectoriser.ipynb)
-  - make your own custom vectoriser model that will interact with the core features of the package,
-- [Custom pre- and post-processing hooks](./DEMO/custom_preprocessing_and_postprocessing_hooks.ipynb)
-  - Add your own custom 'hook' logic to the VectorStore search processes, allowing you to inject custom behaviour to your VectorStores.
+  - make your own custom vectoriser model that will interact with the core features of the package.
+- [Custom pre- and post-processing "hooks"](./DEMO/using_hooks.ipynb)
+  - Using provided default hooks that modify the `VectorStore` behaviour, and build your own custom hooks.
+- [AI agents in ClassifAI](./DEMO/ai_agent_hooks.ipynb)
+  - Utilise the premade RAG hook to perform AI agent tasks with the `VectorStore`.
 - (more demos to come soon)
 
 ## Contributing to this repo and development Setup
