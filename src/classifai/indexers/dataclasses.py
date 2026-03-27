@@ -232,15 +232,15 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
         return self["id"]
 
     @property
-    def doc_label(self) -> pd.Series:
+    def searched_doc_label(self) -> pd.Series:
         return self["searched_doc_label"]
 
     @property
-    def retrieved_doc_label(self) -> pd.Series:
+    def doc_label(self) -> pd.Series:
         return self["doc_label"]
 
     @property
-    def retrieved_doc_text(self) -> pd.Series:
+    def doc_text(self) -> pd.Series:
         return self["doc_text"]
 
 
