@@ -1,7 +1,4 @@
-from .postprocessing import DeduplicationHook
+from .postprocessing import DeduplicationHook, RagHook
 from .preprocessing import CapitalisationStandardisingHook
 
-__all__ = [
-    "CapitalisationStandardisingHook",
-    "DeduplicationHook",
-]
+__all__ = ["CapitalisationStandardisingHook", "DeduplicationHook", "RagHook"]

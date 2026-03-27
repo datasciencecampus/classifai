@@ -1,6 +1,5 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a `VectorStore` from a CSV (text)
-file.
+"""This module provides functionality for creating a `VectorStore` from a CSV (text) file.
 It defines the `VectorStore` class, which is used to model and create vector databases
 from CSV text files using a `Vectoriser` object.
 
@@ -13,6 +12,7 @@ Key Features:
   - Batch processing of input files to handle large datasets.
   - Support for CSV file format (additional formats may be added in future updates).
   - Integration with a custom embedder for generating vector embeddings.
+  - Support for user-defined hooks for preprocessing and postprocessing.
   - Logging for tracking progress and handling errors during processing.
 
 VectorStore Class:

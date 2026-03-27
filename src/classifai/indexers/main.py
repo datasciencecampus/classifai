@@ -1,6 +1,5 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a `VectorStore` from a CSV (text)
-file.
+"""This module provides functionality for creating a `VectorStore` from a CSV (text) file.
 It defines the `VectorStore` class, which is used to model and create vector databases
 from CSV text files using a `Vectoriser` object.
 
@@ -9,11 +8,11 @@ to convert the CSV's text data into vector embeddings which are then stored in t
 VectorStore objects.
 
 Key Features:
-
-  - Batch processing of input files to handle large datasets.
-  - Support for CSV file format (additional formats may be added in future updates).
-  - Integration with a custom embedder for generating vector embeddings.
-  - Logging for tracking progress and handling errors during processing.
+- Batch processing of input files to handle large datasets.
+- Support for CSV file format (additional formats may be added in future updates).
+- Integration with a custom embedder for generating vector embeddings.
+- Support for user-defined hooks for preprocessing and postprocessing.
+- Logging for tracking progress and handling errors during processing.
 
 VectorStore Class:
 
@@ -357,8 +356,7 @@ class VectorStore:
             ) from e
 
     def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:  #  noqa: C901
-        """Converts text (provided via a `VectorStoreEmbedInput` object) into vector embeddings using the `Vectoriser` and
-        returns a `VectorStoreEmbedOutput` dataframe with  columns `id`, `text`, and `embedding`.
+        """Converts text (provided via a `VectorStoreEmbedInput` object) into vector embeddings using the `Vectoriser`.
 
         Args:
             query (VectorStoreEmbedInput): The `VectorStoreEmbedInput` object containing the strings to be embedded and their ids.
@@ -440,13 +438,12 @@ class VectorStore:
     def reverse_search(  # noqa: C901, PLR0912
         self, query: VectorStoreReverseSearchInput, max_n_results: int = 100, partial_match: bool = False
     ) -> VectorStoreReverseSearchOutput:
-        """Reverse searches the `VectorStore` using a `VectorStoreReverseSearchInput` object
-        and returns matched results in `VectorStoreReverseSearchOutput` object.
+        """Reverse searches the `VectorStore` using a `VectorStoreReverseSearchInput` object.
         If using partial matching, matches if document label starts with query label.
 
         Args:
             query (VectorStoreReverseSearchInput): A `VectorStoreReverseSearchInput` object containing the `doc_labels` to
-            look up in the `VectorStore` and their corresponding ids.
+                look up in the `VectorStore` and their corresponding ids.
             max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results.
                 Defaults to 100.
             partial_match (bool): [optional] If `True`, the search behaviour is set to return results where the `doc_label`
@@ -567,8 +564,8 @@ class VectorStore:
         return result_df
 
     def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=8) -> VectorStoreSearchOutput:  # noqa: C901, PLR0912, PLR0915
-        """Searches the `VectorStore` using queries from a `VectorStoreSearchInput` object and returns
-        ranked results in `VectorStoreSearchOutput` object. In batches, converts users text queries into vector embeddings,
+        """Searches the `VectorStore` using queries from a `VectorStoreSearchInput` object.
+        Outputs ranked results in `VectorStoreSearchOutput` object. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
 
         Args:
