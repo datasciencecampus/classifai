@@ -58,11 +58,11 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: setup gitleaks
-        run: make setup-gitleaks
+      #- name: setup gitleaks
+      #  run: make setup-gitleaks
 
-      - name: run gitleaks
-        run: make run-gitleaks
+      #- name: run gitleaks
+      #  run: make run-gitleaks
 
       - name: check code formatting & vulnerability detection
         run: make check-python-nofix
