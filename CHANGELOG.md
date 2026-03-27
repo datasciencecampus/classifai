@@ -11,8 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AI Agents - Hooks for using genai to perform tasks on VectorStore results.
 - Hooks Framework - new framework for hooks to support premade and custom hook development.
-- Documentation - new QuartoDocs docuemnting the ClassifAI package and new demo notebooks.
-- Partial String matching - reverse search VectorStore method now does optional partial matching
+- Server Class Features:
+    - new methods for instantiating the FastAPI application and/or routing.
+    - allows middleware to be used, or the routing to be attached to another FastAPI service.
+- Documentation - new QuartoDocs documenting the ClassifAI package and new demo notebooks.
+- Partial String matching - reverse search VectorStore method now does optional partial matching.
 - Vectoriser Class - More options for instantiating HuggingFace models.
 
 ### Changed
@@ -20,7 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Datasets - updated dataset column names for v1.0.0
 - Documentation - better docstrings and updated demo notebooks.
 - Dataclasses - updated for more intuitive dataframe column naming.
-- Server Class Refactor - new ways to set up FastAPI including get router.
+- Server Class Refactor:
+    - expanded scope of features.
+    - renamed start_api method to run_server.
 
 ### Fixed
 - Server hook data - hook metadata now returned in FastAPI responses.
