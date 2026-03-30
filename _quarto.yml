@@ -62,16 +62,16 @@ website:
             - docs/indexers.VectorStore.reverse_search.qmd
             - docs/indexers.VectorStore.from_filespace.qmd
             - docs/indexers.dataclasses.qmd
-        - section: "Hooks"
-          contents:
-            - docs/indexers.hooks.qmd
-            - docs/indexers.hooks.hook_factory.HookBase.qmd
-            - docs/indexers.hooks.default_hooks.qmd
-            - docs/indexers.hooks.default_hooks.preprocessing.qmd
-            - docs/indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook.qmd
-            - docs/indexers.hooks.default_hooks.postprocessing.qmd
-            - docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.qmd
-            - docs/indexers.hooks.default_hooks.postprocessing.RagHook.qmd
+            - section: "Hooks"
+              contents:
+                - docs/indexers.hooks.qmd
+                - docs/indexers.hooks.hook_factory.HookBase.qmd
+                - docs/indexers.hooks.default_hooks.qmd
+                - docs/indexers.hooks.default_hooks.preprocessing.qmd
+                - docs/indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook.qmd
+                - docs/indexers.hooks.default_hooks.postprocessing.qmd
+                - docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.qmd
+                - docs/indexers.hooks.default_hooks.postprocessing.RagHook.qmd
         - section: "Servers"
           contents:
             - docs/servers.qmd
