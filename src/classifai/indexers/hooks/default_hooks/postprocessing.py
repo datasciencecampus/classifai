@@ -12,7 +12,7 @@ from classifai.indexers.hooks.hook_factory import HookBase
 
 
 class DeduplicationHook(HookBase):
-    """A pre-processing hook to remove duplicate knowledgebase entries, i.e. entries with the same label."""
+    """A post-processing hook to remove duplicate knowledgebase entries, i.e. entries with the same label."""
 
     def _mean_score(self, scores):
         return np.mean(scores)
@@ -76,6 +76,8 @@ class DeduplicationHook(HookBase):
 
 
 class RagHook(HookBase):
+    """A post-processing hook to perform Retrieval Augmented Generation."""
+
     def __init__(  # noqa: PLR0913
         self,
         context_prompt: str = "",
