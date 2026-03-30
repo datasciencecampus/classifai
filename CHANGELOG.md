@@ -55,3 +55,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - REST API - FastAPI served with Uvicorn
 - Documentation and Demo - README and Jupyter Notebook minimal demo with fake dataset.
 
+
+<!-- Links to tags -->
+[v1.0.0]: https://github.com/datasciencecampus/classifai/compare/v0.2.1...v1.0.0
+[v0.2.1]: https://github.com/datasciencecampus/classifai/compare/v0.2.0...v0.2.1
+[v0.2.0]: https://github.com/datasciencecampus/classifai/compare/v0.1.0...v0.2.0
+[v0.1.0]: https://github.com/datasciencecampus/classifai/releases/tag/v0.1.0
