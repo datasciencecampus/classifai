@@ -98,17 +98,17 @@ Activate it (Windows):
 
 ##### Using pip
 
-`pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
+`pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.0.0/classifai-1.0.0-py3-none-any.whl"`
 
 ##### Using uv
 
 one-off:
 
-`uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
+`uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.0.0/classifai-1.0.0-py3-none-any.whl"`
 
 add as project dependency:
 
-`uv add "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
+`uv add "https://github.com/datasciencecampus/classifai/releases/download/v1.0.0/classifai-1.0.0-py3-none-any.whl"`
 
 
 #### *2)* Install optional dependencies
