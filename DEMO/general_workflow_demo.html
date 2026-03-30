@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>✨ ClassifAI Demo - Introduction &amp; Basic Usage ✨ – ClassifAI</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -70,15 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../ons_favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-468133874b2c61eea53cdcd323bdbaac.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-24111f2d7671a07c32a60419c31bd4a3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -299,17 +301,76 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">indexers.dataclasses</span></a>
   </div>
 </li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
+          <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
- <span class="menu-text">Servers</span></a>
+ <span class="menu-text">Hooks</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.hook_factory.HookBase.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.hook_factory.HookBase</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.preprocessing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.preprocessing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.postprocessing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.postprocessing.DeduplicationHook</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.RagHook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.postprocessing.RagHook</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">Servers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../docs/servers.html" class="sidebar-item-text sidebar-link">
@@ -344,13 +405,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
  <span class="menu-text">DEMO</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../DEMO/README.html" class="sidebar-item-text sidebar-link">
@@ -371,8 +432,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../DEMO/custom_preprocessing_and_postprocessing_hooks.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">VectorStore pre- and post- processing logic with <i>Hooks</i>🪝</span></a>
+  <a href="../DEMO/using_hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">VectorStore pre- and post- processing with <em>Hooks</em> 🪝</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/ai_agent_hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AI agents in ClassifAI</span></a>
   </div>
 </li>
       </ul>
@@ -395,9 +462,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#vectorstore-data-objects" id="toc-vectorstore-data-objects" class="nav-link" data-scroll-target="#vectorstore-data-objects">VectorStore Data Objects</a></li>
   <li><a href="#once-created-you-can-search-the-vector-store-by-calling-the-.search-method" id="toc-once-created-you-can-search-the-vector-store-by-calling-the-.search-method" class="nav-link" data-scroll-target="#once-created-you-can-search-the-vector-store-by-calling-the-.search-method">Once created, you can search the vector store by calling the .search() method</a></li>
   <li><a href="#you-can-also-search-by-id-by-calling-the-.reverse_search-method-on-the-object" id="toc-you-can-also-search-by-id-by-calling-the-.reverse_search-method-on-the-object" class="nav-link" data-scroll-target="#you-can-also-search-by-id-by-calling-the-.reverse_search-method-on-the-object">You can also search by id by calling the .reverse_search method on the object</a></li>
-  </ul></li>
-  <li><a href="#with-reverse-search-you-can-do-partial-matching" id="toc-with-reverse-search-you-can-do-partial-matching" class="nav-link" data-scroll-target="#with-reverse-search-you-can-do-partial-matching">With reverse search you can do partial matching!</a>
-  <ul class="collapse">
+  <li><a href="#with-reverse-search-you-can-do-partial-matching" id="toc-with-reverse-search-you-can-do-partial-matching" class="nav-link" data-scroll-target="#with-reverse-search-you-can-do-partial-matching">With reverse search you can do partial matching!</a></li>
   <li><a href="#vectorstore-embed-method" id="toc-vectorstore-embed-method" class="nav-link" data-scroll-target="#vectorstore-embed-method">VectorStore Embed method</a></li>
   <li><a href="#the-output-dataclass-objects" id="toc-the-output-dataclass-objects" class="nav-link" data-scroll-target="#the-output-dataclass-objects">The Output Dataclass Objects!</a></li>
   <li><a href="#instantiating-data-class-objects" id="toc-instantiating-data-class-objects" class="nav-link" data-scroll-target="#instantiating-data-class-objects">Instantiating Data Class Objects</a></li>
@@ -554,25 +619,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-17" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers.dataclasses <span class="im">import</span> VectorStoreReverseSearchInput</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>input_data_2 <span class="op">=</span> VectorStoreReverseSearchInput({<span class="st">"id"</span>: [<span class="st">"1"</span>, <span class="st">"2"</span>], <span class="st">"doc_id"</span>: [<span class="st">"1100"</span>, <span class="st">"1056"</span>]})</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>input_data_2 <span class="op">=</span> VectorStoreReverseSearchInput({<span class="st">"id"</span>: [<span class="st">"1"</span>, <span class="st">"2"</span>], <span class="st">"doc_label"</span>: [<span class="st">"1100"</span>, <span class="st">"1056"</span>]})</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>my_vector_store.reverse_search(input_data_2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-</section>
-<section id="with-reverse-search-you-can-do-partial-matching" class="level2">
-<h2 class="anchored" data-anchor-id="with-reverse-search-you-can-do-partial-matching">With reverse search you can do partial matching!</h2>
+<section id="with-reverse-search-you-can-do-partial-matching" class="level3">
+<h3 class="anchored" data-anchor-id="with-reverse-search-you-can-do-partial-matching">With reverse search you can do partial matching!</h3>
 <p>use the <code>partial match</code> flag to check if the <strong>ids/labels</strong> start with our query id</p>
 <div id="cell-19" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>input_data_3 <span class="op">=</span> VectorStoreReverseSearchInput({<span class="st">"id"</span>: [<span class="st">"1"</span>, <span class="st">"2"</span>], <span class="st">"doc_id"</span>: [<span class="st">"1100"</span>, <span class="st">"105"</span>]})</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>input_data_3 <span class="op">=</span> VectorStoreReverseSearchInput({<span class="st">"id"</span>: [<span class="st">"1"</span>, <span class="st">"2"</span>], <span class="st">"doc_label"</span>: [<span class="st">"1100"</span>, <span class="st">"105"</span>]})</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>my_vector_store.reverse_search(input_data_3, partial_match<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="cell-20" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">## use n_results to limit the amount of results per-item</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>my_vector_store.reverse_search(input_data_3, n_results<span class="op">=</span><span class="dv">2</span>, partial_match<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>my_vector_store.reverse_search(input_data_3, max_n_results<span class="op">=</span><span class="dv">2</span>, partial_match<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
 <section id="vectorstore-embed-method" class="level3">
 <h3 class="anchored" data-anchor-id="vectorstore-embed-method">VectorStore Embed method</h3>
 <p>Its also possible to get the vector embeddings for each from some input text or queries by calling the VectorStore <i>.embed()</i> method.</p>

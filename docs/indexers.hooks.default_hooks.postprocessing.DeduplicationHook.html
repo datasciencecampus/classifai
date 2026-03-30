@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>indexers.dataclasses.vectorstoreembedinput – ClassifAI</title>
+<title>indexers.hooks.default_hooks.postprocessing.deduplicationhook – ClassifAI</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,6 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../docs/indexers.hooks.default_hooks.postprocessing.RagHook.html" rel="next">
+<link href="../docs/indexers.hooks.default_hooks.postprocessing.html" rel="prev">
 <link href="../ons_favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -150,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.hooks.html">Hooks</a></li><li class="breadcrumb-item"><a href="../docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html">indexers.hooks.default_hooks.postprocessing.DeduplicationHook</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -250,13 +252,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
  <span class="menu-text">Indexers</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link">
@@ -301,13 +303,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
  <span class="menu-text">Hooks</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../docs/indexers.hooks.html" class="sidebar-item-text sidebar-link">
@@ -346,7 +348,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html" class="sidebar-item-text sidebar-link">
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">indexers.hooks.default_hooks.postprocessing.DeduplicationHook</span></a>
   </div>
 </li>
@@ -452,86 +454,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#classifai.indexers.dataclasses.VectorStoreEmbedInput" id="toc-classifai.indexers.dataclasses.VectorStoreEmbedInput" class="nav-link active" data-scroll-target="#classifai.indexers.dataclasses.VectorStoreEmbedInput">indexers.dataclasses.VectorStoreEmbedInput</a>
-  <ul class="collapse">
-  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
-  <ul class="collapse">
-  <li><a href="#classifai.indexers.dataclasses.VectorStoreEmbedInput.from_data" id="toc-classifai.indexers.dataclasses.VectorStoreEmbedInput.from_data" class="nav-link" data-scroll-target="#classifai.indexers.dataclasses.VectorStoreEmbedInput.from_data">from_data</a></li>
-  <li><a href="#classifai.indexers.dataclasses.VectorStoreEmbedInput.validate" id="toc-classifai.indexers.dataclasses.VectorStoreEmbedInput.validate" class="nav-link" data-scroll-target="#classifai.indexers.dataclasses.VectorStoreEmbedInput.validate">validate</a></li>
-  </ul></li>
-  </ul></li>
+  <li><a href="#classifai.indexers.hooks.default_hooks.postprocessing.DeduplicationHook" id="toc-classifai.indexers.hooks.default_hooks.postprocessing.DeduplicationHook" class="nav-link active" data-scroll-target="#classifai.indexers.hooks.default_hooks.postprocessing.DeduplicationHook">indexers.hooks.default_hooks.postprocessing.DeduplicationHook</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.hooks.html">Hooks</a></li><li class="breadcrumb-item"><a href="../docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html">indexers.hooks.default_hooks.postprocessing.DeduplicationHook</a></li></ol></nav></header>
 
 
 
 
-<section id="classifai.indexers.dataclasses.VectorStoreEmbedInput" class="level1">
-<h1>indexers.dataclasses.VectorStoreEmbedInput</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>indexers.dataclasses.VectorStoreEmbedInput(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>DataFrame-like object for forming and validating text data to be embedded.</p>
-<p>This class validates and represents input texts that will be converted to vector embeddings by the vector store.</p>
-<section id="attributes" class="level2 doc-section doc-section-attributes">
-<h2 class="doc-section doc-section-attributes anchored" data-anchor-id="attributes">Attributes</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>id</td>
-<td>pd.Series</td>
-<td>Unique identifier for each text item.</td>
-</tr>
-<tr class="even">
-<td>text</td>
-<td>pd.Series</td>
-<td>The text content to be embedded.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="methods" class="level2">
-<h2 class="anchored" data-anchor-id="methods">Methods</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="#classifai.indexers.dataclasses.VectorStoreEmbedInput.from_data">from_data</a></td>
-<td>Create a validated VectorStoreEmbedInput from a dictionary or DataFrame.</td>
-</tr>
-<tr class="even">
-<td><a href="#classifai.indexers.dataclasses.VectorStoreEmbedInput.validate">validate</a></td>
-<td>Validate an existing instance against the schema and return a VectorStoreEmbedInput.</td>
-</tr>
-</tbody>
-</table>
-<section id="classifai.indexers.dataclasses.VectorStoreEmbedInput.from_data" class="level3">
-<h3 class="anchored" data-anchor-id="classifai.indexers.dataclasses.VectorStoreEmbedInput.from_data">from_data</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>indexers.dataclasses.VectorStoreEmbedInput.from_data(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Create a validated VectorStoreEmbedInput from a dictionary or DataFrame.</p>
-</section>
-<section id="classifai.indexers.dataclasses.VectorStoreEmbedInput.validate" class="level3">
-<h3 class="anchored" data-anchor-id="classifai.indexers.dataclasses.VectorStoreEmbedInput.validate">validate</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>indexers.dataclasses.VectorStoreEmbedInput.validate(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Validate an existing instance against the schema and return a VectorStoreEmbedInput.</p>
+<section id="classifai.indexers.hooks.default_hooks.postprocessing.DeduplicationHook" class="level1">
+<h1>indexers.hooks.default_hooks.postprocessing.DeduplicationHook</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>indexers.hooks.default_hooks.postprocessing.DeduplicationHook(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    score_aggregation_method<span class="op">=</span><span class="st">'max'</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A post-processing hook to remove duplicate knowledgebase entries, i.e.&nbsp;entries with the same label.</p>
 
 
-</section>
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -935,6 +875,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../docs/indexers.hooks.default_hooks.postprocessing.html" class="pagination-link" aria-label="indexers.hooks.default_hooks.postprocessing">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">indexers.hooks.default_hooks.postprocessing</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../docs/indexers.hooks.default_hooks.postprocessing.RagHook.html" class="pagination-link" aria-label="indexers.hooks.default_hooks.postprocessing.RagHook">
+        <span class="nav-page-text">indexers.hooks.default_hooks.postprocessing.RagHook</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 

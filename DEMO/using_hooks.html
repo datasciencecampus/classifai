@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>VectorStore pre- and post- processing with Hooks 🪝 – ClassifAI</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../DEMO/ai_agent_hooks.html" rel="next">
+<link href="../DEMO/custom_vectoriser.html" rel="prev">
+<link href="../ons_favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-24111f2d7671a07c32a60419c31bd4a3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ClassifAI</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../docs/index.html" aria-current="page"> 
+<span class="menu-text">Documentation</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/datasciencecampus/classifai"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../DEMO/README.html">DEMO</a></li><li class="breadcrumb-item"><a href="../DEMO/using_hooks.html">VectorStore pre- and post- processing with <em>Hooks</em> 🪝</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Overview</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Function reference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Vectorisers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Vectorisers Overview</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/vectorisers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vectorisers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/vectorisers.base.VectoriserBase.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vectorisers.base.VectoriserBase</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/vectorisers.base.VectoriserBase.transform.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vectorisers.base.VectoriserBase.transform</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Specific Vectorisers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/vectorisers.huggingface.HuggingFaceVectoriser.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vectorisers.huggingface.HuggingFaceVectoriser</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/vectorisers.ollama.OllamaVectoriser.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vectorisers.ollama.OllamaVectoriser</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/vectorisers.gcp.GcpVectoriser.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vectorisers.gcp.GcpVectoriser</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Indexers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.VectorStore.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.VectorStore</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.VectorStore.embed.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.VectorStore.embed</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.VectorStore.search.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.VectorStore.search</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.VectorStore.reverse_search.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.VectorStore.reverse_search</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.VectorStore.from_filespace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.VectorStore.from_filespace</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.dataclasses.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.dataclasses</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">Hooks</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.hook_factory.HookBase.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.hook_factory.HookBase</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.preprocessing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.preprocessing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.postprocessing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.postprocessing.DeduplicationHook</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/indexers.hooks.default_hooks.postprocessing.RagHook.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">indexers.hooks.default_hooks.postprocessing.RagHook</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text">Servers</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/servers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">servers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/servers.get_router.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">servers.get_router</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/servers.get_server.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">servers.get_server</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/servers.run_server.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">servers.run_server</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/servers.make_endpoints.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">servers.make_endpoints</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">DEMO</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/README.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Overview of Demonstrations &amp; Examples</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/general_workflow_demo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">✨ ClassifAI Demo - Introduction &amp; Basic Usage ✨</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/custom_vectoriser.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Creating Your Own Vectoriser</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/using_hooks.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">VectorStore pre- and post- processing with <em>Hooks</em> 🪝</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/ai_agent_hooks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AI agents in ClassifAI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#recap-of-vectorstore-dataclasses" id="toc-recap-of-vectorstore-dataclasses" class="nav-link" data-scroll-target="#recap-of-vectorstore-dataclasses">Recap of VectorStore Dataclasses</a></li>
+  <li><a href="#hooks-and-custom-dataflows" id="toc-hooks-and-custom-dataflows" class="nav-link" data-scroll-target="#hooks-and-custom-dataflows">Hooks and custom dataflows</a></li>
+  <li><a href="#using-hooks" id="toc-using-hooks" class="nav-link" data-scroll-target="#using-hooks">Using Hooks</a>
+  <ul class="collapse">
+  <li><a href="#demo-data" id="toc-demo-data" class="nav-link" data-scroll-target="#demo-data">Demo Data</a></li>
+  </ul></li>
+  <li><a href="#default-hooks" id="toc-default-hooks" class="nav-link" data-scroll-target="#default-hooks">Default Hooks</a></li>
+  <li><a href="#extending-the-hookbase-class" id="toc-extending-the-hookbase-class" class="nav-link" data-scroll-target="#extending-the-hookbase-class">Extending the HookBase class</a></li>
+  <li><a href="#adding-hooks-to-a-vectorstore-when-loading-from-filespace" id="toc-adding-hooks-to-a-vectorstore-when-loading-from-filespace" class="nav-link" data-scroll-target="#adding-hooks-to-a-vectorstore-when-loading-from-filespace">Adding Hooks to a VectorStore when loading from filespace</a></li>
+  <li><a href="#injecting-data-into-our-classification-results-with-a-hook" id="toc-injecting-data-into-our-classification-results-with-a-hook" class="nav-link" data-scroll-target="#injecting-data-into-our-classification-results-with-a-hook">Injecting Data into our classification results with a hook</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../DEMO/README.html">DEMO</a></li><li class="breadcrumb-item"><a href="../DEMO/using_hooks.html">VectorStore pre- and post- processing with <em>Hooks</em> 🪝</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">VectorStore pre- and post- processing with <em>Hooks</em> 🪝</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>This notebook provides a guide on how to use pre- and post-processing ‘hooks’ to simplify additional tasks you may have around input sanitisation / standardisation, result aggregation, auto-coding, linking in external datasets, etc.</p>
+<p>Hooks operate on the input and output dataclasses of each of our <code>VectorStore</code> methods, and the key requirement for them is that each will output an object of the same dataclass that it received. This allows hooks to be ‘chained’, allowing more complex pre-/post-processing tasks to be split into discrete steps, each defined by its own hook.</p>
+<p>Hooks provide a way to modify the data flow of the ClassifAI package, to facilitate tasks such as:</p>
+<ul>
+<li>Removal of punctuation from input queries before the <code>VectorStore</code> search process begins,</li>
+<li>Standardising capitalisation of all text in an input query to the <code>Vectorstore</code> search process,</li>
+<li>Deduplicate results based on the doc_label column so that duplicate knowledgebase entries are not returned,</li>
+<li>Prevention of users from retrieving certain documents in your <code>VectorStore</code>,</li>
+<li>Removing hate speech from any input text.</li>
+</ul>
+<p>There are three main ways of using hooks;</p>
+<ul>
+<li>Using one of the <code>default_hooks</code> we provide as part of ClassifAI,</li>
+<li>Defining your own callable function,</li>
+<li>Extending the abstract <code>HookBase</code> class to create a custom, flexible hook with implicit validation.</li>
+</ul>
+<section id="key-sections" class="level4">
+<h4 class="anchored" data-anchor-id="key-sections">Key Sections:</h4>
+<ul>
+<li>Recap: How the dataclasses and data flow works for interactions with the VectorStore,</li>
+<li>Using Hooks: Introduction to defining and using your own hooks for different tasks,</li>
+<li>Default Hooks: Introduction to using the more flexible hooks provided by ClassifAI for common tasks,</li>
+<li>Extending the <code>HookBase</code> class: Make your own custom flexible hook.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="recap-of-vectorstore-dataclasses" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-vectorstore-dataclasses">Recap of VectorStore Dataclasses</h2>
+<p>The majority of the following points are already covered in the recommended first notebook demo, <a href="../DEMO/general_workflow_demo.html">general_workflow_demo.ipynb</a>. If you are unfamiliar with the package you may wish to work through this demo first, in order to better understand the <code>VectorStore</code> object and its’ methods and dataclasses.</p>
+<section id="classifai-uses-pandas-dataframe-like-dataclasses-to-specify-what-data-need-to-be-passed-as-input-to-the-vectorstore-methodsfunctions-and-what-data-can-be-expected-to-be-returned-by-those-methods" class="level5">
+<h5 class="anchored" data-anchor-id="classifai-uses-pandas-dataframe-like-dataclasses-to-specify-what-data-need-to-be-passed-as-input-to-the-vectorstore-methodsfunctions-and-what-data-can-be-expected-to-be-returned-by-those-methods">ClassifAI uses Pandas dataframe-like dataclasses to specify what data need to be passed as input to the VectorStore methods/functions, and what data can be expected to be returned by those methods</h5>
+<p>The <strong>VectorStore</strong> class, responsible for performing different actions with your data, has <strong>three key methods/functions</strong>:</p>
+<ol type="1">
+<li><strong><code>search()</code></strong>
+<ul>
+<li>Takes in a body of text and searches the vector store for semantically similar knowledgebase samples.</li>
+</ul></li>
+<li><strong><code>reverse_search()</code></strong>
+<ul>
+<li>Takes in document labels and searches the vector store for entries with those labels.</li>
+</ul></li>
+<li><strong><code>embed()</code></strong>
+<ul>
+<li>Takes in a body of text and uses the vectoriser model to convert the text into embeddings.</li>
+</ul></li>
+</ol>
+<hr>
+<p>For each of these three core methods, we have created an <strong>input dataclass</strong> and an <strong>output dataclass</strong>. These dataclasses define pandas-like objects that specify what data needs to be passed to each method and also perform runtime checks to ensure you’ve passed the correct columns in a dataframe to the appropriate VectorStore method.</p>
+<p>For example, the figure below illustrates the input and output dataclasses of the <code>VectorStore.search()</code> method:</p>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./files/vectorstore_search_dataflow.svg" class="img-fluid figure-img"></p>
+<figcaption>VectorStore Search Dataflow</figcaption>
+</figure>
+</div>
+<p><br></p>
+<p>This shows that the <code>VectorStore.search()</code> method expects: - An <strong>input dataclass object</strong> with columns <code>[id, query]</code>. - To output an <strong>output dataclass object</strong> with columns <code>[query_id, query_text, doc_label, doc_text, rank, score]</code>.</p>
+<p>The reverse_search() and embed() VectorStore functions have their own input and output data classes with their own validity column data checks. The names of each set are intuitively:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 32%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>VectorStore Method</strong></th>
+<th><strong>Input Dataclass</strong></th>
+<th><strong>Output Dataclass</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>VectorStore.search()</code></td>
+<td><code>VectorStoreSearchInput</code></td>
+<td><code>VectorStoreSearchOutput</code></td>
+</tr>
+<tr class="even">
+<td><code>VectorStore.reverse_search()</code></td>
+<td><code>VectorStoreReverseSearchInput</code></td>
+<td><code>VectorStoreReverseSearchOutput</code></td>
+</tr>
+<tr class="odd">
+<td><code>VectorStore.embed()</code></td>
+<td><code>VectorStoreEmbedInput</code></td>
+<td><code>VectorStoreEmbedOutput</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="hooks-and-custom-dataflows" class="level2">
+<h2 class="anchored" data-anchor-id="hooks-and-custom-dataflows">Hooks and custom dataflows</h2>
+<p>‘Hooks’ allow users to manipulate the content of ClassifAI dataclass objects as they enter or leave the <code>VectorStore</code>.</p>
+<p>The requirements for a hook are:</p>
+<ul>
+<li>To be callable (e.g.&nbsp;a function),</li>
+<li>To accept one input parameter, which is an instance of a dataclass,</li>
+<li>To output a valid instance of the same type.</li>
+</ul>
+<p>For example: you might want to preprocess the input to the <code>VectorStore.search()</code> method to remove punctuation from the texts:</p>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./files/search_spellcheck_hook.svg" class="img-fluid figure-img"></p>
+<figcaption>VectorStore Search Dataflow</figcaption>
+</figure>
+</div>
+<p><br></p>
+<p>Hooks can be attached to a <code>VectorStore</code> to run every time the <code>VectorStore</code> search method is called. You can also apply other hooks to other dataclasses and their respective <code>VectorStore</code> methods and chain togtether these custom operations that manipulate the input and output dataclasses of the <code>VectorStore</code> methods.</p>
+<p>For example, implmenting 2 hooks for the input and output dataclasses of the <code>VectorStore</code> search method would provide a dataflow:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./files/pre_and_post_search_hooks.png" class="img-fluid figure-img"></p>
+<figcaption>End to end Search with 2 hooks</figcaption>
+</figure>
+</div>
+</section>
+<section id="using-hooks" class="level2">
+<h2 class="anchored" data-anchor-id="using-hooks">Using Hooks</h2>
+<p>In this section, we’ll define a custom data sanitisation function which removes punctuation from input user queries, and attach it to a <code>VectorStore</code> as a search pre-processing hook.</p>
+<section id="demo-data" class="level3">
+<h3 class="anchored" data-anchor-id="demo-data">Demo Data</h3>
+<p>This demo uses a mock dataset that is freely available on the ClassifAI repo, if yo have not downloaded the entire DEMO folder to run this notebook, the minimum data you require is the <code>DEMO/data/testdata.csv</code> file, which you should place in your working directory in a <code>DEMO</code> folder - (or you can just change the filepath later in this demo notebook)</p>
+<section id="if-you-can-run-the-following-cell-in-this-notebook-you-should-be-good-to-go" class="level4">
+<h4 class="anchored" data-anchor-id="if-you-can-run-the-following-cell-in-this-notebook-you-should-be-good-to-go">If you can run the following cell in this notebook, you should be good to go!</h4>
+<div id="cell-8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.vectorisers <span class="im">import</span> HuggingFaceVectoriser</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"done!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="alternatively-to-test-without-running-a-notebook-run-the-following-from-your-command-line" class="level4">
+<h4 class="anchored" data-anchor-id="alternatively-to-test-without-running-a-notebook-run-the-following-from-your-command-line">Alternatively, to test without running a notebook, run the following from your command line;</h4>
+<pre class="shell"><code>python -c "import classifai"</code></pre>
+<hr>
+</section>
+<section id="defining-a-custom-hook" class="level4">
+<h4 class="anchored" data-anchor-id="defining-a-custom-hook">Defining a custom hook:</h4>
+<p>Hooks can be quite simple functions, all they need to do is accept a single dataframe-like input (a <code>VectorStore</code> dataclass), and output an object of the same type. To make sure your output is valid at the end, we recommend using the input object’s class’ <code>.validate()</code> method.</p>
+<p>One example of where we may want to define a custom hook is to strip punctuation from some input text in a <code>search()</code> query; we’ll now show a short worked example to implement this with a custom hook function.</p>
+<p>We’ll name our hook <code>remove_punctuation()</code>, and define it like this:</p>
+<div id="cell-10" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> string</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers.dataclasses <span class="im">import</span> VectorStoreSearchInput</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> remove_punctuation(input_data: VectorStoreSearchInput) <span class="op">-&gt;</span> VectorStoreSearchInput:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># we want to modify the 'texts' field in the input_data pydantic model, which is a list of texts</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># this line removes punctuation from each string with list comprehension</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    sanitised_texts <span class="op">=</span> [x.translate(<span class="bu">str</span>.maketrans(<span class="st">""</span>, <span class="st">""</span>, string.punctuation)) <span class="cf">for</span> x <span class="kw">in</span> input_data[<span class="st">"query"</span>]]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    input_data[<span class="st">"query"</span>] <span class="op">=</span> sanitised_texts</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return the dictionary of input data with desired modified values at each desired key</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> input_data.<span class="va">__class__</span>.validate(input_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we attach it to a <code>VectorStore</code>:</p>
+<div id="cell-12" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers <span class="im">import</span> VectorStore</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>vectoriser <span class="op">=</span> HuggingFaceVectoriser(model_name<span class="op">=</span><span class="st">"sentence-transformers/all-MiniLM-L6-v2"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>my_vector_store <span class="op">=</span> VectorStore(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    file_name<span class="op">=</span><span class="st">"data/fake_soc_dataset.csv"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    data_type<span class="op">=</span><span class="st">"csv"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>vectoriser,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span>{<span class="st">"search_preprocess"</span>: remove_punctuation},</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now if we search some query against the <code>VectorStore</code> we created, punctuation should be stripped from the query before it is converted to a vector and searched against the knowledgebase:</p>
+<div id="cell-14" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers.dataclasses <span class="im">import</span> VectorStoreSearchInput</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>input_data <span class="op">=</span> VectorStoreSearchInput({<span class="st">"id"</span>: [<span class="dv">1</span>], <span class="st">"query"</span>: [<span class="st">"a fruit and vegetable farmer!!!"</span>]})</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>my_vector_store.search(input_data, n_results<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+</section>
+<section id="default-hooks" class="level2">
+<h2 class="anchored" data-anchor-id="default-hooks">Default Hooks</h2>
+<p>ClassifAI provides hooks out-of-the-box for some common tasks, which may speed up your development substantially.</p>
+<p>We’ll briefly cover two of these here;</p>
+<ul>
+<li>A <code>CapitalisationStandardisingHook</code> which can be operate on any <code>Input</code> <code>VectorStore</code> dataclass,</li>
+<li>A <code>DeduplicationHook</code> which operates on the <code>VectorStoreSearchOutput</code> dataclass.</li>
+</ul>
+<div id="cell-16" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers.hooks.default_hooks <span class="im">import</span> CapitalisationStandardisingHook, DeduplicationHook</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This hook enforces standardisation of capitalisation for inputs, which helps improve matching for some vectorisers.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># You can specify the dataframe column (or list of columns) which this should apply to, and the method by which to</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># standardise the text.</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># The options for capitalisation standardisation are;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'upper' LIKE THIS</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'lower' like this</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'sentence' Like this</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'title' Like This</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>cap_hook <span class="op">=</span> CapitalisationStandardisingHook(method<span class="op">=</span><span class="st">"upper"</span>, colname<span class="op">=</span><span class="st">"query"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># This hook replaces several VectorStore matches with the same label with the single 'best' one for a given query.</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># You can control how this deduplication is reflected in the score via the score_aggregation_method parameter;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'max' keep only the best individual match,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># - 'mean' keep the text and metadata of the best match, but recalculate the score as the mean of all retrieved matches for that label.</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>dedup_hook <span class="op">=</span> DeduplicationHook(score_aggregation_method<span class="op">=</span><span class="st">"max"</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a quick additional hook, which we will use to show how several hooks can be chained in a series for the same task</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quick_second_hook(df):</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"test"</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now if we define a new <code>VectorStore</code> with these hooks, we can see them in action (and compare against the output of the previous <code>VectorStore</code>). Note also how you can use multiple hooks in a chain for the same task, by passing a list of hooks instead of a single hook.</p>
+<div id="cell-18" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>my_vector_store_with_hooks <span class="op">=</span> VectorStore(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    file_name<span class="op">=</span><span class="st">"data/fake_soc_dataset.csv"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    data_type<span class="op">=</span><span class="st">"csv"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>vectoriser,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span>{</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"search_preprocess"</span>: cap_hook,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"search_postprocess"</span>: [dedup_hook, quick_second_hook],</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># We define some input data to use for our comparison:</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>input_data <span class="op">=</span> VectorStoreSearchInput({<span class="st">"id"</span>: [<span class="dv">1</span>], <span class="st">"query"</span>: [<span class="st">"a fruit and vegetable farmer!!!"</span>]})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Output for our first <code>VectorStore</code> (which had the punctuation removal hook only):</p>
+<div id="cell-20" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>my_vector_store.search(input_data, n_results<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Note that in this case all five matches correspond to the same label.</p>
+<p>Output for our new <code>VectorStore</code>, with multiple hooks - including the ClassifAI ‘default’ hooks:</p>
+<div id="cell-22" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>my_vector_store_with_hooks.search(input_data, n_results<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="extending-the-hookbase-class" class="level2">
+<h2 class="anchored" data-anchor-id="extending-the-hookbase-class">Extending the HookBase class</h2>
+<p>As well as the flexible hooks we provide for common tasks, we recognise that creating custom flexible callable hooks is not straightforward, due to the strict requirement that they can be called with a single input parameter which must be a <code>VectorStore</code> dataclass.</p>
+<p>To make this more accessible, we offer an abstract <code>HookBase</code> class which underpins the other default hooks offered by ClassifAI. This base class acts as scaffolding to create a callable object which accepts additional configuration - as seen in the other default hooks.</p>
+<div id="cell-24" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers.hooks <span class="im">import</span> HookBase</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>An extension of <code>HookBase</code> will have two methods;</p>
+<ul>
+<li><code>__init__()</code>, for setting attributes to be referred to later, and any other initial setup. It can take multiple arguments.</li>
+<li><code>__call__()</code>, to perform the ‘hook’ action. It should accept only one argument, which is a <code>VectorStore</code> dataclass instance.</li>
+</ul>
+<div id="cell-26" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MyCustomHook(HookBase):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, new_col_name: <span class="bu">str</span>, new_col_value):</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.new_col_name <span class="op">=</span> new_col_name</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.new_col_value <span class="op">=</span> new_col_value</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, data):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        data[<span class="va">self</span>.new_col_name] <span class="op">=</span> <span class="va">self</span>.new_col_value</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> data</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>my_custom_hook <span class="op">=</span> MyCustomHook(new_col_name<span class="op">=</span><span class="st">"test_col"</span>, new_col_value<span class="op">=</span><span class="dv">12345</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s test it out:</p>
+<div id="cell-28" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>my_vector_store_with_custom_hook <span class="op">=</span> VectorStore(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    file_name<span class="op">=</span><span class="st">"data/fake_soc_dataset.csv"</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    data_type<span class="op">=</span><span class="st">"csv"</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>vectoriser,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span>{</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"search_postprocess"</span>: my_custom_hook,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>my_vector_store_with_custom_hook.search(input_data, n_results<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="adding-hooks-to-a-vectorstore-when-loading-from-filespace" class="level2">
+<h2 class="anchored" data-anchor-id="adding-hooks-to-a-vectorstore-when-loading-from-filespace">Adding Hooks to a VectorStore when loading from filespace</h2>
+<p>ClassifAI allows you to create your VectorStore once, and then persist it on local storage so that it can be reloaded for reuse later - <em>without</em> having to embed your knowledgebase again.</p>
+<p>If you’ve followed through with the above code cells you may have noticed that every time we’ve instantiated a VectorStore it has saved a new folder to filespace (overwriting each time).</p>
+<p>We can use the <code>VectorStore.from_filespace()</code> class method to load the <code>VectorStore</code> back into memory.</p>
+<p><em>Important:</em> any hooks you applied in previous sessions are <em>not</em> saved to the filespace. Instead, you must pass them in again via the <code>hooks</code> parameter, as in the original construction. There is no strict requirement to use the same hooks upon reloading, so if you want to update, add or remove hooks you don’t need to re-create your <code>VectorStore</code> from scratch.</p>
+<div id="cell-30" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># you can see we've reused the vectoriser and hooks from before</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>reloaded_vector_store <span class="op">=</span> VectorStore.from_filespace(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    folder_path<span class="op">=</span><span class="st">"./fake_soc_dataset/"</span>,  <span class="co"># YOU MAY NEED TO CHANGE THIS LINE TO THE CORRECT PATH</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>vectoriser,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span>{</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"search_preprocess"</span>: remove_punctuation,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"search_postprocess"</span>: quick_second_hook,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>reloaded_vector_store.search(input_data, n_results<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="injecting-data-into-our-classification-results-with-a-hook" class="level2">
+<h2 class="anchored" data-anchor-id="injecting-data-into-our-classification-results-with-a-hook">Injecting Data into our classification results with a hook</h2>
+<p>You may have some additional contextual information that you wanted to add in your pipeline. For example; some taxonomical definitions for the labels.</p>
+<p>We may want to inject this extra information only after the search retrieval rather than store it as metadata in the knowledgebase; this can be achieved with a hook.</p>
+<p>Here is some example taxonomy information for our test dataset:</p>
+<div id="cell-32" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>official_id_definitions <span class="op">=</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"101"</span>: <span class="st">"Fruit farmer: Grows and harvests fruits such as apples, oranges, and berries."</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"102"</span>: <span class="st">"dairy farmer: Manages cows for milk production and processes dairy products."</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"103"</span>: <span class="st">"construction laborer: Performs physical tasks on construction sites, such as digging and carrying materials."</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"104"</span>: <span class="st">"carpenter: Constructs, installs, and repairs wooden frameworks and structures."</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"105"</span>: <span class="st">"electrician: Installs, maintains, and repairs electrical systems in buildings and equipment."</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"106"</span>: <span class="st">"plumber: Installs and repairs water, gas, and drainage systems in homes and businesses."</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"107"</span>: <span class="st">"software developer: Designs, writes, and tests computer programs and applications."</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"108"</span>: <span class="st">"data analyst: Analyzes data to provide insights and support decision-making."</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"109"</span>: <span class="st">"accountant: Prepares and examines financial records, ensuring accuracy and compliance with regulations."</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"110"</span>: <span class="st">"teacher: Educates students in schools, colleges, or universities."</span>,</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"111"</span>: <span class="st">"nurse: Provides medical care and support to patients in hospitals, clinics, or homes."</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"112"</span>: <span class="st">"chef: Prepares and cooks meals in restaurants, hotels, or other food establishments."</span>,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"113"</span>: <span class="st">"graphic designer: Creates visual concepts for advertisements, websites, and branding."</span>,</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"114"</span>: <span class="st">"mechanic: Repairs and maintains vehicles and machinery."</span>,</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"115"</span>: <span class="st">"photographer: Captures images for events, advertising, or artistic purposes."</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-33" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers.dataclasses <span class="im">import</span> VectorStoreSearchOutput</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_id_definitions(input_data: VectorStoreSearchOutput) <span class="op">-&gt;</span> VectorStoreSearchOutput:</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Map the 'doc_label' column to the corresponding definitions from the dictionary</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    input_data.loc[:, <span class="st">"id_definition"</span>] <span class="op">=</span> input_data[<span class="st">"doc_label"</span>].<span class="bu">map</span>(official_id_definitions)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> input_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can now pair this with our deduplicating hook in a chain:</p>
+<div id="cell-35" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>multi_input_data <span class="op">=</span> VectorStoreSearchInput(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"id"</span>: [<span class="dv">1</span>, <span class="dv">2</span>],</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"query"</span>: [<span class="st">"a fruit and vegetable farmer!!!"</span>, <span class="st">"Digital marketing@"</span>],</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>reloaded_vector_store <span class="op">=</span> VectorStore.from_filespace(</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    folder_path<span class="op">=</span><span class="st">"./fake_soc_dataset/"</span>,  <span class="co"># YOU MAY NEED TO CHANGE THIS LINE TO THE CORRECT PATH</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>vectoriser,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span>{</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"search_postprocess"</span>: [dedup_hook, add_id_definitions],</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>reloaded_vector_store.search(multi_input_data, n_results<span class="op">=</span><span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can see a few null values in that last output because our demo list of extra data wasn’t exhaustive, but where a <code>doc_label</code> does match our ‘official_id_definitions’ data we see the data being added correctly.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/datasciencecampus\.github\.io\/classifai\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../DEMO/custom_vectoriser.html" class="pagination-link" aria-label="Creating Your Own Vectoriser">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Creating Your Own Vectoriser</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../DEMO/ai_agent_hooks.html" class="pagination-link" aria-label="AI agents in ClassifAI">
+        <span class="nav-page-text">AI agents in ClassifAI</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
