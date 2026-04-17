@@ -5,12 +5,18 @@ Hooks are callables applied to the input/output dataclasses of VectorStore metho
 This submodule exposes HookBase for building configurable hooks, plus a set of default hooks for common workflows.
 """
 
-from .default_hooks import CapitalisationStandardisingHook, DeduplicationHook, RagHook
+from .default_hooks import (
+    CapitalisationStandardisingHook,
+    DeduplicationHook,
+    HuggingFaceRagHook,
+    RagHook,
+)
 from .hook_factory import HookBase
 
 __all__ = [
     "CapitalisationStandardisingHook",
     "DeduplicationHook",
     "HookBase",
+    "HuggingFaceRagHook",
     "RagHook",
 ]

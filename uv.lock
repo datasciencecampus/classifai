@@ -401,6 +401,7 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "google-genai" },
+    { name = "huggingface-hub" },
     { name = "ollama" },
     { name = "torch" },
     { name = "transformers" },
@@ -409,6 +410,7 @@ gcp = [
     { name = "google-genai" },
 ]
 huggingface = [
+    { name = "huggingface-hub" },
     { name = "torch" },
     { name = "transformers" },
 ]
@@ -443,6 +445,7 @@ requires-dist = [
     { name = "classifai", extras = ["huggingface", "gcp", "ollama"], marker = "extra == 'all'" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.11" },
     { name = "google-genai", marker = "extra == 'gcp'", specifier = ">=1.68.0" },
+    { name = "huggingface-hub", marker = "extra == 'huggingface'", specifier = ">=1.0.0" },
     { name = "numpy", specifier = ">=2.2.4" },
     { name = "ollama", marker = "extra == 'ollama'", specifier = ">=0.5.1" },
     { name = "pandas", specifier = ">=2.3.0" },

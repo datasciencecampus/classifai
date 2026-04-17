@@ -41,6 +41,8 @@ from .hooks import (
     CapitalisationStandardisingHook,
     DeduplicationHook,
     HookBase,
+    HuggingFaceRagHook,
+    RagHook,
 )
 from .main import VectorStore
 
@@ -48,6 +50,8 @@ __all__ = [
     "CapitalisationStandardisingHook",
     "DeduplicationHook",
     "HookBase",
+    "HuggingFaceRagHook",
+    "RagHook",
     "VectorStore",
     "VectorStoreEmbedInput",
     "VectorStoreEmbedOutput",

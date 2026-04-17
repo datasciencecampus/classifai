@@ -4,6 +4,7 @@ from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel, Field
 
 from classifai._optional import check_deps
 from classifai.exceptions import ConfigurationError, HookError
@@ -247,3 +248,180 @@ class RagHook(HookBase):
         """Calls the LLM to add the `RAG_response` column."""
         processed_output = self._call_llm(search_output)
         return processed_output
+
+
+class HuggingFaceRagHook(HookBase):
+    """A post-processing hook to perform Retrieval Augmented Generation using Hugging Face Inference API.
+    IMPORTANT NOTE: Use of this hook means search output data will be sent to HuggingFace, so ensure that this is
+    compliant with your data privacy and security requirements.
+    """
+
+    def __init__(  # noqa: PLR0913
+        self,
+        context_prompt: str,
+        response_prompt: str,
+        api_key: str,
+        llm_response_pydantic_model: BaseModel | Callable | None = None,
+        model_name: str = "deepseek-ai/DeepSeek-v3.2",
+        model_provider: str | None = None,
+        visible_cols: list[str] | None = None,
+        **client_kwargs,
+    ):
+        """Initializes the HuggingFaceRagHook with the specified model name and API key.
+
+        Args:
+            context_prompt (str): A prompt to provide context to the LLM for RAG.
+            response_prompt (str): A template for formatting the response.
+            api_key (str): The API key for authenticating with the Hugging Face Inference API.
+            llm_response_pydantic_model (BaseModel | Callable): A pydantic model or a callable function for
+                parsing and validating the LLM response, which can be used to enforce a specific response schema.
+                The pydantic model must have a list attribute, `answer`, which will be assigned as a new column `RAG_response`
+                in the search output. If a Callable is provided, it must take one argument (`VectorStoreSearchOutput`) and
+                return a valid pydantic model instance with a list attribute `answer` of the same length as the number of rows.
+                If None, defaults to a pydantic model which validates the `answer` is a list of the correct length.
+            model_name (str): The name of the HuggingFace model to use for RAG. Defaults to "deepseek-ai/DeepSeek-v3.2".
+                Note: chosen model must be tagged with "conversational" on the model hub.
+            model_provider (str): The provider of the HuggingFace model. Defaults to None.
+            visible_cols (list[str]): The columns of the search output to include in the prompt for the LLM.
+                Defaults to ["query_text", "doc_text"].
+            **client_kwargs: Additional keyword arguments to pass to the Hugging Face Inference client.
+
+        Raises:
+            ConfigurationError: If the Hugging Face Inference client fails to initialize.
+        """
+        check_deps(["huggingface_hub"], extra="huggingface")
+        from huggingface_hub import InferenceClient  # type: ignore
+
+        self.model_name = model_name
+        self.model_provider = model_provider
+        self.context_prompt = context_prompt
+        self.response_prompt = response_prompt
+        self.context_message_hf = {"role": "system", "content": self.context_prompt}
+        self.response_pydantic_template = llm_response_pydantic_model or self._default_LLM_response_model_builder
+        self.visible_cols = visible_cols or ["query_text", "doc_text"]
+        self.client_kwargs = client_kwargs
+
+        try:
+            if self.model_provider:
+                self.client = InferenceClient(provider=self.model_provider, api_key=api_key)
+            else:
+                self.client = InferenceClient(api_key=api_key)
+        except Exception as e:
+            raise ConfigurationError(
+                "Failed to initialize Hugging Face Inference client.",
+                context={"hooks": "HuggingFaceRAG", "cause": str(e), "cause_type": type(e).__name__},
+            ) from e
+
+    @staticmethod
+    def _default_LLM_response_model_builder(search_subset: VectorStoreSearchOutput) -> BaseModel:
+        """Builds a default pydantic model for validating the LLM response, which checks that the response is a list of strings of the correct length."""
+        row_count = len(search_subset)
+
+        class _DefaultLLMResponseModel(BaseModel):
+            answer: list | None = Field(
+                default=None,
+                strict=True,
+                min_length=row_count,
+                max_length=row_count,
+                description="The LLM-generated response for a single query.",
+            )
+
+        return _DefaultLLMResponseModel
+
+    @staticmethod
+    def _response_format_builder(response_model: BaseModel):
+        """Builds the response formatting instructions for the LLM, based on the fields of the provided pydantic model.
+
+        Args:
+            response_model (BaseModel): A pydantic model defining the expected schema of the LLM response.
+
+        Returns:
+            (dict): A dictionary defining the LLM response schema.
+        """
+        return {
+            "type": "json_schema",
+            "json_schema": {"name": "RAG_Response", "schema": response_model.model_json_schema(), "strict": True},
+        }
+
+    def _format_prompt_single_query(self, search_subset: VectorStoreSearchOutput) -> str:
+        """Format a prompt directing the LLM to process search responses corresponding to a single origin query.
+        The prompt includes instructions, search output schema, description for formatting the response, and the
+        search output itself.
+
+        Args:
+            search_subset (VectorStoreSearchOutput): A subset of the search output corresponding to a single query.
+
+        Returns:
+            (str): The formatted prompt for the LLM.
+        """
+        return f"""
+    Instructions:
+    -------------
+    Process the data provided in the Data section according to the task description given in the Context Description.
+    Take advice from the Output Format section when formatting your response.
+
+    Context Description:
+    --------------------
+    {self.context_prompt}
+
+    Output Format:
+    -------------
+    The output instructions are as follows:
+    {self.response_prompt}
+
+    Data:
+    -----
+    {search_subset[self.visible_cols].to_string()}
+        """
+
+    def __call__(self, search_output: VectorStoreSearchOutput) -> VectorStoreSearchOutput:
+        """Calls the Hugging Face Inference API to add a `RAG_response` column to the search output.
+
+        Args:
+            search_output (VectorStoreSearchOutput): The output from the `.search()` method.
+
+        Returns:
+            (VectorStoreSearchOutput): The search output with an additional column for the LLM-generated RAG response.
+
+        Notes:
+            - This method adds a new column `RAG_response` to the VectorStoreSearchOutput object. The format of the response
+              is user-specified, via the `response_prompt` parameter of the hook, and is validated by the `llm_response_pydantic_model`
+              parameter of the hook (defaulting to a pydantic model which checks that the response is a list of strings of the correct
+              length, if omitted).
+            - Each unique query in the search output is processed separately, with a prompt formatted using the
+              `_format_prompt_single_query` method.
+        """
+        updated_search_output = search_output.copy()
+        updated_search_output["RAG_response"] = ""
+        distinct_queries = search_output["query_id"].unique()
+        for query_id in distinct_queries:
+            search_subset = search_output[search_output["query_id"] == query_id]
+            prompt = {"role": "user", "content": self._format_prompt_single_query(search_subset)}
+            # If custom model passed:
+            if isinstance(self.response_pydantic_template, type) and issubclass(
+                self.response_pydantic_template, BaseModel
+            ):
+                response_model = self.response_pydantic_template
+            # If instance of custom model passed:
+            elif isinstance(self.response_pydantic_template, BaseModel):
+                response_model = self.response_pydantic_template.__class__
+            # If model function/generator passed:
+            else:
+                response_model = self.response_pydantic_template(search_subset)
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[prompt],
+                max_tokens=max((1024, len(search_subset) * 50)),
+                response_format=self._response_format_builder(response_model),
+                temperature=0.0,
+                stream=False,
+                top_p=0.3,
+            )
+            try:
+                parsed_response = response_model.model_validate_json(response.choices[0].message.content)
+            except Exception:
+                fake_answer = ["LLM response could not be parsed"] * len(search_subset)
+                parsed_response = response_model(answer=fake_answer)  # type: ignore
+            print(parsed_response.answer, type(parsed_response.answer))
+            updated_search_output.loc[search_subset.index, "RAG_response"] = [str(i) for i in parsed_response.answer]
+        return updated_search_output
