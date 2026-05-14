@@ -387,6 +387,7 @@ version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
+    { name = "fsspec" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -442,6 +443,7 @@ test = [
 requires-dist = [
     { name = "classifai", extras = ["huggingface", "gcp", "ollama"], marker = "extra == 'all'" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.11" },
+    { name = "fsspec", specifier = ">=2026.3.0" },
     { name = "google-genai", marker = "extra == 'gcp'", specifier = ">=1.68.0" },
     { name = "numpy", specifier = ">=2.2.4" },
     { name = "ollama", marker = "extra == 'ollama'", specifier = ">=0.5.1" },
