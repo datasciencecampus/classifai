@@ -2,41 +2,72 @@
 # TODO: consider adding sci-kit learn metrics instead of manual implenentations, might make adding new metrics easier in the future (see auroc for example at end.)
 
 
-def classification_accuracy(eval_data):
+def _get_unique_labels(eval_data):
+    """Return all labels present in either predictions or ground truth."""
+    labels = set(eval_data["doc_label"].dropna().unique())
+    labels.update(eval_data["ground_truth_label"].dropna().unique())
+    return labels
+
+
+def compute_classification_accuracy(eval_data):
     """Calculate the accuracy of results. Accuracy is defined as the number of correct predictions divided by the total number of predictions."""
     correct_predictions = (eval_data["doc_label"] == eval_data["ground_truth_label"]).sum()
     total_predictions = len(eval_data)
     return correct_predictions / total_predictions
 
 
-def classification_recall(eval_data):
-    """Calculate the recall of results. Recall is defined as the number of true positives divided by the number of true positives plus the number of false negatives."""
-    true_positives = ((eval_data["doc_label"] == 1) & (eval_data["ground_truth_"] == 1)).sum()
-    false_negatives = ((eval_data["doc_label"] == 0) & (eval_data["ground_truth_"] == 1)).sum()
-    return true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+def compute_classification_macro_recall(eval_data):
+    """Calculate macro recall by averaging per-label recall in a one-vs-rest fashion."""
+    labels = _get_unique_labels(eval_data)
+    if not labels:
+        return 0
+
+    recalls = []
+    for label in labels:
+        true_positives = ((eval_data["doc_label"] == label) & (eval_data["ground_truth_label"] == label)).sum()
+        false_negatives = ((eval_data["doc_label"] != label) & (eval_data["ground_truth_label"] == label)).sum()
+        denominator = true_positives + false_negatives
+        recalls.append(true_positives / denominator if denominator > 0 else 0)
+
+    return sum(recalls) / len(recalls)
 
 
-def classification_precision(eval_data):
-    """Calculate the precision of results. Precision is defined as the number of true positives divided by the number of true positives plus the number of false positives."""
-    true_positives = ((eval_data["doc_label"] == 1) & (eval_data["ground_truth_"] == 1)).sum()
-    false_positives = ((eval_data["doc_label"] == 1) & (eval_data["ground_truth_"] == 0)).sum()
-    return true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+def compute_classification_macro_precision(eval_data):
+    """Calculate macro precision by averaging per-label precision in a one-vs-rest fashion."""
+    labels = _get_unique_labels(eval_data)
+    if not labels:
+        return 0
+
+    precisions = []
+    for label in labels:
+        true_positives = ((eval_data["doc_label"] == label) & (eval_data["ground_truth_label"] == label)).sum()
+        false_positives = ((eval_data["doc_label"] == label) & (eval_data["ground_truth_label"] != label)).sum()
+        denominator = true_positives + false_positives
+        precisions.append(true_positives / denominator if denominator > 0 else 0)
+
+    return sum(precisions) / len(precisions)
 
 
-def classification_f1(eval_data):
-    """Calculate the F1 score of results. The F1 score is defined as the harmonic mean of precision and recall, and is calculated as 2 * (precision * recall) / (precision + recall)."""
-    true_positives = ((eval_data["doc_label"] == 1) & (eval_data["ground_truth_"] == 1)).sum()
-    false_positives = ((eval_data["doc_label"] == 1) & (eval_data["ground_truth_"] == 0)).sum()
-    false_negatives = ((eval_data["doc_label"] == 0) & (eval_data["ground_truth_"] == 1)).sum()
+def compute_classification_macro_f1(eval_data):
+    """Calculate macro F1 by averaging per-label F1 in a one-vs-rest fashion."""
+    labels = _get_unique_labels(eval_data)
+    if not labels:
+        return 0
 
-    precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
-    recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+    f1_scores = []
+    for label in labels:
+        true_positives = ((eval_data["doc_label"] == label) & (eval_data["ground_truth_label"] == label)).sum()
+        false_positives = ((eval_data["doc_label"] == label) & (eval_data["ground_truth_label"] != label)).sum()
+        false_negatives = ((eval_data["doc_label"] != label) & (eval_data["ground_truth_label"] == label)).sum()
 
-    return 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        precision_denominator = true_positives + false_positives
+        recall_denominator = true_positives + false_negatives
+
+        precision = true_positives / precision_denominator if precision_denominator > 0 else 0
+        recall = true_positives / recall_denominator if recall_denominator > 0 else 0
+        f1_scores.append(2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0)
+
+    return sum(f1_scores) / len(f1_scores)
 
 
-# def classification_auroc(eval_data):
-#     """Calculate the Area Under the Receiver Operating Characteristic Curve (AUROC) of results. AUROC is a measure of how well a model can distinguish between classes, and is calculated by plotting the true positive rate against the false positive rate at various threshold settings."""
-#     predictions = eval_data['doc_string']
-#     ground_truth = eval_data['label']
-#     return roc_auc_score(ground_truth, predictions)
+# TODO: add a top-(k) accuracy metric where we assess the top K answers for accurracy

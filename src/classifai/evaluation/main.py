@@ -1,12 +1,17 @@
 from dataclasses import dataclass
 
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 
 from ..exceptions import ClassifaiError
 from ..indexers import VectorStore
 from ..indexers.dataclasses import VectorStoreSearchInput
-from .metrics import compute_accuracy, compute_f1, compute_precision, compute_recall
+from .metrics import (
+    compute_classification_accuracy,
+    compute_classification_macro_f1,
+    compute_classification_macro_precision,
+    compute_classification_macro_recall,
+)
 
 
 @dataclass(eq=False)
@@ -48,16 +53,16 @@ def parse_metrics(metrics: list[str]) -> dict:
     """Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions."""
     # dictionary of metric functions and their key names
     valid_metrics = {
-        "accuracy": compute_accuracy,
-        "recall": compute_recall,
-        "precision": compute_precision,
-        "f1": compute_f1,
+        "accuracy": compute_classification_accuracy,
+        "macro_recall": compute_classification_macro_recall,
+        "macro_precision": compute_classification_macro_precision,
+        "macro_f1": compute_classification_macro_f1,
     }
 
     # create a dictionary to store identified metrics
     parsed = {}
     for m in metrics:
-        if m == "clasification_suite":
+        if m == "classification_suite":
             return valid_metrics
 
         if m in valid_metrics:
@@ -82,27 +87,16 @@ def _run_single_vectorstore_search(vectorstore: VectorStore, ground_truths: pd.D
     # batch the groun_truth rows into batches of N (==8 for now)
     _BATCH_SIZE = 8
 
-    # store the results of each batch in a list, and then concat the list of dataframes into a single dataframe at the end
-    results = []
+    # build a VectorStoreSearchInput object fomr the ground_truths dataframe
+    search_input = VectorStoreSearchInput(
+        {
+            "id": ground_truths["qid"].tolist(),
+            "query": ground_truths["text"].tolist(),
+        }
+    )
 
-    for i in range(0, len(ground_truths), _BATCH_SIZE):
-        batch = ground_truths.iloc[i : i + _BATCH_SIZE]
-
-        # get the qids, texts, and labels from the batch
-        qids = batch["qid"].tolist()
-        texts = batch["text"].tolist()
-
-        # make a VectorStoreSearchInput object for the batch
-        search_input = VectorStoreSearchInput({"id": qids, "text": texts})
-
-        # query the vectorstore with the texts
-        batch_results = vectorstore.search(search_input, n_results=1)
-
-        # append this batch to the overall results list
-        results.append(batch_results)
-
-    # concat the list of results dataframes into a single dataframe
-    result_df = pd.concat(results, ignore_index=True)
+    # do the batched search process and get the results utilising the VectorStore's built in batching capabilities
+    result_df = vectorstore.search(search_input, n_results=1, batch_size=_BATCH_SIZE)
 
     # for each query_id in the results dataframe, merge the corresponding ground truth label from the ground_truths dataframe into the results dataframe
     eval_data = result_df.merge(ground_truths[["qid", "label"]], left_on="query_id", right_on="qid", how="left")
@@ -187,7 +181,7 @@ def evaluate(  # noqa: C901
         try:
             # for each metric, pass the vectorstore results to the metric function to compute the metric, and store the result in a dictionary
             for metric in parsed_metrics:
-                result = parsed_metrics[metric](results_df, ground_truths)
+                result = parsed_metrics[metric](results_df)
                 vs_computed_metrics[metric] = result
         except Exception as e:
             raise EvaluationError(
