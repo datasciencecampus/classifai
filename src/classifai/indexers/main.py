@@ -168,6 +168,17 @@ class VectorStore:
         self.hooks = {} if hooks is None else hooks
         self.skip_save = skip_save
 
+        if self.output_dir is not None and self.skip_save:
+            logging.warning(
+                "VectorStore creation: output_dir is set to %s but skip_save is True, so the VectorStore will not be saved to disk. output_dir will be ignored.",
+                self.output_dir,
+            )
+
+        if self.output_dir is not None and not isinstance(self.output_dir, str):
+            raise DataValidationError(
+                "output_dir must be a string or None.", context={"output_dir_type": type(self.output_dir).__name__}
+            )
+
         if not self.skip_save:
             # ---- Output directory handling (filesystem problems) -> ConfigurationError
             try:
@@ -193,7 +204,7 @@ class VectorStore:
                     context={"output_dir": self.output_dir},
                 ) from e
         else:
-            logging.debug("skip_save is set to False, the VectorStore will not be saved to disk after creation.")
+            logging.debug("skip_save is set to True, the VectorStore will not be saved to disk after creation.")
 
         # ---- Build index (wrap every unexpected failure) -> IndexBuildError
         try:
@@ -232,7 +243,7 @@ class VectorStore:
                     context={"cause_type": type(e).__name__, "cause_message": str(e)},
                 ) from e
         else:
-            logging.debug("skip_save is False, skipping saving VectorStore to disk.")
+            logging.debug("skip_save is True, skipping saving VectorStore to disk.")
 
     def _save_metadata(self, path: str):
         """Saves metadata about the `VectorStore` to a JSON file.
