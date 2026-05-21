@@ -92,7 +92,7 @@ class VectorStore:
         output_dir: str | None = None,
         overwrite: bool = False,
         hooks: dict | None = None,
-        persist_to_disk: bool = True,
+        skip_save: bool = False,
     ):
         """Initializes the `VectorStore` object by processing the input CSV file and generating
         vector embeddings.
@@ -108,14 +108,14 @@ class VectorStore:
                                 Defaults to `None`.
             output_dir (str): [optional] The directory where the `VectorStore` will be saved.
                                 Defaults to `None`, where input file name will be used.
-                                Note: ignored if `persist_to_disk=False`.
+                                Note: ignored if `skip_save=True`.
             overwrite (bool): [optional] If `True`, allows overwriting existing folders with the same name.
                                 Defaults to `False` to prevent accidental overwrites.
-                                Note: ignored if `persist_to_disk=False`.
+                                Note: ignored if `skip_save=True`.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
-            persist_to_disk (bool): [optional] If `True`, will save the `VectorStore` to disk after creation, if `False`, will
+            skip_save (bool): [optional] If `False`, will save the `VectorStore` to disk after creation, if `True`, will
                                 just keep it in memory (for testing or ephemeral use cases).
-                                Defaults to `True`.
+                                Defaults to `False`.
 
 
         Raises:
@@ -166,9 +166,9 @@ class VectorStore:
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
         self.hooks = {} if hooks is None else hooks
-        self.persist_to_disk = persist_to_disk
+        self.skip_save = skip_save
 
-        if self.persist_to_disk:
+        if not self.skip_save:
             # ---- Output directory handling (filesystem problems) -> ConfigurationError
             try:
                 if self.output_dir is None:
@@ -193,7 +193,7 @@ class VectorStore:
                     context={"output_dir": self.output_dir},
                 ) from e
         else:
-            logging.debug("persist_to_disk is set to False, the VectorStore will not be saved to disk after creation.")
+            logging.debug("skip_save is set to False, the VectorStore will not be saved to disk after creation.")
 
         # ---- Build index (wrap every unexpected failure) -> IndexBuildError
         try:
@@ -217,7 +217,7 @@ class VectorStore:
         self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
         self.num_vectors = len(self.vectors)
 
-        if self.persist_to_disk:
+        if not self.skip_save:
             try:
                 logging.info("Gathering metadata and saving vector store / metadata...")
                 self.vectors.write_parquet(os.path.join(self.output_dir, "vectors.parquet"))
@@ -232,7 +232,7 @@ class VectorStore:
                     context={"cause_type": type(e).__name__, "cause_message": str(e)},
                 ) from e
         else:
-            logging.debug("persist_to_disk is False, skipping saving VectorStore to disk.")
+            logging.debug("skip_save is False, skipping saving VectorStore to disk.")
 
     def _save_metadata(self, path: str):
         """Saves metadata about the `VectorStore` to a JSON file.
