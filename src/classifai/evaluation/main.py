@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import pandas as pd
@@ -106,8 +107,8 @@ def _run_single_vectorstore_search(vectorstore: VectorStore, ground_truths: pd.D
     return eval_data
 
 
-def evaluate(  # noqa: C901
-    vectorstores: list[VectorStore],
+def evaluate(  # noqa: C901 PLR0912
+    vectorstores: list[VectorStore | Callable[[], VectorStore]],
     vectorstore_names: list[str],
     metrics: list[str],
     ground_truths: pd.DataFrame,
@@ -116,7 +117,7 @@ def evaluate(  # noqa: C901
     """An evaluator evaluating performance of `VectorStore` objects for a given grount truth-labelled dataset and a set of evaluation metrics.
 
     Attributes:
-    vectorstores: A list of `VectorStore` objects to evaluate.
+    vectorstores: A list of `VectorStore` objects to evaluate, or callable functions that return `VectorStore` objects when executed. Each `VectorStore` will be evaluated on the same dataset and metrics.
     vectorstore_names: A list of names corresponding to the `VectorStore` objects, used for labeling results.
     metrics: A list of evaluation metrics to compute. Supported metrics include 'accuracy@1', 'hit@k', and 'mrr@k'.
     ground_truths: A pandas DataFrame containing the ground truth labels for the evaluation dataset. It should have columns 'qid', 'text', and 'label'.
@@ -132,10 +133,21 @@ def evaluate(  # noqa: C901
     except Exception as e:
         raise EvaluationError("Ground truths dataframe failed validation.", context={"cause_message": str(e)}) from e
 
-    # ensure that the vectorstores list is a full list of vectostore objects
-    # TODO: add a feature that lets users pass function pointers that when executed return a vectorstore
-    if not all(isinstance(vs, VectorStore) for vs in vectorstores):
-        raise ValueError("All items in vectorstores must be instances of VectorStore")
+    # ensure that the vectorstores list is a full list of either vectorstore instances or functions that can be executed to return vectorstore instances, and that the vectorstore_names list is the same length as the vectorstores list.
+    if not all(isinstance(vs, VectorStore) or callable(vs) for vs in vectorstores):
+        raise ValueError(
+            "All items in vectorstores must be instances of VectorStore or callables that will return a VectorStore."
+        )
+
+    # ensure that vectorstore_names is a list of strings with the same length as vectorstores
+    if not isinstance(vectorstore_names, list) or len(vectorstore_names) != len(vectorstores):
+        raise ValueError("vectorstore_names must be a list with the same length as vectorstores.")
+
+    # ensure that all items in vectorstore_names are strings and that they are unique
+    if not all(isinstance(name, str) for name in vectorstore_names):
+        raise ValueError("All items in vectorstore_names must be strings.")
+    if len(set(vectorstore_names)) != len(vectorstore_names):
+        raise ValueError("All items in vectorstore_names must be unique.")
 
     # parse the metrics
     try:
@@ -157,14 +169,26 @@ def evaluate(  # noqa: C901
     for vs, name in zip(vectorstores, vectorstore_names, strict=False):
         # TODO: add a check and build stage here if the user provides a funciton to instantiate a vectorstore.
 
+        # try to instantiate the vectorstore if it's a provided callable
+        try:
+            resolved_vs = vs() if callable(vs) else vs
+        except Exception as e:
+            raise EvaluationError(
+                "Failed to instantiate a VectorStore from the provided callable.",
+                context={"vectorstore_name": name, "cause_message": str(e)},
+            ) from e
+
         try:
             # initiate the search process, which batches queries from ground truth and combines the ground truth labels into the results.
-            results_df = _run_single_vectorstore_search(vs, ground_truths)
+            results_df = _run_single_vectorstore_search(resolved_vs, ground_truths)
         except Exception as e:
             raise EvaluationError(
                 "Something went wrong when a VectorStore tried to perform search on the evaluation dataset.",
                 context={"vectorstore_name": name, "cause_message": str(e)},
             ) from e
+        finally:
+            if callable(vs):
+                del resolved_vs
 
         # validate the results dataframe to ensure it has the expected format to be passed to the evaluation metric functions
         try:
