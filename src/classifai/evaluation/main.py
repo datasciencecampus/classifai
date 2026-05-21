@@ -1,3 +1,45 @@
+"""This module evaluates one or more `classifai.indexers.VectorStore` instances on a ground-truth labelled dataset.
+
+1. Validating the ground-truth input with a Pandera schema.
+2. Running a batched top-1 `VectorStore.search` over all queries.
+3. Merging the ground-truth label into the retrieved results.
+4. Validating the merged evaluation frame with a Pandera schema.
+5. Computing one or more multiclass, single-label classification metrics.
+
+The evaluation is framed as retrieval-as-classification: for each query, the label of
+the top retrieved document (`doc_label`) is treated as the model prediction, and the
+provided dataset label is treated as the ground truth (`ground_truth_label`).
+
+Input DataFrames:
+    Ground-truth input (`ground_truths`) must include:
+        - qid (str): Unique query identifier.
+        - text (str): Query text.
+        - label (str): Ground-truth label.
+
+    Search evaluation output (`results_df`) is expected to include:
+        - query_id (str): Query identifier (from `qid`).
+        - query_text (str): Query text.
+        - doc_label (str): Predicted label (label of retrieved doc).
+        - doc_text (str): Retrieved document text.
+        - rank (int): Rank of the retrieved document (>= 0).
+        - score (float): Similarity score from the vector store.
+        - ground_truth_label (str): Ground-truth label merged in from `ground_truths`.
+
+Metrics:
+    Metric functions are defined in `classifai.evaluation.metrics` and are selected via
+    `parse_metrics`. Supported metric keys are:
+        - "accuracy"
+        - "macro_recall"
+        - "macro_precision"
+        - "macro_f1"
+        - "classification_suite" (expands to all metrics above)
+
+Exceptions:
+    InvalidMetricError: Raised when requested metric names cannot be parsed.
+    EvaluationError: Raised when validation, vectorstore execution, result validation, or
+        metric computation fails.
+"""
+
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -107,7 +149,7 @@ def _run_single_vectorstore_search(vectorstore: VectorStore, ground_truths: pd.D
     return eval_data
 
 
-def evaluate(  # noqa: C901 PLR0912
+def evaluate(  # noqa: C901 PLR0912 PLR0915
     vectorstores: list[VectorStore | Callable[[], VectorStore]],
     vectorstore_names: list[str],
     metrics: list[str],
@@ -167,7 +209,8 @@ def evaluate(  # noqa: C901 PLR0912
 
     # iterate through the vectostores
     for vs, name in zip(vectorstores, vectorstore_names, strict=False):
-        # TODO: add a check and build stage here if the user provides a funciton to instantiate a vectorstore.
+        # log the start of processing for the current vectorstore
+        print(f"Processing VectorStore: {name}")
 
         # try to instantiate the vectorstore if it's a provided callable
         try:

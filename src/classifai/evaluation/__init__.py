@@ -1,8 +1,13 @@
-"""This module provides tools for evaluating the performance of `VectorStore` objects.
+"""Evaluation utilities for ClassifAI.
 
-It includes a suite of evaluation metrics and methods to assess the effectiveness of `VectorStore` implementations,
-particularly in classification tasks. The module is designed to facilitate consistent and reproducible evaluation
-of `VectorStore` objects.
+This package provides helpers for evaluating `classifai.indexers.VectorStore` instances
+against ground-truth labelled datasets, plus a small set of classification metrics.
+
+Most users should start with:
+    - `classifai.evaluation.main.evaluate`
+    - `classifai.evaluation.main.parse_metrics`
+
+Metric implementations are defined in `classifai.evaluation.metrics`.
 
 Key Features:
 - Evaluate and compare the performance of multiple `VectorStore` objects on a given dataset.

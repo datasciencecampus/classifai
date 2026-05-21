@@ -1,5 +1,46 @@
-# from sklearn.metrics import roc_auc_score
-# TODO: consider adding sci-kit learn metrics instead of manual implenentations, might make adding new metrics easier in the future (see auroc for example at end.)
+"""Metrics.py provides a set of evaluation metrics for multiclass, single-label classification tasks.
+Each metric is designed to assess the performance of a classification model in different ways,
+providing insights into its accuracy, precision, recall, and overall balance.
+
+Metrics Implemented:
+---------------------
+
+1. **compute_classification_accuracy(eval_data)**:
+    - **Description**: Calculates the overall accuracy of the classification model.
+        Accuracy is defined as the proportion of correct predictions out of the total number of predictions.
+    - **Intuition**: This metric gives a general sense of how often the model is correct,
+        but it may not be sufficient for imbalanced datasets.
+
+2. **compute_classification_macro_recall(eval_data)**:
+    - **Description**: Computes the macro-averaged recall, which is the average recall across all classes,
+        treating each class equally regardless of its frequency.
+    - **Intuition**: Recall measures the ability of the model to correctly identify all instances of a class.
+        Macro recall ensures that performance on smaller classes is not overshadowed by larger classes.
+
+3. **compute_classification_macro_precision(eval_data)**:
+    - **Description**: Computes the macro-averaged precision, which is the average precision across all classes,
+        treating each class equally regardless of its frequency.
+    - **Intuition**: Precision measures the ability of the model to avoid false positives for a class.
+        Macro precision ensures that smaller classes are given equal importance as larger ones.
+
+4. **compute_classification_macro_f1(eval_data)**:
+    - **Description**: Computes the macro-averaged F1 score, which is the harmonic mean of precision and recall,
+        averaged across all classes.
+    - **Intuition**: The F1 score balances precision and recall, making it a good metric for imbalanced datasets.
+        Macro F1 ensures that all classes contribute equally to the final score.
+
+Helper Function:
+-----------------
+
+- **_get_unique_labels(eval_data)**:
+    - **Description**: Identifies all unique labels present in the predictions and ground truth.
+        This function is used internally by the other metrics to ensure all classes are considered.
+
+Future Work:
+------------
+- A top-K accuracy metric is planned for implementation, which will evaluate the accuracy of the model
+    when considering the top K predictions for each instance.
+"""
 
 
 def _get_unique_labels(eval_data):
