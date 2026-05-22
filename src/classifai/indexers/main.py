@@ -91,8 +91,8 @@ class VectorStore:
         meta_data: dict | None = None,
         output_dir: str | None = None,
         overwrite: bool = False,
-        hooks: dict | None = None,
         skip_save: bool = False,
+        hooks: dict | None = None,
     ):
         """Initializes the `VectorStore` object by processing the input CSV file and generating
         vector embeddings.
@@ -112,10 +112,10 @@ class VectorStore:
             overwrite (bool): [optional] If `True`, allows overwriting existing folders with the same name.
                                 Defaults to `False` to prevent accidental overwrites.
                                 Note: ignored if `skip_save=True`.
-            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
             skip_save (bool): [optional] If `False`, will save the `VectorStore` to disk after creation, if `True`, will
                                 just keep it in memory (for testing or ephemeral use cases).
                                 Defaults to `False`.
+            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
 
 
         Raises:
