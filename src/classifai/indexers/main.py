@@ -91,6 +91,7 @@ class VectorStore:
         meta_data: dict | None = None,
         output_dir: str | None = None,
         overwrite: bool = False,
+        skip_save: bool = False,
         hooks: dict | None = None,
     ):
         """Initializes the `VectorStore` object by processing the input CSV file and generating
@@ -107,8 +108,13 @@ class VectorStore:
                                 Defaults to `None`.
             output_dir (str): [optional] The directory where the `VectorStore` will be saved.
                                 Defaults to `None`, where input file name will be used.
+                                Note: ignored if `skip_save=True`.
             overwrite (bool): [optional] If `True`, allows overwriting existing folders with the same name.
                                 Defaults to `False` to prevent accidental overwrites.
+                                Note: ignored if `skip_save=True`.
+            skip_save (bool): [optional] If `False`, will save the `VectorStore` to disk after creation, if `True`, will
+                                just keep it in memory (for testing or ephemeral use cases).
+                                Defaults to `False`.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
 
 
@@ -160,28 +166,45 @@ class VectorStore:
         self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
         self.hooks = {} if hooks is None else hooks
+        self.skip_save = skip_save
 
-        # ---- Output directory handling (filesystem problems) -> ConfigurationError
-        try:
-            if self.output_dir is None:
-                logging.info("No output directory specified, attempting to use input file name as output folder name.")
-                normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
-                self.output_dir = os.path.join(normalized_file_name)
+        if self.output_dir is not None and self.skip_save:
+            logging.warning(
+                "VectorStore creation: output_dir is set to %s but skip_save is True, so the VectorStore will not be saved to disk. output_dir will be ignored.",
+                self.output_dir,
+            )
 
-            if os.path.isdir(self.output_dir):
-                if overwrite:
-                    shutil.rmtree(self.output_dir)
-                else:
-                    raise ConfigurationError(
-                        "Output directory already exists. Pass overwrite=True to overwrite the folder.",
-                        context={"output_dir": self.output_dir},
+        if self.output_dir is not None and not isinstance(self.output_dir, str):
+            raise DataValidationError(
+                "output_dir must be a string or None.", context={"output_dir_type": type(self.output_dir).__name__}
+            )
+
+        if not self.skip_save:
+            # ---- Output directory handling (filesystem problems) -> ConfigurationError
+            try:
+                if self.output_dir is None:
+                    logging.info(
+                        "No output directory specified, attempting to use input file name as output folder name."
                     )
-            os.makedirs(self.output_dir, exist_ok=True)
-        except Exception as e:
-            raise ConfigurationError(
-                "Failed to prepare output directory.",
-                context={"output_dir": self.output_dir},
-            ) from e
+                    normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
+                    self.output_dir = os.path.join(normalized_file_name)
+
+                if os.path.isdir(self.output_dir):
+                    if overwrite:
+                        shutil.rmtree(self.output_dir)
+                    else:
+                        raise ConfigurationError(
+                            "Output directory already exists. Pass overwrite=True to overwrite the folder.",
+                            context={"output_dir": self.output_dir},
+                        )
+                os.makedirs(self.output_dir, exist_ok=True)
+            except Exception as e:
+                raise ConfigurationError(
+                    "Failed to prepare output directory.",
+                    context={"output_dir": self.output_dir},
+                ) from e
+        else:
+            logging.debug("skip_save is set to True, the VectorStore will not be saved to disk after creation.")
 
         # ---- Build index (wrap every unexpected failure) -> IndexBuildError
         try:
@@ -202,23 +225,25 @@ class VectorStore:
             ) from e
 
         # ---- Save + derived metadata (IO/format problems) -> IndexBuildError
-        try:
-            logging.info("Gathering metadata and saving vector store / metadata...")
+        self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
+        self.num_vectors = len(self.vectors)
 
-            self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
-            self.num_vectors = len(self.vectors)
+        if not self.skip_save:
+            try:
+                logging.info("Gathering metadata and saving vector store / metadata...")
+                self.vectors.write_parquet(os.path.join(self.output_dir, "vectors.parquet"))
+                self._save_metadata(os.path.join(self.output_dir, "metadata.json"))
 
-            self.vectors.write_parquet(os.path.join(self.output_dir, "vectors.parquet"))
-            self._save_metadata(os.path.join(self.output_dir, "metadata.json"))
-
-            logging.info("Vector Store created - files saved to %s", self.output_dir)
-        except ClassifaiError:
-            raise
-        except Exception as e:
-            raise IndexBuildError(
-                "Vector store was created but saving outputs failed.",
-                context={"cause_type": type(e).__name__, "cause_message": str(e)},
-            ) from e
+                logging.info("Vector Store created - files saved to %s", self.output_dir)
+            except ClassifaiError:
+                raise
+            except Exception as e:
+                raise IndexBuildError(
+                    "Vector store was created but saving outputs failed.",
+                    context={"cause_type": type(e).__name__, "cause_message": str(e)},
+                ) from e
+        else:
+            logging.debug("skip_save is True, skipping saving VectorStore to disk.")
 
     def _save_metadata(self, path: str):
         """Saves metadata about the `VectorStore` to a JSON file.
