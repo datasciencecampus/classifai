@@ -51,6 +51,7 @@ ollama = [
 ]
 gcp = [
     "google-genai>=1.68.0",
+    "gcsfs>=2026.4.0"
 ]
 all = [
     "classifai[huggingface,gcp,ollama]"
@@ -113,6 +114,13 @@ indent-style = "space"
 
 [tool.deptry]
 extend_exclude = ["DEMO"]
+ignore = [ "DEP002", # optional / dynamically imported dependencies
+]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+  "gcsfs",
+]
 
 [dependency-groups]
 dev = [

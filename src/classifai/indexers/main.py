@@ -39,6 +39,7 @@ import numpy as np
 import polars as pl
 from tqdm.autonotebook import tqdm
 
+from classifai._optional import OptionalDependencyError, check_deps
 from classifai.exceptions import (
     ClassifaiError,
     ConfigurationError,
@@ -132,6 +133,15 @@ class VectorStore:
         try:
             in_fs, in_path = fsspec.core.url_to_fs(file_name)
         except Exception as e:
+            # check for cases where the user wants to use a gs:// path but doesn't have gcsfs installed, and raise a more helpful error message in this case
+            if isinstance(e, ImportError) and file_name.startswith("gs://"):
+                try:
+                    check_deps(["gcsfs"], extra="gcp")
+                except OptionalDependencyError as e:
+                    raise OptionalDependencyError(
+                        "Optional dependency 'gcsfs' is required to use gs:// files. Install with: pip install 'classifai[gcp]'.",
+                    ) from e
+            # for all other cases, raise a generic configuration error with context for debugging
             raise ConfigurationError(
                 "Failed to read input directory with file loader.",
                 context={
@@ -207,10 +217,39 @@ class VectorStore:
                     )
                     normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
                     self.output_dir = os.path.join(normalized_file_name)
+            except Exception as e:
+                raise ConfigurationError(
+                    "Failed to determine output directory from input file name.",
+                    context={
+                        "file_name": self.file_name,
+                        "cause": str(e),
+                        "cause_type": type(e).__name__,
+                    },
+                ) from e
 
-                # use fsspec to get the filesystem and path for the output
+            # use fsspec to get the filesystem and path for the output
+            try:
                 out_fs, out_path = fsspec.core.url_to_fs(self.output_dir)
+            except Exception as e:
+                # check for cases where the user wants to use a gs:// path but doesn't have gcsfs installed, and raise a more helpful error message in this case
+                if isinstance(e, ImportError) and self.output_dir.startswith("gs://"):
+                    try:
+                        check_deps(["gcsfs"], extra="gcp")
+                    except OptionalDependencyError as e:
+                        raise OptionalDependencyError(
+                            "Optional dependency 'gcsfs' is required to use gs:// files. Install with: pip install 'classifai[gcp]'.",
+                        ) from e
+                # for all other cases, raise a generic configuration error with context for debugging
+                raise ConfigurationError(
+                    "Failed to read output directory with file loader.",
+                    context={
+                        "output_dir": self.output_dir,
+                        "cause": str(e),
+                        "cause_type": type(e).__name__,
+                    },
+                ) from e
 
+            try:
                 # check if the output directory already exists, and handle according to overwrite flag
                 if out_fs.exists(out_path):
                     if overwrite:
