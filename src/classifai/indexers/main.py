@@ -870,6 +870,15 @@ class VectorStore:
         try:
             in_fs, in_path = fsspec.core.url_to_fs(folder_path)
         except Exception as e:
+            # check for cases where the user wants to use a gs:// path but doesn't have gcsfs installed, and raise a more helpful error message in this case
+            if isinstance(e, ImportError) and folder_path.startswith("gs://"):
+                try:
+                    check_deps(["gcsfs"], extra="gcp")
+                except OptionalDependencyError as e:
+                    raise OptionalDependencyError(
+                        "Optional dependency 'gcsfs' is required to use gs:// filespaces. Install with: pip install 'classifai[gcp]'.",
+                    ) from e
+            # for all other cases, raise a generic configuration error with context for debugging
             raise ConfigurationError(
                 "Failed to read input directory with file loader.",
                 context={

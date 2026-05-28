@@ -114,13 +114,9 @@ indent-style = "space"
 
 [tool.deptry]
 extend_exclude = ["DEMO"]
-ignore = [ "DEP002", # optional / dynamically imported dependencies
-]
 
-[tool.deptry.per_rule_ignores]
-DEP002 = [
-  "gcsfs",
-]
+[tool.deptry.ignore]
+DEP002 = ["gcsfs"]
 
 [dependency-groups]
 dev = [
