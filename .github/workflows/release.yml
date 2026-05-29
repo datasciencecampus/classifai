@@ -34,6 +34,16 @@ jobs:
             exit 1
           fi
           echo "Changelog validation passed."
+          MATCH_COUNT_PACKAGE=$(grep -c -E "$PATTERN" src/classifai/__init__.py || true)
+          if [ "$MATCH_COUNT_PACKAGE" -eq 0 ]; then
+            echo "ERROR: No match found for $VERSION in package's internals (src/classifai/__init__.py)" >&2
+            exit 1
+          fi
+          if [ "$MATCH_COUNT_PACKAGE" -gt 1 ]; then
+            echo "ERROR: Multiple entries found for $VERSION in package's internals (src/classifai/__init__.py)" >&2
+            exit 1
+          fi
+          echo "Package internal consistency validation passed."
 
   extract-changelog:
     runs-on: ubuntu-latest
