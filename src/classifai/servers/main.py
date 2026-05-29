@@ -147,18 +147,25 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
     uvicorn.run(app, port=port, log_level="info")
 
 
-def make_endpoints(router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
+def make_endpoints(main_router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
     """Create and register the different endpoints to your app.
 
     Args:
-        router (APIRouter | FastAPI): The FastAPI application instance.
+        main_router (APIRouter | FastAPI): The FastAPI application instance.
         vector_stores_dict (dict[str, VectorStore]): The name of the endpoint to be created.
     """
-    for endpoint_name, vector_store in vector_stores_dict.items():
-        logging.info("Registering endpoints for: %s", endpoint_name)
-        _create_embedding_endpoint(router, endpoint_name, vector_store)
-        _create_search_endpoint(router, endpoint_name, vector_store)
-        _create_reverse_search_endpoint(router, endpoint_name, vector_store)
+    for name, store in vector_stores_dict.items():
+        sub_router = APIRouter(
+            prefix=f"/{name}",
+            tags=[name],
+        )
+        logging.info("Registering endpoints for: %s", name)
+
+        _create_search_endpoint(sub_router, name, store)
+        _create_embedding_endpoint(sub_router, name, store)
+        _create_reverse_search_endpoint(sub_router, name, store)
+
+        main_router.include_router(sub_router)
 
 
 def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
@@ -173,7 +180,7 @@ def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, 
     for the provided documents, and returns the results in a structured format.
     """
 
-    @router.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
+    @router.post("/embed", description=f"{endpoint_name} embedding endpoint")
     async def embedding_endpoint(data: EmbedRequestSet) -> EmbedResponseBody:
         input_ids = [x.id for x in data.entries]
         input_texts = [x.text for x in data.entries]
@@ -201,7 +208,7 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
     the vector store and returns the results in a structured format.
     """
 
-    @router.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
+    @router.post("/search", description=f"{endpoint_name} search endpoint")
     async def search_endpoint(
         data: SearchRequestSet,
         n_results: Annotated[
@@ -242,7 +249,7 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
     the vector store and returns the results in a structured format.
     """
 
-    @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
+    @router.post("/reverse_search", description=f"{endpoint_name} reverse query endpoint")
     def reverse_search_endpoint(
         data: ReverseSearchRequestSet,
         max_n_results: Annotated[
