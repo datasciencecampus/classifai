@@ -72,7 +72,7 @@ class VectorStore:
     Attributes:
         file_name (str): the data file contatining the knowledgebase to build the `VectorStore`
         data_type (str): the data type of the data file (curently only csv supported)
-        vectoriser (VectoriserBase): A `Vectoriser` object from the corresponding ClassifAI Pacakge module
+        vectoriser (VectoriserBase): A `Vectoriser` object from the corresponding ClassifAI Package module
         batch_size (int): the batch size to pass to the vectoriser when embedding
         meta_data (dict): key-value pairs of metadata to extract from the input file and their correpsonding types
         output_dir (str): the path to the output directory where the `VectorStore` will be saved
@@ -661,7 +661,7 @@ class VectorStore:
 
         return result_df
 
-    def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=8) -> VectorStoreSearchOutput:  # noqa: C901, PLR0912, PLR0915
+    def search(self, query: VectorStoreSearchInput, n_results=10) -> VectorStoreSearchOutput:  # noqa: C901, PLR0912, PLR0915
         """Searches the `VectorStore` using queries from a `VectorStoreSearchInput` object.
         Outputs ranked results in `VectorStoreSearchOutput` object. In batches, converts users text queries into vector embeddings,
         computes cosine similarity with stored document vectors, and retrieves the top results.
@@ -669,7 +669,6 @@ class VectorStore:
         Args:
             query (VectorStoreSearchInput): A `VectorStoreSearchInput` object containing the text query or list of queries to search for with ids.
             n_results (int): [optional] Number of top results to return for each query. Default 10.
-            batch_size (int): [optional] The batch size for processing queries. Default 8.
 
         Returns:
             (VectorStoreSearchOutput): A `VectorStoreSearchOutput` object containing search results with columns for `query_id`, `query_text`,
@@ -690,9 +689,6 @@ class VectorStore:
 
         if not isinstance(n_results, int) or n_results < 1:
             raise DataValidationError("n_results must be an integer >= 1.", context={"n_results": n_results})
-
-        if not isinstance(batch_size, int) or batch_size < 1:
-            raise DataValidationError("batch_size must be an integer >= 1.", context={"batch_size": batch_size})
 
         if self.vectors is None:
             raise ConfigurationError("Vector store is not initialized (vectors is None).")
@@ -720,9 +716,9 @@ class VectorStore:
 
             all_results: list[pl.DataFrame] = []
 
-            for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
-                query_text_batch = query.query.to_list()[i : i + batch_size]
-                query_ids_batch = query.id.to_list()[i : i + batch_size]
+            for i in tqdm(range(0, len(query), self.batch_size), desc="Processing query batches"):
+                query_text_batch = query.query.to_list()[i : i + self.batch_size]
+                query_ids_batch = query.id.to_list()[i : i + self.batch_size]
 
                 if len(query_text_batch) == 0:
                     continue
@@ -814,7 +810,7 @@ class VectorStore:
                 code="search_failed",
                 context={
                     "n_queries": len(query),
-                    "batch_size": batch_size,
+                    "batch_size": self.batch_size,
                     "n_results": n_results,
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
