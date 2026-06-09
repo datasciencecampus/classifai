@@ -26,6 +26,6 @@ print(f"Test search {loaded_vectorstore.search(search_input_object, n_results=3)
 
 
 #### and finally, its easy to search your vectorstore via a restAPI service, just run:
-run_server([loaded_vectorstore], endpoint_names=["my_vectorstore"])
+run_server([loaded_vectorstore, loaded_vectorstore], endpoint_names=["my_vectorstore"], demo_mode=True)
 
 # Look at https://0.0.0.0:8000/docs to see the Swagger API documentation and test in the browser

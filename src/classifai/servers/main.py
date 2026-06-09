@@ -17,6 +17,7 @@ import uvicorn
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 
+from .. import __version__
 from ..exceptions import ConfigurationError, DataValidationError
 from ..indexers.dataclasses import (
     VectorStoreEmbedInput,
@@ -92,7 +93,7 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
     vector_stores_dict: dict[str, VectorStore] = dict(zip(endpoint_names, vector_stores, strict=True))
     make_endpoints(router, vector_stores_dict)
 
-    @router.get("/", description="UI accessibility")
+    @router.get("/", description="UI accessibility", tags=["docs"])
     def docs():
         """Redirect users to the API documentation page.
 
@@ -117,19 +118,32 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
     """
     logging.info("Generating ClassifAI API")
 
-    app = FastAPI(title="ClassifAI Demo Server", description="This is a demo server of the ClassifAI server")
+    openapi_tags = [
+        {"name": endpoint, "description": f"Endpoints for the {endpoint} VectorStore"} for endpoint in endpoint_names
+    ]
+    app = FastAPI(
+        title="ClassifAI API Server",
+        description="This is the Classifai FastAPI server",
+        openapi_tags=openapi_tags,
+        version=__version__,
+    )
+
     router = get_router(vector_stores, endpoint_names)
     app.include_router(router)
     return app
 
 
-def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port: int = 8000):
+def run_server(
+    vector_stores: list[VectorStore], endpoint_names: list[str], port: int = 8000, host_ip="127.0.0.1", demo_mode=True
+):
     """Create and run a `FastAPI` server with search endpoints.
 
     Args:
         vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
+        host_ip (str): [optional] The ip address that the api srver runs on. Defaults to 0.0.0.0.
+        demo_mode (bool): [optional] Flag to show demo server info.
 
     Raises:
         `DataValidationError`: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
@@ -144,7 +158,16 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
         )
 
     app = get_server(vector_stores, endpoint_names)
-    uvicorn.run(app, port=port, log_level="info")
+
+    if demo_mode:
+        _set_demo_defaults(app)
+
+    uvicorn.run(app, port=port, log_level="info", host=host_ip)
+
+
+def _set_demo_defaults(app: FastAPI):
+    app.title = "ClassifAI API Demo Server"
+    app.description = "This is a demo of the ClassifAI server module"
 
 
 def make_endpoints(main_router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
@@ -180,7 +203,11 @@ def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, 
     for the provided documents, and returns the results in a structured format.
     """
 
-    @router.post("/embed", description=f"{endpoint_name} embedding endpoint")
+    @router.post(
+        "/embed",
+        summary=f"{endpoint_name} Embedding Endpoint",
+        description=f"Endpoint to call the `{endpoint_name}` `VectorStore.embed` method",
+    )
     async def embedding_endpoint(data: EmbedRequestSet) -> EmbedResponseBody:
         input_ids = [x.id for x in data.entries]
         input_texts = [x.text for x in data.entries]
@@ -208,7 +235,11 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
     the vector store and returns the results in a structured format.
     """
 
-    @router.post("/search", description=f"{endpoint_name} search endpoint")
+    @router.post(
+        "/search",
+        summary=f"{endpoint_name} Search Endpoint",
+        description=f"Endpoint to call the `{endpoint_name}` `VectorStore.search` method",
+    )
     async def search_endpoint(
         data: SearchRequestSet,
         n_results: Annotated[
@@ -249,7 +280,11 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
     the vector store and returns the results in a structured format.
     """
 
-    @router.post("/reverse_search", description=f"{endpoint_name} reverse query endpoint")
+    @router.post(
+        "/reverse_search",
+        summary=f"{endpoint_name} Reverse Search Endpoint",
+        description=f"Endpoint to call the `{endpoint_name}` `VectorStore.reverse_search` method",
+    )
     def reverse_search_endpoint(
         data: ReverseSearchRequestSet,
         max_n_results: Annotated[
