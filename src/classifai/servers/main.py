@@ -133,8 +133,13 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
     return app
 
 
-def run_server(
-    vector_stores: list[VectorStore], endpoint_names: list[str], port: int = 8000, host_ip="127.0.0.1", demo_mode=True
+def run_server(  # noqa: PLR0913
+    vector_stores: list[VectorStore],
+    endpoint_names: list[str],
+    port: int = 8000,
+    host_ip: str = "127.0.0.1",
+    log_level: str = "warning",
+    demo_mode: bool = False,
 ):
     """Create and run a `FastAPI` server with search endpoints.
 
@@ -143,6 +148,7 @@ def run_server(
         endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
         host_ip (str): [optional] The ip address that the api srver runs on. Defaults to 0.0.0.0.
+        log_level (str): [optional] The level of logs for the uvicorn server.
         demo_mode (bool): [optional] Flag to show demo server info.
 
     Raises:
@@ -162,7 +168,7 @@ def run_server(
     if demo_mode:
         _set_demo_defaults(app)
 
-    uvicorn.run(app, port=port, log_level="info", host=host_ip)
+    uvicorn.run(app, port=port, log_level=log_level, host=host_ip)
 
 
 def _set_demo_defaults(app: FastAPI):
