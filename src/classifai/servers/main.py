@@ -147,9 +147,9 @@ def run_server(  # noqa: PLR0913
         vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
-        host_ip (str): [optional] The ip address that the api srver runs on. Defaults to 0.0.0.0.
+        host_ip (str): [optional] The ip address that the api server runs on. Defaults to 127.0.0.1, note: default 127.0.0.1 exposes to connections from the same machine only, to expose for external connections use 0.0.0.0.
         log_level (str): [optional] The level of logs for the uvicorn server.
-        demo_mode (bool): [optional] Flag to show demo server info.
+        demo_mode (bool): [optional] Flag to show demo server info (Updates the openapi docs to show info indicating server is an api demo).
 
     Raises:
         `DataValidationError`: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
