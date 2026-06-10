@@ -59,12 +59,6 @@ from .dataclasses import (
     VectorStoreSearchOutput,
 )
 
-# Configure logging for your application
-logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
-logging.getLogger("httpcore").setLevel(logging.WARNING)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
-
 
 class VectorStore:
     """A class to model and create `VectorStore` objects for building and searching vector databases from CSV text files.
@@ -81,6 +75,7 @@ class VectorStore:
         num_vectors (int): the number of records saved in the `VectorStore`
         vectoriser_class (str): the type of `Vectoriser` used to create embeddings
         hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
+        quiet_mode (bool): Whether to minimise verbose output, such as progress bars.
     """
 
     def __init__(  # noqa: C901, PLR0912, PLR0913, PLR0915
@@ -94,6 +89,7 @@ class VectorStore:
         overwrite: bool = False,
         skip_save: bool = False,
         hooks: dict | None = None,
+        quiet_mode: bool = False,
     ):
         """Initializes the `VectorStore` object by processing the input CSV file and generating
         vector embeddings.
@@ -117,6 +113,7 @@ class VectorStore:
                                 just keep it in memory (for testing or ephemeral use cases).
                                 Defaults to `False`.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
+            quiet_mode (bool): [optional] Whether to minimise verbose output, such as progress bars. Defaults to `False`.
 
 
         Raises:
@@ -125,6 +122,20 @@ class VectorStore:
             `ConfigurationError`: If there are configuration issues, such as output directory problems.
             `IndexBuildError`: If there are failures during index building or saving outputs.
         """
+        # ---- Set verbosity (based on quiet_mode argument)
+
+        self.quiet_mode = quiet_mode
+        if self.quiet_mode:
+            self.classifai_tqdm = lambda iterable, *args, **kwargs: iterable
+            logging.basicConfig(level=logging.WARNING, format="%(levelname)s - %(message)s", force=True)
+        else:
+            self.classifai_tqdm = tqdm
+            logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s", force=True)
+
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+
         # ---- Input validation (caller mistakes) -> DataValidationError / ConfigurationError
         if not isinstance(file_name, str) or not file_name.strip():
             raise DataValidationError("file_name must be a non-empty string.", context={"file_name": file_name})
@@ -406,7 +417,7 @@ class VectorStore:
                 )
 
             embeddings: list[np.ndarray] = []
-            for batch_id in tqdm(range(0, len(documents), self.batch_size)):
+            for batch_id in self.classifai_tqdm(range(0, len(documents), self.batch_size)):
                 batch = documents[batch_id : (batch_id + self.batch_size)]
                 try:
                     batch_embeddings = self.vectoriser.transform(batch)
@@ -720,7 +731,7 @@ class VectorStore:
 
             all_results: list[pl.DataFrame] = []
 
-            for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
+            for i in self.classifai_tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
                 query_text_batch = query.query.to_list()[i : i + batch_size]
                 query_ids_batch = query.id.to_list()[i : i + batch_size]
 
@@ -838,7 +849,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser, hooks: dict | None = None):  # noqa: C901, PLR0912, PLR0915
+    def from_filespace(cls, folder_path, vectoriser, hooks: dict | None = None, quiet_mode: bool = False):  # noqa: C901, PLR0912, PLR0915
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -853,6 +864,7 @@ class VectorStore:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The `Vectoriser` object used to transform text into vector embeddings.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+            quiet_mode (bool): [optional] Whether to minimise verbose output, such as progress bars. Defaults to `False`.
 
         Returns:
             (VectorStore): An instance of the `VectorStore` class.
@@ -1017,6 +1029,16 @@ class VectorStore:
             vector_store.num_vectors = metadata["num_vectors"]
             vector_store.vectoriser_class = metadata["vectoriser_class"]
             vector_store.hooks = {} if hooks is None else hooks
+            vector_store.quiet_mode = quiet_mode
+            if vector_store.quiet_mode:
+                vector_store.classifai_tqdm = lambda iterable, *args, **kwargs: iterable
+                logging.basicConfig(level=logging.WARNING, format="%(levelname)s - %(message)s", force=True)
+            else:
+                vector_store.classifai_tqdm = tqdm
+                logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s", force=True)
+            logging.getLogger("httpcore").setLevel(logging.WARNING)
+            logging.getLogger("httpx").setLevel(logging.WARNING)
+            logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
         except Exception as e:
             raise IndexBuildError(
