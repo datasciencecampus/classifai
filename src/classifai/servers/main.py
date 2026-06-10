@@ -11,6 +11,7 @@ restAPI endpoints, in a FastAPI restAPI service started with these functions.
 from __future__ import annotations
 
 import logging
+from enum import StrEnum
 from typing import Annotated, Literal
 
 import uvicorn
@@ -133,12 +134,20 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
     return app
 
 
+class LogLevel(StrEnum):
+    DEBUG = "debug"
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
+
+
 def run_server(  # noqa: PLR0913
     vector_stores: list[VectorStore],
     endpoint_names: list[str],
     port: int = 8000,
     host_ip: str = "127.0.0.1",
-    log_level: str = "warning",
+    log_level: LogLevel | str = LogLevel.WARNING,
     demo_mode: bool = False,
 ):
     """Create and run a `FastAPI` server with search endpoints.
@@ -161,6 +170,11 @@ def run_server(  # noqa: PLR0913
         raise DataValidationError(
             "port must be an integer between 1 and 65535.",
             context={"port": port},
+        )
+
+    if log_level not in LogLevel:
+        raise DataValidationError(
+            f"Invalid log level '{log_level}'. Must be one of: {list(LogLevel)}", context={"log_level": log_level}
         )
 
     app = get_server(vector_stores, endpoint_names)
