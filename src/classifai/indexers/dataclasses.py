@@ -75,12 +75,12 @@ class VectorStoreSearchOutput(pd.DataFrame):
 
     _schema = pa.DataFrameSchema(
         {
-            "query_id": pa.Column(str),
-            "query_text": pa.Column(str),
-            "doc_label": pa.Column(str),
-            "doc_text": pa.Column(str),
-            "rank": pa.Column(int, pa.Check.ge(0)),
-            "score": pa.Column(float),
+            "query_id": pa.Column(str, nullable=True),
+            "query_text": pa.Column(str, nullable=True),
+            "doc_label": pa.Column(str, nullable=True),
+            "doc_text": pa.Column(str, nullable=True),
+            "rank": pa.Column(int, pa.Check.ge(0), nullable=True),
+            "score": pa.Column(float, nullable=True),
         },
         ordered=True,
         coerce=True,
@@ -198,17 +198,23 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
     _schema = pa.DataFrameSchema(
         {
-            "id": pa.Column(str),
-            "searched_doc_label": pa.Column(str),
-            "doc_label": pa.Column(str),
-            "doc_text": pa.Column(str),
-        }
+            "id": pa.Column(str, nullable=True),
+            "searched_doc_label": pa.Column(str, nullable=True),
+            "doc_label": pa.Column(str, nullable=True),
+            "doc_text": pa.Column(str, nullable=True),
+        },
+        ordered=True,
+        coerce=True,
     )
 
     def __init__(self, data: dict | pd.DataFrame):
         """Initialize the class with validated data."""
         # Use the from_data logic to validate the input
-        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        if (isinstance(data, dict) and not data) or (isinstance(data, pd.DataFrame) and data.empty):
+            # If data is empty, create an empty DataFrame with the correct columns
+            df = pd.DataFrame(columns=self._schema.columns)
+        else:
+            df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = self._schema.validate(df)  # Validate against the schema
 
         # Call the superclass (pd.DataFrame) constructor
@@ -217,7 +223,14 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreReverseSearchOutput":
         """Create a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame."""
-        df = pd.DataFrame(data) if isinstance(data, dict) else data
+        if (isinstance(data, dict) and not data) or (isinstance(data, pd.DataFrame) and data.empty):
+            # If data is empty, create an empty DataFrame with the correct columns
+            df = pd.DataFrame(columns=cls._schema.columns)
+        elif isinstance(data, dict) and len(data["id"]) == 0:
+            # If data is an empty DataFrame exported as a dict, create an empty DataFrame with the correct columns
+            df = pd.DataFrame(columns=cls._schema.columns)
+        else:
+            df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
 
