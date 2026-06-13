@@ -88,7 +88,7 @@ class VectorStore:
         file_name: str,
         data_type: str,
         vectoriser: VectoriserBase,
-        batch_size: int = 8,
+        batch_size: int = 250,
         meta_data: dict | None = None,
         output_dir: str | None = None,
         overwrite: bool = False,
@@ -104,7 +104,7 @@ class VectorStore:
             vectoriser (object): The `Vectoriser` object used to transform text into
                                  vector embeddings.
             batch_size (int): [optional] The batch size for processing the input file and batching to
-            vectoriser. Defaults to 8.
+            vectoriser. Defaults to 250.
             meta_data (dict): [optional] key,value pair metadata column names to extract from the input file and their types.
                                 Defaults to `None`.
             output_dir (str): [optional] The directory where the `VectorStore` will be saved.
