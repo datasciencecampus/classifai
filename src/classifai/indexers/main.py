@@ -340,6 +340,7 @@ class VectorStore:
                 "vectoriser_class": self.vectoriser_class,
                 "vector_shape": self.vector_shape,
                 "num_vectors": self.num_vectors,
+                "batch_size": self.batch_size,
                 "created_at": time.time(),
                 "meta_data": serializable_column_meta_data,
             }
@@ -840,7 +841,7 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path, vectoriser, hooks: dict | None = None):  # noqa: C901, PLR0912, PLR0915
+    def from_filespace(cls, folder_path, vectoriser, batch_size: int | None = None, hooks: dict | None = None):  # noqa: C901, PLR0912, PLR0915
         """Creates a `VectorStore` instance from stored metadata and Parquet files.
         This method reads the metadata and vectors from the specified folder,
         validates the contents, and initializes a `VectorStore` object with the
@@ -854,6 +855,7 @@ class VectorStore:
         Args:
             folder_path (str): The folder path containing the metadata and Parquet files.
             vectoriser (object): The `Vectoriser` object used to transform text into vector embeddings.
+            batch_size (int): [optional] Overrides the batch size stored in metadata. Defaults to `None`, which uses the value from metadata.
             hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
 
         Returns:
@@ -902,6 +904,9 @@ class VectorStore:
                 context={"vectoriser_type": type(vectoriser).__name__},
             )
 
+        if batch_size is not None and (not isinstance(batch_size, int) or batch_size < 1):
+            raise DataValidationError("batch_size must be an integer >= 1 or None.", context={"batch_size": batch_size})
+
         if hooks is not None and not isinstance(hooks, dict):
             raise DataValidationError("hooks must be a dict or None.", context={"hooks_type": type(hooks).__name__})
 
@@ -929,7 +934,7 @@ class VectorStore:
                 context={"metadata_path": metadata_in_path, "metadata_type": type(metadata).__name__},
             )
 
-        required_keys = ["vectoriser_class", "vector_shape", "num_vectors", "created_at", "meta_data"]
+        required_keys = ["vectoriser_class", "vector_shape", "num_vectors", "batch_size", "created_at", "meta_data"]
         missing = [k for k in required_keys if k not in metadata]
         if missing:
             raise DataValidationError(
@@ -1012,7 +1017,7 @@ class VectorStore:
             vector_store.file_name = None
             vector_store.data_type = None
             vector_store.vectoriser = vectoriser
-            vector_store.batch_size = None
+            vector_store.batch_size = batch_size if batch_size is not None else metadata["batch_size"]
             vector_store.meta_data = deserialized_column_meta_data
             vector_store.vectors = df
             vector_store.vector_shape = metadata["vector_shape"]
