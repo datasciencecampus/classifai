@@ -17,4 +17,4 @@ Key Features:
 - Support for providing custom `VectorStore` loading functions to optimize memory usage during evaluation.
 """
 
-from .main import evaluate as evaluate
+from .main import Evaluation as Evaluation
