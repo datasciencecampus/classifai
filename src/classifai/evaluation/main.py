@@ -4,20 +4,22 @@
 2. Running a batched top-1 `VectorStore.search` over all queries.
 3. Merging the ground-truth label into the retrieved results.
 4. Validating the merged evaluation frame with a Pandera schema.
-5. Computing one or more multiclass, single-label classification metrics.
+5. Validating chosen metrics with a metrics parsing function.
+6. Computing one or more multiclass, single-label classification metrics.
+7. Utilising an Evaluation class to manage the evaluation process, including saving results and providing access to individual metric results.
 
-The evaluation is framed as retrieval-as-classification: for each query, the label of
+Evaluation is (currently with future updates pending) framed as retrieval-as-classification: for each query, the label of
 the top retrieved document (`doc_label`) is treated as the model prediction, and the
 provided dataset label is treated as the ground truth (`ground_truth_label`).
 
-Input DataFrames:
+DataFrames:
     Ground-truth input (`ground_truths`) must include:
         - qid (str): Unique query identifier.
         - text (str): Query text.
         - label (str): Ground-truth label.
 
     Search evaluation output (`results_df`) is expected to include:
-        - query_id (str): Query identifier (from `qid`).
+        - query_id (str): Query identifier (automatically generated for, and extracted from VectorStoreSearchInput dataclass).
         - query_text (str): Query text.
         - doc_label (str): Predicted label (label of retrieved doc).
         - doc_text (str): Retrieved document text.
@@ -32,7 +34,6 @@ Metrics:
         - "macro_recall"
         - "macro_precision"
         - "macro_f1"
-        - "classification_suite" (expands to all metrics above)
 
 Exceptions:
     InvalidMetricError: Raised when requested metric names cannot be parsed.
@@ -50,11 +51,14 @@ from ..exceptions import ClassifaiError
 from ..indexers import VectorStore
 from ..indexers.dataclasses import VectorStoreSearchInput
 from .metrics import (
-    compute_classification_accuracy,
-    compute_classification_macro_f1,
-    compute_classification_macro_precision,
-    compute_classification_macro_recall,
+    ClassificationAccuracy,
+    ClassificationMacroF1,
+    ClassificationMacroPrecision,
+    ClassificationMacroRecall,
+    Metric,
 )
+
+# - Error classes for evaluation-specific exceptions, inheriting from ClassifaiError
 
 
 @dataclass(eq=False)
@@ -67,10 +71,11 @@ class EvaluationError(ClassifaiError):
     code: str = "evaluation_error"
 
 
+# - Pandera Schema definitions for validating input and output DataFrames
+
 # pandera model for validating the content of the ground_truths dataframe
 _GROUND_TRUTH_SCHEMA: pa.DataFrameSchema = pa.DataFrameSchema(
     {
-        "qid": pa.Column(str),
         "text": pa.Column(str),
         "label": pa.Column(str),
     },
@@ -92,186 +97,245 @@ _SEARCH_EVAL_OUTPUT_SCHEMA: pa.DataFrameSchema = pa.DataFrameSchema(
 )
 
 
-def parse_metrics(metrics: list[str]) -> dict:
+def parse_metrics(metrics: list[str]) -> dict[str, Metric]:
     """Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions."""
     # dictionary of metric functions and their key names
     valid_metrics = {
-        "accuracy": compute_classification_accuracy,
-        "macro_recall": compute_classification_macro_recall,
-        "macro_precision": compute_classification_macro_precision,
-        "macro_f1": compute_classification_macro_f1,
+        "accuracy": ClassificationAccuracy,
+        "macro_recall": ClassificationMacroRecall,
+        "macro_precision": ClassificationMacroPrecision,
+        "macro_f1": ClassificationMacroF1,
     }
 
     # create a dictionary to store identified metrics
     parsed = {}
     for m in metrics:
-        if m == "classification_suite":
-            return valid_metrics
-
         if m in valid_metrics:
             parsed[m] = valid_metrics[m]
         else:
-            raise ValueError(
-                f"Invalid metric: {m}. Valid metrics are: {list(valid_metrics.keys())} or 'classification_suite' for all metrics."
-            )
+            raise ValueError(f"Invalid metric: {m}. Valid metrics are: {list(valid_metrics.keys())}")
     return parsed
 
 
-def _run_single_vectorstore_search(vectorstore: VectorStore, ground_truths: pd.DataFrame) -> pd.DataFrame:
-    """Run a single `VectorStore` on the evaluation dataset and return the results as a DataFrame.
+class Evaluation:
+    """Evaluation class for assessing the performance of vectorstores against ground truth data.
+    This class provides methods to evaluate vectorstores using specified metrics, validate inputs,
+    and save results. It supports batch processing and allows for detailed inspection of individual
+    metric results.
 
     Attributes:
-    vectorstore: A `VectorStore` object to run on the evaluation dataset.
-    ground_truths: A pandas DataFrame containing the ground truth labels for the evaluation dataset. It should have columns 'qid', 'text', and 'label'.
-
-    Returns:
-    A pandas DataFrame containing the results of the `VectorStore` search, with columns 'query_id', 'query_text', 'doc_label', 'doc_text', 'rank', 'score', and 'ground_truth_label'.
+        ground_truths (pd.DataFrame): DataFrame containing 'qid', 'text', and 'label' columns.
+        batch_size (int): Batch size for vectorstore search operations.
+        save_output (bool): Whether to save evaluation results to a file.
+        parsed_metrics (dict): Dictionary of parsed metrics to compute.
+        results (pd.DataFrame | None): DataFrame containing overall evaluation results.
+        metric_results (dict): Dictionary of individual metric results for detailed inspection.
     """
-    # batch the groun_truth rows into batches of N (==8 for now)
-    _BATCH_SIZE = 8
 
-    # build a VectorStoreSearchInput object fomr the ground_truths dataframe
-    search_input = VectorStoreSearchInput(
-        {
-            "id": ground_truths["qid"].tolist(),
-            "query": ground_truths["text"].tolist(),
-        }
-    )
+    def __init__(
+        self,
+        ground_truths: pd.DataFrame,
+        metrics: list[str],
+        batch_size: int = 8,
+        save_output: bool = False,
+    ):
+        """Initialize evaluation configuration.
 
-    # do the batched search process and get the results utilising the VectorStore's built in batching capabilities
-    result_df = vectorstore.search(search_input, n_results=1, batch_size=_BATCH_SIZE)
+        This constructor is responsible for ensuring that the provided ground_truths
+        DataFrame is compatible with the kinds of metrics that are to be calculated.
 
-    # for each query_id in the results dataframe, merge the corresponding ground truth label from the ground_truths dataframe into the results dataframe
-    eval_data = result_df.merge(ground_truths[["qid", "label"]], left_on="query_id", right_on="qid", how="left")
-    # rename the label column to ground_truth_label to avoid confusion with the doc_label column in the results dataframe
-    eval_data = eval_data.rename(columns={"label": "ground_truth_label"})
+        Args:
+            ground_truths: DataFrame with 'qid', 'text', 'label' columns.
+            metrics: List of metric names to compute (e.g., ["accuracy", "macro_f1"]).
+            batch_size: Batch size for vectorstore search operations.
+            save_output: Whether to save results to file by default.
 
-    return eval_data
+        Raises:
+            EvaluationError: If the ground_truths DataFrame fails validation.
+            InvalidMetricError: If the provided metrics cannot be parsed.
+        """
+        # Validate the ground_truths DataFrame against the expected schema
+        try:
+            _GROUND_TRUTH_SCHEMA.validate(ground_truths)
+        except Exception as e:
+            raise EvaluationError(
+                "Ground truths dataframe failed validation.", context={"cause_message": str(e)}
+            ) from e
 
+        # set instance attributes
+        self.ground_truths = ground_truths
+        self.batch_size = batch_size
+        self.save_output = save_output
 
-def evaluate(  # noqa: C901 PLR0912 PLR0915
-    vectorstores: list[VectorStore | Callable[[], VectorStore]],
-    vectorstore_names: list[str],
-    metrics: list[str],
-    ground_truths: pd.DataFrame,
-    output_file: str | None = None,
-):
-    """An evaluator evaluating performance of `VectorStore` objects for a given grount truth-labelled dataset and a set of evaluation metrics.
+        # parse the provided metrics and store them in the instance
+        try:
+            self.parsed_metrics = parse_metrics(metrics)
+        except Exception as e:
+            raise InvalidMetricError(
+                "Failed to parse provided metrics.",
+                context={"metrics": metrics, "cause_message": str(e)},
+            ) from e
 
-    Attributes:
-    vectorstores: A list of `VectorStore` objects to evaluate, or callable functions that return `VectorStore` objects when executed. Each `VectorStore` will be evaluated on the same dataset and metrics.
-    vectorstore_names: A list of names corresponding to the `VectorStore` objects, used for labeling results.
-    metrics: A list of evaluation metrics to compute. Supported metrics include 'accuracy@1', 'hit@k', and 'mrr@k'.
-    ground_truths: A pandas DataFrame containing the ground truth labels for the evaluation dataset. It should have columns 'qid', 'text', and 'label'.
-    output_file: An optional string specifying the path to save the evaluation results as a CSV file. If None, results will not be saved to a file.
+    def evaluate(  # noqa: C901, PLR0912
+        self,
+        vectorstores: list[VectorStore | Callable[[], VectorStore]],
+        vectorstore_names: list[str],
+        output_file: str | None = None,
+    ) -> pd.DataFrame:
+        """Evaluate multiple VectorStore instances on ground truth data and compute metrics.
+        This method validates the input, evaluates each VectorStore instance or callable,
+        computes metrics, and optionally saves the results to a CSV file.
 
+        Args:
+            vectorstores (list[VectorStore | Callable[[], VectorStore]]):
+                A list of VectorStore instances or callables that return VectorStore instances.
+            vectorstore_names (list[str]):
+                A list of unique names corresponding to the VectorStore instances.
+                The length must match the `vectorstores` list.
+            output_file (str | None, optional):
+                The file path to save the evaluation results as a CSV file.
+                Must end with ".csv". If None, results are not saved unless `self.save_output` is True.
 
-    Returns:
-    A pandas DataFrame containing the evaluation results, with rows corresponding to `VectorStore` objects and columns corresponding to evaluation metrics. (prints to csv if output_file is provided)
-    """
-    # validate the ground_truths dataframe
-    try:
-        _GROUND_TRUTH_SCHEMA.validate(ground_truths)
-    except Exception as e:
-        raise EvaluationError("Ground truths dataframe failed validation.", context={"cause_message": str(e)}) from e
+        Returns:
+            pd.DataFrame:
+                A DataFrame containing the evaluation results for all VectorStore instances.
 
-    # ensure that the vectorstores list is a full list of either vectorstore instances or functions that can be executed to return vectorstore instances, and that the vectorstore_names list is the same length as the vectorstores list.
-    if not all(isinstance(vs, VectorStore) or callable(vs) for vs in vectorstores):
-        raise ValueError(
-            "All items in vectorstores must be instances of VectorStore or callables that will return a VectorStore."
+        Raises:
+            ValueError:
+                If input validation fails (e.g., mismatched lengths, invalid types, or duplicate names).
+            EvaluationError:
+                If any step of the evaluation process fails, such as instantiating a VectorStore,
+                running a search, validating search results, or computing metrics.
+            ClassifaiError:
+                If saving the results to a file fails.
+
+        Notes:
+            - Each VectorStore instance or callable is processed sequentially.
+            - Metrics are computed using `self.parsed_metrics`, and results are stored in `self.metric_results`.
+            - The final results are stored in `self.results` and optionally saved to a CSV file.
+        """
+        # Validations
+
+        # are all in vectorstores either VectorStore instances or callables?
+        if not all(isinstance(vs, VectorStore) or callable(vs) for vs in vectorstores):
+            raise ValueError("All items in vectorstores must be instances of VectorStore or callables.")
+
+        # are vectorstore_names a list of length equal to vectorstores?
+        if not isinstance(vectorstore_names, list) or len(vectorstore_names) != len(vectorstores):
+            raise ValueError("vectorstore_names must be a list matching vectorstores length.")
+
+        # are all vectorstore_names strings?
+        if not all(isinstance(name, str) for name in vectorstore_names):
+            raise ValueError("All vectorstore_names must be strings.")
+
+        # are all vectorstore_names unique?
+        if len(set(vectorstore_names)) != len(vectorstore_names):
+            raise ValueError("All vectorstore_names must be unique.")
+
+        # is output_file a string ending with .csv if provided?
+        if output_file and (not isinstance(output_file, str) or not output_file.strip().endswith(".csv")):
+            raise ValueError("output_file must end with '.csv'")
+
+        # Run evaluation
+        overall_results_df = pd.DataFrame()
+
+        # Process each VectorStore instance or callable and corresponding name
+        for vs, name in zip(vectorstores, vectorstore_names, strict=False):
+            print(f"Processing VectorStore: {name}")
+
+            # instantiate vectorstore from callable if appropriate
+            try:
+                resolved_vs = vs() if callable(vs) else vs
+            except Exception as e:
+                raise EvaluationError(
+                    "Failed to instantiate VectorStore from callable.",
+                    context={"vectorstore_name": name, "cause_message": str(e)},
+                ) from e
+
+            # run the serarch function for the current vectorstore across the ground truth queries
+            try:
+                results_df = self._run_search(resolved_vs)
+            except Exception as e:
+                raise EvaluationError(
+                    "VectorStore search failed.",
+                    context={"vectorstore_name": name, "cause_message": str(e)},
+                ) from e
+            finally:
+                if callable(vs):
+                    del resolved_vs
+
+            # Validate the search results DataFrame against the expected schema
+            try:
+                _SEARCH_EVAL_OUTPUT_SCHEMA.validate(results_df)
+            except Exception as e:
+                raise EvaluationError(
+                    "Search results validation failed.",
+                    context={"vectorstore_name": name, "cause_message": str(e)},
+                ) from e
+
+            # Compute metrics for the current VectorStore and store results
+            vs_metrics = {}
+            try:
+                for metric_name, metric in self.parsed_metrics.items():
+                    result = metric.evaluate(results_df)
+                    vs_metrics.update(result.to_dict())
+                    self.metric_results[f"{name}_{metric_name}"] = result
+            except Exception as e:
+                raise EvaluationError(
+                    "Metric computation failed.",
+                    context={"vectorstore_name": name, "cause_message": str(e)},
+                ) from e
+
+            # Append the current VectorStore's metrics to the overall results DataFrame
+            vectorstore_df = pd.DataFrame([vs_metrics], index=[name])
+            overall_results_df = pd.concat([overall_results_df, vectorstore_df])
+
+        # Save results to CSV if requested
+        if output_file or self.save_output:
+            file_path = output_file or "evaluation_results.csv"
+            try:
+                overall_results_df.to_csv(file_path)
+            except Exception as e:
+                raise ClassifaiError(
+                    "Failed to save results.",
+                    context={"output_file": file_path, "cause_message": str(e)},
+                ) from e
+
+        return overall_results_df
+
+    def _run_search(self, vectorstore: VectorStore) -> pd.DataFrame:
+        """Executes a search on the provided vector store using the ground truth data
+        and returns a DataFrame containing the evaluation results.
+
+        Args:
+            vectorstore (VectorStore): The vector store instance to perform the search on.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the search results merged with the ground truth data.
+                          The resulting DataFrame includes the following columns:
+                          - query_id: The ID of the query.
+                          - query: The text of the query.
+                          - ground_truth_label: The corresponding ground truth label for the query.
+        """
+        """Run vectorstore search on ground truth data."""
+
+        # build the VectorStoreSearchInput from the ground_truths dataframe
+        search_input = VectorStoreSearchInput(
+            {
+                "id": range(1, len(self.ground_truths) + 1),
+                "query": self.ground_truths["text"].tolist(),
+            }
         )
 
-    # ensure that vectorstore_names is a list of strings with the same length as vectorstores
-    if not isinstance(vectorstore_names, list) or len(vectorstore_names) != len(vectorstores):
-        raise ValueError("vectorstore_names must be a list with the same length as vectorstores.")
+        # run the search with the vectorstore
+        result_df = vectorstore.search(search_input, n_results=1, batch_size=self.batch_size)
 
-    # ensure that all items in vectorstore_names are strings and that they are unique
-    if not all(isinstance(name, str) for name in vectorstore_names):
-        raise ValueError("All items in vectorstore_names must be strings.")
-    if len(set(vectorstore_names)) != len(vectorstore_names):
-        raise ValueError("All items in vectorstore_names must be unique.")
-
-    # parse the metrics
-    try:
-        parsed_metrics = parse_metrics(metrics)
-    except Exception as e:
-        raise InvalidMetricError(
-            "Faild to parse provided metrics.",
-            context={"metrics": metrics, "cause_message": str(e)},
-        ) from e
-
-    # validate the output_file argument if provided
-    if output_file and (not isinstance(output_file, str) or not output_file.strip().endswith(".csv")):
-        raise ValueError("The output_file arg must be a valid string ending with '.csv'")
-
-    # create an empty dataframe to store the results of the evaluation - columns will be metrics, rows will be vectorstore names
-    overall_results_metrics_df = pd.DataFrame()
-
-    # iterate through the vectostores
-    for vs, name in zip(vectorstores, vectorstore_names, strict=False):
-        # log the start of processing for the current vectorstore
-        print(f"Processing VectorStore: {name}")
-
-        # try to instantiate the vectorstore if it's a provided callable
-        try:
-            resolved_vs = vs() if callable(vs) else vs
-        except Exception as e:
-            raise EvaluationError(
-                "Failed to instantiate a VectorStore from the provided callable.",
-                context={"vectorstore_name": name, "cause_message": str(e)},
-            ) from e
-
-        try:
-            # initiate the search process, which batches queries from ground truth and combines the ground truth labels into the results.
-            results_df = _run_single_vectorstore_search(resolved_vs, ground_truths)
-        except Exception as e:
-            raise EvaluationError(
-                "Something went wrong when a VectorStore tried to perform search on the evaluation dataset.",
-                context={"vectorstore_name": name, "cause_message": str(e)},
-            ) from e
-        finally:
-            if callable(vs):
-                del resolved_vs
-
-        # validate the results dataframe to ensure it has the expected format to be passed to the evaluation metric functions
-        try:
-            _SEARCH_EVAL_OUTPUT_SCHEMA.validate(results_df)
-        except Exception as e:
-            raise EvaluationError(
-                "A VectorStore's  collected search results did not match the expected format for evaluation.",
-                context={"vectorstore_name": name, "cause_message": str(e)},
-            ) from e
-
-        # per vectorstore results
-        vs_computed_metrics = {}
-
-        try:
-            # for each metric, pass the vectorstore results to the metric function to compute the metric, and store the result in a dictionary
-            for metric in parsed_metrics:
-                result = parsed_metrics[metric](results_df)
-                vs_computed_metrics[metric] = result
-        except Exception as e:
-            raise EvaluationError(
-                "Failed to compute evaluation metrics for a Vectorstore's results.",
-                context={"vectorstore_name": name, "metric": metric, "cause_message": str(e)},
-            ) from e
-
-        # convert the dictionary of metric results to a df
-        vectorstore_metrics_df = pd.DataFrame(vs_computed_metrics, index=[name])
-
-        # add the most recently computed metrics to the overall results dataframe by concatenating the dataframs
-        overall_results_metrics_df = pd.concat([overall_results_metrics_df, vectorstore_metrics_df])
-
-    # set the column names of the overall results dataframe to be the metric names
-    overall_results_metrics_df.columns = parsed_metrics.keys()
-
-    # finally save the collected results data to file if an output file path was provided, and return the results dataframe
-    if output_file is not None:
-        try:
-            overall_results_metrics_df.to_csv(output_file)
-        except Exception as e:
-            raise ClassifaiError(
-                "Failed to save evaluation results to file.",
-                context={"output_file": output_file, "cause_message": str(e)},
-            ) from e
-    return overall_results_metrics_df
+        # merge the ground truth labels into the result dataframe
+        eval_data = result_df.merge(
+            self.ground_truths[["qid", "label"]],
+            left_on="query_id",
+            right_on="qid",
+            how="left",
+        )
+        eval_data = eval_data.rename(columns={"label": "ground_truth_label"})
+        return eval_data
