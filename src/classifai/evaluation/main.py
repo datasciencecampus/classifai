@@ -162,6 +162,9 @@ class Evaluation:
                 "Ground truths dataframe failed validation.", context={"cause_message": str(e)}
             ) from e
 
+        # add a qid column to the ground truths
+        ground_truths["qid"] = ground_truths.index.astype(str)
+
         # set instance attributes
         self.ground_truths = ground_truths
         self.batch_size = batch_size
@@ -322,7 +325,7 @@ class Evaluation:
         # build the VectorStoreSearchInput from the ground_truths dataframe
         search_input = VectorStoreSearchInput(
             {
-                "id": range(1, len(self.ground_truths) + 1),
+                "id": self.ground_truths["qid"].tolist(),
                 "query": self.ground_truths["text"].tolist(),
             }
         )
