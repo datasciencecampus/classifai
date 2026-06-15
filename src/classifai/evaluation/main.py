@@ -162,11 +162,9 @@ class Evaluation:
                 "Ground truths dataframe failed validation.", context={"cause_message": str(e)}
             ) from e
 
-        # add a qid column to the ground truths
-        ground_truths["qid"] = ground_truths.index.astype(str)
-
-        # set instance attributes
-        self.ground_truths = ground_truths
+        # add a qid column to the ground truths and set object attributes
+        self.ground_truths = ground_truths.copy()
+        self.ground_truths["qid"] = self.ground_truths.index.astype(str)
         self.batch_size = batch_size
         self.save_output = save_output
 
