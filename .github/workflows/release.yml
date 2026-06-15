@@ -23,6 +23,7 @@ jobs:
           set -e
           VERSION="${{ inputs.version }}"
           PATTERN="^## \[(v)?${VERSION}\]"
+          PATTERN_INIT="${VERSION}"
           echo "Checking CHANGELOG.md for header: $PATTERN"
           MATCH_COUNT=$(grep -c -E "$PATTERN" CHANGELOG.md || true)
           if [ "$MATCH_COUNT" -eq 0 ]; then
@@ -34,6 +35,17 @@ jobs:
             exit 1
           fi
           echo "Changelog validation passed."
+          echo "Checking src/classifai/__init__.py for version attribute: $PATTERN_INIT"
+          MATCH_COUNT_PACKAGE=$(grep -c -E "$PATTERN_INIT" src/classifai/__init__.py || true)
+          if [ "$MATCH_COUNT_PACKAGE" -eq 0 ]; then
+            echo "ERROR: No match found for $VERSION in package's internals (src/classifai/__init__.py)" >&2
+            exit 1
+          fi
+          if [ "$MATCH_COUNT_PACKAGE" -gt 1 ]; then
+            echo "ERROR: Multiple entries found for $VERSION in package's internals (src/classifai/__init__.py)" >&2
+            exit 1
+          fi
+          echo "Package internal consistency validation passed."
 
   extract-changelog:
     runs-on: ubuntu-latest
