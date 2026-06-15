@@ -111,7 +111,7 @@ def parse_metrics(metrics: list[str]) -> dict[str, Metric]:
     parsed = {}
     for m in metrics:
         if m in valid_metrics:
-            parsed[m] = valid_metrics[m]
+            parsed[m] = valid_metrics[m]()
         else:
             raise ValueError(f"Invalid metric: {m}. Valid metrics are: {list(valid_metrics.keys())}")
     return parsed
@@ -213,7 +213,6 @@ class Evaluation:
         Notes:
             - Each VectorStore instance or callable is processed sequentially.
             - Metrics are computed using `self.parsed_metrics`, and results are stored in `self.metric_results`.
-            - The final results are stored in `self.results` and optionally saved to a CSV file.
         """
         # Validations
 
@@ -277,10 +276,9 @@ class Evaluation:
             # Compute metrics for the current VectorStore and store results
             vs_metrics = {}
             try:
-                for metric_name, metric in self.parsed_metrics.items():
+                for _metric_name, metric in self.parsed_metrics.items():
                     result = metric.evaluate(results_df)
-                    vs_metrics.update(result.to_dict())
-                    self.metric_results[f"{name}_{metric_name}"] = result
+                    vs_metrics[result.name] = result.value
             except Exception as e:
                 raise EvaluationError(
                     "Metric computation failed.",
@@ -318,8 +316,6 @@ class Evaluation:
                           - query: The text of the query.
                           - ground_truth_label: The corresponding ground truth label for the query.
         """
-        """Run vectorstore search on ground truth data."""
-
         # build the VectorStoreSearchInput from the ground_truths dataframe
         search_input = VectorStoreSearchInput(
             {
