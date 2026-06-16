@@ -15,6 +15,19 @@ Key Features:
 - Consistent interfaces for datasets and evaluation metrics.
 - Optional functionality to save evaluation results for future analysis and comparison.
 - Support for providing custom `VectorStore` loading functions to optimize memory usage during evaluation.
+
+Warning:
+    This module is currently in development and its API is subject to change in future releases.
+    Use with caution in production environments.
 """
 
+import warnings
+
 from .main import Evaluation as Evaluation
+
+# Issue a module-level warning when imported
+warnings.warn(
+    "The evaluation module is currently in development and its API is subject to change in future releases.",
+    FutureWarning,
+    stacklevel=2,
+)
