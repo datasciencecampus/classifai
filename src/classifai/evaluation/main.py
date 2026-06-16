@@ -41,8 +41,10 @@ Exceptions:
         metric computation fails.
 """
 
+import os
 from collections.abc import Callable
 from dataclasses import dataclass
+from enum import Enum
 
 import pandas as pd
 import pandera.pandas as pa
@@ -97,23 +99,25 @@ _SEARCH_EVAL_OUTPUT_SCHEMA: pa.DataFrameSchema = pa.DataFrameSchema(
 )
 
 
+class MetricType(Enum):
+    """Available classification metrics."""
+
+    ACCURACY = ClassificationAccuracy
+    MACRO_RECALL = ClassificationMacroRecall
+    MACRO_PRECISION = ClassificationMacroPrecision
+    MACRO_F1 = ClassificationMacroF1
+
+
 def parse_metrics(metrics: list[str]) -> dict[str, Metric]:
     """Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions."""
-    # dictionary of metric functions and their key names
-    valid_metrics = {
-        "accuracy": ClassificationAccuracy,
-        "macro_recall": ClassificationMacroRecall,
-        "macro_precision": ClassificationMacroPrecision,
-        "macro_f1": ClassificationMacroF1,
-    }
-
-    # create a dictionary to store identified metrics
     parsed = {}
     for m in metrics:
-        if m in valid_metrics:
-            parsed[m] = valid_metrics[m]()
-        else:
-            raise ValueError(f"Invalid metric: {m}. Valid metrics are: {list(valid_metrics.keys())}")
+        try:
+            metric_type = MetricType[m.upper()]
+            parsed[m] = metric_type.value()
+        except KeyError as e:
+            valid_metrics = [e.name.lower() for e in MetricType]
+            raise ValueError(f"Invalid metric: {m}. Valid metrics are: {valid_metrics}") from e
     return parsed
 
 
@@ -217,16 +221,28 @@ class Evaluation:
         # Validations
 
         # are all in vectorstores either VectorStore instances or callables?
-        if not all(isinstance(vs, VectorStore) or callable(vs) for vs in vectorstores):
-            raise ValueError("All items in vectorstores must be instances of VectorStore or callables.")
+        invalid_items = [
+            (i, vs) for i, vs in enumerate(vectorstores) if not isinstance(vs, VectorStore) and not callable(vs)
+        ]
+        if invalid_items:
+            raise ValueError(
+                f"All items in vectorstores must be instances of VectorStore or callables. "
+                f"Invalid items: {invalid_items}"
+            )
 
         # are vectorstore_names a list of length equal to vectorstores?
         if not isinstance(vectorstore_names, list) or len(vectorstore_names) != len(vectorstores):
-            raise ValueError("vectorstore_names must be a list matching vectorstores length.")
+            raise ValueError(
+                "vectorstore_names must be a list matching vectorstores length. Length vectorStores = ",
+                len(vectorstores),
+                " Length vectorstore_names = ",
+                len(vectorstore_names),
+            )
 
         # are all vectorstore_names strings?
-        if not all(isinstance(name, str) for name in vectorstore_names):
-            raise ValueError("All vectorstore_names must be strings.")
+        invalid_names = [(i, name) for i, name in enumerate(vectorstore_names) if not isinstance(name, str)]
+        if invalid_names:
+            raise ValueError(f"All vectorstore_names must be strings. Invalid entries: {invalid_names}")
 
         # are all vectorstore_names unique?
         if len(set(vectorstore_names)) != len(vectorstore_names):
@@ -234,7 +250,7 @@ class Evaluation:
 
         # is output_file a string ending with .csv if provided?
         if output_file and (not isinstance(output_file, str) or not output_file.strip().endswith(".csv")):
-            raise ValueError("output_file must end with '.csv'")
+            raise ValueError("output_file must be a string and end with '.csv'.")
 
         # Run evaluation
         overall_results_df = pd.DataFrame()
@@ -252,7 +268,7 @@ class Evaluation:
                     context={"vectorstore_name": name, "cause_message": str(e)},
                 ) from e
 
-            # run the serarch function for the current vectorstore across the ground truth queries
+            # run the search function for the current vectorstore across the ground truth queries
             try:
                 results_df = self._run_search(resolved_vs)
             except Exception as e:
@@ -293,6 +309,11 @@ class Evaluation:
         if output_file or self.save_output:
             file_path = output_file or "evaluation_results.csv"
             try:
+                # Ensure the folder exists
+                folder_path = os.path.dirname(file_path)
+                if folder_path and not os.path.exists(folder_path):
+                    os.makedirs(folder_path, exist_ok=True)
+
                 overall_results_df.to_csv(file_path)
             except Exception as e:
                 raise ClassifaiError(

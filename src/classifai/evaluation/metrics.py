@@ -36,7 +36,7 @@ class Metric(ABC):
         pass
 
 
-def _get_unique_labels(eval_data):
+def _get_unique_labels(eval_data: pd.DataFrame) -> set[str]:
     """Return all labels present in either predictions or ground truth."""
     labels = set(eval_data["doc_label"].dropna().unique())
     labels.update(eval_data["ground_truth_label"].dropna().unique())
