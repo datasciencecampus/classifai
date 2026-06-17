@@ -48,6 +48,7 @@ from enum import Enum
 
 import pandas as pd
 import pandera.pandas as pa
+from pandera.typing.pandas import DataFrame, Series
 
 from ..exceptions import ClassifaiError
 from ..indexers import VectorStore
@@ -73,30 +74,28 @@ class EvaluationError(ClassifaiError):
     code: str = "evaluation_error"
 
 
-# - Pandera Schema definitions for validating input and output DataFrames
+# - Pandera DataFrameModel declarations for validating input and output DataFrames
 
-# pandera model for validating the content of the ground_truths dataframe
-_GROUND_TRUTH_SCHEMA: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "text": pa.Column(str),
-        "label": pa.Column(str),
-    },
-    coerce=True,
-)
 
-# pandera model for validating the output of the VectorStore search method when passed the groun truth data. Ensures good search results before passing to the metric functions, which may error if the search results are not in the expected format.
-_SEARCH_EVAL_OUTPUT_SCHEMA: pa.DataFrameSchema = pa.DataFrameSchema(
-    {
-        "query_id": pa.Column(str),
-        "query_text": pa.Column(str),
-        "doc_label": pa.Column(str),
-        "doc_text": pa.Column(str),
-        "rank": pa.Column(int, pa.Check.ge(0)),
-        "score": pa.Column(float),
-        "ground_truth_label": pa.Column(str),
-    },
-    coerce=True,
-)
+class GroundTruthSchema(pa.DataFrameModel):
+    text: Series[str]
+    label: Series[str]
+
+    class Config:
+        coerce = True
+
+
+class SearchOutputSchema(pa.DataFrameModel):
+    query_id: Series[str]
+    query_text: Series[str]
+    doc_label: Series[str]
+    doc_text: Series[str]
+    rank: Series[int] = pa.Field(ge=0)
+    score: Series[float]
+    ground_truth_label: Series[str]
+
+    class Config:
+        coerce = True
 
 
 class MetricType(Enum):
@@ -136,9 +135,10 @@ class Evaluation:
         metric_results (dict): Dictionary of individual metric results for detailed inspection.
     """
 
+    @pa.check_types
     def __init__(
         self,
-        ground_truths: pd.DataFrame,
+        ground_truths: DataFrame[GroundTruthSchema],
         metrics: list[str],
         batch_size: int = 8,
         save_output: bool = False,
@@ -158,15 +158,7 @@ class Evaluation:
             EvaluationError: If the ground_truths DataFrame fails validation.
             InvalidMetricError: If the provided metrics cannot be parsed.
         """
-        # Validate the ground_truths DataFrame against the expected schema
-        try:
-            _GROUND_TRUTH_SCHEMA.validate(ground_truths)
-        except Exception as e:
-            raise EvaluationError(
-                "Ground truths dataframe failed validation.", context={"cause_message": str(e)}
-            ) from e
-
-        # add a qid column to the ground truths and set object attributes
+        # assume grount truths has been validated in pa parameter checks, add a qid column to the ground truths and set object attributes
         self.ground_truths = ground_truths.copy()
         self.ground_truths["qid"] = self.ground_truths.index.astype(str)
         self.batch_size = batch_size
@@ -270,6 +262,7 @@ class Evaluation:
 
             # run the search function for the current vectorstore across the ground truth queries
             try:
+                # returned value should be automtically validated by Pandera DataFrameModel checks.
                 results_df = self._run_search(resolved_vs)
             except Exception as e:
                 raise EvaluationError(
@@ -279,15 +272,6 @@ class Evaluation:
             finally:
                 if callable(vs):
                     del resolved_vs
-
-            # Validate the search results DataFrame against the expected schema
-            try:
-                _SEARCH_EVAL_OUTPUT_SCHEMA.validate(results_df)
-            except Exception as e:
-                raise EvaluationError(
-                    "Search results validation failed.",
-                    context={"vectorstore_name": name, "cause_message": str(e)},
-                ) from e
 
             # Compute metrics for the current VectorStore and store results
             vs_metrics = {}
@@ -323,7 +307,8 @@ class Evaluation:
 
         return overall_results_df
 
-    def _run_search(self, vectorstore: VectorStore) -> pd.DataFrame:
+    @pa.check_types
+    def _run_search(self, vectorstore: VectorStore) -> DataFrame[SearchOutputSchema]:
         """Executes a search on the provided vector store using the ground truth data
         and returns a DataFrame containing the evaluation results.
 
