@@ -178,6 +178,7 @@ class Evaluation:
         vectorstores: list[VectorStore | Callable[[], VectorStore]],
         vectorstore_names: list[str],
         output_file: str | None = None,
+        overwrite: bool = False,
     ) -> pd.DataFrame:
         """Evaluate multiple VectorStore instances on ground truth data and compute metrics.
         This method validates the input, evaluates each VectorStore instance or callable,
@@ -192,6 +193,8 @@ class Evaluation:
             output_file (str | None, optional):
                 The file path to save the evaluation results as a CSV file.
                 Must end with ".csv". If None, results are not saved unless `self.save_output` is True.
+            overwrite (bool, optional):
+                Whether to overwrite the output file if it already exists. Default is False.
 
         Returns:
             pd.DataFrame:
@@ -211,6 +214,19 @@ class Evaluation:
             - Metrics are computed using `self.parsed_metrics`, and results are stored in `self.metric_results`.
         """
         # Validations
+
+        # Check if output_file is provided and save_output is True, and handle overwrite check logic
+        if self.save_output:
+            output_file = output_file or "evaluation_results.csv"
+            if os.path.exists(output_file) and not overwrite:
+                raise ValueError(
+                    f"Will attempt to save results to {output_file} but this file already exists!!! Set overwrite=True to overwrite."
+                )
+
+            # Ensure the folder exists
+            folder_path = os.path.dirname(output_file)
+            if folder_path and not os.path.exists(folder_path):
+                os.makedirs(folder_path, exist_ok=True)
 
         # are all in vectorstores either VectorStore instances or callables?
         invalid_items = [
@@ -290,19 +306,16 @@ class Evaluation:
             overall_results_df = pd.concat([overall_results_df, vectorstore_df])
 
         # Save results to CSV if requested
-        if output_file or self.save_output:
-            file_path = output_file or "evaluation_results.csv"
+        if self.save_output and output_file:
             try:
-                # Ensure the folder exists
-                folder_path = os.path.dirname(file_path)
-                if folder_path and not os.path.exists(folder_path):
-                    os.makedirs(folder_path, exist_ok=True)
-
-                overall_results_df.to_csv(file_path)
+                # generate the output DataFrame with indexed vectorstore names as a column and save to CSV
+                save_results_df = overall_results_df.reset_index()
+                save_results_df.rename(columns={"index": "vectorstore_name"}, inplace=True)
+                save_results_df.to_csv(output_file, index=False)
             except Exception as e:
                 raise ClassifaiError(
                     "Failed to save results.",
-                    context={"output_file": file_path, "cause_message": str(e)},
+                    context={"output_file": output_file, "cause_message": str(e)},
                 ) from e
 
         return overall_results_df
