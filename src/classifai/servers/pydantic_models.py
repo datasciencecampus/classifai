@@ -148,7 +148,7 @@ class EmbedResponseBody(BaseModel):
 
 
 def convert_reverse_search_dataframe_to_pydantic_response(
-    df: pd.DataFrame, meta_data: dict
+    df: pd.DataFrame, meta_data: dict, original_input: list[dict]
 ) -> ReverseSearchResponseBody:
     """Convert a `VectorStoreReverseSearchOutput` DataFrame into a JSON object conforming to the `ReverseSearchResponseBody` Pydantic
     model.
@@ -156,6 +156,9 @@ def convert_reverse_search_dataframe_to_pydantic_response(
     Args:
         df (pd.DataFrame): Pandas DataFrame containing reverse search results.
         meta_data (dict): dictionary of metadata column names mapping to their types.
+        original_input (list[dict]): The original input data for the reverse search.
+            This is included as an argument to ensure there is a reference to each input in the API response, even
+            if no matches are found.
 
     Returns:
         ReverseSearchResponseBody: Pydantic model containing the API structured result for reverse search `VectorStore` method.
@@ -175,10 +178,23 @@ def convert_reverse_search_dataframe_to_pydantic_response(
     )
     results_list = []
 
-    # Group rows by `id`
-    grouped = df.groupby("id")
+    for original_query in original_input:
+        input_id = original_query["id"]
+        input_doc_label = original_query["doc_label"]
+        # Get the subset of the DataFrame corresponding to the current `id`
+        group_df = df[df["id"] == input_id]
 
-    for input_id, group_df in grouped:
+        if group_df.empty:
+            # If there are no matches for this input_id, we still want to include it in the response, with empty results
+            results_list.append(
+                ReverseSearchResponseSet(
+                    input_id=input_id,
+                    searched_doc_label=input_doc_label,
+                    entries=[],
+                )
+            )
+            continue
+
         # Convert group_df to a list of dictionaries
         rows_as_dicts = group_df.to_dict(orient="records")
 
@@ -290,8 +306,11 @@ def convert_search_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: d
 
 
 def convert_embedding_dataframe_to_pydantic_response(df: pd.DataFrame) -> EmbedResponseBody:
-    """Convert a `VectorStoreEmbedOutput` DataFrame into a JSON object conforming to the `EmbedResponseBody` Pydantic
-    model. Unlike the conversion functions for search and reverse search, this function does not take in a `meta_data` dictionary as an argument, as meta data comes from the `VectorStore` which is not accessed during the embedding process, and thus there are no reserved meta data columns to check for. Instead, this function identifies any extra columns in the DataFrame that are not `id`, `text` or `embedding` as "hook" columns, which may have been added by a user with a custom hook attached to the embed method.
+    """Convert a `VectorStoreEmbedOutput` DataFrame into a JSON object conforming to the `EmbedResponseBody` Pydantic model.
+    Unlike the conversion functions for search and reverse search, this function does not take in a `meta_data` dictionary as an argument,
+    as meta data comes from the `VectorStore` which is not accessed during the embedding process, and thus there are no reserved meta data columns
+    to check for. Instead, this function identifies any extra columns in the DataFrame that are not `id`, `text` or `embedding` as "hook" columns,
+    which may have been added by a user with a custom hook attached to the embed method.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing search results.

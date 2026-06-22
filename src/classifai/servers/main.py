@@ -326,10 +326,10 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
         # Creat the input dataclass object and pass it to the vectorstore to get results.
         input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_label": queries})
         output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
-
         # post processing of the Vectorstore output object
         formatted_result = convert_reverse_search_dataframe_to_pydantic_response(
             df=output_data,
             meta_data=vector_store.meta_data,
+            original_input=input_data.to_dict(orient="records"),
         )
         return formatted_result
