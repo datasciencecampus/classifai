@@ -11,12 +11,14 @@ restAPI endpoints, in a FastAPI restAPI service started with these functions.
 from __future__ import annotations
 
 import logging
+from enum import StrEnum
 from typing import Annotated, Literal
 
 import uvicorn
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 
+from .. import __version__
 from ..exceptions import ConfigurationError, DataValidationError
 from ..indexers.dataclasses import (
     VectorStoreEmbedInput,
@@ -92,7 +94,7 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
     vector_stores_dict: dict[str, VectorStore] = dict(zip(endpoint_names, vector_stores, strict=True))
     make_endpoints(router, vector_stores_dict)
 
-    @router.get("/", description="UI accessibility")
+    @router.get("/", description="UI accessibility", tags=["docs"])
     def docs():
         """Redirect users to the API documentation page.
 
@@ -117,19 +119,46 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
     """
     logging.info("Generating ClassifAI API")
 
-    app = FastAPI(title="ClassifAI Demo Server", description="This is a demo server of the ClassifAI server")
+    openapi_tags = [
+        {"name": endpoint, "description": f"Endpoints for the {endpoint} VectorStore"} for endpoint in endpoint_names
+    ]
+    app = FastAPI(
+        title="ClassifAI API Server",
+        description="This is the Classifai FastAPI server",
+        openapi_tags=openapi_tags,
+        version=__version__,
+    )
+
     router = get_router(vector_stores, endpoint_names)
     app.include_router(router)
     return app
 
 
-def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port: int = 8000):
+class LogLevel(StrEnum):
+    DEBUG = "debug"
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
+
+
+def run_server(  # noqa: PLR0913
+    vector_stores: list[VectorStore],
+    endpoint_names: list[str],
+    port: int = 8000,
+    host_ip: str = "127.0.0.1",
+    log_level: LogLevel | str = "warning",
+    demo_mode: bool = False,
+):
     """Create and run a `FastAPI` server with search endpoints.
 
     Args:
         vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
         endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
         port (int): [optional] The port on which the API server will run. Defaults to 8000.
+        host_ip (str): [optional] The ip address that the api server runs on. Defaults to 127.0.0.1, note: default 127.0.0.1 exposes to connections from the same machine only, to expose for external connections use 0.0.0.0.
+        log_level ( str ): [optional] The level of logs for the uvicorn server, levels are ['critial', 'error', 'warning', 'log', 'debug'].
+        demo_mode (bool): [optional] Flag to show demo server info (Updates the openapi docs to show info indicating server is an api demo).
 
     Raises:
         `DataValidationError`: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
@@ -143,22 +172,43 @@ def run_server(vector_stores: list[VectorStore], endpoint_names: list[str], port
             context={"port": port},
         )
 
+    if log_level not in LogLevel:
+        raise DataValidationError(
+            f"Invalid log level '{log_level}'. Must be one of: {list(LogLevel)}", context={"log_level": log_level}
+        )
+
     app = get_server(vector_stores, endpoint_names)
-    uvicorn.run(app, port=port, log_level="info")
+
+    if demo_mode:
+        _set_demo_defaults(app)
+
+    uvicorn.run(app, port=port, log_level=log_level, host=host_ip)
 
 
-def make_endpoints(router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
+def _set_demo_defaults(app: FastAPI):
+    app.title = "ClassifAI API Demo Server"
+    app.description = "This is a demo of the ClassifAI server module"
+
+
+def make_endpoints(main_router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
     """Create and register the different endpoints to your app.
 
     Args:
-        router (APIRouter | FastAPI): The FastAPI application instance.
+        main_router (APIRouter | FastAPI): The FastAPI application instance.
         vector_stores_dict (dict[str, VectorStore]): The name of the endpoint to be created.
     """
-    for endpoint_name, vector_store in vector_stores_dict.items():
-        logging.info("Registering endpoints for: %s", endpoint_name)
-        _create_embedding_endpoint(router, endpoint_name, vector_store)
-        _create_search_endpoint(router, endpoint_name, vector_store)
-        _create_reverse_search_endpoint(router, endpoint_name, vector_store)
+    for name, store in vector_stores_dict.items():
+        sub_router = APIRouter(
+            prefix=f"/{name}",
+            tags=[name],
+        )
+        logging.info("Registering endpoints for: %s", name)
+
+        _create_search_endpoint(sub_router, name, store)
+        _create_embedding_endpoint(sub_router, name, store)
+        _create_reverse_search_endpoint(sub_router, name, store)
+
+        main_router.include_router(sub_router)
 
 
 def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
@@ -173,7 +223,11 @@ def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, 
     for the provided documents, and returns the results in a structured format.
     """
 
-    @router.post(f"/{endpoint_name}/embed", description=f"{endpoint_name} embedding endpoint")
+    @router.post(
+        "/embed",
+        summary=f"{endpoint_name} Embedding Endpoint",
+        description=f"Endpoint to call the `{endpoint_name}` `VectorStore.embed` method",
+    )
     async def embedding_endpoint(data: EmbedRequestSet) -> EmbedResponseBody:
         input_ids = [x.id for x in data.entries]
         input_texts = [x.text for x in data.entries]
@@ -201,7 +255,11 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
     the vector store and returns the results in a structured format.
     """
 
-    @router.post(f"/{endpoint_name}/search", description=f"{endpoint_name} search endpoint")
+    @router.post(
+        "/search",
+        summary=f"{endpoint_name} Search Endpoint",
+        description=f"Endpoint to call the `{endpoint_name}` `VectorStore.search` method",
+    )
     async def search_endpoint(
         data: SearchRequestSet,
         n_results: Annotated[
@@ -242,7 +300,11 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
     the vector store and returns the results in a structured format.
     """
 
-    @router.post(f"/{endpoint_name}/reverse_search", description=f"{endpoint_name} reverse query endpoint")
+    @router.post(
+        "/reverse_search",
+        summary=f"{endpoint_name} Reverse Search Endpoint",
+        description=f"Endpoint to call the `{endpoint_name}` `VectorStore.reverse_search` method",
+    )
     def reverse_search_endpoint(
         data: ReverseSearchRequestSet,
         max_n_results: Annotated[
@@ -264,10 +326,10 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
         # Creat the input dataclass object and pass it to the vectorstore to get results.
         input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_label": queries})
         output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
-
         # post processing of the Vectorstore output object
         formatted_result = convert_reverse_search_dataframe_to_pydantic_response(
             df=output_data,
             meta_data=vector_store.meta_data,
+            original_input=input_data.to_dict(orient="records"),
         )
         return formatted_result
