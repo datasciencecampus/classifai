@@ -75,12 +75,12 @@ class VectorStoreSearchOutput(pd.DataFrame):
 
     _schema = pa.DataFrameSchema(
         {
-            "query_id": pa.Column(str, nullable=True),
-            "query_text": pa.Column(str, nullable=True),
-            "doc_label": pa.Column(str, nullable=True),
-            "doc_text": pa.Column(str, nullable=True),
-            "rank": pa.Column(int, pa.Check.ge(0), nullable=True),
-            "score": pa.Column(float, nullable=True),
+            "query_id": pa.Column(str),
+            "query_text": pa.Column(str),
+            "doc_label": pa.Column(str),
+            "doc_text": pa.Column(str),
+            "rank": pa.Column(int, pa.Check.ge(0)),
+            "score": pa.Column(float),
         },
         ordered=True,
         coerce=True,
@@ -198,10 +198,10 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
     _schema = pa.DataFrameSchema(
         {
-            "id": pa.Column(str, nullable=True),
-            "searched_doc_label": pa.Column(str, nullable=True),
-            "doc_label": pa.Column(str, nullable=True),
-            "doc_text": pa.Column(str, nullable=True),
+            "id": pa.Column(str),
+            "searched_doc_label": pa.Column(str),
+            "doc_label": pa.Column(str),
+            "doc_text": pa.Column(str),
         },
         ordered=True,
         coerce=True,
