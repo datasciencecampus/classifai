@@ -306,7 +306,7 @@ class Evaluation:
             overall_results_df = pd.concat([overall_results_df, vectorstore_df])
 
         # Save results to CSV if requested
-        if self.save_output and output_file:
+        if self.save_output:
             try:
                 # generate the output DataFrame with indexed vectorstore names as a column and save to CSV
                 save_results_df = overall_results_df.reset_index()
