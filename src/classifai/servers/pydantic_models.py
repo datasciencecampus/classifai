@@ -6,8 +6,9 @@ from pydantic import BaseModel, Extra, Field
 
 
 class SearchRequestEntry(BaseModel):
-    """Atomic model for a single row of `VectorStore` search method input data (i.e. a single query input) , includes `id` and
-    `query`.
+    """Atomic model for a single row of `VectorStore` search method input data (i.e. a single query input).
+
+    Includes `id` and `query`.
     """
 
     id: str = Field(examples=["1"])
@@ -18,8 +19,9 @@ class SearchRequestEntry(BaseModel):
 
 
 class SearchRequestSet(BaseModel):
-    """Model for a list of many `SearchRequestEntry` Pydantic models, i.e. several queries to be searched
-    in the `VectorStore`.
+    """Model for a list of many `SearchRequestEntry` Pydantic models.
+
+    i.e. several queries to be searched in the `VectorStore`.
     """
 
     entries: list[SearchRequestEntry] = Field(description="array of search queries to be searched in the VectorStore.")
@@ -38,7 +40,10 @@ class SearchResponseEntry(BaseModel):
 
 
 class SearchResponseSet(BaseModel):
-    """Model for a list of many `SearchResponseEntry` Pydantic models, representing a ranked list of `VectorStore` search results for a provided query."""
+    """Model for a list of many `SearchResponseEntry` Pydantic models.
+
+    Representing a ranked list of `VectorStore` search results for a provided query.
+    """
 
     query_id: str = Field(description="The id of the query input for which these are the search results.")
     query_text: str = Field(description="The text of the query input for which these are the search results.")
@@ -48,8 +53,9 @@ class SearchResponseSet(BaseModel):
 
 
 class SearchResponseBody(BaseModel):
-    """Model for the overall search response body, which includes a list of `SearchResponseSet` objects,
-    representing the search results for each input query.
+    """Model for the overall search response body, which includes a list of `SearchResponseSet` objects.
+
+    Representing the search results for each input query.
     """
 
     data: list[SearchResponseSet]
@@ -66,16 +72,18 @@ class ReverseSearchRequestEntry(BaseModel):
 
 
 class ReverseSearchRequestSet(BaseModel):
-    """Model for a list of many `ReverseSearchRequestEntry` Pydantic models, i.e. several `VectorStore` row entry
-    labels to be looked up in the `VectorStore`.
+    """Model for a list of many `ReverseSearchRequestEntry` Pydantic models.
+
+    i.e. several `VectorStore` row entry labels to be looked up in the `VectorStore`.
     """
 
     entries: list[ReverseSearchRequestEntry] = Field(description="array of VectorStore row entry labels to look up.")
 
 
 class ReverseSearchResponseEntry(BaseModel):
-    """Atomic model for single reverse search result entry, includes retrieved `doc_label` and `doc_text` which
-    are expected as str types.
+    """Atomic model for single reverse search result entry.
+
+    Includes retrieved `doc_label` and `doc_text` which are expected as str types.
     """
 
     doc_label: str
@@ -86,8 +94,9 @@ class ReverseSearchResponseEntry(BaseModel):
 
 
 class ReverseSearchResponseSet(BaseModel):
-    """Model for a list of many `ReverseSearchResponseEntry` pydnatic models, representing a list of `VectorStore`
-    entries found (partially) matching an input 'searched_doc_label' and corresponding input `id`.
+    """Model for a list of many `ReverseSearchResponseEntry` pydnatic models.
+
+    Representing a list of `VectorStore` entries found (partially) matching an input 'searched_doc_label' and corresponding input `id`.
     """
 
     input_id: str = Field(
@@ -102,8 +111,9 @@ class ReverseSearchResponseSet(BaseModel):
 
 
 class ReverseSearchResponseBody(BaseModel):
-    """Model for the overall reverse search response body, which includes a list of `ReverseSearchResponseSet`
-    objects, representing the reverse search results for each input `VectorStore` row entry `id`.
+    """Model for the overall reverse search response body, which includes a list of `ReverseSearchResponseSet` objects.
+
+    Representing the reverse search results for each input `VectorStore` row entry `id`.
     """
 
     data: list[ReverseSearchResponseSet]
@@ -119,7 +129,10 @@ class EmbedRequestEntry(BaseModel):
 
 
 class EmbedRequestSet(BaseModel):
-    """Model for a list of many `EmbedRequestEntry` Pydantic models, representing several text strings to be embedded with the `VectorStore` embed method."""
+    """Model for a list of many `EmbedRequestEntry` Pydantic models.
+
+    Representing several text strings to be embedded with the `VectorStore` embed method.
+    """
 
     entries: list[EmbedRequestEntry] = Field(
         description="array of text entries to be embedded, with their corresponding text and id"
@@ -150,8 +163,7 @@ class EmbedResponseBody(BaseModel):
 def convert_reverse_search_dataframe_to_pydantic_response(
     df: pd.DataFrame, meta_data: dict, original_input: list[dict]
 ) -> ReverseSearchResponseBody:
-    """Convert a `VectorStoreReverseSearchOutput` DataFrame into a JSON object conforming to the `ReverseSearchResponseBody` Pydantic
-    model.
+    """Convert a `VectorStoreReverseSearchOutput` DataFrame into a JSON object conforming to the `ReverseSearchResponseBody` Pydantic model.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing reverse search results.
@@ -235,8 +247,7 @@ def convert_reverse_search_dataframe_to_pydantic_response(
 
 
 def convert_search_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: dict) -> SearchResponseBody:
-    """Convert a `VectorStoreSearchOutput` DataFrame into a JSON object conforming to the `SearchResponseBody` Pydantic
-    model.
+    """Convert a `VectorStoreSearchOutput` DataFrame into a JSON object conforming to the `SearchResponseBody` Pydantic model.
 
     Args:
         df (pd.DataFrame): Pandas DataFrame containing search results.
@@ -307,6 +318,7 @@ def convert_search_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: d
 
 def convert_embedding_dataframe_to_pydantic_response(df: pd.DataFrame) -> EmbedResponseBody:
     """Convert a `VectorStoreEmbedOutput` DataFrame into a JSON object conforming to the `EmbedResponseBody` Pydantic model.
+
     Unlike the conversion functions for search and reverse search, this function does not take in a `meta_data` dictionary as an argument,
     as meta data comes from the `VectorStore` which is not accessed during the embedding process, and thus there are no reserved meta data columns
     to check for. Instead, this function identifies any extra columns in the DataFrame that are not `id`, `text` or `embedding` as "hook" columns,
