@@ -734,9 +734,9 @@ class VectorStore:
 
             all_results: list[pl.DataFrame] = []
 
-            for i in self.classifai_tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
-                query_text_batch = query.query.to_list()[i : i + batch_size]
-                query_ids_batch = query.id.to_list()[i : i + batch_size]
+            for i in self.classifai_tqdm(range(0, len(query), query_batch_size), desc="Processing query batches"):
+                query_text_batch = query.query.to_list()[i : i + query_batch_size]
+                query_ids_batch = query.id.to_list()[i : i + query_batch_size]
 
                 if len(query_text_batch) == 0:
                     continue
