@@ -1,4 +1,5 @@
 """This module provides classes for creating and utilising embedding models from different services.
+
 The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules.
 Generally Vectorisers are used to convert text data into numerical embeddings that can be used for
 machine learning tasks.
