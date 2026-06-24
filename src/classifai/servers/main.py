@@ -181,7 +181,8 @@ def run_server(  # noqa: PLR0913
 
     if not is_valid_log_level(log_level):
         raise DataValidationError(
-            f"Invalid log level '{log_level}'. Must be one of: {list(LogLevel)}", context={"log_level": log_level}
+            f"Invalid log level '{log_level}'. Must be one of: {[member.value for member in LogLevel]}",
+            context={"log_level": log_level},
         )
 
     app = get_server(vector_stores, endpoint_names)
