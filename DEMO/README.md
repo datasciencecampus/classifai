@@ -84,7 +84,7 @@ It covers:
 
 * Memory-efficient evaluation using callable functions to load VectorStores on-demand, useful when evaluating many or large VectorStores.
 
-**Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
+> **Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
 ---
 
 ## Installation of classifai
