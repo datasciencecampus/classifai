@@ -13,7 +13,7 @@ class HuggingFaceVectoriser(VectoriserBase):
 
     The `HuggingFaceVectoriser` accepts most encoder-based models from the Huggingface Transformers library,
     and provides a simple interface to generate embeddings from text data. Additional configuration options,
-    such as `trust_remote` or a HuggingFaceAPI token can be passed via the `tokenizer_kwargs` and `model_kwargs`
+    such as `trust_remote_code` or a HuggingFaceAPI token can be passed via the `tokenizer_kwargs` and `model_kwargs`
     parameters.
 
     Attributes:
@@ -21,8 +21,6 @@ class HuggingFaceVectoriser(VectoriserBase):
         tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
         model (transformers.PreTrainedModel): The Huggingface model instance.
         device (torch.device): The device (CPU or GPU) on which the model is loaded.
-        tokenizer_kwargs (dict): Additional keyword arguments passed to the tokenizer.
-        model_kwargs (dict): Additional keyword arguments passed to the model.
     """
 
     def __init__(
@@ -33,7 +31,7 @@ class HuggingFaceVectoriser(VectoriserBase):
         tokenizer_kwargs: dict | None = None,
         model_kwargs: dict | None = None,
     ):
-        """Initializes the HuggingfaceVectoriser with the specified model name and device.
+        """Initialises the HuggingfaceVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the Huggingface model to use.
@@ -44,7 +42,7 @@ class HuggingFaceVectoriser(VectoriserBase):
 
         Raises:
             `ExternalServiceError`: If the model or tokenizer cannot be loaded.
-            `ConfigurationError`: If the model cannot be initialized on the specified device.
+            `ConfigurationError`: If the model cannot be initialised on the specified device.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -85,7 +83,7 @@ class HuggingFaceVectoriser(VectoriserBase):
             self.model.eval()
         except Exception as e:
             raise ConfigurationError(
-                "Failed to initialize model on device.",
+                "Failed to initialise model on device.",
                 context={
                     "vectoriser": "huggingface",
                     "model": model_name,
