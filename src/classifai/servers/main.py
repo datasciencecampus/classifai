@@ -146,7 +146,14 @@ class LogLevel(str, Enum):
 
 
 def is_valid_log_level(value: str) -> bool:
-    """Check if `str` is valid log level."""
+    """Check if `str` is valid log level.
+
+    Args:
+        value: (str): Input log level
+
+    Returns:
+        (bool)
+    """
     return value in {e.value for e in LogLevel}
 
 
