@@ -1,12 +1,12 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a start a restAPI service.
+"""This module provides functionality for building and running ClassifAI as a REST API service.
 
-This allows a user to call the search methods of different VectorStore objects, from
-an api-endpoint.
+This allows a user to call the search methods of one or more `VectorStore` objects,
+from an API endpoint.
 
-These functions interact with the ClassifAI PackageIndexer modules
-VectorStore objects, such that their embed and search methods are exposed on
-restAPI endpoints, in a FastAPI restAPI service started with these functions.
+These functions interact with the ClassifAI Package's Indexer modules
+`VectorStore` objects, such that their embed and search methods are exposed on
+REST API endpoints, as a FastAPI service started with these functions.
 """
 
 from __future__ import annotations
@@ -96,7 +96,7 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
     make_endpoints(router, vector_stores_dict)
 
     @router.get("/", description="UI accessibility", tags=["docs"])
-    def docs():
+    def docs() -> RedirectResponse:
         """Redirect users to the API documentation page.
 
         Returns:
@@ -136,7 +136,7 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
 
 
 class LogLevel(str, Enum):
-    """Valid importance levels of logs."""
+    """Valid levels of logs."""
 
     DEBUG = "debug"
     INFO = "info"
@@ -146,14 +146,7 @@ class LogLevel(str, Enum):
 
 
 def is_valid_log_level(value: str) -> bool:
-    """Check if `str` is valid log level.
-
-    Args:
-        value: (str): Input log level
-
-    Returns:
-        (bool)
-    """
+    """Check if `str` is valid log level."""
     return value in {e.value for e in LogLevel}
 
 
@@ -164,7 +157,7 @@ def run_server(  # noqa: PLR0913
     host_ip: str = "127.0.0.1",
     log_level: str = "warning",
     demo_mode: bool = False,
-):
+) -> None:
     """Create and run a `FastAPI` server with search endpoints.
 
     Args:
@@ -206,7 +199,7 @@ def _set_demo_defaults(app: FastAPI):
     app.description = "This is a demo of the ClassifAI server module"
 
 
-def make_endpoints(main_router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]):
+def make_endpoints(main_router: APIRouter | FastAPI, vector_stores_dict: dict[str, VectorStore]) -> None:
     """Create and register the different endpoints to your app.
 
     Args:
@@ -227,13 +220,13 @@ def make_endpoints(main_router: APIRouter | FastAPI, vector_stores_dict: dict[st
         main_router.include_router(sub_router)
 
 
-def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
-    """Create and register an embedding endpoint for a specific `VectorStore`.
+def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore) -> None:
+    """Create and register an `embed` endpoint for a specific `VectorStore`.
 
     Args:
         router (APIRouter | FastAPI): The `FastAPI` application instance.
         endpoint_name (str): The name of the endpoint to be created.
-        vector_store: The vector store object responsible for generating embeddings.
+        vector_store (VectorStore): The vector store object responsible for generating embeddings.
 
     The created endpoint accepts POST requests with input data, generates embeddings
     for the provided documents, and returns the results in a structured format.
@@ -258,13 +251,13 @@ def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, 
         return formatted_result
 
 
-def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
-    """Create and register a search endpoint for a specific `VectorStore`.
+def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore) -> None:
+    """Create and register a `search` endpoint for a specific `VectorStore`.
 
     Args:
         router (APIRouter | FastAPI): The `FastAPI` application instance.
         endpoint_name (str): The name of the endpoint to be created.
-        vector_store: The `VectorStore` object responsible for performing search operations.
+        vector_store (VectorStore): The `VectorStore` object responsible for performing search operations.
 
     The created endpoint accepts POST requests with input data and a query parameter
     specifying the number of results to return. It performs a search operation using
@@ -303,13 +296,13 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
         return formatted_result
 
 
-def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore):
-    """Create and register a reverse_search endpoint for a specific vector store.
+def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vector_store: VectorStore) -> None:
+    """Create and register a `reverse_search` endpoint for a specific vector store.
 
     Args:
         router (APIRouter | FastAPI): The `FastAPI` application instance.
         endpoint_name (str): The name of the endpoint to be created.
-        vector_store: The `VectorStore` object responsible for performing search operations.
+        vector_store (VectorStore): The `VectorStore` object responsible for performing search operations.
 
     The created endpoint accepts POST requests with input data and a query parameter
     specifying the number of results to return. It performs a reverse search operation using

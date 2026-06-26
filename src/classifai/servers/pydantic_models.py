@@ -1,5 +1,5 @@
 # pylint: disable=C0301
-"""Pydantic Classes to model request and response data for ClassifAI FastAPI RESTful API."""
+"""Pydantic Classes to model request and response data for ClassifAI FastAPI REST API."""
 
 import pandas as pd
 from pydantic import BaseModel, Extra, Field
@@ -21,10 +21,10 @@ class SearchRequestEntry(BaseModel):
 class SearchRequestSet(BaseModel):
     """Model for a list of many `SearchRequestEntry` Pydantic models.
 
-    i.e. several queries to be searched in the `VectorStore`.
+    i.e. several search query `entries` to be searched in the `VectorStore`.
     """
 
-    entries: list[SearchRequestEntry] = Field(description="array of search queries to be searched in the VectorStore.")
+    entries: list[SearchRequestEntry] = Field(description="Array of search queries to be searched in the VectorStore.")
 
 
 class SearchResponseEntry(BaseModel):
