@@ -131,7 +131,6 @@ class Evaluation:
         batch_size (int): Batch size for vectorstore search operations.
         save_output (bool): Whether to save evaluation results to a file.
         parsed_metrics (dict): Dictionary of parsed metrics to compute.
-        results (pd.DataFrame | None): DataFrame containing overall evaluation results.
         metric_results (dict): Dictionary of individual metric results for detailed inspection.
     """
 
@@ -163,6 +162,7 @@ class Evaluation:
         self.ground_truths["qid"] = self.ground_truths.index.astype(str)
         self.batch_size = batch_size
         self.save_output = save_output
+        self.metric_results = {}
 
         # parse the provided metrics and store them in the instance
         try:
@@ -290,11 +290,10 @@ class Evaluation:
                     del resolved_vs
 
             # Compute metrics for the current VectorStore and store results
-            vs_metrics = {}
             try:
                 for _metric_name, metric in self.parsed_metrics.items():
                     result = metric.evaluate(results_df)
-                    vs_metrics[result.name] = result.value
+                    self.metric_results[result.name] = result.value
             except Exception as e:
                 raise EvaluationError(
                     "Metric computation failed.",
@@ -302,7 +301,7 @@ class Evaluation:
                 ) from e
 
             # Append the current VectorStore's metrics to the overall results DataFrame
-            vectorstore_df = pd.DataFrame([vs_metrics], index=[name])
+            vectorstore_df = pd.DataFrame([self.metric_results], index=[name])
             overall_results_df = pd.concat([overall_results_df, vectorstore_df])
 
         # Save results to CSV if requested
