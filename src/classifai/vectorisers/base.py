@@ -53,9 +53,27 @@ import numpy as np
 
 
 class VectoriserBase(ABC):
-    """Abstract base class for all vectorisers."""
+    """Abstract base class for all vectorisers.
+
+    Defines the common interface that all vectoriser implementations must
+    follow. Subclasses must implement the `transform` method to convert text
+    into numerical embeddings.
+    """
 
     @abstractmethod
     def transform(self, texts: str | list[str]) -> np.ndarray:
-        """Transforms input text(s) into embeddings."""
+        """Transforms input text(s) into embeddings.
+
+        This abstract method must be implemented by any subclass of
+        VectoriserBase. It converts input text in string or list form into a
+        embedding in numpy array form.
+
+        Args:
+          texts: A string or list of strings representing the input text(s) to
+            be transformed.
+
+        Returns:
+          A numpy array containing the embeddings for the input text(s). Each
+          row corresponds to the embedding of a single input text.
+        """
         pass
