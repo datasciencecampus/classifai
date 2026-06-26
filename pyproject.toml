@@ -90,7 +90,7 @@ ignore = [
     # Conflicts with google docstring style
     "D205",
     # Allow missing docstring, remove to enforce docstrings across the board
-    # "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
     # Disable line length check as it is handled by black
     # :TODO: Remove E501 when ruff supports all black rules
     "E501",
