@@ -59,7 +59,8 @@ class GcpVectoriser(VectoriserBase):
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
             **client_kwargs: [optional] Additional keyword arguments to pass to the GenAI client. To invoke via the
-                                        VertexAI API rather than the GenAI API, pass the additional kwarg `vertexai=True`.
+                                        Agent Platform API (formerly VertexAI) API rather than the GenAI API, pass the
+                                        additional kwarg `vertexai=True`.
 
         Raises:
             `ConfigurationError`: If the authentication arguments are invalid, or if the GenAI client fails to initialise.

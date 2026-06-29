@@ -26,7 +26,8 @@ It is possible for users to implement their own Vectoriser classes by inheriting
 We provide several robust implementations of Vectorisers that interface with popular services and libraries.
 
 This module contains the following 'ready-made' classes:
-- `GcpVectoriser`: A class for embedding text using either Google Cloud Platform's GenAI or VertexAI APIs.
+- `GcpVectoriser`: A class for embedding text using either Google Cloud Platform's Gemini (formerly GenAI) API or
+  Gemini Enterprise Agent Platform (formerly VertexAI) API.
 - `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
 models to generate text embeddings.
 - `OllamaVectoriser`: A general wrapper class for using a locally running Ollama
