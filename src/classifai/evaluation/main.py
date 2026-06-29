@@ -108,7 +108,18 @@ class MetricType(Enum):
 
 
 def parse_metrics(metrics: list[str]) -> dict[str, Metric]:
-    """Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions."""
+    """Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions.
+
+    Args:
+        metrics (list[str]): A list of metric names as strings.
+
+    Returns:
+        dict[str, Metric]: A dictionary where the keys are the metric names (as strings) and the values are
+        the corresponding Metric instances.
+
+    Raises:
+        ValueError: If a metric name in the input list is invalid, an error is raised with a list of valid metrics.
+    """
     parsed = {}
     for m in metrics:
         try:
@@ -122,6 +133,7 @@ def parse_metrics(metrics: list[str]) -> dict[str, Metric]:
 
 class Evaluation:
     """Evaluation class for assessing the performance of vectorstores against ground truth data.
+
     This class provides methods to evaluate vectorstores using specified metrics, validate inputs,
     and save results. It supports batch processing and allows for detailed inspection of individual
     metric results.
@@ -154,7 +166,6 @@ class Evaluation:
             save_output: Whether to save results to file by default.
 
         Raises:
-            EvaluationError: If the ground_truths DataFrame fails validation.
             InvalidMetricError: If the provided metrics cannot be parsed.
         """
         # assume grount truths has been validated in pa parameter checks, add a qid column to the ground truths and set object attributes
@@ -181,6 +192,7 @@ class Evaluation:
         overwrite: bool = False,
     ) -> pd.DataFrame:
         """Evaluate multiple VectorStore instances on ground truth data and compute metrics.
+
         This method validates the input, evaluates each VectorStore instance or callable,
         computes metrics, and optionally saves the results to a CSV file.
 
@@ -321,8 +333,7 @@ class Evaluation:
 
     @pa.check_types
     def _run_search(self, vectorstore: VectorStore) -> DataFrame[SearchOutputSchema]:
-        """Executes a search on the provided vector store using the ground truth data
-        and returns a DataFrame containing the evaluation results.
+        """Executes a search on the provided vector store using the ground truth data and returns a DataFrame containing the evaluation results.
 
         Args:
             vectorstore (VectorStore): The vector store instance to perform the search on.
