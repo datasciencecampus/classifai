@@ -66,6 +66,25 @@ It covers:
 
 * A showcase of the pre-made `RagHook` class and performing different RAG type tasks on `VectorStoreSearchOutput` results including classification, reranking and keyword identication, and how to customise the specific task using this class.
 
+### 5. Evaluating VectorStore Performance with Metrics : `evaluation_workflow_demo.ipynb`
+
+This notebook demonstrates how to use the Evaluation module to assess the performance of one or more VectorStore instances against ground-truth labelled data.
+
+It covers:
+
+* An introduction to the Evaluation module and its multi-class, single-label classification focus.
+
+* The available evaluation metrics
+
+* Creating multiple VectorStore instances with varying data coverage to showcase performance differences.
+
+* Instantiating an `Evaluation` object with ground truth data and selected metrics.
+
+* Running the `evaluate()` method to compute metrics across multiple VectorStores.
+
+* Memory-efficient evaluation using callable functions to load VectorStores on-demand, useful when evaluating many or large VectorStores.
+
+> **Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
 ---
 
 ## Installation of classifai
