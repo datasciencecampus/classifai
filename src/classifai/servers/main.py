@@ -1,12 +1,12 @@
 # pylint: disable=C0301
-"""This module provides functionality for building and running ClassifAI as a REST API service.
+"""Utilities for building and running the ClassifAI REST API.
 
-This allows a user to call the search methods of one or more `VectorStore` objects,
-from an API endpoint.
+This module provides functions for creating FastAPI applications and
+routers that expose VectorStore embedding and search functionality as
+REST API endpoints.
 
-These functions interact with the ClassifAI Package's Indexer modules
-`VectorStore` objects, such that their embed and search methods are exposed on
-REST API endpoints, as a FastAPI service started with these functions.
+It also contains helpers for validating configuration and starting the
+API server.
 """
 
 from __future__ import annotations
@@ -41,19 +41,21 @@ from .pydantic_models import (
 
 
 def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> APIRouter:
-    """Create and return a `FastAPI.APIRouter` with search endpoints.
+    """Create and return a FastAPI APIRouter with search endpoints.
 
     Args:
-        vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
-        endpoint_names (list[str]): A list of endpoint names corresponding to the vector stores.
+        vector_stores (list[VectorStore]): A list of VectorStore objects, each
+            responsible for handling embedding and search operations for a
+            specific endpoint.
+        endpoint_names (list[str]): Endpoint names corresponding to the vector
+            stores.
 
     Returns:
-        (APIRouter): Router with intialized search endpoints
+        fastapi.APIRouter: Router with initialized search endpoints.
 
     Raises:
-        `DataValidationError`: Raised if the input parameters are invalid.
-        `ConfigurationError`: Raised if one or more of the `vector_stores` are invalid.
-
+        DataValidationError: If the input parameters are invalid.
+        ConfigurationError: If one or more vector stores are invalid.
     """
     # ---- Validate startup args -> DataValidationError / ConfigurationError
     if not isinstance(vector_stores, list) or not isinstance(endpoint_names, list):
@@ -109,14 +111,17 @@ def get_router(vector_stores: list[VectorStore], endpoint_names: list[str]) -> A
 
 
 def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> FastAPI:
-    """Create and return a `FastAPI` server with search endpoints.
+    """Create and return a FastAPI server with search endpoints.
 
     Args:
-        vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
-        endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
+        vector_stores (list[VectorStore]): A list of VectorStore objects, each
+            responsible for handling embedding and search operations for a
+            specific endpoint.
+        endpoint_names (list[str]): Endpoint names corresponding to the
+            VectorStore instances to expose.
 
     Returns:
-        (FastAPI): Server with intialized search endpoints
+        fastapi.FastAPI: A FastAPI server with initialized search endpoints.
     """
     logging.info("Generating ClassifAI API")
 
@@ -158,18 +163,27 @@ def run_server(  # noqa: PLR0913
     log_level: str = "warning",
     demo_mode: bool = False,
 ) -> None:
-    """Create and run a `FastAPI` server with search endpoints.
+    """Create and run a FastAPI server with search endpoints.
 
     Args:
-        vector_stores (list[VectorStore]): A list of `VectorStore` objects, each responsible for handling embedding and search operations for a specific endpoint.
-        endpoint_names (list[str]): A list of endpoint names corresponding to the `VectorStore`s to be exposed.
-        port (int): [optional] The port on which the API server will run. Defaults to 8000.
-        host_ip (str): [optional] The ip address that the api server runs on. Defaults to 127.0.0.1, note: default 127.0.0.1 exposes to connections from the same machine only, to expose for external connections use 0.0.0.0.
-        log_level (str): [optional] The level of logs for the uvicorn server, levels are ['critial', 'error', 'warning', 'log', 'debug'].
-        demo_mode (bool): [optional] Flag to show demo server info (Updates the openapi docs to show info indicating server is an api demo).
+        vector_stores (list[VectorStore]): A list of VectorStore objects, each
+            responsible for handling embedding and search operations for a
+            specific endpoint.
+        endpoint_names (list[str]): Endpoint names corresponding to the
+            VectorStore instances to expose.
+        port (int): The port on which the API server runs. Defaults to 8000.
+        host_ip (str): The IP address on which the API server listens.
+            Defaults to "127.0.0.1". Note that "127.0.0.1" only accepts
+            connections from the local machine. Use "0.0.0.0" to allow
+            external connections.
+        log_level (str): The logging level for the Uvicorn server. Supported
+            values are "critical", "error", "warning", "info", and "debug".
+        demo_mode (bool): Whether to display demo server information in the
+            OpenAPI documentation.
 
     Raises:
-        `DataValidationError`: Raised if the input parameters are invalid, e.g. `port` value is out of bounds.
+        DataValidationError: If the input parameters are invalid, for example
+            if the port value is out of bounds.
     """
     logging.info("Starting ClassifAI API")
 
