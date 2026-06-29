@@ -13,6 +13,7 @@ In our Package, Vectorisers have a simple role:
   - Take in text data (as a string or list of strings)
   - Output numerical embeddings (as a numpy array)
   - Each Vectoriser should provide a `transform` method to perform this conversion.
+
 It is possible for users to implement their own Vectoriser classes by inheriting from the
 `VectoriserBase` abstract base class and implementing the `transform` method.
 
