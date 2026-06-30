@@ -70,11 +70,11 @@ class VectoriserBase(ABC):
         embedding in numpy array form.
 
         Args:
-          texts: A string or list of strings representing the input text(s) to
+          texts (str | list[str]): A string or list of strings representing the input text(s) to
             be transformed.
 
         Returns:
-          A numpy array containing the embeddings for the input text(s). Each
+          numpy.ndarray: A numpy array containing the embeddings for the input text(s). Each
           row corresponds to the embedding of a single input text.
         """
         pass

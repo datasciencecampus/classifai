@@ -38,7 +38,7 @@ class OllamaVectoriser(VectoriserBase):
         """Transforms input text(s) into embeddings using the Ollama model.
 
         Args:
-            texts (str, list [str]): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str | list [str]): The input text(s) to embed. Can be a single string or a list of strings.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
