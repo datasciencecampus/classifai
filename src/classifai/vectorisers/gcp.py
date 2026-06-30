@@ -48,20 +48,22 @@ class GcpVectoriser(VectoriserBase):
         task_type="CLASSIFICATION",
         **client_kwargs,
     ):
-        """Initializes the GcpVectoriser with the specified project ID, location, and model name.
+        """Initialises the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
             project_id (str): [optional] The Google Cloud project ID. Defaults to None.
             api_key (str): [optional] The API key for authenticating with the GenAI API. Defaults to None.
-            location (str): [optional] The location of the GenAI API. Defaults to None.
+            location (str): [optional] The location of the GenAI API. Defaults to "europe-west2".
             model_name (str): [optional] The name of the embedding model. Defaults to "text-embedding-004".
             task_type (str): [optional] The embedding task. Defaults to "CLASSIFICATION".
                                        See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                                        for other options.
-            **client_kwargs: [optional] Additional keyword arguments to pass to the GenAI client.
+            **client_kwargs: [optional] Additional keyword arguments to pass to the GenAI client. To invoke via the
+                                        Agent Platform API (formerly VertexAI) API rather than the GenAI API, pass the
+                                        additional kwarg `vertexai=True`.
 
         Raises:
-            `ConfigurationError`: If the GenAI client fails to initialize.
+            `ConfigurationError`: If the authentication arguments are invalid, or if the GenAI client fails to initialise.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -86,7 +88,7 @@ class GcpVectoriser(VectoriserBase):
             )
         except Exception as e:
             raise ConfigurationError(
-                "Failed to initialize GCP GenAI client.",
+                "Failed to initialise GCP GenAI client.",
                 context={"vectoriser": "gcp", "cause": str(e), "cause_type": type(e).__name__},
             ) from e
 
@@ -94,7 +96,7 @@ class GcpVectoriser(VectoriserBase):
         """Transforms input text(s) into embeddings using the GenAI API.
 
         Args:
-            texts (str,list[str]): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str | list[str]): The input text(s) to embed. Can be a single string or a list of strings.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.

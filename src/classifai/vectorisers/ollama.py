@@ -9,7 +9,7 @@ from .base import VectoriserBase
 
 
 class OllamaVectoriser(VectoriserBase):
-    """A wrapper class allowing a locally-running ollama server to generate text embeddings.
+    """A wrapper class allowing a locally-running Ollama server to generate text embeddings.
 
     The `OllamaVectoriser` interacts with a locally-running Ollama server, which must be set
     up by the user separately.
@@ -22,23 +22,23 @@ class OllamaVectoriser(VectoriserBase):
     """
 
     def __init__(self, model_name: str):
-        """Initializes the OllamaVectoriser with the specified model name and device.
+        """Initialises the OllamaVectoriser with the specified model name and device.
 
         Args:
             model_name (str): The name of the local model to use.
 
         Notes:
-            requires an ollama server to be running locally (`ollama serve`)
+            requires an Ollama server to be running locally (`ollama serve`)
         """
         check_deps(["ollama"], extra="ollama")
 
         self.model_name = model_name
 
     def transform(self, texts: str | list[str]) -> np.ndarray:
-        """Transforms input text(s) into embeddings using the Huggingface model.
+        """Transforms input text(s) into embeddings using the Ollama model.
 
         Args:
-            texts (str ,list [str]): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str | list [str]): The input text(s) to embed. Can be a single string or a list of strings.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
