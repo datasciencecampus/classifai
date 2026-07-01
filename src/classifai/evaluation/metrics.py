@@ -1,4 +1,5 @@
 """Metrics.py provides a set of evaluation metrics for multiclass, single-label classification tasks.
+
 Each metric is designed to assess the performance of a classification model in different ways,
 providing insights into its accuracy, precision, recall, and overall balance.
 """
