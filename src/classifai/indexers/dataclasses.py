@@ -44,7 +44,7 @@ class VectorStoreSearchInput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id' and 'query' columns.
+                Must include 'id' and 'query' columns/keys.
 
         Raises:
             pandera.errors.SchemaError: If the data does not conform to the
@@ -66,7 +66,7 @@ class VectorStoreSearchInput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id' and 'query' columns.
+                Must include 'id' and 'query' columns/keys.
 
         Returns:
             VectorStoreSearchInput: A validated instance of the class.
@@ -150,7 +150,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'query_id', 'query_text', 'doc_label', 'doc_text',
-                'rank', and 'score' columns.
+                'rank', and 'score' columns/keys.
 
         Raises:
             pandera.errors.SchemaError: If the data does not conform to the
@@ -173,7 +173,7 @@ class VectorStoreSearchOutput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'query_id', 'query_text', 'doc_label', 'doc_text',
-                'rank', and 'score' columns.
+                'rank', and 'score' columns/keys.
 
         Returns:
             VectorStoreSearchOutput: A validated instance of the class.
@@ -262,7 +262,7 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id' and 'doc_label' columns.
+                Must include 'id' and 'doc_label' columns/keys.
 
         Raises:
             pandera.errors.SchemaError: If the data does not conform to the
@@ -284,7 +284,7 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id' and 'doc_label' columns.
+                Must include 'id' and 'doc_label' columns/keys.
 
         Returns:
             VectorStoreReverseSearchInput: A validated instance of the class.
@@ -366,7 +366,7 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id', 'searched_doc_label', 'doc_label', and
-                'doc_text' columns.
+                'doc_text' columns/keys.
 
         Raises:
             pandera.errors.SchemaError: If the data does not conform to the
@@ -394,7 +394,7 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id', 'searched_doc_label', 'doc_label', and
-                'doc_text' columns.
+                'doc_text' columns/keys.
 
         Returns:
             VectorStoreReverseSearchOutput: A validated instance of the class.
@@ -481,7 +481,7 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id' and 'text' columns.
+                Must include 'id' and 'text' columns/keys.
 
         Raises:
             pandera.errors.SchemaError: If the data does not conform to the
@@ -503,7 +503,7 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id' and 'text' columns.
+                Must include 'id' and 'text' columns/keys.
 
         Returns:
             VectorStoreEmbedInput: A validated instance of the class.
@@ -577,7 +577,7 @@ class VectorStoreEmbedOutput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id', 'text', and 'embedding' columns.
+                Must include 'id', 'text', and 'embedding' columns/keys.
 
         Raises:
             pandera.errors.SchemaError: If the data does not conform to the
@@ -599,7 +599,7 @@ class VectorStoreEmbedOutput(pd.DataFrame):
 
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
-                Must include 'id', 'text', and 'embedding' columns.
+                Must include 'id', 'text', and 'embedding' columns/keys.
 
         Returns:
             VectorStoreEmbedOutput: A validated instance of the class.

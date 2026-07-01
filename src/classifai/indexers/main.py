@@ -4,14 +4,13 @@
 Defines the `VectorStore` class, which is used to model and create vector
 databases from CSV (text) files using a `Vectoriser` object.
 
-This class requires a `Vectoriser` object from the vectorisers submodule, to
+This class requires a `Vectoriser` object from the vectorisers submodule to
 convert the CSV's text data into vector embeddings which are then stored in the
 VectorStore objects.
 
 Key Features:
 - Batch processing of input files to handle large datasets.
-- Support for CSV file format (additional formats may be added in future
-    updates).
+- Support for CSV file format
 - Integration with a custom embedder for generating vector embeddings.
 - Support for user-defined hooks for preprocessing and postprocessing.
 - Logging for tracking progress and handling errors during processing.
@@ -31,7 +30,7 @@ VectorStore Class:
     - `.reverse_search()`: to find all examples in the knowledgebase that have
             a given label.
     - `.embed()`: to generate a vector embedding for a given piece of text
-        data.
+        data using the vectoriser.
   - 'Hook' methods may be specified to perform pre-processing on input data
         before embedding, and post-processing on the output of the search
         methods.
@@ -72,11 +71,11 @@ from .dataclasses import (
 class VectorStore:
     """Models and creates vector databases from CSV text files.
 
-    Takes a CSV knowledgebase and embeds the text in batches, and stores the
-    resulting vectors for querying. Once built, the store supports semantic
-    search via .search(), label-based lookup via .reverse_search(), and
-    direct embedding via .embed(). The index can be persisted to disk and
-    reloaded later using .from_filespace().
+    Converts a knowledgebase (CSV file) to a DataFrame, embeds the text column
+    in batches, storing the resulting vectors for querying. Once built, the
+    store supports semantic search via .search(), label-based lookup via
+    .reverse_search(), and direct embedding via .embed(). The index can be
+    persisted to disk and reloaded later using .from_filespace().
 
     Attributes:
         file_name (str): Path to the input file used to build the `vectors`
