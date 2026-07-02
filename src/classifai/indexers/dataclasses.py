@@ -1,5 +1,14 @@
-"""This module defines dataclasses for structuring and validating input and output data for
-`VectorStore` search, reverse_search and embedding operations in the ClassifAI framework.
+"""Dataclasses for structuring and validating VectorStore input and output data.
+
+This module defines DataFrame-like objects that validate input and output data
+for `VectorStore` search, reverse_search, and embedding operations in the
+ClassifAI framework. Each class wraps a pandas DataFrame and enforces a schema
+using pandera.
+
+Typical usage example:
+
+    search_input = VectorStoreSearchInput({"id": ["1"], "query": ["hello"]})
+    embed_input = VectorStoreEmbedInput.from_data({"id": ["1"], "text": ["hello"]})
 """
 
 import numpy as np
@@ -10,7 +19,7 @@ import pandera.pandas as pa
 class VectorStoreSearchInput(pd.DataFrame):
     """DataFrame-like object for forming and validating search query input data.
 
-    This class validates and represents input queries for vector store searches.
+    This class validates and represents input queries for vector store search.
     Each row contains a unique query identifier and the associated query text.
 
     Attributes:
@@ -27,7 +36,16 @@ class VectorStoreSearchInput(pd.DataFrame):
     )
 
     def __init__(self, data: dict | pd.DataFrame):
-        """Initialize the class with validated data."""
+        """Initialise the class with validated data.
+
+        Converts the input data into a DataFrame, validates it against the
+        defined schema, then initialises the underlying pd.DataFrame with the
+        validated data so this instance can be used as a standard DataFrame.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id' and 'query' columns/keys.
+        """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = self._schema.validate(df)  # Validate against the schema
@@ -37,14 +55,37 @@ class VectorStoreSearchInput(pd.DataFrame):
 
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreSearchInput":
-        """Create a validated VectorStoreSearchInput from a dictionary or DataFrame."""
+        """Create a validated VectorStoreSearchInput from a dictionary or DataFrame.
+
+        Creates a new instance of VectorStoreSearchInput by validating the
+        input data against the defined schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id' and 'query' columns/keys.
+
+        Returns:
+            VectorStoreSearchInput: A validated instance of the class.
+        """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
 
     @classmethod
     def validate(cls, df: pd.DataFrame) -> "VectorStoreSearchInput":
-        """Validate an existing DataFrame against the schema and return a VectorStoreSearchInput."""
+        """Validate an existing DataFrame and return a VectorStoreSearchInput.
+
+        Validates the provided pandas DataFrame against the defined schema and
+        returns a new instance of VectorStoreSearchInput if validation is
+        successful.
+
+        Args:
+            df: A pandas DataFrame to validate. Must include 'id' and 'query'
+                columns.
+
+        Returns:
+            VectorStoreSearchInput: A validated instance of the class.
+        """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
@@ -58,18 +99,19 @@ class VectorStoreSearchInput(pd.DataFrame):
 
 
 class VectorStoreSearchOutput(pd.DataFrame):
-    """DataFrame-like object for storing and validating search results with rankings
-    and similarity scores.
+    """DataFrame-like object for storing and validating search results.
 
-    This class represents the output of vector store search operations, containing
-    query information, matched documents, scores, and similarity rankings.
+    This class represents the output of vector store search operations,
+    containing query information, matched documents, scores, and similarity
+    rankings.
 
     Attributes:
         query_id (pd.Series): Identifier for the source query.
         query_text (pd.Series): The original query text.
         doc_label (pd.Series): Identifier for the retrieved document.
         doc_text (pd.Series): The text content of the retrieved document.
-        rank (pd.Series): The ranking position of the result (0-indexed, non-negative).
+        rank (pd.Series): The ranking position of the result (0-indexed,
+            non-negative).
         score (pd.Series): The similarity score or relevance metric.
     """
 
@@ -87,7 +129,17 @@ class VectorStoreSearchOutput(pd.DataFrame):
     )
 
     def __init__(self, data: dict | pd.DataFrame):
-        """Initialize the class with validated data."""
+        """Initialise the class with validated data.
+
+        Converts the input data into a DataFrame, validates it against the
+        defined schema, then initialises the underlying pd.DataFrame with the
+        validated data so this instance can be used as a standard DataFrame.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'query_id', 'query_text', 'doc_label', 'doc_text',
+                'rank', and 'score' columns/keys.
+        """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = self._schema.validate(df)  # Validate against the schema
@@ -97,14 +149,39 @@ class VectorStoreSearchOutput(pd.DataFrame):
 
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreSearchOutput":
-        """Create a validated VectorStoreSearchOutput from a dictionary or DataFrame."""
+        """Create a validated VectorStoreSearchOutput from a dictionary or DataFrame.
+
+        Creates a new instance of VectorStoreSearchOutput by validating the
+        input data against the defined schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'query_id', 'query_text', 'doc_label', 'doc_text',
+                'rank', and 'score' columns/keys.
+
+        Returns:
+            VectorStoreSearchOutput: A validated instance of the class.
+        """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
 
     @classmethod
     def validate(cls, df: pd.DataFrame) -> "VectorStoreSearchOutput":
-        """Validate an existing instance against the schema and return a VectorStoreSearchOutput."""
+        """Validate an existing DataFrame and return a VectorStoreSearchOutput.
+
+        Validates the provided pandas DataFrame against the defined schema and
+        returns a new instance of VectorStoreSearchOutput if validation is
+        successful.
+
+        Args:
+            df: A pandas DataFrame to validate. Must include 'query_id',
+                'query_text', 'doc_label', 'doc_text', 'rank', and 'score'
+                columns.
+
+        Returns:
+            VectorStoreSearchOutput: A validated instance of the class.
+        """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
@@ -153,7 +230,16 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
     )
 
     def __init__(self, data: dict | pd.DataFrame):
-        """Initialize the class with validated data."""
+        """Initialise the class with validated data.
+
+        Converts the input data into a DataFrame, validates it against the
+        defined schema, then initialises the underlying pd.DataFrame with the
+        validated data so this instance can be used as a standard DataFrame.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id' and 'doc_label' columns/keys.
+        """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = self._schema.validate(df)  # Validate against the schema
@@ -163,14 +249,37 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreReverseSearchInput":
-        """Create a validated VectorStoreReverseSearchInput from a dictionary or DataFrame."""
+        """Create a validated VectorStoreReverseSearchInput from a dictionary or DataFrame.
+
+        Creates a new instance of VectorStoreReverseSearchInput by validating
+        the input data against the defined schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id' and 'doc_label' columns/keys.
+
+        Returns:
+            VectorStoreReverseSearchInput: A validated instance of the class.
+        """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
     @classmethod
     def validate(cls, df: pd.DataFrame) -> "VectorStoreReverseSearchInput":
-        """Validate an existing instance against the schema and return a VectorStoreReverseSearchInput."""
+        """Validate an existing DataFrame and return a VectorStoreReverseSearchInput.
+
+        Validates the provided pandas DataFrame against the defined schema
+        and returns a new instance of VectorStoreReverseSearchInput if
+        validation is successful.
+
+        Args:
+            df: A pandas DataFrame to validate. Must include 'id' and
+                'doc_label' columns.
+
+        Returns:
+            VectorStoreReverseSearchInput: A validated instance of the class.
+        """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
@@ -190,9 +299,12 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
     containing knowledgebase examples with the same label as in the query.
 
     Attributes:
-        id (pd.Series): Identifier for the input label for lookup in the knowledgebase.
-        searched_doc_label (pd.Series): Identifier for the knowledgebase label being looked up.
-        doc_label (pd.Series): Identifier for the retrieved document with the same label.
+        id (pd.Series): Identifier for the input label for lookup in the
+            knowledgebase.
+        searched_doc_label (pd.Series): Identifier for the knowledgebase label
+            being looked up.
+        doc_label (pd.Series): Identifier for the retrieved document with the
+            same label.
         doc_text (pd.Series): The text content of the retrieved example.
     """
 
@@ -208,7 +320,18 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
     )
 
     def __init__(self, data: dict | pd.DataFrame):
-        """Initialize the class with validated data."""
+        """Initialise the class with validated data.
+
+        Converts the input data into a DataFrame, validates it against the
+        defined schema, then initialises the underlying pd.DataFrame with the
+        validated data so this instance can be used as a standard DataFrame.
+        If the output is empty, it creates a DataFrame with the correct schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id', 'searched_doc_label', 'doc_label', and
+                'doc_text' columns/keys.
+        """
         # Use the from_data logic to validate the input
         if (isinstance(data, dict) and not data) or (isinstance(data, pd.DataFrame) and data.empty):
             # If data is empty, create an empty DataFrame with the correct columns
@@ -222,7 +345,20 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreReverseSearchOutput":
-        """Create a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame."""
+        """Create a validated VectorStoreReverseSearchOutput from a dictionary or DataFrame.
+
+        Creates a new instance of VectorStoreReverseSearchOutput by validating
+        the input data against the defined schema. If the output is empty, it
+        creates a DataFrame with the correct schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id', 'searched_doc_label', 'doc_label', and
+                'doc_text' columns/keys.
+
+        Returns:
+            VectorStoreReverseSearchOutput: A validated instance of the class.
+        """
         if (isinstance(data, dict) and not data) or (isinstance(data, pd.DataFrame) and data.empty):
             # If data is empty, create an empty DataFrame with the correct columns
             df = pd.DataFrame(columns=cls._schema.columns)
@@ -236,7 +372,19 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
     @classmethod
     def validate(cls, df: pd.DataFrame) -> "VectorStoreReverseSearchOutput":
-        """Validate an existing instance against the schema and return a VectorStoreReverseSearchOutputs."""
+        """Validate an existing DataFrame and return a VectorStoreReverseSearchOutput.
+
+        Validates the provided pandas DataFrame against the defined schema
+        and returns a new instance of VectorStoreReverseSearchOutput if
+        validation is successful.
+
+        Args:
+            df: A pandas DataFrame to validate. Must include 'id',
+                'searched_doc_label', 'doc_label', and 'doc_text' columns.
+
+        Returns:
+            VectorStoreReverseSearchOutput: A validated instance of the class.
+        """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
@@ -277,7 +425,16 @@ class VectorStoreEmbedInput(pd.DataFrame):
     )
 
     def __init__(self, data: dict | pd.DataFrame):
-        """Initialize the class with validated data."""
+        """Initialise the class with validated data.
+
+        Converts the input data into a DataFrame, validates it against the
+        defined schema, then initialises the underlying pd.DataFrame with the
+        validated data so this instance can be used as a standard DataFrame.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id' and 'text' columns/keys.
+        """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = self._schema.validate(df)  # Validate against the schema
@@ -287,14 +444,37 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreEmbedInput":
-        """Create a validated VectorStoreEmbedInput from a dictionary or DataFrame."""
+        """Create a validated VectorStoreEmbedInput from a dictionary or DataFrame.
+
+        Creates a new instance of VectorStoreEmbedInput by validating the input
+        data against the defined schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id' and 'text' columns/keys.
+
+        Returns:
+            VectorStoreEmbedInput: A validated instance of the class.
+        """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
 
     @classmethod
     def validate(cls, df: pd.DataFrame) -> "VectorStoreEmbedInput":
-        """Validate an existing instance against the schema and return a VectorStoreEmbedInput."""
+        """Validate an existing DataFrame and return a VectorStoreEmbedInput.
+
+        Validates the provided pandas DataFrame against the defined schema and
+        returns a new instance of VectorStoreEmbedInput if validation is
+        successful.
+
+        Args:
+            df: A pandas DataFrame to validate. Must include 'id' and 'text'
+                columns.
+
+        Returns:
+            VectorStoreEmbedInput: A validated instance of the class.
+        """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
@@ -308,10 +488,10 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
 
 class VectorStoreEmbedOutput(pd.DataFrame):
-    """DataFrame-like object for storing and validating embedded vectors and associated metadata.
+    """DataFrame-like object for storing and validating embedded vectors.
 
     This class represents the output of embedding operations, containing the
-    original text data along with their computed vector embeddings.
+    original text data, computed vector embeddings, and associated metadata.
 
     Attributes:
         id (pd.Series): Unique identifier for each embedded item.
@@ -329,7 +509,16 @@ class VectorStoreEmbedOutput(pd.DataFrame):
     )
 
     def __init__(self, data: dict | pd.DataFrame):
-        """Initialize the class with validated data."""
+        """Initialise the class with validated data.
+
+        Converts the input data into a DataFrame, validates it against the
+        defined schema, then initialises the underlying pd.DataFrame with the
+        validated data so this instance can be used as a standard DataFrame.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id', 'text', and 'embedding' columns/keys.
+        """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = self._schema.validate(df)  # Validate against the schema
@@ -339,14 +528,37 @@ class VectorStoreEmbedOutput(pd.DataFrame):
 
     @classmethod
     def from_data(cls, data: dict | pd.DataFrame) -> "VectorStoreEmbedOutput":
-        """Create a validated VectorStoreEmbedOutput from a dictionary or DataFrame."""
+        """Create a validated VectorStoreEmbedOutput from a dictionary or DataFrame.
+
+        Creates a new instance of VectorStoreEmbedOutput by validating the
+        input data against the defined schema.
+
+        Args:
+            data: A dictionary or pandas DataFrame containing the input data.
+                Must include 'id', 'text', and 'embedding' columns/keys.
+
+        Returns:
+            VectorStoreEmbedOutput: A validated instance of the class.
+        """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
         return cls(validated_df)
 
     @classmethod
     def validate(cls, df: pd.DataFrame) -> "VectorStoreEmbedOutput":
-        """Validate an existing instance against the schema and return a VectorStoreEmbedOutput."""
+        """Validate an existing DataFrame and return a VectorStoreEmbedOutput.
+
+        Validates the provided pandas DataFrame against the defined schema and
+        returns a new instance of VectorStoreEmbedOutput if validation is
+        successful.
+
+        Args:
+            df: A pandas DataFrame to validate. Must include 'id', 'text', and
+                'embedding' columns.
+
+        Returns:
+            VectorStoreEmbedOutput: A validated instance of the class.
+        """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
 
