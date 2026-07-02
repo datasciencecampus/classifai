@@ -16,6 +16,7 @@ project:
     - classifai/servers/__init__.py
     - classifai/indexers/hooks/__init__.py
     - classifai/indexers/hooks/default_hooks/__init__.py
+    - classifai/evaluation/__init__.py
 
 
 website:
@@ -79,6 +80,14 @@ website:
             - docs/servers.get_server.qmd
             - docs/servers.run_server.qmd
             - docs/servers.make_endpoints.qmd
+        - section: "Evaluation"
+          contents:
+            - docs/evaluation.qmd
+            - docs/evaluation.main.qmd
+            - docs/evaluation.main.Evaluation.qmd
+            - docs/evaluation.metrics.qmd
+            - docs/evaluation.metrics.Metric.qmd
+            - docs/evaluation.metrics.MetricResult.qmd
         - section: "DEMO"
           contents:
             - file: DEMO/README.md
@@ -86,6 +95,7 @@ website:
             - file: DEMO/custom_vectoriser.ipynb
             - file: DEMO/using_hooks.ipynb
             - file: DEMO/ai_agent_hooks.ipynb
+            - file: DEMO/evaluation_workflow_demo.ipynb
 
 interlinks:
  sources:
@@ -163,3 +173,13 @@ quartodoc:
         - servers.get_server
         - servers.run_server
         - servers.make_endpoints
+
+    - title: Evaluation
+      desc: "Utilities for evaluating the performance of VectorStores"
+      contents:
+        - evaluation
+        - evaluation.main
+        - evaluation.main.Evaluation
+        - evaluation.metrics
+        - evaluation.metrics.Metric
+        - evaluation.metrics.MetricResult

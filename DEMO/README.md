@@ -84,7 +84,8 @@ It covers:
 
 * Memory-efficient evaluation using callable functions to load VectorStores on-demand, useful when evaluating many or large VectorStores.
 
-> **Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
+**Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
+
 ---
 
 ## Installation of classifai
@@ -117,17 +118,17 @@ Activate it (Windows):
 
 ##### Using pip
 
-`pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.0.0/classifai-1.0.0-py3-none-any.whl"`
+`pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.1.0/classifai-1.1.0-py3-none-any.whl"`
 
 ##### Using uv
 
 one-off:
 
-`uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.0.0/classifai-1.0.0-py3-none-any.whl"`
+`uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.1.0/classifai-1.1.0-py3-none-any.whl"`
 
 add as project dependency:
 
-`uv add "https://github.com/datasciencecampus/classifai/releases/download/v1.0.0/classifai-1.0.0-py3-none-any.whl"`
+`uv add "https://github.com/datasciencecampus/classifai/releases/download/v1.1.0/classifai-1.1.0-py3-none-any.whl"`
 
 
 #### *2)* Install optional dependencies
@@ -137,6 +138,7 @@ add as project dependency:
 `pip install "classifai[<dependency>]"` 
 
 where `<dependency>` is one or more of `huggingface`,`gcp`,`ollama`, or `all` to install all of them.
+
 ##### Using uv
 
 one-off installation
@@ -148,10 +150,6 @@ add as project dependency
 `uv add "classifai[<dependency>]"`
 
 ---
-
-## Prerequisites
-
-You may wish to download each notebook individually and the demo dataset individually - each notebook contains specific installation instructions on how to set up an environemnt and download the package
 
 ## Running the Demo
 

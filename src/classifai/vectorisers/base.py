@@ -25,6 +25,8 @@ It is possible for users to implement their own Vectoriser classes by inheriting
 We provide several quick implementations of Vectorisers that interface with popular services and libraries.
 
 This module contains the following 'ready-made' classes:
+
+
 - `GcpVectoriser`: A class for embedding text using Google Cloud Platform's GenAI API.
 - `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
 models to generate text embeddings.
@@ -66,15 +68,16 @@ class VectoriserBase(ABC):
         """Transforms input text(s) into embeddings.
 
         This abstract method must be implemented by any subclass of
-        VectoriserBase. It converts input text in string or list form into a
+        `VectoriserBase`. It converts input text in string or list form into a
         embedding in numpy array form.
 
         Args:
-          texts (str | list[str]): A string or list of strings representing the input text(s) to
-            be transformed.
+          texts (str | list[str]): A string or list of strings representing the
+            input text(s) to be transformed.
 
         Returns:
-          numpy.ndarray: A numpy array containing the embeddings for the input text(s). Each
-          row corresponds to the embedding of a single input text.
+          numpy.ndarray: A numpy array containing the embeddings for the input
+            text(s). Each row corresponds to the embedding of a single input
+            text.
         """
         pass
