@@ -14,8 +14,10 @@ from classifai.indexers.hooks.hook_factory import HookBase
 class DeduplicationHook(HookBase):
     """A post-processing hook to remove duplicate knowledgebase entries.
 
-    Deduplicates entries that share the same label within each query's
-    results, aggregating their scores using the specified method.
+    Designed to operate on a `VectorStoreSearchOutput`, i.e. the output of
+    the `VectorStore.search()` method. Deduplicates entries that share the
+    same label within each query's results, aggregating their scores using
+    the specified method.
 
     Attributes:
         score_aggregation_method (str): The name of the score aggregation method
@@ -108,8 +110,10 @@ class DeduplicationHook(HookBase):
 class RagHook(HookBase):
     """A post-processing hook to perform Retrieval Augmented Generation.
 
-    Calls a generative LLM for each unique query in the search output,
-    appending a RAG_response column to the result.
+    Designed to operate on a `VectorStoreSearchOutput`, i.e. the output of
+    the `VectorStore.search()` method. Calls a generative LLM for each
+    unique query in the search output, appending a RAG_response column to
+    the result.
 
     Attributes:
         model_name (str): The name of the generative model to use.
