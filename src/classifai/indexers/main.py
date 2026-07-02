@@ -159,6 +159,8 @@ class VectorStore:
                 output directory problems.
             IndexBuildError: If there are failures during index building or
                 saving outputs.
+            OptionalDependencyError: If the user attempts to use a gs:// path
+                without having gcsfs installed.
         """
         # ---- Set verbosity (based on quiet_mode argument)
 
@@ -374,6 +376,8 @@ class VectorStore:
 
         Raises:
             DataValidationError: If the path argument is invalid.
+            ClassifaiError: If there are package-specific errors during
+                serialisation or file writing.
             IndexBuildError: If there are failures during serialisation or file
                 writing.
         """
@@ -421,11 +425,14 @@ class VectorStore:
         column.
 
         Raises:
-            DataValidationError: If the text column contains no documents, or if an
-                unsupported data_type is encountered.
-            IndexBuildError: If the input file cannot be read, if the vectoriser returns
-                an incorrect number of embeddings for a given batch, or if any other
-                failure occurs while building the embeddings table.
+            DataValidationError: If the text column contains no documents, or
+                if an unsupported data_type is encountered.
+            ClassifaiError: If there are any package-specific errors during
+                the vector store index creation.
+            IndexBuildError: If the input file cannot be read, if the
+                vectoriser returns an incorrect number of embeddings for a
+                given batch, or if any other failure occurs while building the
+                embeddings table.
         """
         # ---- Reading source data (validation/format issues) -> DataValidationError / IndexBuildError
         try:
@@ -510,7 +517,7 @@ class VectorStore:
                 },
             ) from e
 
-    def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:  #  noqa: C901
+    def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:  # noqa: C901
         """Generates vector embeddings from a `VectorStoreEmbedInput` object.
 
         Accepts a VectorStoreEmbedInput object and generates vector embeddings
@@ -773,6 +780,8 @@ class VectorStore:
             DataValidationError: Raised if invalid arguments are passed.
             ConfigurationError: Raised if the `VectorStore` is not initialised.
             HookError: Raised if user-defined hooks fail.
+            ClassifaiError: Raised if there is a package-specific error during
+                the search operation.
             VectorisationError: Raised if query embedding fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
@@ -976,6 +985,8 @@ class VectorStore:
                 does not point to an existing directory, if metadata.json
                 is missing or malformed, or if vectors.parquet is missing,
                 empty, or does not contain the required columns.
+            OptionalDependencyError: If the user attempts to use a gs:// path
+                without having gcsfs installed.
             ConfigurationError: If vectoriser does not have a callable
                 .transform() method, if the fsspec path cannot be resolved,
                 or if the vectoriser class name does not match the one stored in
