@@ -24,19 +24,23 @@ class GcpVectoriser(VectoriserBase):
     This class provides functionality to embed text using Google's GenAI API.
     It supports two authentication methods for setting up the client:
 
-    1. Using `project_id` and `location`: This method requires specifying the Google Cloud project ID
-       and the location of the GenAI API. It is suitable for users who have a Google Cloud project
-       and want to authenticate using project-based credentials. It will require local authentication through
-       the Google Cloud SDK.
+    1. Using `project_id` and `location`: This method requires specifying the
+        Google Cloud project ID and the location of the GenAI API. It is
+        suitable for users who have a Google Cloud project and want to
+        authenticate using project-based credentials. It will require local
+        authentication through the Google Cloud SDK.
 
-    2. Using `api_key`: This method requires providing an API key for authentication. It is suitable
-       for users who want to authenticate using an API key without specifying a project ID and location.
-       This approach does not require local authentication through the Google Cloud SDK.
+    2. Using `api_key`: This method requires providing an API key for
+        authentication. It is suitable for users who want to authenticate using
+        an API key without specifying a project ID and location. This approach
+        does not require local authentication through the Google Cloud SDK.
 
     Attributes:
         model_name (str): The name of the embedding model to use.
-        vectoriser (genai.Client): The GenAI client instance for embedding text.
-        model_config (genai.types.EmbedContentConfig): Configuration for the embedding task.
+        vectoriser (genai.Client): The GenAI client instance for embedding
+            text.
+        model_config (genai.types.EmbedContentConfig): Configuration for the
+            embedding task.
     """
 
     def __init__(
@@ -51,19 +55,26 @@ class GcpVectoriser(VectoriserBase):
         """Initialises the GcpVectoriser with the specified project ID, location, and model name.
 
         Args:
-            project_id (str): [optional] The Google Cloud project ID. Defaults to None.
-            api_key (str): [optional] The API key for authenticating with the GenAI API. Defaults to None.
-            location (str): [optional] The location of the GenAI API. Defaults to "europe-west2".
-            model_name (str): [optional] The name of the embedding model. Defaults to "text-embedding-004".
-            task_type (str): [optional] The embedding task. Defaults to "CLASSIFICATION".
-                                       See https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
-                                       for other options.
-            **client_kwargs: [optional] Additional keyword arguments to pass to the GenAI client. To invoke via the
-                                        Agent Platform API (formerly VertexAI) API rather than the GenAI API, pass the
-                                        additional kwarg `vertexai=True`.
+            project_id (str): [optional] The Google Cloud project ID. Defaults
+                to None.
+            api_key (str): [optional] The API key for authenticating with the
+                GenAI API. Defaults to None.
+            location (str): [optional] The location of the GenAI API. Defaults
+                to "europe-west2".
+            model_name (str): [optional] The name of the embedding model.
+                Defaults to "text-embedding-004".
+            task_type (str): [optional] The embedding task. Defaults to
+                "CLASSIFICATION". See
+                https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
+                for other options.
+            **client_kwargs: [optional] Additional keyword arguments to pass to
+                the GenAI client. To invoke via the Agent Platform API
+                (formerly VertexAI) API rather than the GenAI API, pass the
+                additional kwarg `vertexai=True`.
 
         Raises:
-            `ConfigurationError`: If the authentication arguments are invalid, or if the GenAI client fails to initialise.
+            `ConfigurationError`: If the authentication arguments are invalid,
+                or if the GenAI client fails to initialise.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -96,14 +107,17 @@ class GcpVectoriser(VectoriserBase):
         """Transforms input text(s) into embeddings using the GenAI API.
 
         Args:
-            texts (str | list[str]): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str | list[str]): The input text(s) to embed. Can be a
+                single string or a list of strings.
 
         Returns:
-            numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+            numpy.ndarray: A 2D array of embeddings, where each row
+                corresponds to an input text.
 
         Raises:
             `ExternalServiceError`: If the GenAI API request fails.
-            `VectorisationError`: If the response format from the GenAI API is unexpected.
+            `VectorisationError`: If the response format from the GenAI API is
+                unexpected.
         """
         # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
