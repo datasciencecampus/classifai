@@ -45,10 +45,6 @@ class VectorStoreSearchInput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id' and 'query' columns/keys.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
@@ -70,10 +66,6 @@ class VectorStoreSearchInput(pd.DataFrame):
 
         Returns:
             VectorStoreSearchInput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
@@ -93,10 +85,6 @@ class VectorStoreSearchInput(pd.DataFrame):
 
         Returns:
             VectorStoreSearchInput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
@@ -151,10 +139,6 @@ class VectorStoreSearchOutput(pd.DataFrame):
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'query_id', 'query_text', 'doc_label', 'doc_text',
                 'rank', and 'score' columns/keys.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
@@ -177,10 +161,6 @@ class VectorStoreSearchOutput(pd.DataFrame):
 
         Returns:
             VectorStoreSearchOutput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
@@ -201,10 +181,6 @@ class VectorStoreSearchOutput(pd.DataFrame):
 
         Returns:
             VectorStoreSearchOutput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
@@ -263,10 +239,6 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id' and 'doc_label' columns/keys.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
@@ -288,10 +260,6 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
         Returns:
             VectorStoreReverseSearchInput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)
@@ -311,10 +279,6 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
         Returns:
             VectorStoreReverseSearchInput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
@@ -367,10 +331,6 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id', 'searched_doc_label', 'doc_label', and
                 'doc_text' columns/keys.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         # Use the from_data logic to validate the input
         if (isinstance(data, dict) and not data) or (isinstance(data, pd.DataFrame) and data.empty):
@@ -398,10 +358,6 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
         Returns:
             VectorStoreReverseSearchOutput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         if (isinstance(data, dict) and not data) or (isinstance(data, pd.DataFrame) and data.empty):
             # If data is empty, create an empty DataFrame with the correct columns
@@ -428,10 +384,6 @@ class VectorStoreReverseSearchOutput(pd.DataFrame):
 
         Returns:
             VectorStoreReverseSearchOutput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
@@ -482,10 +434,6 @@ class VectorStoreEmbedInput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id' and 'text' columns/keys.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
@@ -507,10 +455,6 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
         Returns:
             VectorStoreEmbedInput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
@@ -530,10 +474,6 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
         Returns:
             VectorStoreEmbedInput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
@@ -578,10 +518,6 @@ class VectorStoreEmbedOutput(pd.DataFrame):
         Args:
             data: A dictionary or pandas DataFrame containing the input data.
                 Must include 'id', 'text', and 'embedding' columns/keys.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         # Use the from_data logic to validate the input
         df = pd.DataFrame(data) if isinstance(data, dict) else data
@@ -603,10 +539,6 @@ class VectorStoreEmbedOutput(pd.DataFrame):
 
         Returns:
             VectorStoreEmbedOutput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         df = pd.DataFrame(data) if isinstance(data, dict) else data
         validated_df = cls._schema.validate(df)  # Validate against the schema
@@ -626,10 +558,6 @@ class VectorStoreEmbedOutput(pd.DataFrame):
 
         Returns:
             VectorStoreEmbedOutput: A validated instance of the class.
-
-        Raises:
-            pandera.errors.SchemaError: If the data does not conform to the
-                expected schema.
         """
         validated_df = cls._schema.validate(df)
         return cls(validated_df)
