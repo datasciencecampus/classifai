@@ -12,21 +12,39 @@ from classifai.indexers.hooks.hook_factory import HookBase
 
 
 class DeduplicationHook(HookBase):
-    """A post-processing hook to remove duplicate knowledgebase entries, i.e. entries with the same label."""
+    """A post-processing hook to remove duplicate knowledgebase entries.
+
+    Designed to operate on a `VectorStoreSearchOutput`, i.e. the output of
+    the `VectorStore.search()` method. Deduplicates entries that share the
+    same label within each query's results, aggregating their scores using
+    the specified method.
+
+    Attributes:
+        score_aggregation_method (str): The name of the score aggregation method
+            in use. Either "max" or "mean".
+        score_aggregator (Callable): The callable used to aggregate scores for
+            deduplicated entries.
+    """
 
     def _mean_score(self, scores):
+        """Returns the mean of the given scores."""
         return np.mean(scores)
 
     def _max_score(self, scores):
+        """Returns the maximum of the given scores."""
         return np.max(scores)
 
     def __init__(self, score_aggregation_method: str = "max"):
-        """Inititialises the hook with the specified method for assigning scores to deduplicated entries.
+        """Initialises the hook with the specified score aggregation method.
 
         Args:
-            score_aggregation_method (str): Method for assigning score to the deduplicated entry.
-                Must be one of "max" or "mean". Defaults to "max".
-                A future update will introduce a 'softmax' option.
+            score_aggregation_method (str): Method for assigning a score to the
+                deduplicated entry. Must be one of "max" or "mean". Defaults to
+                "max". A future update will introduce a "softmax" option.
+
+        Raises:
+            HookError: If score_aggregation_method is not one of the
+                accepted values.
         """
         if score_aggregation_method not in ["max", "mean"]:
             raise HookError(
@@ -42,7 +60,21 @@ class DeduplicationHook(HookBase):
         super().__init__(hook_type="post_processing")
 
     def __call__(self, input_data: VectorStoreSearchOutput) -> VectorStoreSearchOutput:
-        """Aggregates retrieved knowledgebase entries corresponding to the same label."""
+        """Aggregates retrieved knowledgebase entries with the same label.
+
+        For each query, deduplicates entries that share the same label,
+        aggregating their scores using the specified method, and
+        reassigning ranks accordingly.
+
+        Args:
+            input_data (VectorStoreSearchOutput): The search output data
+                containing potentially duplicate entries to deduplicate.
+
+        Returns:
+            A new VectorStoreSearchOutput with duplicate labels per query
+            collapsed into single entries, with scores aggregated and
+            ranks reassigned.
+        """
         # 1) Group on two levels - first on query_id, then on doc_label, to ensure that entries with the same label are
         #    deduplicated within the results for each query. Note that there is a 1-1 mapping between query_id and query_text,
         #    so no extra grouping is made, but this excludes query_text from the columns to be processed.
@@ -76,7 +108,26 @@ class DeduplicationHook(HookBase):
 
 
 class RagHook(HookBase):
-    """A post-processing hook to perform Retrieval Augmented Generation."""
+    """A post-processing hook to perform Retrieval Augmented Generation.
+
+    Designed to operate on a `VectorStoreSearchOutput`, i.e. the output of
+    the `VectorStore.search()` method. Calls a generative LLM for each
+    unique query in the search output, appending a RAG_response column to
+    the result.
+
+    Attributes:
+        model_name (str): The name of the generative model to use.
+        context_prompt (str): The system prompt providing context to the LLM.
+        response_template (str): A template describing the expected output
+            format for each row in the search results.
+        llm_response_parser (Callable): A callable for parsing the raw LLM
+            response string into a list of per-row values.
+        client (genai.Client): The initialised GenAI client.
+        config_generator (genai.types.GenerateContentConfig): The
+            GenerateContentConfig class used to configure LLM calls.
+        client_kwargs (dict): Keyword arguments used to initialise the GenAI
+            client.
+    """
 
     def __init__(  # noqa: PLR0913
         self,
@@ -89,24 +140,35 @@ class RagHook(HookBase):
         model_name: str = "gemini-2.5-flash",
         **client_kwargs,
     ):
-        """Initializes the GcpVectoriser with the specified project ID, location, and model name.
+        """Initialises the hook with the specified LLM and prompt configuration.
 
         Args:
-            context_prompt (str): [optional] A prompt to provide context to the LLM for RAG. Defaults to "".
-            response_template (str): [optional] A template for formatting the response. Defaults to "{}".
-            llm_response_parser (Callable[[VectorStoreSearchOutput, str], list]): A callable method for parsing
-                the LLM response (str) within the context of the search output for a single query
-                (VectorStoreSearchOutput). Defaults to using `_default_parse_LLM_response`, which assumes the
-                response to be a valid JSON array of strings.
-            project_id (str): [optional] The Google Cloud project ID. Defaults to None.
-            api_key (str): [optional] The API key for authenticating with the GenAI API. Defaults to None.
-            location (str): [optional] The location of the GenAI API. Defaults to None.
-            model_name (str): [optional] The name of the generative model. Defaults to "gemini-2.5-flash".
-            **client_kwargs: Additional keyword arguments to pass to the GenAI client,
-                             e.g. vertexai=True.
+            context_prompt (str): A system prompt to provide context to the
+                LLM for RAG. Defaults to "".
+            response_template (str): A template describing the expected output
+                format for each row in the search results. Defaults to "".
+            llm_response_parser (Callable[[VectorStoreSearchOutput, str], str] | None):
+                A callable for parsing the LLM response string within the
+                context of the search output for a single query. Defaults to
+                _default_parse_LLM_response, which expects a valid JSON array
+                of strings.
+            project_id (str | None): The Google Cloud project ID. Must be
+                provided together with location, and not alongside api_key.
+                Defaults to None.
+            api_key (str | None): The API key for authenticating with the
+                GenAI API. Must be provided alone, not alongside project_id.
+                Defaults to None.
+            location (str): The Google Cloud location of the GenAI API.
+                Defaults to "europe-west2".
+            model_name (str): The name of the generative model. Defaults to
+                "gemini-2.5-flash".
+            **client_kwargs: Additional keyword arguments to pass to the
+                GenAI client, e.g. vertexai=True.
 
         Raises:
-            ConfigurationError: If the GenAI client fails to initialize.
+            ConfigurationError: If both or neither of project_id and
+                api_key are provided, or if the GenAI client fails to
+                initialise.
         """
         check_deps(["google-genai"], extra="gcp")
         from google import genai  # type: ignore
@@ -139,16 +201,19 @@ class RagHook(HookBase):
             ) from e
 
     def _format_prompt_single_query(self, search_subset: VectorStoreSearchOutput, query_id: str):
-        """Format a prompt directing the LLM to process search responses corresponding to a single
-        origin query. The prompt includes instructions, search output schema, description for formatting
-        the response, and the search output itself.
+        """Formats a prompt for the LLM to process results for a single query.
+
+        The prompt includes instructions, the search output schema,
+        output format guidance, and the search output itself.
 
         Args:
-            search_subset (VectorStoreSearchOutput): A subset of the search output corresponding to a single query.
-            query_id (str): The ID of the query corresponding to the search subset, used for prompt formatting.
+            search_subset (VectorStoreSearchOutput): A subset of the search
+                output corresponding to a single query.
+            query_id (str): The ID of the query corresponding to the search
+                subset, used for prompt formatting.
 
         Returns:
-            str: The formatted prompt for the LLM.
+            str: The formatted prompt string for the LLM.
         """
         schema_info_buffer = io.StringIO()
         search_subset.head(n=0).info(verbose=True, show_counts=False, memory_usage=False, buf=schema_info_buffer)
@@ -177,17 +242,22 @@ class RagHook(HookBase):
 
     @staticmethod
     def _default_parse_LLM_response(search_subset: VectorStoreSearchOutput, llm_response: str) -> list[str]:
-        """Parse the LLM response as JSON, expected to form a list of strings.
+        """Parses the LLM response as JSON, expecting a list of strings.
 
         Args:
-            search_subset (VectorStoreSearchOutput): The search output corresponding to a single query.
+            search_subset (VectorStoreSearchOutput): The search output
+                corresponding to a single query, used to validate the
+                response length.
             llm_response (str): The raw text response from the LLM.
 
         Returns:
-            (list[str]): The parsed response, which can be assigned to the `RAG_response` column.
+            The parsed response as a list of strings, suitable for
+            assignment to the RAG_response column.
 
         Raises:
-            ValueError: If the LLM response cannot be parsed as JSON.
+            HookError: If the LLM response cannot be parsed as valid
+                JSON, is not a list, or does not match the length of
+                search_subset.
         """
         try:
             parsed_response = json.loads(llm_response)
@@ -211,21 +281,20 @@ class RagHook(HookBase):
             ) from None
         return parsed_response
 
-    def _call_llm(self, search_output: VectorStoreSearchOutput) -> str:
-        """Calls the LLM to generate responses for each query in the search output, using the formatted prompts.
+    def _call_llm(self, search_output: VectorStoreSearchOutput) -> VectorStoreSearchOutput:
+        """Calls the LLM for each query in the search output and collects responses.
+
+        Iterates over each unique query in search_output, formats a
+        prompt using _format_prompt_single_query, calls the LLM, and
+        parses the response using llm_response_parser.
 
         Args:
-            search_output (VectorStoreSearchOutput): The output from the `.search()` method.
+            search_output (VectorStoreSearchOutput): The output from the
+                .search() method of the VectorStore.
 
         Returns:
-            (VectorStoreSearchOutput): The search output with an additional column for the LLM-generated RAG response.
-
-        Notes:
-            - This method adds a new column `RAG_response` to the VectorStoreSearchOutput object. The format of the response
-              is user-specified, via the `response_template` parameter of the hook, and is parsed by the `llm_response_parser`
-              parameter of the hook (defaulting to attempting to parse the response as a JSON array of strings if omitted).
-            - Each unique query in the search output is processed separately, with a prompt formatted using the
-              `_format_prompt_single_query` method.
+            The search output with an additional RAG_response column
+            containing the LLM-generated response for each row.
         """
         updated_search_output = search_output.copy()
         updated_search_output["RAG_response"] = ""
@@ -244,6 +313,15 @@ class RagHook(HookBase):
         return updated_search_output
 
     def __call__(self, search_output: VectorStoreSearchOutput) -> VectorStoreSearchOutput:
-        """Calls the LLM to add the `RAG_response` column."""
+        """Calls the LLM to add a RAG_response column to the search output.
+
+        Args:
+            search_output (VectorStoreSearchOutput): The search output to
+                augment with LLM-generated responses.
+
+        Returns:
+            The search output with an additional RAG_response column
+            containing the LLM-generated response for each row.
+        """
         processed_output = self._call_llm(search_output)
         return processed_output
