@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Evaluation module demo and documentation
-- Quiet mode
-- Cloud storage compatibility with build, save and from_filespace vectorstore operations
+- Quiet mode; suppress progress bars, raise logging level to Warning & above
+- Integrated Cloud storage interactions for VectorStore creation, saving, and re-loading
 - Made persisting VectorStore to disk optional
 - Hooks now in docs
+- Logging levels and host IP to run_sever() function
 
 ### Changed
 
