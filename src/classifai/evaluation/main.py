@@ -1,12 +1,12 @@
 """This module evaluates one or more `classifai.indexers.VectorStore` instances on a ground-truth labelled dataset.
 
-1. Validating the ground-truth input with a Pandera schema.
-2. Running a batched top-1 `VectorStore.search` over all queries.
-3. Merging the ground-truth label into the retrieved results.
-4. Validating the merged evaluation frame with a Pandera schema.
-5. Validating chosen metrics with a metrics parsing function.
-6. Computing one or more multiclass, single-label classification metrics.
-7. Utilising an Evaluation class to manage the evaluation process, including saving results and providing access to individual metric results.
+A typical evaluation run will perform the following sequence of actions;
+
+1. Create an `Evaluation` instance with a ground-truth dataset and a list of metrics.
+2. Run a batched top-1 `VectorStore.search` over all queries in the provided dataset.
+3. Merge the ground-truth labels into the retrieved results.
+4. Compute the specified multiclass, single-label classification metrics.
+5. If specified, save results and provide access to individual metric results.
 
 Evaluation is (currently with future updates pending) framed as retrieval-as-classification: for each query, the label of
 the top retrieved document (`doc_label`) is treated as the model prediction, and the
