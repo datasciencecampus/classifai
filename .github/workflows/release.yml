@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number (e.g., 0.2.0)'
+        description: 'Version number (e.g., 0.2.0) - no leading v'
         required: true
         type: string
 
@@ -99,15 +99,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump version with uv
-        run: |
-          uv version ${{ inputs.version }}
+      # - name: Bump version with uv
+      #   run: |
+      #     uv version ${{ inputs.version }}
 
-      - name: Commit version bump
-        run: |
-          git add pyproject.toml
-          git commit --allow-empty -m "Bump version to ${{ inputs.version }}"
-          git push
+      # - name: Commit version bump
+      #   run: |
+      #     git add pyproject.toml
+      #     git commit --allow-empty -m "Bump version to ${{ inputs.version }}"
+      #     git push
 
       - name: Download extracted release notes
         uses: actions/download-artifact@v4
