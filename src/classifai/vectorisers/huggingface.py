@@ -11,16 +11,19 @@ from .base import VectoriserBase
 class HuggingFaceVectoriser(VectoriserBase):
     """A general wrapper class for Huggingface Transformers models to generate text embeddings.
 
-    The `HuggingFaceVectoriser` accepts most encoder-based models from the Huggingface Transformers library,
-    and provides a simple interface to generate embeddings from text data. Additional configuration options,
-    such as `trust_remote_code` or a HuggingFaceAPI token can be passed via the `tokenizer_kwargs` and `model_kwargs`
-    parameters.
+    The `HuggingFaceVectoriser` accepts most encoder-based models from the
+    Huggingface Transformers library, and provides a simple interface to
+    generate embeddings from text data. Additional configuration options, such
+    as `trust_remote_code` or a HuggingFaceAPI `token` can be passed via the
+    `tokenizer_kwargs` and `model_kwargs` parameters.
 
     Attributes:
         model_name (str): The name of the Huggingface model to use.
-        tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the specified model.
+        tokenizer (transformers.PreTrainedTokenizer): The tokenizer for the
+            specified model.
         model (transformers.PreTrainedModel): The Huggingface model instance.
-        device (torch.device): The device (CPU or GPU) on which the model is loaded.
+        device (torch.device): The device (CPU or GPU) on which the model is
+            loaded.
     """
 
     def __init__(
@@ -35,14 +38,19 @@ class HuggingFaceVectoriser(VectoriserBase):
 
         Args:
             model_name (str): The name of the Huggingface model to use.
-            device (torch.device): [optional] The device to use for computation. Defaults to GPU if available, otherwise CPU.
-            model_revision (str): [optional] The specific model revision to use. Defaults to "main".
-            tokenizer_kwargs (dict): [optional] Additional keyword arguments to pass to the tokenizer. Defaults to None.
-            model_kwargs (dict): [optional] Additional keyword arguments to pass to the model. Defaults to None.
+            device (torch.device): [optional] The device to use for
+                computation. Defaults to GPU if available, otherwise CPU.
+            model_revision (str): [optional] The specific model revision to
+                use. Defaults to "main".
+            tokenizer_kwargs (dict): [optional] Additional keyword arguments to
+                pass to the tokenizer. Defaults to None.
+            model_kwargs (dict): [optional] Additional keyword arguments to
+                pass to the model. Defaults to None.
 
         Raises:
             `ExternalServiceError`: If the model or tokenizer cannot be loaded.
-            `ConfigurationError`: If the model cannot be initialised on the specified device.
+            `ConfigurationError`: If the model cannot be initialised on the
+                specified device.
         """
         check_deps(["transformers", "torch"], extra="huggingface")
         import torch  # type: ignore
@@ -97,13 +105,16 @@ class HuggingFaceVectoriser(VectoriserBase):
         """Transforms input text(s) into embeddings using the Huggingface model.
 
         Args:
-            texts (str | list[str]): The input text(s) to embed. Can be a single string or a list of strings.
+            texts (str | list[str]): The input text(s) to embed. Can be a
+                single string or a list of strings.
 
         Returns:
-            numpy.ndarray: A 2D array of embeddings, where each row corresponds to an input text.
+            numpy.ndarray: A 2D array of embeddings, where each row
+                corresponds to an input text.
 
         Raises:
-            `VectorisationError`: If tokenization, model inference, or embedding extraction fails.
+            `VectorisationError`: If tokenization, model inference, or
+                embedding extraction fails.
         """
         import torch  # type: ignore
 

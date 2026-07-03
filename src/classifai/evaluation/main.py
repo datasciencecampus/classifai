@@ -1,12 +1,12 @@
 """This module evaluates one or more `classifai.indexers.VectorStore` instances on a ground-truth labelled dataset.
 
-1. Validating the ground-truth input with a Pandera schema.
-2. Running a batched top-1 `VectorStore.search` over all queries.
-3. Merging the ground-truth label into the retrieved results.
-4. Validating the merged evaluation frame with a Pandera schema.
-5. Validating chosen metrics with a metrics parsing function.
-6. Computing one or more multiclass, single-label classification metrics.
-7. Utilising an Evaluation class to manage the evaluation process, including saving results and providing access to individual metric results.
+A typical evaluation run will perform the following sequence of actions;
+
+1. Create an `Evaluation` instance with a ground-truth dataset and a list of metrics.
+2. Run a batched top-1 `VectorStore.search` over all queries in the provided dataset.
+3. Merge the ground-truth labels into the retrieved results.
+4. Compute the specified multiclass, single-label classification metrics.
+5. If specified, save results and provide access to individual metric results.
 
 Evaluation is (currently with future updates pending) framed as retrieval-as-classification: for each query, the label of
 the top retrieved document (`doc_label`) is treated as the model prediction, and the
@@ -14,26 +14,30 @@ provided dataset label is treated as the ground truth (`ground_truth_label`).
 
 DataFrames:
     Ground-truth input (`ground_truths`) must include:
-        - qid (str): Unique query identifier.
-        - text (str): Query text.
-        - label (str): Ground-truth label.
+
+    - qid (str): Unique query identifier.
+    - text (str): Query text.
+    - label (str): Ground-truth label.
 
     Search evaluation output (`results_df`) is expected to include:
-        - query_id (str): Query identifier (automatically generated for, and extracted from VectorStoreSearchInput dataclass).
-        - query_text (str): Query text.
-        - doc_label (str): Predicted label (label of retrieved doc).
-        - doc_text (str): Retrieved document text.
-        - rank (int): Rank of the retrieved document (>= 0).
-        - score (float): Similarity score from the vector store.
-        - ground_truth_label (str): Ground-truth label merged in from `ground_truths`.
+
+    - query_id (str): Query identifier (automatically generated for, and extracted from VectorStoreSearchInput dataclass).
+    - query_text (str): Query text.
+    - doc_label (str): Predicted label (label of retrieved doc).
+    - doc_text (str): Retrieved document text.
+    - rank (int): Rank of the retrieved document (>= 0).
+    - score (float): Similarity score from the vector store.
+    - ground_truth_label (str): Ground-truth label merged in from `ground_truths`.
+
 
 Metrics:
-    Metric functions are defined in `classifai.evaluation.metrics` and are selected via
-    `parse_metrics`. Supported metric keys are:
-        - "accuracy"
-        - "macro_recall"
-        - "macro_precision"
-        - "macro_f1"
+    Metric functions are defined in `classifai.evaluation.metrics` and can be added to an Evaluation
+    instance by their names. Supported metric names are:
+
+    - "accuracy"
+    - "macro_recall"
+    - "macro_precision"
+    - "macro_f1"
 
 Exceptions:
     InvalidMetricError: Raised when requested metric names cannot be parsed.
