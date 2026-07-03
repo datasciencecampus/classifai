@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [v1.1.0] - 2026-07-03
+
+### Added
+
+- Evaluation module demo and documentation
+- Quiet mode
+- Cloud storage compatibility with build, save and from_filespace vectorstore operations
+- Made persisting VectorStore to disk optional
+- Hooks now in docs
+
+### Changed
+
+- Updated VectorStore batch size to improve performance
+- Improved Server Router Organization for better OpenAPI docs
+
+### Fixed
+
+- Resolved reverse search Error when no matched Documents
+
+
 ## [v1.0.0] - 2026-03-27
 
 ### Added
