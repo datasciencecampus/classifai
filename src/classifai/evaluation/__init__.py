@@ -1,15 +1,15 @@
 """Evaluation utilities for ClassifAI.
 
 This package provides helpers for evaluating `classifai.indexers.VectorStore` instances
-against ground-truth labelled datasets, plus a small set of classification metrics.
+against ground-truth labelled datasets, measured via a set of classification metrics.
 
-Most users should start with:
-    - `classifai.evaluation.main.evaluate`
-    - `classifai.evaluation.main.parse_metrics`
+The core functionality is provided by the `Evaluation` class in `classifai.evaluation`, which is associated with a labelled
+testing dataset, and a set of metrics on which to evaluate the performance of a `VectorStore`.
 
 Metric implementations are defined in `classifai.evaluation.metrics`.
 
 Key Features:
+
 - Evaluate and compare the performance of multiple `VectorStore` objects on a given dataset.
 - Support for various classification metrics, including accuracy, precision, recall, and F1 score.
 - Consistent interfaces for datasets and evaluation metrics.

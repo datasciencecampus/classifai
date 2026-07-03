@@ -14,26 +14,30 @@ provided dataset label is treated as the ground truth (`ground_truth_label`).
 
 DataFrames:
     Ground-truth input (`ground_truths`) must include:
-        - qid (str): Unique query identifier.
-        - text (str): Query text.
-        - label (str): Ground-truth label.
+
+    - qid (str): Unique query identifier.
+    - text (str): Query text.
+    - label (str): Ground-truth label.
 
     Search evaluation output (`results_df`) is expected to include:
-        - query_id (str): Query identifier (automatically generated for, and extracted from VectorStoreSearchInput dataclass).
-        - query_text (str): Query text.
-        - doc_label (str): Predicted label (label of retrieved doc).
-        - doc_text (str): Retrieved document text.
-        - rank (int): Rank of the retrieved document (>= 0).
-        - score (float): Similarity score from the vector store.
-        - ground_truth_label (str): Ground-truth label merged in from `ground_truths`.
+
+    - query_id (str): Query identifier (automatically generated for, and extracted from VectorStoreSearchInput dataclass).
+    - query_text (str): Query text.
+    - doc_label (str): Predicted label (label of retrieved doc).
+    - doc_text (str): Retrieved document text.
+    - rank (int): Rank of the retrieved document (>= 0).
+    - score (float): Similarity score from the vector store.
+    - ground_truth_label (str): Ground-truth label merged in from `ground_truths`.
+
 
 Metrics:
-    Metric functions are defined in `classifai.evaluation.metrics` and are selected via
-    `parse_metrics`. Supported metric keys are:
-        - "accuracy"
-        - "macro_recall"
-        - "macro_precision"
-        - "macro_f1"
+    Metric functions are defined in `classifai.evaluation.metrics` and can be added to an Evaluation
+    instance by their names. Supported metric names are:
+
+    - "accuracy"
+    - "macro_recall"
+    - "macro_precision"
+    - "macro_f1"
 
 Exceptions:
     InvalidMetricError: Raised when requested metric names cannot be parsed.
