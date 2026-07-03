@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>indexers – ClassifAI</title>
+<title>evaluation.metrics – ClassifAI</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -33,8 +68,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../docs/indexers.VectorStore.html" rel="next">
-<link href="../docs/vectorisers.gcp.GcpVectoriser.html" rel="prev">
+<link href="../docs/evaluation.metrics.Metric.html" rel="next">
+<link href="../docs/evaluation.main.Evaluation.html" rel="prev">
 <link href="../ons_favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -117,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/evaluation.html">Evaluation</a></li><li class="breadcrumb-item"><a href="../docs/evaluation.metrics.html">evaluation.metrics</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -217,16 +252,16 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
  <span class="menu-text">Indexers</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link active">
+  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">indexers</span></a>
   </div>
 </li>
@@ -370,13 +405,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
  <span class="menu-text">Evaluation</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link">
@@ -397,7 +432,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evaluation.metrics.html" class="sidebar-item-text sidebar-link">
+  <a href="../docs/evaluation.metrics.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">evaluation.metrics</span></a>
   </div>
 </li>
@@ -472,45 +507,174 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#classifai.indexers" id="toc-classifai.indexers" class="nav-link active" data-scroll-target="#classifai.indexers">indexers</a></li>
+  <li><a href="#classifai.evaluation.metrics" id="toc-classifai.evaluation.metrics" class="nav-link active" data-scroll-target="#classifai.evaluation.metrics">evaluation.metrics</a>
+  <ul class="collapse">
+  <li><a href="#classes" id="toc-classes" class="nav-link" data-scroll-target="#classes">Classes</a>
+  <ul class="collapse">
+  <li><a href="#classifai.evaluation.metrics.ClassificationAccuracy" id="toc-classifai.evaluation.metrics.ClassificationAccuracy" class="nav-link" data-scroll-target="#classifai.evaluation.metrics.ClassificationAccuracy">ClassificationAccuracy</a></li>
+  <li><a href="#classifai.evaluation.metrics.ClassificationMacroF1" id="toc-classifai.evaluation.metrics.ClassificationMacroF1" class="nav-link" data-scroll-target="#classifai.evaluation.metrics.ClassificationMacroF1">ClassificationMacroF1</a></li>
+  <li><a href="#classifai.evaluation.metrics.ClassificationMacroPrecision" id="toc-classifai.evaluation.metrics.ClassificationMacroPrecision" class="nav-link" data-scroll-target="#classifai.evaluation.metrics.ClassificationMacroPrecision">ClassificationMacroPrecision</a></li>
+  <li><a href="#classifai.evaluation.metrics.ClassificationMacroRecall" id="toc-classifai.evaluation.metrics.ClassificationMacroRecall" class="nav-link" data-scroll-target="#classifai.evaluation.metrics.ClassificationMacroRecall">ClassificationMacroRecall</a></li>
+  <li><a href="#classifai.evaluation.metrics.Metric" id="toc-classifai.evaluation.metrics.Metric" class="nav-link" data-scroll-target="#classifai.evaluation.metrics.Metric">Metric</a></li>
+  <li><a href="#classifai.evaluation.metrics.MetricResult" id="toc-classifai.evaluation.metrics.MetricResult" class="nav-link" data-scroll-target="#classifai.evaluation.metrics.MetricResult">MetricResult</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/evaluation.html">Evaluation</a></li><li class="breadcrumb-item"><a href="../docs/evaluation.metrics.html">evaluation.metrics</a></li></ol></nav></header>
 
 
 
 
-<section id="classifai.indexers" class="level1">
-<h1>indexers</h1>
-<p><code>indexers</code></p>
-<p>This module provides functionality for creating a <code>VectorStore</code> from a CSV (text) file.</p>
-<p>It defines the <code>VectorStore</code> class, which is used to model and create vector databases from CSV text files using a <code>Vectoriser</code> object.</p>
-<p>This class requires a <code>Vectoriser</code> object from the vectorisers submodule, to convert the CSV’s text data into vector embeddings which are then stored in the <code>VectorStore</code> objects.</p>
-<p>Key Features:</p>
-<ul>
-<li>Batch processing of input files to handle large datasets.</li>
-<li>Support for CSV file format (additional formats may be added in future updates).</li>
-<li>Integration with a custom embedder for generating vector embeddings.</li>
-<li>Support for user-defined hooks for preprocessing and postprocessing.</li>
-<li>Logging for tracking progress and handling errors during processing.</li>
-</ul>
-<p>VectorStore Class:</p>
-<ul>
-<li>The <code>VectorStore</code> class is initialized with a <code>Vectoriser</code> object and a CSV knowledgebase.</li>
-<li>Additional columns in the CSV may be specified as metadata to be included in the vector database.</li>
-<li>Upon creation, the <code>VectorStore</code> is saved in parquet format for efficient, and quick reloading via the <code>VectorStore</code>’s <code>.from_filespace()</code> method.</li>
-<li>A new piece of text data (or label) can be queried against the <code>VectorStore</code> in the following ways:
-<ul>
-<li><code>.search()</code>: to find the most semantically similar pieces of text in the vector database.</li>
-<li><code>.reverse_search()</code>: to find all examples in the knowledgebase that have a given label.</li>
-<li><code>.embed()</code>: to generate a vector embedding for a given piece of text data.</li>
-</ul></li>
-<li>‘Hook’ methods may be specified to perform pre-processing on input data before embedding, and post-processing on the output of the search methods.</li>
-</ul>
+<section id="classifai.evaluation.metrics" class="level1">
+<h1>evaluation.metrics</h1>
+<p><code>evaluation.metrics</code></p>
+<p>Metrics.py provides a set of evaluation metrics for multiclass, single-label classification tasks.</p>
+<p>Each metric is designed to assess the performance of a classification model in different ways, providing insights into its accuracy, precision, recall, and overall balance.</p>
+<section id="classes" class="level2">
+<h2 class="anchored" data-anchor-id="classes">Classes</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#classifai.evaluation.metrics.ClassificationAccuracy">ClassificationAccuracy</a></td>
+<td>Calculate the accuracy of results.</td>
+</tr>
+<tr class="even">
+<td><a href="#classifai.evaluation.metrics.ClassificationMacroF1">ClassificationMacroF1</a></td>
+<td>Calculate macro F1 by averaging per-label F1.</td>
+</tr>
+<tr class="odd">
+<td><a href="#classifai.evaluation.metrics.ClassificationMacroPrecision">ClassificationMacroPrecision</a></td>
+<td>Calculate macro precision by averaging per-label precision.</td>
+</tr>
+<tr class="even">
+<td><a href="#classifai.evaluation.metrics.ClassificationMacroRecall">ClassificationMacroRecall</a></td>
+<td>Calculate macro recall by averaging per-label recall.</td>
+</tr>
+<tr class="odd">
+<td><a href="#classifai.evaluation.metrics.Metric">Metric</a></td>
+<td>Base class for all classification metrics.</td>
+</tr>
+<tr class="even">
+<td><a href="#classifai.evaluation.metrics.MetricResult">MetricResult</a></td>
+<td>Represents the result of a metric evaluation.</td>
+</tr>
+</tbody>
+</table>
+<section id="classifai.evaluation.metrics.ClassificationAccuracy" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.metrics.ClassificationAccuracy">ClassificationAccuracy</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.ClassificationAccuracy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Calculate the accuracy of results.</p>
+</section>
+<section id="classifai.evaluation.metrics.ClassificationMacroF1" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.metrics.ClassificationMacroF1">ClassificationMacroF1</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.ClassificationMacroF1()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Calculate macro F1 by averaging per-label F1.</p>
+</section>
+<section id="classifai.evaluation.metrics.ClassificationMacroPrecision" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.metrics.ClassificationMacroPrecision">ClassificationMacroPrecision</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.ClassificationMacroPrecision()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Calculate macro precision by averaging per-label precision.</p>
+</section>
+<section id="classifai.evaluation.metrics.ClassificationMacroRecall" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.metrics.ClassificationMacroRecall">ClassificationMacroRecall</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.ClassificationMacroRecall()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Calculate macro recall by averaging per-label recall.</p>
+</section>
+<section id="classifai.evaluation.metrics.Metric" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.metrics.Metric">Metric</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.Metric()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Base class for all classification metrics.</p>
+<section id="methods" class="level4">
+<h4 class="anchored" data-anchor-id="methods">Methods</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#classifai.evaluation.metrics.Metric.evaluate">evaluate</a></td>
+<td>Evaluate the metric on the provided evaluation data.</td>
+</tr>
+</tbody>
+</table>
+<section id="classifai.evaluation.metrics.Metric.evaluate" class="level5">
+<h5 class="anchored" data-anchor-id="classifai.evaluation.metrics.Metric.evaluate">evaluate</h5>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.Metric.evaluate(eval_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Evaluate the metric on the provided evaluation data.</p>
+<section id="parameters" class="level6 doc-section doc-section-parameters">
+<h6 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h6>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 14%">
+<col style="width: 62%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>eval_data</td>
+<td>pd.DataFrame</td>
+<td>DataFrame with ‘doc_label’ and ‘ground_truth_label’ columns.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level6 doc-section doc-section-returns">
+<h6 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h6>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 16%">
+<col style="width: 73%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>MetricResult</td>
+<td>MetricResult containing the metric name and computed value.</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+<section id="classifai.evaluation.metrics.MetricResult" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.metrics.MetricResult">MetricResult</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>evaluation.metrics.MetricResult(name, value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Represents the result of a metric evaluation.</p>
 
 
+</section>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -916,13 +1080,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../docs/vectorisers.gcp.GcpVectoriser.html" class="pagination-link" aria-label="vectorisers.gcp.GcpVectoriser">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vectorisers.gcp.GcpVectoriser</span>
+      <a href="../docs/evaluation.main.Evaluation.html" class="pagination-link" aria-label="evaluation.main.Evaluation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">evaluation.main.Evaluation</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../docs/indexers.VectorStore.html" class="pagination-link" aria-label="indexers.VectorStore">
-        <span class="nav-page-text">indexers.VectorStore</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../docs/evaluation.metrics.Metric.html" class="pagination-link" aria-label="evaluation.metrics.Metric">
+        <span class="nav-page-text">evaluation.metrics.Metric</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

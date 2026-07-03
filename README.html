@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -75,10 +75,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-24111f2d7671a07c32a60419c31bd4a3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-c3871cc889d5876972026f066232dbbc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -404,12 +404,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
- <span class="menu-text">DEMO</span></a>
+ <span class="menu-text">Evaluation</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/evaluation.main.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/evaluation.main.Evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main.Evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/evaluation.metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/evaluation.metrics.Metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/evaluation.metrics.MetricResult.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.MetricResult</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">DEMO</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./DEMO/README.html" class="sidebar-item-text sidebar-link">
@@ -438,6 +485,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./DEMO/ai_agent_hooks.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">AI agents in ClassifAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./DEMO/evaluation_workflow_demo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ClassifAI Evaluation Module - Overview and Usage</span></a>
   </div>
 </li>
       </ul>
@@ -545,14 +598,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>You can install the package directly from GitHub in your Python environment, using your preferred package manager. By default, only the minimum dependencies of the base versions will be installed; you must specify <code>classifai[all]</code> to install all sets of optional dependencies, or <code>classifai[huggingface, ...]</code> to install one or more specific sets of optional dependencies. The current sets of optional dependencies are <code>[all, huggingface, ollama, gcp]</code>.</p>
 <section id="pip" class="level5">
 <h5 class="anchored" data-anchor-id="pip">Pip</h5>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 1.0.0&gt;/classifai-&lt;version e.g. 1.0.0&gt;-py3-none-any.whl"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 1.1.0&gt;/classifai-&lt;version e.g. 1.1.0&gt;-py3-none-any.whl"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="astral-uv" class="level5">
 <h5 class="anchored" data-anchor-id="astral-uv">Astral UV</h5>
 <p>One-off add to environment:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install <span class="st">"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 1.0.0&gt;/classifai-&lt;version e.g. 1.0.0&gt;-py3-none-any.whl"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install <span class="st">"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 1.1.0&gt;/classifai-&lt;version e.g. 1.1.0&gt;-py3-none-any.whl"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Persist as an environment requirement:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="st">"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 1.0.0&gt;/classifai-&lt;version e.g. 1.0.0&gt;-py3-none-any.whl"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add <span class="st">"classifai[&lt;dependency list(s)&gt;] @ https://github.com/datasciencecampus/classifai/releases/download/v&lt;version e.g. 1.1.0&gt;/classifai-&lt;version e.g. 1.1.0&gt;-py3-none-any.whl"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="example-indexing-and-searching-a-knowledgebase" class="level2">
@@ -615,6 +668,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="./DEMO/general_workflow_demo.html">General workflow</a>
 <ul>
 <li>A general introduction to using the ClassifAI package.</li>
+</ul></li>
+<li><a href="./DEMO/evaluation_workflow_demo.html">Evaluation Module</a>
+<ul>
+<li>Evaluate and compare VectorStore performance in a multi-class single-label setting using your own ground truth data.</li>
 </ul></li>
 <li><a href="./DEMO/custom_vectoriser.html">Custom vectorisers</a>
 <ul>

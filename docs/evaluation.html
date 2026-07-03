@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>indexers – ClassifAI</title>
+<title>evaluation – ClassifAI</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,8 +33,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../docs/indexers.VectorStore.html" rel="next">
-<link href="../docs/vectorisers.gcp.GcpVectoriser.html" rel="prev">
+<link href="../docs/evaluation.main.html" rel="next">
+<link href="../docs/servers.make_endpoints.html" rel="prev">
 <link href="../ons_favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -117,7 +117,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/evaluation.html">Evaluation</a></li><li class="breadcrumb-item"><a href="../docs/evaluation.html">evaluation</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -217,16 +217,16 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
  <span class="menu-text">Indexers</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link active">
+  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">indexers</span></a>
   </div>
 </li>
@@ -370,16 +370,16 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
  <span class="menu-text">Evaluation</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link">
+  <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">evaluation</span></a>
   </div>
 </li>
@@ -472,45 +472,40 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#classifai.indexers" id="toc-classifai.indexers" class="nav-link active" data-scroll-target="#classifai.indexers">indexers</a></li>
+  <li><a href="#classifai.evaluation" id="toc-classifai.evaluation" class="nav-link active" data-scroll-target="#classifai.evaluation">evaluation</a>
+  <ul class="collapse">
+  <li><a href="#warning" id="toc-warning" class="nav-link" data-scroll-target="#warning">Warning</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/evaluation.html">Evaluation</a></li><li class="breadcrumb-item"><a href="../docs/evaluation.html">evaluation</a></li></ol></nav></header>
 
 
 
 
-<section id="classifai.indexers" class="level1">
-<h1>indexers</h1>
-<p><code>indexers</code></p>
-<p>This module provides functionality for creating a <code>VectorStore</code> from a CSV (text) file.</p>
-<p>It defines the <code>VectorStore</code> class, which is used to model and create vector databases from CSV text files using a <code>Vectoriser</code> object.</p>
-<p>This class requires a <code>Vectoriser</code> object from the vectorisers submodule, to convert the CSV’s text data into vector embeddings which are then stored in the <code>VectorStore</code> objects.</p>
+<section id="classifai.evaluation" class="level1">
+<h1>evaluation</h1>
+<p><code>evaluation</code></p>
+<p>Evaluation utilities for ClassifAI.</p>
+<p>This package provides helpers for evaluating <code>classifai.indexers.VectorStore</code> instances against ground-truth labelled datasets, measured via a set of classification metrics.</p>
+<p>The core functionality is provided by the <code>Evaluation</code> class in <code>classifai.evaluation</code>, which is associated with a labelled testing dataset, and a set of metrics on which to evaluate the performance of a <code>VectorStore</code>.</p>
+<p>Metric implementations are defined in <code>classifai.evaluation.metrics</code>.</p>
 <p>Key Features:</p>
 <ul>
-<li>Batch processing of input files to handle large datasets.</li>
-<li>Support for CSV file format (additional formats may be added in future updates).</li>
-<li>Integration with a custom embedder for generating vector embeddings.</li>
-<li>Support for user-defined hooks for preprocessing and postprocessing.</li>
-<li>Logging for tracking progress and handling errors during processing.</li>
+<li>Evaluate and compare the performance of multiple <code>VectorStore</code> objects on a given dataset.</li>
+<li>Support for various classification metrics, including accuracy, precision, recall, and F1 score.</li>
+<li>Consistent interfaces for datasets and evaluation metrics.</li>
+<li>Optional functionality to save evaluation results for future analysis and comparison.</li>
+<li>Support for providing custom <code>VectorStore</code> loading functions to optimize memory usage during evaluation.</li>
 </ul>
-<p>VectorStore Class:</p>
-<ul>
-<li>The <code>VectorStore</code> class is initialized with a <code>Vectoriser</code> object and a CSV knowledgebase.</li>
-<li>Additional columns in the CSV may be specified as metadata to be included in the vector database.</li>
-<li>Upon creation, the <code>VectorStore</code> is saved in parquet format for efficient, and quick reloading via the <code>VectorStore</code>’s <code>.from_filespace()</code> method.</li>
-<li>A new piece of text data (or label) can be queried against the <code>VectorStore</code> in the following ways:
-<ul>
-<li><code>.search()</code>: to find the most semantically similar pieces of text in the vector database.</li>
-<li><code>.reverse_search()</code>: to find all examples in the knowledgebase that have a given label.</li>
-<li><code>.embed()</code>: to generate a vector embedding for a given piece of text data.</li>
-</ul></li>
-<li>‘Hook’ methods may be specified to perform pre-processing on input data before embedding, and post-processing on the output of the search methods.</li>
-</ul>
+<section id="warning" class="level2 doc-section doc-section-warning">
+<h2 class="doc-section doc-section-warning anchored" data-anchor-id="warning">Warning</h2>
+<p>This module is currently in development and its API is subject to change in future releases. Use with caution in production environments.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -916,13 +911,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../docs/vectorisers.gcp.GcpVectoriser.html" class="pagination-link" aria-label="vectorisers.gcp.GcpVectoriser">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vectorisers.gcp.GcpVectoriser</span>
+      <a href="../docs/servers.make_endpoints.html" class="pagination-link" aria-label="servers.make_endpoints">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">servers.make_endpoints</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../docs/indexers.VectorStore.html" class="pagination-link" aria-label="indexers.VectorStore">
-        <span class="nav-page-text">indexers.VectorStore</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../docs/evaluation.main.html" class="pagination-link" aria-label="evaluation.main">
+        <span class="nav-page-text">evaluation.main</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

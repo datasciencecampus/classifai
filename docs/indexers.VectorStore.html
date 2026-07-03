@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -77,10 +77,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24111f2d7671a07c32a60419c31bd4a3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c3871cc889d5876972026f066232dbbc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -406,12 +406,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
- <span class="menu-text">DEMO</span></a>
+ <span class="menu-text">Evaluation</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.main.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.main.Evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main.Evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.Metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.MetricResult.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.MetricResult</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">DEMO</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../DEMO/README.html" class="sidebar-item-text sidebar-link">
@@ -440,6 +487,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../DEMO/ai_agent_hooks.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">AI agents in ClassifAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/evaluation_workflow_demo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ClassifAI Evaluation Module - Overview and Usage</span></a>
   </div>
 </li>
       </ul>
@@ -480,20 +533,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    file_name,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    data_type,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    vectoriser,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">128</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    meta_data<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    output_dir<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A class to model and create <code>VectorStore</code> objects for building and searching vector databases from CSV text files.</p>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    skip_save<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    quiet_mode<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Models and creates vector databases from CSV text files.</p>
+<p>Converts a knowledgebase (CSV file) to a DataFrame, embeds the text column in batches, storing the resulting vectors for querying. Once built, the store supports semantic search via .search(), label-based lookup via .reverse_search(), and direct embedding via .embed(). The index can be persisted to disk and reloaded later using .from_filespace().</p>
 <section id="attributes" class="level2 doc-section doc-section-attributes">
 <h2 class="doc-section doc-section-attributes anchored" data-anchor-id="attributes">Attributes</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 12%">
-<col style="width: 72%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 81%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -506,57 +562,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>file_name</td>
 <td>str</td>
-<td>the data file contatining the knowledgebase to build the <code>VectorStore</code></td>
+<td>Path to the input file used to build the <code>vectors</code> dataframe.</td>
 </tr>
 <tr class="even">
 <td>data_type</td>
 <td>str</td>
-<td>the data type of the data file (curently only csv supported)</td>
+<td>Format of the input file. Currently only “csv” is supported.</td>
 </tr>
 <tr class="odd">
 <td>vectoriser</td>
 <td>VectoriserBase</td>
-<td>A <code>Vectoriser</code> object from the corresponding ClassifAI Pacakge module</td>
+<td>Vectoriser instance used to convert text into vector embeddings.</td>
 </tr>
 <tr class="even">
 <td>batch_size</td>
 <td>int</td>
-<td>the batch size to pass to the vectoriser when embedding</td>
+<td>The batch size to pass to the vectoriser when embedding.</td>
 </tr>
 <tr class="odd">
 <td>meta_data</td>
-<td>dict</td>
-<td>key-value pairs of metadata to extract from the input file and their correpsonding types</td>
+<td>dict | None</td>
+<td>Mapping of extra CSV column names to extract to their Python types (e.g.&nbsp;{“source”: str}). Values are Python types.</td>
 </tr>
 <tr class="even">
 <td>output_dir</td>
-<td>str</td>
-<td>the path to the output directory where the <code>VectorStore</code> will be saved</td>
+<td>str | None</td>
+<td>Directory where vectors.parquet and metadata.json are written. Defaults to the input file stem when None is passed. Ignored when skip_save=True.</td>
 </tr>
 <tr class="odd">
-<td>vectors</td>
-<td>np.array</td>
-<td>a numpy array of vectors for the vector database</td>
+<td>skip_save</td>
+<td>bool</td>
+<td>If False, saves the <code>VectorStore</code> to disk after creation. If True, keeps it in memory only (for testing or ephemeral use cases). Defaults to False.</td>
 </tr>
 <tr class="even">
+<td>vectors</td>
+<td>pl.DataFrame | None</td>
+<td>Polars DataFrame containing the full knowledgebase table with columns: label, text, uuid, embeddings, and any columns specified in meta_data. None until the index is built.</td>
+</tr>
+<tr class="odd">
 <td>vector_shape</td>
 <td>int</td>
-<td>the dimension of the vectors</td>
-</tr>
-<tr class="odd">
-<td>num_vectors</td>
-<td>int</td>
-<td>the number of records saved in the <code>VectorStore</code></td>
+<td>Number of dimensions in the vector embeddings.</td>
 </tr>
 <tr class="even">
-<td>vectoriser_class</td>
-<td>str</td>
-<td>the type of <code>Vectoriser</code> used to create embeddings</td>
+<td>num_vectors</td>
+<td>int</td>
+<td>Total number of rows stored in the VectorStore.</td>
 </tr>
 <tr class="odd">
+<td>vectoriser_class</td>
+<td>str</td>
+<td>The type of Vectoriser used to create embeddings.</td>
+</tr>
+<tr class="even">
 <td>hooks</td>
 <td>dict</td>
 <td>A dictionary of user-defined hooks for preprocessing and postprocessing.</td>
+</tr>
+<tr class="odd">
+<td>quiet_mode</td>
+<td>bool</td>
+<td>Whether to minimise verbose output, such as progress bars.</td>
 </tr>
 </tbody>
 </table>
@@ -573,33 +639,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td><a href="#classifai.indexers.VectorStore.embed">embed</a></td>
-<td>Converts text (provided via a <code>VectorStoreEmbedInput</code> object) into vector embeddings using the <code>Vectoriser</code>.</td>
+<td>Generates vector embeddings from a <code>VectorStoreEmbedInput</code> object.</td>
 </tr>
 <tr class="even">
 <td><a href="#classifai.indexers.VectorStore.from_filespace">from_filespace</a></td>
-<td>Creates a <code>VectorStore</code> instance from stored metadata and Parquet files.</td>
+<td>Creates a <code>VectorStore</code> instance from a saved filespace folder.</td>
 </tr>
 <tr class="odd">
 <td><a href="#classifai.indexers.VectorStore.reverse_search">reverse_search</a></td>
-<td>Reverse searches the <code>VectorStore</code> using a <code>VectorStoreReverseSearchInput</code> object.</td>
+<td>Looks up documents in <code>vectors</code> by label.</td>
 </tr>
 <tr class="even">
 <td><a href="#classifai.indexers.VectorStore.search">search</a></td>
-<td>Searches the <code>VectorStore</code> using queries from a <code>VectorStoreSearchInput</code> object.</td>
+<td>Queries the <code>vectors</code> attribute for the most similar documents.</td>
 </tr>
 </tbody>
 </table>
 <section id="classifai.indexers.VectorStore.embed" class="level3">
 <h3 class="anchored" data-anchor-id="classifai.indexers.VectorStore.embed">embed</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.embed(query)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Converts text (provided via a <code>VectorStoreEmbedInput</code> object) into vector embeddings using the <code>Vectoriser</code>.</p>
+<p>Generates vector embeddings from a <code>VectorStoreEmbedInput</code> object.</p>
+<p>Accepts a VectorStoreEmbedInput object and generates vector embeddings for its text content using the vectoriser attribute. Any preprocessing hooks set on the instance are applied to the input before embedding, and any postprocessing hooks are applied to the output before it is returned.</p>
 <section id="parameters" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 6%">
-<col style="width: 17%">
-<col style="width: 67%">
+<col style="width: 19%">
+<col style="width: 64%">
 <col style="width: 9%">
 </colgroup>
 <thead>
@@ -614,7 +681,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>query</td>
 <td>VectorStoreEmbedInput</td>
-<td>The <code>VectorStoreEmbedInput</code> object containing the strings to be embedded and their ids.</td>
+<td>Input object containing the text to be embedded and their corresponding ids.</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
@@ -624,9 +691,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 5%">
-<col style="width: 17%">
-<col style="width: 77%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 69%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -637,9 +704,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
 <td>VectorStoreEmbedOutput</td>
-<td>The <code>VectorStoreEmbedOutput</code> object containing the embeddings along with their corresponding ids and texts.</td>
+<td>VectorStoreEmbedOutput</td>
+<td>Output object containing the generated embeddings together with their corresponding ids and original texts.</td>
 </tr>
 </tbody>
 </table>
@@ -648,9 +715,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 11%">
-<col style="width: 31%">
-<col style="width: 56%">
+<col style="width: 8%">
+<col style="width: 22%">
+<col style="width: 68%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -662,18 +729,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><code>DataValidationError</code></td>
-<td>Raised if invalid arguments are passed.</td>
+<td>DataValidationError</td>
+<td>If invalid arguments are passed.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>HookError</code></td>
-<td>Raised if user-defined hooks fail.</td>
+<td>HookError</td>
+<td>If a preprocessing or postprocessing hook raises an exception.</td>
 </tr>
 <tr class="odd">
 <td></td>
-<td><code>ClassifaiError</code></td>
-<td>Raised if embedding operation fails.</td>
+<td>ClassifaiError</td>
+<td>If the embedding operation fails.</td>
 </tr>
 </tbody>
 </table>
@@ -681,16 +748,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="classifai.indexers.VectorStore.from_filespace" class="level3">
 <h3 class="anchored" data-anchor-id="classifai.indexers.VectorStore.from_filespace">from_filespace</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.from_filespace(folder_path, vectoriser, hooks<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Creates a <code>VectorStore</code> instance from stored metadata and Parquet files. This method reads the metadata and vectors from the specified folder, validates the contents, and initializes a <code>VectorStore</code> object with the loaded data. It checks that the metadata contains the required keys, that the Parquet file exists and is not empty, and that the vectoriser class matches the one used to create the vectors. If any checks fail, it raises a <code>ValueError</code> with an appropriate message. This method is useful for loading previously created vector stores without needing to reprocess the original text data.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.from_filespace(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    folder_path,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    vectoriser,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    hooks<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    quiet_mode<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Creates a <code>VectorStore</code> instance from a saved filespace folder.</p>
+<p>Reads metadata.json and vectors.parquet from folder_path using fsspec, so both local and remote paths (e.g.&nbsp;gs://) are supported. The vectoriser class name stored in metadata.json must match the class name of the supplied vectoriser object. The instance is constructed via object.__new__, so <strong>init</strong> is never called and no embeddings are generated.</p>
+<p>Note: the returned instance does not have output_dir or skip_save attributes set. vector_shape and num_vectors are read directly from metadata.json without being cross-checked against the actual contents of the parquet file.</p>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 9%">
-<col style="width: 5%">
-<col style="width: 75%">
+<col style="width: 7%">
 <col style="width: 8%">
+<col style="width: 77%">
+<col style="width: 7%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -704,20 +779,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>folder_path</td>
 <td>str</td>
-<td>The folder path containing the metadata and Parquet files.</td>
+<td>Path to the folder containing metadata.json and vectors.parquet. Supports any fsspec-compatible path (local, gs://, etc.).</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td>vectoriser</td>
-<td>object</td>
-<td>The <code>Vectoriser</code> object used to transform text into vector embeddings.</td>
-<td><em>required</em></td>
+<td>batch_size</td>
+<td>int | None</td>
+<td>Overrides the batch_size stored in metadata. Defaults to None, which uses the value from metadata.json.</td>
+<td><code>None</code></td>
 </tr>
 <tr class="odd">
+<td>vectoriser</td>
+<td></td>
+<td>An object with a callable .transform(texts) method. Its class name must match the vectoriser_class value stored in metadata.json.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
 <td>hooks</td>
-<td>dict</td>
-<td>[optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.</td>
+<td>dict | None</td>
+<td>A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.</td>
 <td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>quiet_mode</td>
+<td>bool</td>
+<td>Whether to minimise verbose output, such as progress bars. Defaults to False.</td>
+<td><code>False</code></td>
 </tr>
 </tbody>
 </table>
@@ -725,6 +812,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="returns-1" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 86%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Name</th>
@@ -734,9 +826,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
 <td>VectorStore</td>
-<td>An instance of the <code>VectorStore</code> class.</td>
+<td></td>
+<td>A <code>VectorStore</code> instance with vectors populated from the parquet file. file_name, data_type, and batch_size are all set to None.</td>
 </tr>
 </tbody>
 </table>
@@ -745,9 +837,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises-1">Raises</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 6%">
-<col style="width: 18%">
-<col style="width: 74%">
+<col style="width: 3%">
+<col style="width: 10%">
+<col style="width: 86%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -759,18 +851,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><code>DataValidationError</code></td>
-<td>If input arguments are invalid or if there are issues with the metadata or Parquet files.</td>
+<td>DataValidationError</td>
+<td>If folder_path is not a non-empty string, does not point to an existing directory, if metadata.json is missing or malformed, or if vectors.parquet is missing, empty, or does not contain the required columns.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>ConfigurationError</code></td>
-<td>If there are configuration issues, such as <code>Vectoriser</code> mismatches.</td>
+<td>OptionalDependencyError</td>
+<td>If the user attempts to use a gs:// path without having gcsfs installed.</td>
 </tr>
 <tr class="odd">
 <td></td>
-<td><code>IndexBuildError</code></td>
-<td>If there are failures during loading or parsing the files.</td>
+<td>ConfigurationError</td>
+<td>If vectoriser does not have a callable .transform() method, if the fsspec path cannot be resolved, or if the vectoriser class name does not match the one stored in metadata.json.</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>IndexBuildError</td>
+<td>If metadata.json or vectors.parquet cannot be read or parsed, or if the instance cannot be constructed.</td>
 </tr>
 </tbody>
 </table>
@@ -783,14 +880,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    max_n_results<span class="op">=</span><span class="dv">100</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    partial_match<span class="op">=</span><span class="va">False</span>,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Reverse searches the <code>VectorStore</code> using a <code>VectorStoreReverseSearchInput</code> object. If using partial matching, matches if document label starts with query label.</p>
+<p>Looks up documents in <code>vectors</code> by label.</p>
+<p>Performs a label-based (non-semantic) lookup against the stored documents using a <code>VectorStoreReverseSearchInput</code>. For each query entry, matching documents are found by comparing the query’s doc_label against the label column of self.vectors. When partial_match is enabled, a document is considered a match if its label starts with the query label.</p>
+<p>Any preprocessing hooks set on the instance are applied to the input before searching, and any postprocessing hooks are applied to the output before it is returned.</p>
 <section id="parameters-2" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 6%">
+<col style="width: 7%">
 <col style="width: 14%">
-<col style="width: 73%">
+<col style="width: 72%">
 <col style="width: 5%">
 </colgroup>
 <thead>
@@ -805,19 +904,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>query</td>
 <td>VectorStoreReverseSearchInput</td>
-<td>A <code>VectorStoreReverseSearchInput</code> object containing the <code>doc_labels</code> to look up in the <code>VectorStore</code> and their corresponding ids.</td>
+<td>Input object containing the doc labels to look up in self.vectors and their corresponding ids.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td>max_n_results</td>
 <td>int</td>
-<td>[optional] Number of top results to return for each query, set to -1 to return all results. Defaults to 100.</td>
+<td>Maximum number of matching documents to return per query entry. Pass -1 to return all matches. Defaults to 100.</td>
 <td><code>100</code></td>
 </tr>
 <tr class="odd">
 <td>partial_match</td>
 <td>bool</td>
-<td>[optional] If <code>True</code>, the search behaviour is set to return results where the <code>doc_label</code> is a prefixed of any vectorstore entries labels. Defaults to <code>False</code>.</td>
+<td>If True, matches documents whose label starts with the query label (prefix matching). If False, only exact label matches are returned. Defaults to False.</td>
 <td><code>False</code></td>
 </tr>
 </tbody>
@@ -827,9 +926,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
 <col style="width: 13%">
-<col style="width: 82%">
+<col style="width: 13%">
+<col style="width: 72%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -840,9 +939,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
 <td>VectorStoreReverseSearchOutput</td>
-<td>A <code>VectorStoreReverseSearchOutput</code> object containing reverse search results with columns for <code>id</code>, <code>searched_doc_label</code>, retrieved <code>doc_label</code>, <code>doc_text</code> and any associated metadata columns.</td>
+<td>VectorStoreReverseSearchOutput</td>
+<td>Output object containing the matched documents, with columns for id, searched_doc_label, doc_label, doc_text, and any metadata columns configured on the <code>VectorStore</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -851,9 +950,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises-2">Raises</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 10%">
-<col style="width: 31%">
-<col style="width: 58%">
+<col style="width: 8%">
+<col style="width: 21%">
+<col style="width: 71%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -865,18 +964,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><code>DataValidationError</code></td>
+<td>DataValidationError</td>
 <td>Raised if invalid arguments are passed.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>HookError</code></td>
-<td>Raised if user-defined hooks fail.</td>
+<td>HookError</td>
+<td>Raised if a preprocessing or postprocessing hook raises an exception.</td>
 </tr>
 <tr class="odd">
 <td></td>
-<td><code>ClassifaiError</code></td>
-<td>Raised if reverse search operation fails.</td>
+<td>ClassifaiError</td>
+<td>Raised if the reverse search operation fails.</td>
 </tr>
 </tbody>
 </table>
@@ -884,16 +983,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="classifai.indexers.VectorStore.search" class="level3">
 <h3 class="anchored" data-anchor-id="classifai.indexers.VectorStore.search">search</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.search(query, n_results<span class="op">=</span><span class="dv">10</span>, batch_size<span class="op">=</span><span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Searches the <code>VectorStore</code> using queries from a <code>VectorStoreSearchInput</code> object. Outputs ranked results in <code>VectorStoreSearchOutput</code> object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.search(query, n_results<span class="op">=</span><span class="dv">10</span>, batch_size<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Queries the <code>vectors</code> attribute for the most similar documents.</p>
+<p>Queries are processed in batches of batch_size, with each batch embedded using vectoriser.transform() and scored against all stored document embeddings via dot-product similarity (equivalent to cosine similarity when embeddings are L2-normalised). The top n_results documents are returned for each query, ordered by descending score.</p>
+<p>Any preprocessing hooks set on the instance are applied to the input before searching, and any postprocessing hooks are applied to the output before it is returned.</p>
 <section id="parameters-3" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 15%">
-<col style="width: 68%">
-<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 16%">
+<col style="width: 66%">
+<col style="width: 8%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -907,20 +1008,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>query</td>
 <td>VectorStoreSearchInput</td>
-<td>A <code>VectorStoreSearchInput</code> object containing the text query or list of queries to search for with ids.</td>
+<td>The input object containing the text query or list of queries to search for, with ids.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td>n_results</td>
 <td>int</td>
-<td>[optional] Number of top results to return for each query. Default 10.</td>
+<td>Number of top results to return for each query. Defaults to 10.</td>
 <td><code>10</code></td>
 </tr>
 <tr class="odd">
 <td>batch_size</td>
 <td>int</td>
-<td>[optional] The batch size for processing queries. Default 8.</td>
-<td><code>8</code></td>
+<td>The batch size for processing queries. Defaults to the batch_size set during initialisation.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
@@ -929,9 +1030,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 11%">
-<col style="width: 84%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 75%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -942,9 +1043,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
 <td>VectorStoreSearchOutput</td>
-<td>A <code>VectorStoreSearchOutput</code> object containing search results with columns for <code>query_id</code>, <code>query_text</code>, <code>doc_label</code>, <code>doc_text</code>, <code>rank</code>, <code>score</code>, and any associated metadata columns.</td>
+<td>VectorStoreSearchOutput</td>
+<td>The output object containing search results with columns for query_id, query_text, doc_label, doc_text, rank, score, and any associated metadata columns.</td>
 </tr>
 </tbody>
 </table>
@@ -953,9 +1054,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises-3">Raises</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 10%">
-<col style="width: 29%">
-<col style="width: 60%">
+<col style="width: 7%">
+<col style="width: 20%">
+<col style="width: 71%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -967,23 +1068,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><code>DataValidationError</code></td>
+<td>DataValidationError</td>
 <td>Raised if invalid arguments are passed.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>ConfigurationError</code></td>
-<td>Raised if the vector store is not initialized.</td>
+<td>ConfigurationError</td>
+<td>Raised if the <code>VectorStore</code> is not initialised.</td>
 </tr>
 <tr class="odd">
 <td></td>
-<td><code>HookError</code></td>
+<td>HookError</td>
 <td>Raised if user-defined hooks fail.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>VectorisationError</code></td>
-<td>Raised if embedding queries fails.</td>
+<td>ClassifaiError</td>
+<td>Raised if there is a package-specific error during the search operation.</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>VectorisationError</td>
+<td>Raised if query embedding fails.</td>
 </tr>
 </tbody>
 </table>

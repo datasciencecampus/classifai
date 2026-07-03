@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>indexers – ClassifAI</title>
+<title>ClassifAI Evaluation Module - Overview and Usage – ClassifAI</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -33,8 +68,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../docs/indexers.VectorStore.html" rel="next">
-<link href="../docs/vectorisers.gcp.GcpVectoriser.html" rel="prev">
+<link href="../DEMO/ai_agent_hooks.html" rel="prev">
 <link href="../ons_favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -117,7 +151,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../DEMO/README.html">DEMO</a></li><li class="breadcrumb-item"><a href="../DEMO/evaluation_workflow_demo.html">ClassifAI Evaluation Module - Overview and Usage</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -217,16 +251,16 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
  <span class="menu-text">Indexers</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link active">
+  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">indexers</span></a>
   </div>
 </li>
@@ -417,13 +451,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
  <span class="menu-text">DEMO</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../DEMO/README.html" class="sidebar-item-text sidebar-link">
@@ -456,7 +490,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../DEMO/evaluation_workflow_demo.html" class="sidebar-item-text sidebar-link">
+  <a href="../DEMO/evaluation_workflow_demo.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ClassifAI Evaluation Module - Overview and Usage</span></a>
   </div>
 </li>
@@ -472,43 +506,250 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#classifai.indexers" id="toc-classifai.indexers" class="nav-link active" data-scroll-target="#classifai.indexers">indexers</a></li>
+  <li><a href="#multi-class-single-label-evaluation" id="toc-multi-class-single-label-evaluation" class="nav-link active" data-scroll-target="#multi-class-single-label-evaluation">Multi-Class Single-Label Evaluation</a></li>
+  <li><a href="#in-this-notebook" id="toc-in-this-notebook" class="nav-link" data-scroll-target="#in-this-notebook">In this notebook</a>
+  <ul class="collapse">
+  <li><a href="#building-vectorstores-to-evaluate" id="toc-building-vectorstores-to-evaluate" class="nav-link" data-scroll-target="#building-vectorstores-to-evaluate">Building VectorStores to Evaluate</a></li>
+  <li><a href="#creating-an-evaluation-object" id="toc-creating-an-evaluation-object" class="nav-link" data-scroll-target="#creating-an-evaluation-object">Creating an Evaluation Object</a></li>
+  <li><a href="#evaluating-the-performance-of-vectorstores" id="toc-evaluating-the-performance-of-vectorstores" class="nav-link" data-scroll-target="#evaluating-the-performance-of-vectorstores">Evaluating the performance of VectorStores</a></li>
+  <li><a href="#efficient-vectorstore-loading-and-other-settings" id="toc-efficient-vectorstore-loading-and-other-settings" class="nav-link" data-scroll-target="#efficient-vectorstore-loading-and-other-settings">Efficient VectorStore Loading and other settings</a></li>
+  </ul></li>
+  <li><a href="#thats-it" id="toc-thats-it" class="nav-link" data-scroll-target="#thats-it">Thats It!</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../DEMO/README.html">DEMO</a></li><li class="breadcrumb-item"><a href="../DEMO/evaluation_workflow_demo.html">ClassifAI Evaluation Module - Overview and Usage</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">ClassifAI Evaluation Module - Overview and Usage</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="classifai.indexers" class="level1">
-<h1>indexers</h1>
-<p><code>indexers</code></p>
-<p>This module provides functionality for creating a <code>VectorStore</code> from a CSV (text) file.</p>
-<p>It defines the <code>VectorStore</code> class, which is used to model and create vector databases from CSV text files using a <code>Vectoriser</code> object.</p>
-<p>This class requires a <code>Vectoriser</code> object from the vectorisers submodule, to convert the CSV’s text data into vector embeddings which are then stored in the <code>VectorStore</code> objects.</p>
-<p>Key Features:</p>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<hr>
+<p>The Evaluation module provides a toolkit to evaluate the performance of VectorStores in a multi-class, single-label classification setting. Provided the user has:</p>
 <ul>
-<li>Batch processing of input files to handle large datasets.</li>
-<li>Support for CSV file format (additional formats may be added in future updates).</li>
-<li>Integration with a custom embedder for generating vector embeddings.</li>
-<li>Support for user-defined hooks for preprocessing and postprocessing.</li>
-<li>Logging for tracking progress and handling errors during processing.</li>
+<li>a constructed VectorStore (or multiple VectorStores) built from historically labeled (or similar) data;</li>
+<li>a held out collection of labelled ground truth data, not in the VectorStore;</li>
 </ul>
-<p>VectorStore Class:</p>
+<p>then this module can be used to evaluate VectorStore performance, presenting results with a variety of available metrics that can be specified by the user.</p>
+<section id="multi-class-single-label-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="multi-class-single-label-evaluation">Multi-Class Single-Label Evaluation</h2>
+<p>Currently the evaluation module only evaluates single label predictions meaning that, while ClassifAI is designed to return a ranked list of several semantically similar candidate entries to a provided query sample, only the top result will be considered when comparing the VectorStore result to a ground truth label provided by a user.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="files/eval_top_1_diagram.png" class="img-fluid figure-img"></p>
+<figcaption>top_1_eval_image</figcaption>
+</figure>
+</div>
+<p>The Evaluation module is currently in development, and in the future its feature set may be extended to include a broader range of evaluation tasks such as multi-class multi-label classification, where potentially multiple labels for a ground truth sample can be compared and evaluated against multiple ranked candidate predictions of the VectorStore.</p>
+<p>For multi-class, single-label evaluation we have implemented several metrics that can be calculated, their names and descriptions are as follows:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 84%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Accuracy</td>
+<td>The proportion of correctly predicted labels out of the total number of predictions.</td>
+</tr>
+<tr class="even">
+<td>Macro Recall</td>
+<td>The average recall calculated independently for each class, treating all classes equally.</td>
+</tr>
+<tr class="odd">
+<td>Macro Precision</td>
+<td>The average precision calculated independently for each class, treating all classes equally.</td>
+</tr>
+<tr class="even">
+<td>Macro F1</td>
+<td>The harmonic mean of Macro Precision and Macro Recall, providing a balance between the two.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="in-this-notebook" class="level2">
+<h2 class="anchored" data-anchor-id="in-this-notebook">In this notebook</h2>
+<p>This notebook will provide a demonstration of the following concepts:</p>
 <ul>
-<li>The <code>VectorStore</code> class is initialized with a <code>Vectoriser</code> object and a CSV knowledgebase.</li>
-<li>Additional columns in the CSV may be specified as metadata to be included in the vector database.</li>
-<li>Upon creation, the <code>VectorStore</code> is saved in parquet format for efficient, and quick reloading via the <code>VectorStore</code>’s <code>.from_filespace()</code> method.</li>
-<li>A new piece of text data (or label) can be queried against the <code>VectorStore</code> in the following ways:
-<ul>
-<li><code>.search()</code>: to find the most semantically similar pieces of text in the vector database.</li>
-<li><code>.reverse_search()</code>: to find all examples in the knowledgebase that have a given label.</li>
-<li><code>.embed()</code>: to generate a vector embedding for a given piece of text data.</li>
-</ul></li>
-<li>‘Hook’ methods may be specified to perform pre-processing on input data before embedding, and post-processing on the output of the search methods.</li>
+<li><p>An introduction to the Evaluation Module and its main class <code>Evaluation</code></p></li>
+<li><p>Use of the demo file <code>fake_soc_eval_queries.csv</code> which is in the <code>DEMO/data/</code> repo folder. This data contains ground truth samples related to the demo knowledgebase CSV file <code>DEMO/data/fake_soc_dataset.csv</code></p></li>
+<li><p>Creating several VectorStores using the ‘fake_soc_dataset.csv’ file, using different amounts of data from the file to create several VectorStores of varying quality.</p></li>
+<li><p>Setting up an Evaluation task using the fake queries file and a list of metrics to evaluate.</p></li>
+<li><p>Tying this all together, evaluating the VectorStores against the ground truth query file using the evaluation module.</p></li>
 </ul>
+<p>See the ClassifAI GitHub repository and <code>DEMO/README.md</code> for information on accessing the associated demo datasets needed for this (and other) notebook tutorials.<br></p>
+<section id="building-vectorstores-to-evaluate" class="level3">
+<h3 class="anchored" data-anchor-id="building-vectorstores-to-evaluate">Building VectorStores to Evaluate</h3>
+<p>To begin, we’re going to create 2 VectorStores from our <code>fake_soc_dataset.csv</code> file which contains <b>mock</b> SOC survey responses and their corresponding occupation codes. One VectorStore will be built from the full dataset, and the second one will be built from half the dataset.</p>
+<p>Since the second VectorStore will contain only half the training data, we can reason that it will not perform as well as the VectorStore built with the full dataset due to lack of coverage.</p>
+<div id="cell-8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.indexers <span class="im">import</span> VectorStore</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.vectorisers <span class="im">import</span> HuggingFaceVectoriser</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize a vectoriser using a HuggingFace model</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>demo_vectoriser <span class="op">=</span> HuggingFaceVectoriser(model_name<span class="op">=</span><span class="st">"sentence-transformers/all-MiniLM-L6-v2"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize a vector store using the vectoriser and a CSV file</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>demo_vectorstore_full <span class="op">=</span> VectorStore(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    file_name<span class="op">=</span><span class="st">"data/fake_soc_dataset.csv"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    data_type<span class="op">=</span><span class="st">"csv"</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>demo_vectoriser,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    skip_save<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We’re now going to modify the <code>fake_soc_dataset.csv</code> file to remove half the samples, then build a VectorStore with that reduced dataset. We’ll do this by loading in the original data, cutting it in half and saving it to a new CSV file in the code below. Then build another VectorStore like with the code above.</p>
+<div id="cell-10" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the CSV file into a DataFrame</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"data/fake_soc_dataset.csv"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># cut the dataframe in half</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>half_df <span class="op">=</span> df.iloc[: <span class="bu">len</span>(df) <span class="op">//</span> <span class="dv">2</span>]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(half_df.shape)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># save back to CSV</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>half_df.to_csv(<span class="st">"data/fake_soc_dataset_half.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-11" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now building the vector store with the half dataset, same as before but changing the file path</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>demo_vectorstore_half <span class="op">=</span> VectorStore(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    file_name<span class="op">=</span><span class="st">"data/fake_soc_dataset_half.csv"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    data_type<span class="op">=</span><span class="st">"csv"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    vectoriser<span class="op">=</span>demo_vectoriser,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    skip_save<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="creating-an-evaluation-object" class="level3">
+<h3 class="anchored" data-anchor-id="creating-an-evaluation-object">Creating an Evaluation Object</h3>
+<p>ClassifAI provides an <code>Evaluation</code> class (in the Evaluation module) which can be used to load a collection of ground truth queries and specify metrics to use. The evaluator constructor accepts 4 arguments:</p>
+<ul>
+<li>A pandas dataframe with <code>['text', 'label']</code> columns/headers both of type string, which represent the text sample queries and gold standard ground truth label respectively,</li>
+<li>A list of evaluation metric names which must be strings corresponding to one of the current available metrics: <code>['accuracy', 'macro_recall', 'macro_precision', 'macro_f1']</code>,</li>
+<li>A <code>batch_size</code> which determines how many samples should be processed at once (smaller size will take longer but be more memory efficient),</li>
+<li>A boolean argument <code>save_output</code> which determines if generated results should be saved to CSV.</li>
+</ul>
+<p>Calling the constructor with these arguments, along with a boolean to save the results to file, will check that the inputs are valid and suitable for the task:</p>
+<div id="cell-14" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> classifai.evaluation <span class="im">import</span> Evaluation</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># loading our mock ground truth file into a pandas dataframe, setting the type of both columns to string.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ground_truths <span class="op">=</span> pd.read_csv(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data/fake_soc_eval_queries.csv"</span>, dtype<span class="op">=</span>{<span class="st">"text"</span>: <span class="bu">str</span>, <span class="st">"label"</span>: <span class="bu">str</span>}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)  <span class="co"># Load the ground truths from the CSV file</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># using the Evaluation class, passing the ground truth DF and metrics we want to evaluate.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>evaluator <span class="op">=</span> Evaluation(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    ground_truths<span class="op">=</span>ground_truths,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[<span class="st">"macro_precision"</span>, <span class="st">"accuracy"</span>],  <span class="co"># we chose just 2 metrics this time</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">16</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    save_output<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><b>Running the above code should also present a FutureWarning.</b> This is because at this time the Evaluation module is still in development and may be subject to future breaking changes in later updates.</p>
+</section>
+<section id="evaluating-the-performance-of-vectorstores" class="level3">
+<h3 class="anchored" data-anchor-id="evaluating-the-performance-of-vectorstores">Evaluating the performance of VectorStores</h3>
+<p>If the evaluator object instantiates correctly, we can then use the <code>.evaluate()</code> method which takes VectorStores and some corresponding names to evaluate against the ground truth.</p>
+<p>For each VectorStore passed to it, the <code>evaluate()</code> method will:</p>
+<ol type="1">
+<li><p>Trigger the VectorStore to perform search over each of the queries in the grount truth dataset, obtaining 1 result for each,</p></li>
+<li><p>The results will be collected and combined with the ground truth labels,</p></li>
+<li><p>The predictions and ground truths will be used to calculate each of the metrics specified by the user in the constructor.</p></li>
+<li><p>The evaluate method returns the results as a dataframe object and saves the results to a file inf the user set constructor argument <code>save_ouput=True</code></p></li>
+</ol>
+<div id="cell-18" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> evaluator.evaluate(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    vectorstores<span class="op">=</span>[demo_vectorstore_full, demo_vectorstore_half],</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    vectorstore_names<span class="op">=</span>[<span class="st">"full data vectorstore"</span>, <span class="st">"half data vectorstore"</span>],</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    output_file<span class="op">=</span><span class="st">"./classifai_temp/demo_eval_results.csv"</span>,  <span class="co"># leaving this line blank will save the results to evaluation_results.csv</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The results object is a dataframe with provided VectorStore names as the row indexes, and each column is associated with a given metric. We should also see the results have been saved to the specified output CSV file.</p>
+<div id="cell-20" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Following through this demo correctly, the results should show that a VectorStore containing only half the available labelled data sees a significant drop in performance on the ground truth dataset compared to the VectorStore using all available data, according to the chosen metrics.</p>
+</section>
+<section id="efficient-vectorstore-loading-and-other-settings" class="level3">
+<h3 class="anchored" data-anchor-id="efficient-vectorstore-loading-and-other-settings">Efficient VectorStore Loading and other settings</h3>
+<p>We’ve already demonstrated the core features of the Evaluation module. This final section will show some additional implemented features including:</p>
+<ul>
+<li>Efficient ways to load VectorStores to avoid memory issues when using many and/or large VectorStores,</li>
+<li>More of the available metrics,</li>
+<li>Saving results to file without a specified filename.</li>
+</ul>
+<p>In some cases, the user may want to evaluate <i>many</i> VectorStores in a single evaluation run, but more VectorStores require more memory. It may not be possible to load all VectorStores into memory at the same time. For this reason, the <code>vectorstores</code> parameter of <code>Evaluation.evaluate()</code> accepts callable functions that return VectorStores as well as instantiated VectorStores.</p>
+<p>With this design, the user can write functions that will load VectorStores into memory at the time of the their evaluation. Once the evaluation is complete, the VectorStore will be dropped from memory, and memory is managed more efficiently.</p>
+<div id="cell-25" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># writing a function that will build/load the larger of our 2 VectorStores into memory when the function is called.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># you can also use the VectorStore.from_filespace method to load the VectorStore from the filespace if it has already been built and saved to disk.</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_largest_vectorStore():</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    efficient_vectoriser <span class="op">=</span> HuggingFaceVectoriser(model_name<span class="op">=</span><span class="st">"sentence-transformers/all-MiniLM-L6-v2"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    efficient_vectorstore <span class="op">=</span> VectorStore(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        file_name<span class="op">=</span><span class="st">"data/fake_soc_dataset.csv"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        data_type<span class="op">=</span><span class="st">"csv"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        vectoriser<span class="op">=</span>efficient_vectoriser,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        skip_save<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> efficient_vectorstore  <span class="co"># these functions must return only the VectorStore object.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-26" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>second_evaluator <span class="op">=</span> Evaluation(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    ground_truths<span class="op">=</span>ground_truths,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    metrics<span class="op">=</span>[</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"accuracy"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"macro_precision"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"macro_recall"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"macro_f1"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    ],  <span class="co"># this is all the available metrics, we can use them all at the same time.</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">16</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    save_output<span class="op">=</span><span class="va">True</span>,  <span class="co"># setting to False, only the results will be returned, not saved to a file.</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>second_results <span class="op">=</span> second_evaluator.evaluate(</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    vectorstores<span class="op">=</span>[</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        load_largest_vectorStore,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        demo_vectorstore_half,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    ],  <span class="co"># passing the function itself, not calling it. We can also pass one of our existing in memory vectorstores as well.</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    vectorstore_names<span class="op">=</span>[<span class="st">"efficiently loaded vectorstore"</span>, <span class="st">"half data vectorstore"</span>],</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>second_results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="thats-it" class="level2">
+<h2 class="anchored" data-anchor-id="thats-it">Thats It!</h2>
+<p>The results (this time with more metrics) from the last evaluation run should be saved to the file in the current directory as <code>evaluation_results.csv</code>, since we didn’t specify a file name this time to save the results to. Remember you can disable writing results to file by setting <code>save_output=False</code> in the Evaluation constructor.</p>
+<p>Finally, one more reminder that this module is still in development and may be subject to breaking changes in the future.</p>
 
 
 </section>
@@ -916,14 +1157,11 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../docs/vectorisers.gcp.GcpVectoriser.html" class="pagination-link" aria-label="vectorisers.gcp.GcpVectoriser">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vectorisers.gcp.GcpVectoriser</span>
+      <a href="../DEMO/ai_agent_hooks.html" class="pagination-link" aria-label="AI agents in ClassifAI">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">AI agents in ClassifAI</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../docs/indexers.VectorStore.html" class="pagination-link" aria-label="indexers.VectorStore">
-        <span class="nav-page-text">indexers.VectorStore</span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->

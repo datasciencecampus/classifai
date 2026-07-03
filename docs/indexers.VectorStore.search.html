@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -77,10 +77,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24111f2d7671a07c32a60419c31bd4a3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c3871cc889d5876972026f066232dbbc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -406,12 +406,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
- <span class="menu-text">DEMO</span></a>
+ <span class="menu-text">Evaluation</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.main.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.main.Evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main.Evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.Metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.MetricResult.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.MetricResult</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">DEMO</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../DEMO/README.html" class="sidebar-item-text sidebar-link">
@@ -440,6 +487,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../DEMO/ai_agent_hooks.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">AI agents in ClassifAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/evaluation_workflow_demo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ClassifAI Evaluation Module - Overview and Usage</span></a>
   </div>
 </li>
       </ul>
@@ -471,16 +524,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="classifai.indexers.VectorStore.search" class="level1">
 <h1>indexers.VectorStore.search</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.search(query, n_results<span class="op">=</span><span class="dv">10</span>, batch_size<span class="op">=</span><span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Searches the <code>VectorStore</code> using queries from a <code>VectorStoreSearchInput</code> object. Outputs ranked results in <code>VectorStoreSearchOutput</code> object. In batches, converts users text queries into vector embeddings, computes cosine similarity with stored document vectors, and retrieves the top results.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>indexers.VectorStore.search(query, n_results<span class="op">=</span><span class="dv">10</span>, batch_size<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Queries the <code>vectors</code> attribute for the most similar documents.</p>
+<p>Queries are processed in batches of batch_size, with each batch embedded using vectoriser.transform() and scored against all stored document embeddings via dot-product similarity (equivalent to cosine similarity when embeddings are L2-normalised). The top n_results documents are returned for each query, ordered by descending score.</p>
+<p>Any preprocessing hooks set on the instance are applied to the input before searching, and any postprocessing hooks are applied to the output before it is returned.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 15%">
-<col style="width: 68%">
-<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 16%">
+<col style="width: 66%">
+<col style="width: 8%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -494,20 +549,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>query</td>
 <td>VectorStoreSearchInput</td>
-<td>A <code>VectorStoreSearchInput</code> object containing the text query or list of queries to search for with ids.</td>
+<td>The input object containing the text query or list of queries to search for, with ids.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td>n_results</td>
 <td>int</td>
-<td>[optional] Number of top results to return for each query. Default 10.</td>
+<td>Number of top results to return for each query. Defaults to 10.</td>
 <td><code>10</code></td>
 </tr>
 <tr class="odd">
 <td>batch_size</td>
 <td>int</td>
-<td>[optional] The batch size for processing queries. Default 8.</td>
-<td><code>8</code></td>
+<td>The batch size for processing queries. Defaults to the batch_size set during initialisation.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
@@ -516,9 +571,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 11%">
-<col style="width: 84%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 75%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -529,9 +584,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
 <td>VectorStoreSearchOutput</td>
-<td>A <code>VectorStoreSearchOutput</code> object containing search results with columns for <code>query_id</code>, <code>query_text</code>, <code>doc_label</code>, <code>doc_text</code>, <code>rank</code>, <code>score</code>, and any associated metadata columns.</td>
+<td>VectorStoreSearchOutput</td>
+<td>The output object containing search results with columns for query_id, query_text, doc_label, doc_text, rank, score, and any associated metadata columns.</td>
 </tr>
 </tbody>
 </table>
@@ -540,9 +595,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 10%">
-<col style="width: 29%">
-<col style="width: 60%">
+<col style="width: 7%">
+<col style="width: 20%">
+<col style="width: 71%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -554,23 +609,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><code>DataValidationError</code></td>
+<td>DataValidationError</td>
 <td>Raised if invalid arguments are passed.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>ConfigurationError</code></td>
-<td>Raised if the vector store is not initialized.</td>
+<td>ConfigurationError</td>
+<td>Raised if the <code>VectorStore</code> is not initialised.</td>
 </tr>
 <tr class="odd">
 <td></td>
-<td><code>HookError</code></td>
+<td>HookError</td>
 <td>Raised if user-defined hooks fail.</td>
 </tr>
 <tr class="even">
 <td></td>
-<td><code>VectorisationError</code></td>
-<td>Raised if embedding queries fails.</td>
+<td>ClassifaiError</td>
+<td>Raised if there is a package-specific error during the search operation.</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>VectorisationError</td>
+<td>Raised if query embedding fails.</td>
 </tr>
 </tbody>
 </table>

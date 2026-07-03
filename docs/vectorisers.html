@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.36">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -42,10 +42,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-24111f2d7671a07c32a60419c31bd4a3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c3871cc889d5876972026f066232dbbc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -371,12 +371,59 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
- <span class="menu-text">DEMO</span></a>
+ <span class="menu-text">Evaluation</span></a>
           <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.main.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.main.Evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.main.Evaluation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.Metric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.Metric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/evaluation.metrics.MetricResult.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">evaluation.metrics.MetricResult</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">DEMO</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../DEMO/README.html" class="sidebar-item-text sidebar-link">
@@ -407,6 +454,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">AI agents in ClassifAI</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../DEMO/evaluation_workflow_demo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ClassifAI Evaluation Module - Overview and Usage</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -435,7 +488,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="classifai.vectorisers" class="level1">
 <h1>vectorisers</h1>
 <p><code>vectorisers</code></p>
-<p>This module provides classes for creating and utilizing embedding models. The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules. Generally Vectorisers are used to convert text data into numerical embeddings that can be used for machine learning tasks.</p>
+<p>This module provides classes for creating and utilising embedding models from different services.</p>
+<p>The Vectoriser module offers a unified interface to interact with various other ClassifAI Package Modules. Generally Vectorisers are used to convert text data into numerical embeddings that can be used for machine learning tasks.</p>
 <section id="section" class="level27">
 <p class="heading"></p>
 </section>
@@ -445,11 +499,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="vectoriser-overview" class="level1">
 <h1>Vectoriser Overview</h1>
-<p>In our Package, Vectoriser have a simple role:</p>
+<p>In our Package, Vectorisers have a simple role:</p>
 <ul>
 <li>Take in text data (as a string or list of strings)</li>
 <li>Output numerical embeddings (as a numpy array)</li>
-<li>Each Vectortiser should provide a <code>transform</code> method to perform this conversion.</li>
+<li>Each Vectoriser should provide a <code>transform</code> method to perform this conversion.</li>
 </ul>
 <p>It is possible for users to implement their own Vectoriser classes by inheriting from the <code>VectoriserBase</code> abstract base class and implementing the <code>transform</code> method.</p>
 <section id="section-2" class="level27">
@@ -462,16 +516,16 @@ ul.task-list li input[type="checkbox"] {
 <section id="implemented-vectorisers" class="level1">
 <h1>Implemented Vectorisers</h1>
 <p>We provide several robust implementations of Vectorisers that interface with popular services and libraries.</p>
-<p>The module contains the following ‘ready-made’ classes:</p>
+<p>This module contains the following ‘ready-made’ classes:</p>
 <ul>
-<li><code>GcpVectoriser</code>: A class for embedding text using Google Cloud Platform’s GenAI API.</li>
+<li><code>GcpVectoriser</code>: A class for embedding text using either Google Cloud Platform’s Gemini API or Gemini Enterprise Agent Platform (formerly VertexAI) API.</li>
 <li><code>HuggingFaceVectoriser</code>: A general wrapper class for Huggingface Transformers models to generate text embeddings.</li>
-<li><code>OllamaVectoriser</code>: A general wrapper class for using a locally running ollama server to generate text embeddings.</li>
+<li><code>OllamaVectoriser</code>: A general wrapper class for using a locally running Ollama server to generate text embeddings.</li>
 </ul>
 <p>Each class is designed to interface with a specific service that provides embedding model functionality.</p>
 <p>The <code>GcpVectoriser</code> class leverages Google’s GenAI API,</p>
 <p>The <code>HuggingFaceVectoriser</code> class utilizes models from the Huggingface Transformers library.</p>
-<p>The <code>OllamaVectoriser</code> class can use any local/downloaded model which can be served by ollama.</p>
+<p>The <code>OllamaVectoriser</code> class can use any local/downloaded model which can be served by Ollama.</p>
 <p>These classes abstract the underlying implementation details, providing a simple and consistent interface for embedding text using different services.</p>
 <section id="section-4" class="level27">
 <p class="heading"></p>

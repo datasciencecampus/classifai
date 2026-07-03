@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>indexers – ClassifAI</title>
+<title>evaluation.main – ClassifAI</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -33,8 +68,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../docs/indexers.VectorStore.html" rel="next">
-<link href="../docs/vectorisers.gcp.GcpVectoriser.html" rel="prev">
+<link href="../docs/evaluation.main.Evaluation.html" rel="next">
+<link href="../docs/evaluation.html" rel="prev">
 <link href="../ons_favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -117,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/evaluation.html">Evaluation</a></li><li class="breadcrumb-item"><a href="../docs/evaluation.main.html">evaluation.main</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -217,16 +252,16 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
  <span class="menu-text">Indexers</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link active">
+  <a href="../docs/indexers.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">indexers</span></a>
   </div>
 </li>
@@ -370,13 +405,13 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
  <span class="menu-text">Evaluation</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../docs/evaluation.html" class="sidebar-item-text sidebar-link">
@@ -385,7 +420,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../docs/evaluation.main.html" class="sidebar-item-text sidebar-link">
+  <a href="../docs/evaluation.main.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">evaluation.main</span></a>
   </div>
 </li>
@@ -472,45 +507,424 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#classifai.indexers" id="toc-classifai.indexers" class="nav-link active" data-scroll-target="#classifai.indexers">indexers</a></li>
+  <li><a href="#classifai.evaluation.main" id="toc-classifai.evaluation.main" class="nav-link active" data-scroll-target="#classifai.evaluation.main">evaluation.main</a>
+  <ul class="collapse">
+  <li><a href="#dataframes" id="toc-dataframes" class="nav-link" data-scroll-target="#dataframes">DataFrames</a></li>
+  <li><a href="#metrics" id="toc-metrics" class="nav-link" data-scroll-target="#metrics">Metrics</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#classes" id="toc-classes" class="nav-link" data-scroll-target="#classes">Classes</a>
+  <ul class="collapse">
+  <li><a href="#classifai.evaluation.main.Evaluation" id="toc-classifai.evaluation.main.Evaluation" class="nav-link" data-scroll-target="#classifai.evaluation.main.Evaluation">Evaluation</a></li>
+  <li><a href="#classifai.evaluation.main.MetricType" id="toc-classifai.evaluation.main.MetricType" class="nav-link" data-scroll-target="#classifai.evaluation.main.MetricType">MetricType</a></li>
+  </ul></li>
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#classifai.evaluation.main.parse_metrics" id="toc-classifai.evaluation.main.parse_metrics" class="nav-link" data-scroll-target="#classifai.evaluation.main.parse_metrics">parse_metrics</a></li>
+  </ul></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/indexers.html">Indexers</a></li><li class="breadcrumb-item"><a href="../docs/indexers.html">indexers</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/evaluation.html">Evaluation</a></li><li class="breadcrumb-item"><a href="../docs/evaluation.main.html">evaluation.main</a></li></ol></nav></header>
 
 
 
 
-<section id="classifai.indexers" class="level1">
-<h1>indexers</h1>
-<p><code>indexers</code></p>
-<p>This module provides functionality for creating a <code>VectorStore</code> from a CSV (text) file.</p>
-<p>It defines the <code>VectorStore</code> class, which is used to model and create vector databases from CSV text files using a <code>Vectoriser</code> object.</p>
-<p>This class requires a <code>Vectoriser</code> object from the vectorisers submodule, to convert the CSV’s text data into vector embeddings which are then stored in the <code>VectorStore</code> objects.</p>
-<p>Key Features:</p>
+<section id="classifai.evaluation.main" class="level1">
+<h1>evaluation.main</h1>
+<p><code>evaluation.main</code></p>
+<p>This module evaluates one or more <code>classifai.indexers.VectorStore</code> instances on a ground-truth labelled dataset.</p>
+<p>A typical evaluation run will perform the following sequence of actions;</p>
+<ol type="1">
+<li>Create an <code>Evaluation</code> instance with a ground-truth dataset and a list of metrics.</li>
+<li>Run a batched top-1 <code>VectorStore.search</code> over all queries in the provided dataset.</li>
+<li>Merge the ground-truth labels into the retrieved results.</li>
+<li>Compute the specified multiclass, single-label classification metrics.</li>
+<li>If specified, save results and provide access to individual metric results.</li>
+</ol>
+<p>Evaluation is (currently with future updates pending) framed as retrieval-as-classification: for each query, the label of the top retrieved document (<code>doc_label</code>) is treated as the model prediction, and the provided dataset label is treated as the ground truth (<code>ground_truth_label</code>).</p>
+<section id="dataframes" class="level2 doc-section doc-section-dataframes">
+<h2 class="doc-section doc-section-dataframes anchored" data-anchor-id="dataframes">DataFrames</h2>
+<p>Ground-truth input (<code>ground_truths</code>) must include:</p>
 <ul>
-<li>Batch processing of input files to handle large datasets.</li>
-<li>Support for CSV file format (additional formats may be added in future updates).</li>
-<li>Integration with a custom embedder for generating vector embeddings.</li>
-<li>Support for user-defined hooks for preprocessing and postprocessing.</li>
-<li>Logging for tracking progress and handling errors during processing.</li>
+<li>qid (str): Unique query identifier.</li>
+<li>text (str): Query text.</li>
+<li>label (str): Ground-truth label.</li>
 </ul>
-<p>VectorStore Class:</p>
+<p>Search evaluation output (<code>results_df</code>) is expected to include:</p>
 <ul>
-<li>The <code>VectorStore</code> class is initialized with a <code>Vectoriser</code> object and a CSV knowledgebase.</li>
-<li>Additional columns in the CSV may be specified as metadata to be included in the vector database.</li>
-<li>Upon creation, the <code>VectorStore</code> is saved in parquet format for efficient, and quick reloading via the <code>VectorStore</code>’s <code>.from_filespace()</code> method.</li>
-<li>A new piece of text data (or label) can be queried against the <code>VectorStore</code> in the following ways:
-<ul>
-<li><code>.search()</code>: to find the most semantically similar pieces of text in the vector database.</li>
-<li><code>.reverse_search()</code>: to find all examples in the knowledgebase that have a given label.</li>
-<li><code>.embed()</code>: to generate a vector embedding for a given piece of text data.</li>
-</ul></li>
-<li>‘Hook’ methods may be specified to perform pre-processing on input data before embedding, and post-processing on the output of the search methods.</li>
+<li>query_id (str): Query identifier (automatically generated for, and extracted from VectorStoreSearchInput dataclass).</li>
+<li>query_text (str): Query text.</li>
+<li>doc_label (str): Predicted label (label of retrieved doc).</li>
+<li>doc_text (str): Retrieved document text.</li>
+<li>rank (int): Rank of the retrieved document (&gt;= 0).</li>
+<li>score (float): Similarity score from the vector store.</li>
+<li>ground_truth_label (str): Ground-truth label merged in from <code>ground_truths</code>.</li>
 </ul>
+</section>
+<section id="metrics" class="level2 doc-section doc-section-metrics">
+<h2 class="doc-section doc-section-metrics anchored" data-anchor-id="metrics">Metrics</h2>
+<p>Metric functions are defined in <code>classifai.evaluation.metrics</code> and can be added to an Evaluation instance by their names. Supported metric names are:</p>
+<ul>
+<li>“accuracy”</li>
+<li>“macro_recall”</li>
+<li>“macro_precision”</li>
+<li>“macro_f1”</li>
+</ul>
+</section>
+<section id="raises" class="level2 doc-section doc-section-raises">
+<h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 16%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>InvalidMetricError</td>
+<td>Raised when requested metric names cannot be parsed.</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>EvaluationError</td>
+<td>Raised when validation, vectorstore execution, result validation, or metric computation fails.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes" class="level2">
+<h2 class="anchored" data-anchor-id="classes">Classes</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#classifai.evaluation.main.Evaluation">Evaluation</a></td>
+<td>Evaluation class for assessing the performance of vectorstores against ground truth data.</td>
+</tr>
+<tr class="even">
+<td><a href="#classifai.evaluation.main.MetricType">MetricType</a></td>
+<td>Available classification metrics.</td>
+</tr>
+</tbody>
+</table>
+<section id="classifai.evaluation.main.Evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.main.Evaluation">Evaluation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>evaluation.main.Evaluation(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    ground_truths,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    metrics,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    save_output<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Evaluation class for assessing the performance of vectorstores against ground truth data.</p>
+<p>This class provides methods to evaluate vectorstores using specified metrics, validate inputs, and save results. It supports batch processing and allows for detailed inspection of individual metric results.</p>
+<section id="attributes" class="level4 doc-section doc-section-attributes">
+<h4 class="doc-section doc-section-attributes anchored" data-anchor-id="attributes">Attributes</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 14%">
+<col style="width: 68%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ground_truths</td>
+<td>pd.DataFrame</td>
+<td>DataFrame containing ‘qid’, ‘text’, and ‘label’ columns.</td>
+</tr>
+<tr class="even">
+<td>batch_size</td>
+<td>int</td>
+<td>Batch size for vectorstore search operations.</td>
+</tr>
+<tr class="odd">
+<td>save_output</td>
+<td>bool</td>
+<td>Whether to save evaluation results to a file.</td>
+</tr>
+<tr class="even">
+<td>parsed_metrics</td>
+<td>dict</td>
+<td>Dictionary of parsed metrics to compute.</td>
+</tr>
+<tr class="odd">
+<td>metric_results</td>
+<td>dict</td>
+<td>Dictionary of individual metric results for detailed inspection.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="methods" class="level4">
+<h4 class="anchored" data-anchor-id="methods">Methods</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#classifai.evaluation.main.Evaluation.evaluate">evaluate</a></td>
+<td>Evaluate multiple VectorStore instances on ground truth data and compute metrics.</td>
+</tr>
+</tbody>
+</table>
+<section id="classifai.evaluation.main.Evaluation.evaluate" class="level5">
+<h5 class="anchored" data-anchor-id="classifai.evaluation.main.Evaluation.evaluate">evaluate</h5>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>evaluation.main.Evaluation.evaluate(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    vectorstores,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    vectorstore_names,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    output_file<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Evaluate multiple VectorStore instances on ground truth data and compute metrics.</p>
+<p>This method validates the input, evaluates each VectorStore instance or callable, computes metrics, and optionally saves the results to a CSV file.</p>
+<section id="parameters" class="level6 doc-section doc-section-parameters">
+<h6 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h6>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 23%">
+<col style="width: 63%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>vectorstores</td>
+<td>list[VectorStore | Callable[[], VectorStore]]</td>
+<td>A list of VectorStore instances or callables that return VectorStore instances.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>vectorstore_names</td>
+<td>list[str]</td>
+<td>A list of unique names corresponding to the VectorStore instances. The length must match the <code>vectorstores</code> list.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>output_file</td>
+<td>str | None</td>
+<td>The file path to save the evaluation results as a CSV file. Must end with “.csv”. If None, results are not saved unless <code>self.save_output</code> is True.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>overwrite</td>
+<td>bool</td>
+<td>Whether to overwrite the output file if it already exists. Default is False.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level6 doc-section doc-section-returns">
+<h6 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h6>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 12%">
+<col style="width: 80%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>pd.DataFrame</td>
+<td>pd.DataFrame: A DataFrame containing the evaluation results for all VectorStore instances.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises-1" class="level6 doc-section doc-section-raises">
+<h6 class="doc-section doc-section-raises anchored" data-anchor-id="raises-1">Raises</h6>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 9%">
+<col style="width: 85%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If input validation fails (e.g., mismatched lengths, invalid types, or duplicate names).</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>EvaluationError</td>
+<td>If any step of the evaluation process fails, such as instantiating a VectorStore, running a search, validating search results, or computing metrics.</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>ClassifaiError</td>
+<td>If saving the results to a file fails.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level6 doc-section doc-section-notes">
+<h6 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h6>
+<ul>
+<li>Each VectorStore instance or callable is processed sequentially.</li>
+<li>Metrics are computed using <code>self.parsed_metrics</code>, and results are stored in <code>self.metric_results</code>.</li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+<section id="classifai.evaluation.main.MetricType" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.main.MetricType">MetricType</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>evaluation.main.MetricType()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Available classification metrics.</p>
+</section>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#classifai.evaluation.main.parse_metrics">parse_metrics</a></td>
+<td>Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions.</td>
+</tr>
+</tbody>
+</table>
+<section id="classifai.evaluation.main.parse_metrics" class="level3">
+<h3 class="anchored" data-anchor-id="classifai.evaluation.main.parse_metrics">parse_metrics</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>evaluation.main.parse_metrics(metrics)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Parse a list of metric names and return a dictionary mapping metric names to their corresponding functions.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 18%">
+<col style="width: 51%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>metrics</td>
+<td>list[str]</td>
+<td>A list of metric names as strings.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 16%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>dict[str, Metric]</td>
+<td>dict[str, Metric]: A dictionary where the keys are the metric names (as strings) and the values are</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>dict[str, Metric]</td>
+<td>the corresponding Metric instances.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises-2" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises-2">Raises</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 10%">
+<col style="width: 82%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If a metric name in the input list is invalid, an error is raised with a list of valid metrics.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
+</section>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -916,13 +1330,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../docs/vectorisers.gcp.GcpVectoriser.html" class="pagination-link" aria-label="vectorisers.gcp.GcpVectoriser">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">vectorisers.gcp.GcpVectoriser</span>
+      <a href="../docs/evaluation.html" class="pagination-link" aria-label="evaluation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">evaluation</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../docs/indexers.VectorStore.html" class="pagination-link" aria-label="indexers.VectorStore">
-        <span class="nav-page-text">indexers.VectorStore</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../docs/evaluation.main.Evaluation.html" class="pagination-link" aria-label="evaluation.main.Evaluation">
+        <span class="nav-page-text">evaluation.main.Evaluation</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
