@@ -1145,7 +1145,7 @@ class VectorStore:
             vector_store.file_name = None
             vector_store.data_type = None
             vector_store.vectoriser = vectoriser
-            vector_store.batch_size = batch_size if batch_size is not None else metadata["batch_size"]
+            vector_store.batch_size = batch_size or metadata["batch_size"] or 128
             vector_store.meta_data = deserialized_column_meta_data
             vector_store.vectors = df
             vector_store.vector_shape = metadata["vector_shape"]
