@@ -960,13 +960,20 @@ class VectorStore:
         metadata.json without being cross-checked against the actual contents
         of the parquet file.
 
+        > <div style="color:darkred">**v1.0.0 compatibility:** VectorStores built before v1.1.0 do not
+            store `batch_size` in `metadata.json`. Pass `batch_size` explicitly
+            when loading such stores, otherwise an `IndexBuildError` is raised.
+            </div>
+
         Args:
             folder_path (str): Path to the folder containing metadata.json and
                 vectors.parquet. Supports any fsspec-compatible path
                 (local, gs://, etc.).
             batch_size (int | None): Overrides the batch_size stored in
                 metadata. Defaults to None, which uses the value from
-                metadata.json.
+                metadata.json. Must be set explicitly when loading a store
+                built before v1.1.0, as older metadata files do not include
+                this field.
             vectoriser: An object with a callable .transform(texts) method. Its
                 class name must match the vectoriser_class value stored in
                 metadata.json.
