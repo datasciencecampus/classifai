@@ -960,10 +960,14 @@ class VectorStore:
         metadata.json without being cross-checked against the actual contents
         of the parquet file.
 
-        > <div style="color:darkred">**v1.0.0 compatibility:** VectorStores built before v1.1.0 do not
-            store `batch_size` in `metadata.json`. Pass `batch_size` explicitly
-            when loading such stores, otherwise an `IndexBuildError` is raised.
-            </div>
+        :::{.callout-warning}
+        ## Known issue (v1.1.0)
+        Loading a `VectorStore` whose `metadata.json` was produced by v1.0.0 (which did not persist `batch_size`) will raise a `DataValidationError` because `batch_size` is listed as a required metadata key. Passing `batch_size` as an argument does **not** bypass this check.
+
+        **Workaround:** manually add `"batch_size": 128` to the `metadata.json` file before calling `from_filespace()`.
+
+        **Fix:** upgrade to v1.1.1+, which resolves this issue.
+        :::
 
         Args:
             folder_path (str): Path to the folder containing metadata.json and
@@ -971,9 +975,7 @@ class VectorStore:
                 (local, gs://, etc.).
             batch_size (int | None): Overrides the batch_size stored in
                 metadata. Defaults to None, which uses the value from
-                metadata.json. Must be set explicitly when loading a store
-                built before v1.1.0, as older metadata files do not include
-                this field.
+                metadata.json.
             vectoriser: An object with a callable .transform(texts) method. Its
                 class name must match the vectoriser_class value stored in
                 metadata.json.
