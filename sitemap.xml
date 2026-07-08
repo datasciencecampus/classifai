@@ -2,206 +2,206 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://datasciencecampus.github.io/classifai/DEMO/README.html</loc>
-    <lastmod>2026-07-03T16:21:04.960Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.122Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/DEMO/using_hooks.html</loc>
-    <lastmod>2026-07-03T16:21:04.964Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.126Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/DEMO/evaluation_workflow_demo.html</loc>
-    <lastmod>2026-07-03T16:21:04.961Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.123Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/DEMO/ai_agent_hooks.html</loc>
-    <lastmod>2026-07-03T16:21:04.961Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.123Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.ollama.OllamaVectoriser.html</loc>
-    <lastmod>2026-07-03T16:21:13.565Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.780Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.gcp.GcpVectoriser.html</loc>
-    <lastmod>2026-07-03T16:21:13.573Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.788Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.base.VectoriserBase.transform.html</loc>
-    <lastmod>2026-07-03T16:21:13.550Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.767Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/servers.run_server.html</loc>
-    <lastmod>2026-07-03T16:21:13.835Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.031Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/servers.make_endpoints.html</loc>
-    <lastmod>2026-07-03T16:21:13.838Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.034Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/servers.get_server.html</loc>
-    <lastmod>2026-07-03T16:21:13.829Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.026Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.html</loc>
-    <lastmod>2026-07-03T16:21:13.574Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.789Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.html</loc>
-    <lastmod>2026-07-03T16:21:13.767Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.968Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.hook_factory.HookBase.html</loc>
-    <lastmod>2026-07-03T16:21:13.787Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.987Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.default_hooks.preprocessing.html</loc>
-    <lastmod>2026-07-03T16:21:13.776Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.976Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.default_hooks.postprocessing.html</loc>
-    <lastmod>2026-07-03T16:21:13.785Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.985Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.default_hooks.postprocessing.DeduplicationHook.html</loc>
-    <lastmod>2026-07-03T16:21:13.793Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.993Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.VectorStoreSearchOutput.html</loc>
-    <lastmod>2026-07-03T16:21:13.708Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.913Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.VectorStoreReverseSearchOutput.html</loc>
-    <lastmod>2026-07-03T16:21:13.726Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.929Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.VectorStoreEmbedOutput.html</loc>
-    <lastmod>2026-07-03T16:21:13.744Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.946Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.VectorStore.search.html</loc>
-    <lastmod>2026-07-03T16:21:13.754Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.955Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.VectorStore.html</loc>
-    <lastmod>2026-07-03T16:21:13.632Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.842Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.VectorStore.embed.html</loc>
-    <lastmod>2026-07-03T16:21:13.748Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.949Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/evaluation.html</loc>
-    <lastmod>2026-07-03T16:21:13.839Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.036Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/evaluation.metrics.MetricResult.html</loc>
-    <lastmod>2026-07-03T16:21:13.889Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/evaluation.main.html</loc>
-    <lastmod>2026-07-03T16:21:13.858Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.053Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/index.html</loc>
-    <lastmod>2026-07-03T16:21:04.965Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.127Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/evaluation.main.Evaluation.html</loc>
-    <lastmod>2026-07-03T16:21:13.868Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.062Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/evaluation.metrics.Metric.html</loc>
-    <lastmod>2026-07-03T16:21:13.887Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.080Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/evaluation.metrics.html</loc>
-    <lastmod>2026-07-03T16:21:13.883Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.076Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/index.html</loc>
-    <lastmod>2026-07-03T16:21:13.516Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.732Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.VectorStore.from_filespace.html</loc>
-    <lastmod>2026-07-03T16:21:13.765Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.967Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.VectorStore.reverse_search.html</loc>
-    <lastmod>2026-07-03T16:21:13.759Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.960Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.VectorStoreEmbedInput.html</loc>
-    <lastmod>2026-07-03T16:21:13.735Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.937Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.VectorStoreReverseSearchInput.html</loc>
-    <lastmod>2026-07-03T16:21:13.717Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.921Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.VectorStoreSearchInput.html</loc>
-    <lastmod>2026-07-03T16:21:13.698Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.904Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.dataclasses.html</loc>
-    <lastmod>2026-07-03T16:21:13.689Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.895Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.default_hooks.postprocessing.RagHook.html</loc>
-    <lastmod>2026-07-03T16:21:13.799Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.998Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.default_hooks.preprocessing.CapitalisationStandardisingHook.html</loc>
-    <lastmod>2026-07-03T16:21:13.791Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.990Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.default_hooks.html</loc>
-    <lastmod>2026-07-03T16:21:13.772Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.973Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.hooks.hook_factory.html</loc>
-    <lastmod>2026-07-03T16:21:13.770Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.972Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/indexers.main.html</loc>
-    <lastmod>2026-07-03T16:21:13.604Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.817Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/servers.get_router.html</loc>
-    <lastmod>2026-07-03T16:21:13.826Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.023Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/servers.main.html</loc>
-    <lastmod>2026-07-03T16:21:13.821Z</lastmod>
+    <lastmod>2026-07-08T14:57:59.019Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/servers.html</loc>
-    <lastmod>2026-07-03T16:21:13.800Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.999Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.base.VectoriserBase.html</loc>
-    <lastmod>2026-07-03T16:21:13.547Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.764Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.base.html</loc>
-    <lastmod>2026-07-03T16:21:13.542Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.759Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.huggingface.HuggingFaceVectoriser.html</loc>
-    <lastmod>2026-07-03T16:21:13.558Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.774Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/docs/vectorisers.html</loc>
-    <lastmod>2026-07-03T16:21:13.533Z</lastmod>
+    <lastmod>2026-07-08T14:57:58.750Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/DEMO/custom_vectoriser.html</loc>
-    <lastmod>2026-07-03T16:21:04.961Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.123Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/DEMO/general_workflow_demo.html</loc>
-    <lastmod>2026-07-03T16:21:04.964Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.126Z</lastmod>
   </url>
   <url>
     <loc>https://datasciencecampus.github.io/classifai/README.html</loc>
-    <lastmod>2026-07-03T16:21:04.965Z</lastmod>
+    <lastmod>2026-07-08T14:57:49.126Z</lastmod>
   </url>
 </urlset>

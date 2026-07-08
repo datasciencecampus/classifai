@@ -533,7 +533,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    file_name,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    data_type,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    vectoriser,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span><span class="dv">128</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    batch_size<span class="op">=</span>_BATCH_SIZE,</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    meta_data<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    output_dir<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    overwrite<span class="op">=</span><span class="va">False</span>,</span>
@@ -758,6 +758,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Creates a <code>VectorStore</code> instance from a saved filespace folder.</p>
 <p>Reads metadata.json and vectors.parquet from folder_path using fsspec, so both local and remote paths (e.g.&nbsp;gs://) are supported. The vectoriser class name stored in metadata.json must match the class name of the supplied vectoriser object. The instance is constructed via object.__new__, so <strong>init</strong> is never called and no embeddings are generated.</p>
 <p>Note: the returned instance does not have output_dir or skip_save attributes set. vector_shape and num_vectors are read directly from metadata.json without being cross-checked against the actual contents of the parquet file.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Known issue (v1.1.0, patched in v1.1.1)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Loading a <code>VectorStore</code> whose <code>metadata.json</code> was produced by v1.0.0 (which did not persist <code>batch_size</code>) will raise a <code>DataValidationError</code> because <code>batch_size</code> is listed as a required metadata key. Passing <code>batch_size</code> as an argument does <strong>not</strong> bypass this check.</p>
+<p><strong>Fix:</strong> upgrade to v1.1.1+, which resolves this issue.</p>
+<p><strong>Workaround:</strong> If you are unable to update from v1.1.0 to a later version, this issue may be circumvented by manually editing the <code>metadata.json</code> file to include a <code>batch_size</code> field (e.g., <code>"batch_size": 128</code>). <strong>We advise against this approach</strong>. Editing <code>metadata.json</code> directly is not recommended as a general practice and can lead to issues.</p>
+</div>
+</div>
 <section id="parameters-1" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
 <table class="caption-top table">
