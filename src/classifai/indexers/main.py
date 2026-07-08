@@ -968,6 +968,7 @@ class VectorStore:
 
         **Workaround:** If you are unable to update from v1.1.0 to a later version, this issue may be circumvented by manually editing the `metadata.json` file to include a `batch_size` field (e.g., `"batch_size": 128`). **We do not recommend this approach**, nor do we recommend editing the `metadata.json` file directly.
         :::
+
         Args:
             folder_path (str): Path to the folder containing metadata.json and
                 vectors.parquet. Supports any fsspec-compatible path
