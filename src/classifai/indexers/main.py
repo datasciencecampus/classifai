@@ -962,6 +962,15 @@ class VectorStore:
         metadata.json without being cross-checked against the actual contents
         of the parquet file.
 
+        :::{.callout-warning}
+        ## Known issue (v1.1.0, patched in v1.1.1)
+        Loading a `VectorStore` whose `metadata.json` was produced by v1.0.0 (which did not persist `batch_size`) will raise a `DataValidationError` because `batch_size` is listed as a required metadata key. Passing `batch_size` as an argument does **not** bypass this check.
+
+        **Fix:** upgrade to v1.1.1+, which resolves this issue.
+
+        **Workaround:** If you are unable to update from v1.1.0 to a later version, this issue may be circumvented by manually editing the `metadata.json` file to include a `batch_size` field (e.g., `"batch_size": 128`). **We advise against this approach**. Editing `metadata.json` directly is not recommended as a general practice and can lead to issues.
+        :::
+
         Args:
             folder_path (str): Path to the folder containing metadata.json and
                 vectors.parquet. Supports any fsspec-compatible path
