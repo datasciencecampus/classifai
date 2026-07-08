@@ -67,6 +67,8 @@ from .dataclasses import (
     VectorStoreSearchOutput,
 )
 
+_BATCH_SIZE = 128
+
 
 class VectorStore:
     """Models and creates vector databases from CSV text files.
@@ -114,7 +116,7 @@ class VectorStore:
         file_name: str,
         data_type: str,
         vectoriser: VectoriserBase,
-        batch_size: int = 128,
+        batch_size: int = _BATCH_SIZE,
         meta_data: dict | None = None,
         output_dir: str | None = None,
         overwrite: bool = False,
@@ -1062,7 +1064,8 @@ class VectorStore:
                 context={"metadata_path": metadata_in_path, "metadata_type": type(metadata).__name__},
             )
 
-        required_keys = ["vectoriser_class", "vector_shape", "num_vectors", "batch_size", "created_at", "meta_data"]
+        # batch size is not required in metadata for backwards compatibility with v1.0.0
+        required_keys = ["vectoriser_class", "vector_shape", "num_vectors", "created_at", "meta_data"]
         missing = [k for k in required_keys if k not in metadata]
         if missing:
             raise DataValidationError(
@@ -1093,6 +1096,18 @@ class VectorStore:
                     "cause_message": str(e),
                 },
             ) from e
+
+        if metadata.get("batch_size") is None:
+            if batch_size is not None:
+                logging.warning(
+                    "Metadata is outdated (pre v1.1.0) and does not contain a batch_size. Using provided batch_size=%d.",
+                    batch_size,
+                )
+            else:
+                logging.warning(
+                    "Metadata is outdated (pre v1.1.0) and does not contain a batch_size. Defaulting to %d.",
+                    _BATCH_SIZE,
+                )
 
         # ---- Load parquet -> IndexBuildError / DataValidationError
         vectors_in_path = os.path.join(folder_path, "vectors.parquet")
@@ -1145,7 +1160,7 @@ class VectorStore:
             vector_store.file_name = None
             vector_store.data_type = None
             vector_store.vectoriser = vectoriser
-            vector_store.batch_size = batch_size if batch_size is not None else metadata["batch_size"]
+            vector_store.batch_size = batch_size or metadata.get("batch_size") or _BATCH_SIZE
             vector_store.meta_data = deserialized_column_meta_data
             vector_store.vectors = df
             vector_store.vector_shape = metadata["vector_shape"]
