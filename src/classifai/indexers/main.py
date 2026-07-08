@@ -966,7 +966,7 @@ class VectorStore:
 
         **Fix:** upgrade to v1.1.1+, which resolves this issue.
 
-        **Workaround:** If you are unable to update from v1.1.0 to a later version, this issue may be circumvented by manually editing the `metadata.json` file to include a `batch_size` field (e.g., `"batch_size": 128`). **We do not recommend this approach**, nor do we recommend editing the `metadata.json` file directly.
+        **Workaround:** If you are unable to update from v1.1.0 to a later version, this issue may be circumvented by manually editing the `metadata.json` file to include a `batch_size` field (e.g., `"batch_size": 128`). **We advise against this approach**. Editing `metadata.json` directly is not recommended as a general practice and can lead to issues.
         :::
 
         Args:
