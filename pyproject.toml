@@ -3,7 +3,7 @@ name = "classifAI"
 description = "A generalised, extendable and modular solution for LLM automated / assisted classification."
 authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
 readme = "README.md"
-version = "1.1.0"
+version = "1.1.1"
 license = {file = "LICENSE"}
 requires-python = ">=3.10,<4.0"
 #dynamic = ["version"]
