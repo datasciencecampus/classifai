@@ -2,7 +2,7 @@
 """Pydantic Classes to model request and response data for ClassifAI FastAPI REST API."""
 
 import pandas as pd
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Extra, Field, field_validator
 
 
 class SearchRequestEntry(BaseModel):
@@ -25,6 +25,21 @@ class SearchRequestSet(BaseModel):
     """
 
     entries: list[SearchRequestEntry] = Field(description="Array of search queries to be searched in the VectorStore.")
+
+    @field_validator("entries", mode="after")
+    @classmethod
+    def _unique_entry_ids(cls, entries: list[SearchRequestEntry]) -> list[SearchRequestEntry]:
+        ids = [e.id for e in entries]
+        seen: set[str] = set()
+        dupes: list[str] = []
+        for i in ids:
+            if i in seen and i not in dupes:
+                dupes.append(i)
+            seen.add(i)
+
+        if dupes:
+            raise ValueError(f"Duplicate entry ids found: {', '.join(dupes)}. Each entry id must be unique.")
+        return entries
 
 
 class SearchResponseEntry(BaseModel):
@@ -78,6 +93,21 @@ class ReverseSearchRequestSet(BaseModel):
     """
 
     entries: list[ReverseSearchRequestEntry] = Field(description="array of VectorStore row entry labels to look up.")
+
+    @field_validator("entries", mode="after")
+    @classmethod
+    def _unique_entry_ids(cls, entries: list[SearchRequestEntry]) -> list[SearchRequestEntry]:
+        ids = [e.id for e in entries]
+        seen: set[str] = set()
+        dupes: list[str] = []
+        for i in ids:
+            if i in seen and i not in dupes:
+                dupes.append(i)
+            seen.add(i)
+
+        if dupes:
+            raise ValueError(f"Duplicate entry ids found: {', '.join(dupes)}. Each entry id must be unique.")
+        return entries
 
 
 class ReverseSearchResponseEntry(BaseModel):
@@ -137,6 +167,21 @@ class EmbedRequestSet(BaseModel):
     entries: list[EmbedRequestEntry] = Field(
         description="array of text entries to be embedded, with their corresponding text and id"
     )
+
+    @field_validator("entries", mode="after")
+    @classmethod
+    def _unique_entry_ids(cls, entries: list[SearchRequestEntry]) -> list[SearchRequestEntry]:
+        ids = [e.id for e in entries]
+        seen: set[str] = set()
+        dupes: list[str] = []
+        for i in ids:
+            if i in seen and i not in dupes:
+                dupes.append(i)
+            seen.add(i)
+
+        if dupes:
+            raise ValueError(f"Duplicate entry ids found: {', '.join(dupes)}. Each entry id must be unique.")
+        return entries
 
 
 class EmbedResponseEntry(BaseModel):
