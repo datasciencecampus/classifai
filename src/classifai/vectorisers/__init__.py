@@ -58,11 +58,13 @@ objects.
 from .base import VectoriserBase
 from .gcp import GcpVectoriser
 from .huggingface import HuggingFaceVectoriser
+from .huggingface_simple import HuggingFaceVectoriser_CPU_ONNX
 from .ollama import OllamaVectoriser
 
 __all__ = [
     "GcpVectoriser",
     "HuggingFaceVectoriser",
+    "HuggingFaceVectoriser_CPU_ONNX",
     "OllamaVectoriser",
     "VectoriserBase",
 ]
