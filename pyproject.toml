@@ -97,6 +97,8 @@ ignore = [
     # indentation contains tabs
     "W191",
     "PLC0415",
+    # too many positional arguments
+    "PLR0917",
 ]
 
 [tool.ruff.lint.pydocstyle]
