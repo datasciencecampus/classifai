@@ -684,7 +684,7 @@ class VectorStore:
             # polars conversion
             paired_query = pl.DataFrame(
                 {"id": query.id.astype(str).to_list(), "searched_doc_label": query.doc_label.astype(str).to_list()}
-            )
+            ).with_row_index("_query_row_idx")
 
             # rename vectors dataframe for reverse search return column names and joining
             docs = self.vectors.rename({"label": "doc_label", "text": "doc_text"}).with_columns(
@@ -701,9 +701,14 @@ class VectorStore:
                     how="inner",
                 ).rename({"doc_label_copy": "doc_label"})
 
-            out = out.sort(by=["id", "searched_doc_label"], descending=[False, False])
             if max_n_results != -1:
-                out = out.group_by("id").head(max_n_results)
+                out = out.sort(by=["_query_row_idx", "id", "searched_doc_label"], descending=[False, False, False])
+                out = out.group_by(["_query_row_idx", "id", "searched_doc_label"], maintain_order=True).head(
+                    max_n_results
+                )
+
+            # drop the helper column before final select
+            out = out.drop("_query_row_idx")
 
             # get formatted table
             final_table = out.select(

@@ -193,8 +193,8 @@ def convert_reverse_search_dataframe_to_pydantic_response(
     for original_query in original_input:
         input_id = original_query["id"]
         input_doc_label = original_query["doc_label"]
-        # Get the subset of the DataFrame corresponding to the current `id`
-        group_df = df[df["id"] == input_id]
+        # Get the subset of the DataFrame corresponding to the current `id` AND `searched_doc_label`
+        group_df = df[(df["id"] == input_id) & (df["searched_doc_label"] == input_doc_label)]
 
         if group_df.empty:
             # If there are no matches for this input_id, we still want to include it in the response, with empty results
@@ -272,11 +272,11 @@ def convert_search_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: d
         )
     )
 
-    # Group rows by `query_id`
-    grouped = df.groupby("query_id")
+    # Group rows by `query_id` and 'query_text' in case the DataFrame contains multiple queries with the same 'qeuery_id'.
+    grouped = df.groupby(["query_id", "query_text"])
 
     results_list = []
-    for query_id, group_df in grouped:
+    for (query_id, query_text), group_df in grouped:
         # Convert group_df to a list of dictionaries
         rows_as_dicts = group_df.to_dict(orient="records")
 
@@ -305,7 +305,7 @@ def convert_search_dataframe_to_pydantic_response(df: pd.DataFrame, meta_data: d
         results_list.append(
             SearchResponseSet(
                 query_id=query_id,
-                query_text=group_df["query_text"].iloc[0],
+                query_text=query_text,
                 entries=response_entries,
             )
         )
