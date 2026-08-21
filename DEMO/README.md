@@ -137,7 +137,8 @@ add as project dependency:
 
 `pip install "classifai[<dependency>]"` 
 
-where `<dependency>` is one or more of `huggingface`,`gcp`,`ollama`, or `all` to install all of them.
+where `<dependency>` is one or more of `huggingface`,`fastembed`,`gcp`,`ollama`, or `all` to install all of them.
+Use `fastembed` for the lightest local sentence-embedding install path.
 
 ##### Using uv
 
