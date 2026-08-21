@@ -51,6 +51,7 @@ website:
               - docs/vectorisers.base.VectoriserBase.transform.qmd
             - section: "Specific Vectorisers"
               contents:
+              - docs/vectorisers.fastembed.FastEmbedVectoriser.qmd
               - docs/vectorisers.huggingface.HuggingFaceVectoriser.qmd
               - docs/vectorisers.ollama.OllamaVectoriser.qmd
               - docs/vectorisers.gcp.GcpVectoriser.qmd
@@ -131,6 +132,7 @@ quartodoc:
         - vectorisers.base
         - vectorisers.base.VectoriserBase
         - vectorisers.base.VectoriserBase.transform
+        - vectorisers.fastembed.FastEmbedVectoriser
         - vectorisers.huggingface.HuggingFaceVectoriser
         - vectorisers.ollama.OllamaVectoriser
         - vectorisers.gcp.GcpVectoriser

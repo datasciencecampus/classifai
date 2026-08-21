@@ -16,7 +16,7 @@ Use cases:
 
 Key Features of the package include:
 
-- Use included vectorisers (including Google Cloud, Huggingface and Ollama embedders) or implement your own 
+- Use included vectorisers (including FastEmbed, Google Cloud, Huggingface and Ollama embedders) or implement your own
 - Built in support for custom hook logic - choose from a library of pre-processing and post-processing functions that control the flow of data (spell checking, results deduplication, etc) or write your own hooks
 - Deploy Easily with FastAPI - Deploy your semantic search classifier with FastAPI capabilities built into the package for easy REST API deployment
 
@@ -72,9 +72,10 @@ The comparison on other aspects, such as per-request speed or hardware requireme
 ## Installation
 
 You can install the package directly from GitHub in your Python environment, using your preferred package manager.
-By default, only the minimum dependencies of the base versions will be installed; you must specify 
+By default, only the minimum dependencies of the base versions will be installed; you must specify
 `classifai[all]` to install all sets of optional dependencies, or `classifai[huggingface, ...]` to install one or more specific sets of optional dependencies.
-The current sets of optional dependencies are `[all, huggingface, ollama, gcp]`.
+The current sets of optional dependencies are `[all, huggingface, fastembed, ollama, gcp]`.
+Use `classifai[fastembed]` for a lighter local embedding setup that does not require `torch` or `transformers`.
 
 ##### Pip
 ```bash
@@ -98,7 +99,7 @@ The size and quality of the knowledgebase dictates the quality of results you ca
 
 #### Step 1: Choose a vectoriser
 
-A vectoriser transforms a query text string into an embedding vector. You can choose from embedding models accessed via HuggingFace, Google or Ollama, or build your own vectoriser.
+A vectoriser transforms a query text string into an embedding vector. You can choose from embedding models accessed via HuggingFace, a lighter local FastEmbed backend, Google or Ollama, or build your own vectoriser.
 
 ```python
 from classifai.vectorisers import HuggingFaceVectoriser
@@ -110,6 +111,8 @@ vectoriser = HuggingFaceVectoriser(model_name="sentence-transformers/all-MiniLM-
 vector = vectoriser.transform("Example text to vectorize")
 print(vector.shape)
 ```
+
+If you want a lighter local runtime without `torch` or `transformers`, install `classifai[fastembed]` and use `FastEmbedVectoriser` with the same model name.
 
 #### Step 2: Build a vector store
 
@@ -141,7 +144,7 @@ print(results)
 #### Step 4: Deploy as a REST API
 
 In addition to using ClassifAI as a local package, you can use it to create / attach to a FastAPI REST API.
-You can create a new FastAPI application which you can modify as required, connect it to an existing FastAPI 
+You can create a new FastAPI application which you can modify as required, connect it to an existing FastAPI
 application, or deploy it immediately as an REST API service using `uvicorn`.
 
 ```python
