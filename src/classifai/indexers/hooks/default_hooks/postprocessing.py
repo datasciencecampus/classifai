@@ -355,7 +355,7 @@ class CrossEncoderRerankerHook(HookBase):
 
     def __init__(
         self,
-        model_name: str = "BAAI/bge-reranker-v2-m3",
+        model_name: str = "cross-encoder/ms-marco-MiniLM-L-12-v2",
         device=None,
         model_revision: str = "main",
         tokenizer_kwargs: dict | None = None,
@@ -365,7 +365,7 @@ class CrossEncoderRerankerHook(HookBase):
 
         Args:
             model_name (str): The name of the cross-encoder model from
-                Hugging Face Hub. Defaults to "BAAI/bge-reranker-v2-m3",
+                Hugging Face Hub. Defaults to "cross-encoder/ms-marco-MiniLM-L-12-v2",
                 a high-performance reranker suitable for local deployment.
             device (torch.device): [optional] The device to use for
                 computation. Defaults to MPS if available (Apple Silicon),
