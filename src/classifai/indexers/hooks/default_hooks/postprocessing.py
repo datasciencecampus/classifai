@@ -457,7 +457,6 @@ class CrossEncoderRerankerHook(HookBase):
         import torch
 
         df = data.copy()
-        num_output_classes = 2
 
         try:
             pairs = df[["query_text", "doc_text"]].values.tolist()
@@ -467,15 +466,7 @@ class CrossEncoderRerankerHook(HookBase):
                     self.device
                 )
                 logits = self.model(**inputs).logits
-
-            if logits.shape[1] == num_output_classes:
-                # Binary classification: apply softmax per pair and use positive class
-                logits = torch.softmax(logits, dim=1)
-                new_scores = logits[:, 1].cpu().numpy()
-            else:
-                # Single score per pair: normalize scores across all pairs
-                logits = logits.squeeze()
-                new_scores = torch.softmax(logits, dim=0).cpu().numpy()
+                new_scores = torch.sigmoid(logits).squeeze().cpu().numpy()
 
         except Exception as e:
             raise HookError(
@@ -490,8 +481,8 @@ class CrossEncoderRerankerHook(HookBase):
                 },
             ) from e
 
-        df["score"] = new_scores
-        df = df.sort_values(by=["query_id", "score"], ascending=[True, False]).reset_index(drop=True)
+        df["cross_encoder_score"] = new_scores
+        df = df.sort_values(by=["query_id", "cross_encoder_score"], ascending=[True, False]).reset_index(drop=True)
         df["rank"] = df.groupby("query_id").cumcount() + 1
 
         processed_output = data.__class__.validate(df)
