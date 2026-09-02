@@ -15,6 +15,7 @@ import logging
 from enum import Enum
 from typing import Annotated, Literal
 
+import pandera as pa
 import uvicorn
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
@@ -252,11 +253,20 @@ def _create_embedding_endpoint(router: APIRouter | FastAPI, endpoint_name: str, 
         description=f"Endpoint to call the `{endpoint_name}` `VectorStore.embed` method",
     )
     async def embedding_endpoint(data: EmbedRequestSet) -> EmbedResponseBody:
+        # Extract relevant fields from the input JSON data
         input_ids = [x.id for x in data.entries]
         input_texts = [x.text for x in data.entries]
 
-        # Creat the input dataclass object and pass it to the vectorstore to get results.
-        input_data = VectorStoreEmbedInput({"id": input_ids, "text": input_texts})
+        # Creat the input dataclass object, raising an informative error if pandera validation fails.
+        try:
+            input_data = VectorStoreEmbedInput({"id": input_ids, "text": input_texts})
+        except pa.errors.SchemaError as e:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Input data failed content validation: {e}",
+            ) from e
+
+        # pass the data to the vectorstore to get results.
         output_data = vector_store.embed(input_data)
 
         # post processing of the Vectorstore output åobject
@@ -293,15 +303,23 @@ def _create_search_endpoint(router: APIRouter | FastAPI, endpoint_name: str, vec
             ),
         ] = 10,
     ) -> SearchResponseBody:
-        # Creat the input dataclass object and pass it to the vectorstore to get results.
+        # Extract relevant fields from the input JSON data
         input_ids = [x.id for x in data.entries]
         queries = [x.query for x in data.entries]
 
-        # Creat the input dataclass object and pass it to the vectorstore to get results.
-        input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
+        # Creat the input dataclass object, raising an informative error if pandera validation fails.
+        try:
+            input_data = VectorStoreSearchInput({"id": input_ids, "query": queries})
+        except pa.errors.SchemaError as e:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Input data failed content validation: {e}",
+            ) from e
+
+        # pass the data to the vectorstore to get results.
         output_data = vector_store.search(query=input_data, n_results=n_results)
 
-        # post processing of the Vectorstore output åobject
+        # post processing of the Vectorstore output object
         formatted_result = convert_search_dataframe_to_pydantic_response(
             df=output_data,
             meta_data=vector_store.meta_data,
@@ -342,13 +360,22 @@ def _create_reverse_search_endpoint(router: APIRouter | FastAPI, endpoint_name: 
         if max_n_results != -1 and max_n_results < 1:
             raise HTTPException(422, "max_n_results must be -1 or >= 1")
 
-        # Creat the input dataclass object and pass it to the vectorstore to get results.
+        # Extract relevant fields from the input JSON data
         input_ids = [x.id for x in data.entries]
         queries = [x.doc_label for x in data.entries]
 
-        # Creat the input dataclass object and pass it to the vectorstore to get results.
-        input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_label": queries})
+        # Creat the input dataclass object, raising an informative error if pandera validation fails.
+        try:
+            input_data = VectorStoreReverseSearchInput({"id": input_ids, "doc_label": queries})
+        except pa.errors.SchemaError as e:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Input data failed content validation: {e}",
+            ) from e
+
+        # pass the data to the vectorstore to get results.
         output_data = vector_store.reverse_search(input_data, max_n_results=max_n_results, partial_match=partial_match)
+
         # post processing of the Vectorstore output object
         formatted_result = convert_reverse_search_dataframe_to_pydantic_response(
             df=output_data,
