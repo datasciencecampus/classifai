@@ -5,6 +5,7 @@
 * Verify VectoriserBase is abstract and cannot be instantiated
 * Verify transform method is abstract
 * Test that subclasses must implement transform
+* Test generic subclass behaviours
 
 
 <b>2. HuggingFaceVectoriser Tests</b>(test_huggingface_vectoriser.py)
@@ -34,6 +35,7 @@
     * Missing both auth methods raises ConfigurationError
     * Providing both auth methods raises ConfigurationError
     * Client initialisation failures raise ConfigurationError
+    * Test model name and task type stored correctly
 * Transform method:
     * Single string input converts to list
     * List processes correctly
@@ -41,6 +43,7 @@
     * Output shape matches input count
     * API request failures raise ExternalServiceError
     * Unexpected response format raises VectorisationError
+    * Model named passed to call correctly
 
 
 <b>4. OllamaVectoriser Tests (test_ollama_vectoriser.py)</b>
