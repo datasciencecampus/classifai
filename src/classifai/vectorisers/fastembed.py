@@ -12,28 +12,34 @@ class FastEmbedVectoriser(VectoriserBase):
     """A lightweight wrapper class for generating embeddings with FastEmbed.
 
     The `FastEmbedVectoriser` uses FastEmbed's ONNX backend to generate
-    embeddings from HuggingFace-compatible sentence embedding models without
-    requiring `torch` or `transformers` as runtime dependencies.
+    embeddings from FastEmbed-compatible sentence embedding models without
+    requiring `torch` or `transformers` as runtime dependencies. The
+    `model_name` must be a name recognised by FastEmbed. To see all
+    supported models, you can run:
+    `FastEmbedVectoriser.list_supported_models()`
 
     Attributes:
-        model_name (str): The name or path of the FastEmbed-compatible model.
+        model_name (str): The official FastEmbed name of the embedding model.
         model (fastembed.TextEmbedding): The FastEmbed model instance.
+        specific_model_path (str | None): The path of the local FastEmbed model.
     """
 
     def __init__(
         self,
         model_name: str,
+        specific_model_path: str | None = None,
         model_kwargs: dict | None = None,
     ):
         """Initialises the FastEmbedVectoriser with the specified model name.
 
         Args:
-            model_name (str): The name or local path of the embedding model.
-                Note: FastEmbed does not support dynamic revision pinning. To
-                guarantee strict versioning, download the ONNX model locally
-                and pass the absolute directory path as `model_name`.
+            model_name (str): The official name of the embedding model for FastEmbed
+                (e.g., "sentence-transformers/all-MiniLM-L6-v2").
+            specific_model_path (str): [optional] The local directory path
+                containing a pre-downloaded ONNX model. Used for offline
+                deployments. Defaults to None.
             model_kwargs (dict): [optional] Additional keyword arguments to
-                pass to the model. Defaults to None.
+                pass to the model (e.g., `cache_dir`). Defaults to None.
 
         Raises:
             `ExternalServiceError`: If the FastEmbed model cannot be loaded.
@@ -42,8 +48,11 @@ class FastEmbedVectoriser(VectoriserBase):
         from fastembed import TextEmbedding  # type: ignore
 
         self.model_name = model_name
-
+        self.specific_model_path = specific_model_path
         model_kwargs = dict(model_kwargs or {})
+
+        if self.specific_model_path is not None:
+            model_kwargs["specific_model_path"] = str(self.specific_model_path)
 
         try:
             self.model = TextEmbedding(model_name=self.model_name, **model_kwargs)
@@ -120,3 +129,15 @@ class FastEmbedVectoriser(VectoriserBase):
             )
 
         return embeddings
+
+    @staticmethod
+    def list_supported_models() -> list[dict[str, any]]:
+        """Wrapper to list the supported models.
+
+        Returns:
+            list[dict[str, Any]]: A list of dictionaries containing the model information.
+        """
+        check_deps(["fastembed"], extra="fastembed")
+        from fastembed import TextEmbedding  # type: ignore
+
+        return TextEmbedding.list_supported_models()
