@@ -1,19 +1,11 @@
 """A module that provides a wrapper for FastEmbed models to generate text embeddings."""
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 
 from classifai._optional import check_deps
 from classifai.exceptions import ExternalServiceError, VectorisationError
 
 from .base import VectoriserBase
-
-if TYPE_CHECKING:
-    from fastembed import TextEmbedding  # type: ignore[import-not-found]
-
-
-EXPECTED_EMBEDDING_DIMS = 2
 
 
 class FastEmbedVectoriser(VectoriserBase):
@@ -28,17 +20,43 @@ class FastEmbedVectoriser(VectoriserBase):
         model (fastembed.TextEmbedding): The FastEmbed model instance.
     """
 
-    def __init__(self, model_name: str):
+    def __init__(
+        self,
+        model_name: str,
+        model_kwargs: dict | None = None,
+    ):
         """Initialises the FastEmbedVectoriser with the specified model name.
 
         Args:
             model_name (str): The name or local path of the embedding model.
+                Note: FastEmbed does not support dynamic revision pinning. To
+                guarantee strict versioning, download the ONNX model locally
+                and pass the absolute directory path as `model_name`.
+            model_kwargs (dict): [optional] Additional keyword arguments to
+                pass to the model. Defaults to None.
 
         Raises:
             `ExternalServiceError`: If the FastEmbed model cannot be loaded.
         """
+        check_deps(["fastembed"], extra="fastembed")
+        from fastembed import TextEmbedding  # type: ignore
+
         self.model_name = model_name
-        self.model = _load_fastembed_model(model_name)
+
+        model_kwargs = dict(model_kwargs or {})
+
+        try:
+            self.model = TextEmbedding(model_name=self.model_name, **model_kwargs)
+        except Exception as e:
+            raise ExternalServiceError(
+                "Failed to load FastEmbed model.",
+                context={
+                    "vectoriser": "fastembed",
+                    "model": self.model_name,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
 
     def transform(self, texts: str | list[str]) -> np.ndarray:
         """Transforms input text(s) into embeddings using FastEmbed.
@@ -55,11 +73,9 @@ class FastEmbedVectoriser(VectoriserBase):
             `VectorisationError`: If FastEmbed fails to generate or parse
                 embeddings.
         """
+        # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
-
-        if not texts:
-            return np.empty((0, 0), dtype=np.float32)
 
         try:
             raw_embeddings = list(self.model.embed(texts))
@@ -92,7 +108,7 @@ class FastEmbedVectoriser(VectoriserBase):
         if embeddings.ndim == 1:
             embeddings = embeddings.reshape(1, -1)
 
-        if embeddings.ndim != EXPECTED_EMBEDDING_DIMS:
+        if embeddings.ndim != 2:  # noqa: PLR2004
             raise VectorisationError(
                 "FastEmbed returned embeddings with an unexpected shape.",
                 context={
@@ -104,22 +120,3 @@ class FastEmbedVectoriser(VectoriserBase):
             )
 
         return embeddings
-
-
-def _load_fastembed_model(model_name: str) -> "TextEmbedding":
-    """Load a FastEmbed embedding model."""
-    check_deps(["fastembed"], extra="fastembed")
-    from fastembed import TextEmbedding  # type: ignore
-
-    try:
-        return TextEmbedding(model_name=model_name)
-    except Exception as e:
-        raise ExternalServiceError(
-            "Failed to load FastEmbed model.",
-            context={
-                "vectoriser": "fastembed",
-                "model": model_name,
-                "cause": str(e),
-                "cause_type": type(e).__name__,
-            },
-        ) from e
