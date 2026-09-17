@@ -27,6 +27,8 @@ We provide several robust implementations of Vectorisers that interface with pop
 
 This module contains the following 'ready-made' classes:
 
+- `FastEmbedVectoriser`: A lightweight wrapper class for generating text
+  embeddings with FastEmbed's ONNX backend.
 - `GcpVectoriser`: A class for embedding text using either Google Cloud Platform's Gemini API or
   Gemini Enterprise Agent Platform (formerly VertexAI) API.
 - `HuggingFaceVectoriser`: A general wrapper class for Huggingface Transformers
@@ -36,6 +38,9 @@ server to generate text embeddings.
 
 Each class is designed to interface with a specific service that provides embedding model
 functionality.
+
+The `FastEmbedVectoriser` class utilizes FastEmbed's ONNX backend to load
+sentence embedding models without requiring `torch` or `transformers`.
 
 The `GcpVectoriser` class leverages Google's GenAI API,
 
@@ -56,11 +61,13 @@ objects.
 """
 
 from .base import VectoriserBase
+from .fastembed import FastEmbedVectoriser
 from .gcp import GcpVectoriser
 from .huggingface import HuggingFaceVectoriser
 from .ollama import OllamaVectoriser
 
 __all__ = [
+    "FastEmbedVectoriser",
     "GcpVectoriser",
     "HuggingFaceVectoriser",
     "OllamaVectoriser",
