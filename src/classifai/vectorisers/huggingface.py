@@ -84,6 +84,8 @@ class HuggingFaceVectoriser(VectoriserBase):
         try:
             if device is not None:
                 self.device = device
+            elif torch.backends.mps.is_available():
+                self.device = torch.device("mps")
             else:
                 self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
