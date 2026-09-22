@@ -106,7 +106,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    # Allow use of assert statements in tests
+    # Allow use of assert statements and magic numbers in tests
     "S101",
     "PLR2004",
 ]
