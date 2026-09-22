@@ -80,4 +80,4 @@ class VectoriserBase(ABC):
             text(s). Each row corresponds to the embedding of a single input
             text.
         """
-        pass
+        ...
