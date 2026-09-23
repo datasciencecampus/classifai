@@ -328,7 +328,7 @@ class VectorStore:
 
         # ---- Build index (wrap every unexpected failure) -> IndexBuildError
         try:
-            self._create_vector_store_index(os.fspath(self.file_name))
+            self._create_vector_store_index()
         except ClassifaiError:
             # preserve already-classified errors (e.g. vectoriser raised DataValidationError)
             raise
@@ -426,9 +426,6 @@ class VectorStore:
         in batches of self.batch_size using self.vectoriser.transform(). The
         resulting embeddings are appended to self.vectors as an embeddings
         column.
-
-        Args:
-            file_name (str): The filename of csv to read in
 
         Raises:
             DataValidationError: If the text column contains no documents, or
@@ -952,7 +949,7 @@ class VectorStore:
     def from_filespace(  # noqa: C901, PLR0912, PLR0915
         cls,
         folder_path: str | os.PathLike[str],
-        vectoriser,
+        vectoriser: VectoriserBase,
         batch_size: int | None = None,
         hooks: dict | None = None,
         quiet_mode: bool = False,
