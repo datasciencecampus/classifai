@@ -29,7 +29,7 @@ class VectorStoreSearchInput(pd.DataFrame):
 
     _schema: pa.DataFrameSchema = pa.DataFrameSchema(
         {
-            "id": pa.Column(str),
+            "id": pa.Column(str, unique=True),
             "query": pa.Column(str),
         },
         coerce=True,
@@ -223,7 +223,7 @@ class VectorStoreReverseSearchInput(pd.DataFrame):
 
     _schema = pa.DataFrameSchema(
         {
-            "id": pa.Column(str),
+            "id": pa.Column(str, unique=True),
             "doc_label": pa.Column(str),
         },
         coerce=True,
@@ -418,7 +418,7 @@ class VectorStoreEmbedInput(pd.DataFrame):
 
     _schema = pa.DataFrameSchema(
         {
-            "id": pa.Column(str),
+            "id": pa.Column(str, unique=True),
             "text": pa.Column(str),
         },
         coerce=True,

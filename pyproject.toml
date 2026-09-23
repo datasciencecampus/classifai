@@ -108,6 +108,7 @@ convention = "google"
 "tests/*" = [
     # Allow use of assert statements in tests
     "S101",
+    "PLR2004",
 ]
 
 [tool.ruff.format]
