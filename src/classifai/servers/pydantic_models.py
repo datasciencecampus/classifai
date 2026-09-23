@@ -2,7 +2,7 @@
 """Pydantic Classes to model request and response data for ClassifAI FastAPI REST API."""
 
 import pandas as pd
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SearchRequestEntry(BaseModel):
@@ -35,8 +35,7 @@ class SearchResponseEntry(BaseModel):
     rank: int = Field(description="The rank of the result entry for the given query, with 1 being the most relevant.")
     score: float = Field(description="The similarity score of the result entry for the given query.")
 
-    class Config:
-        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)å
+    model_config = ConfigDict(extra="allow")
 
 
 class SearchResponseSet(BaseModel):
@@ -89,8 +88,7 @@ class ReverseSearchResponseEntry(BaseModel):
     doc_label: str
     doc_text: str
 
-    class Config:
-        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
+    model_config = ConfigDict(extra="allow")
 
 
 class ReverseSearchResponseSet(BaseModel):
@@ -148,8 +146,7 @@ class EmbedResponseEntry(BaseModel):
         description="The vector embedding result for the input text string, represented as a list of floats."
     )
 
-    class Config:
-        extra = Extra.allow  # Allow extra keys (e.g., metadata columns)
+    model_config = ConfigDict(extra="allow")
 
 
 class EmbedResponseBody(BaseModel):
