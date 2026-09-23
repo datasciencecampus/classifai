@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.1] - 2026-07-08
+
+### Fixed
+
+- Resolved bug in VectorStore.from_filespace when loading in a VectorStore created by classifai v1.0.0.
+    - v1.1.1 VectorStore.from_filespace now assigns the default batch_size if a pre v1.1.0 VectorStore is loaded.
+
+
+## [v1.1.0] - 2026-07-03
+
+### Added
+
+- Evaluation module demo and documentation
+- Quiet mode; suppress progress bars, raise logging level to Warning & above
+- Integrated Cloud storage interactions for VectorStore creation, saving, and re-loading
+- Made persisting VectorStore to disk optional
+- Hooks now in docs
+- Logging levels and host IP to run_sever() function
+
+### Changed
+
+- Updated VectorStore batch size to improve performance
+- Improved Server Router Organization for better OpenAPI docs
+
+### Fixed
+
+- Resolved reverse search Error when no matched Documents
+
+
 ## [v1.0.0] - 2026-03-27
 
 ### Added
@@ -55,3 +84,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - REST API - FastAPI served with Uvicorn
 - Documentation and Demo - README and Jupyter Notebook minimal demo with fake dataset.
 
+
+<!-- Links to tags -->
+[v1.0.0]: https://github.com/datasciencecampus/classifai/compare/v0.2.1...v1.0.0
+[v0.2.1]: https://github.com/datasciencecampus/classifai/compare/v0.2.0...v0.2.1
+[v0.2.0]: https://github.com/datasciencecampus/classifai/compare/v0.1.0...v0.2.0
+[v0.1.0]: https://github.com/datasciencecampus/classifai/releases/tag/v0.1.0

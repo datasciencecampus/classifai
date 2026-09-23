@@ -3,7 +3,7 @@ name = "classifAI"
 description = "A generalised, extendable and modular solution for LLM automated / assisted classification."
 authors = [{name = "Data Science Campus", email = "datasciencecampus@ons.gov.uk"}]
 readme = "README.md"
-version = "1.0.0"
+version = "1.1.1"
 license = {file = "LICENSE"}
 requires-python = ">=3.10,<4.0"
 #dynamic = ["version"]
@@ -16,6 +16,7 @@ dependencies = [
     "pydantic>=2.9.2",
     "tqdm>=4.67.1",
     "pandera[pandas]>=0.27.0",
+    "fsspec>=2026.3.0",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -50,6 +51,7 @@ ollama = [
 ]
 gcp = [
     "google-genai>=1.68.0",
+    "gcsfs>=2026.4.0"
 ]
 all = [
     "classifai[huggingface,gcp,ollama]"
@@ -95,6 +97,8 @@ ignore = [
     # indentation contains tabs
     "W191",
     "PLC0415",
+    # too many positional arguments
+    "PLR0917",
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -104,6 +108,7 @@ convention = "google"
 "tests/*" = [
     # Allow use of assert statements in tests
     "S101",
+    "PLR2004",
 ]
 
 [tool.ruff.format]
@@ -112,6 +117,9 @@ indent-style = "space"
 
 [tool.deptry]
 extend_exclude = ["DEMO"]
+
+[tool.deptry.ignore]
+DEP002 = ["gcsfs"]
 
 [dependency-groups]
 dev = [
@@ -137,4 +145,4 @@ test = [
 ]
 
 [project.urls]
-homepage = "https://github.com/datasciencecampus/classifAI_API"
+homepage = "https://github.com/datasciencecampus/classifAI"

@@ -1,45 +1,54 @@
 # pylint: disable=C0301
-"""This module provides functionality for creating a `VectorStore` from a CSV (text) file.
-It defines the `VectorStore` class, which is used to model and create vector databases
-from CSV text files using a `Vectoriser` object.
+"""Provides functionality for creating a `VectorStore` from a CSV file.
 
-This class requires a `Vectoriser` object from the vectorisers submodule,
-to convert the CSV's text data into vector embeddings which are then stored in the
+Defines the `VectorStore` class, which is used to model and create vector
+databases from CSV (text) files using a `Vectoriser` object.
+
+This class requires a `Vectoriser` object from the vectorisers submodule to
+convert the CSV's text data into vector embeddings which are then stored in the
 VectorStore objects.
 
 Key Features:
 - Batch processing of input files to handle large datasets.
-- Support for CSV file format (additional formats may be added in future updates).
+- Support for CSV file format
 - Integration with a custom embedder for generating vector embeddings.
 - Support for user-defined hooks for preprocessing and postprocessing.
 - Logging for tracking progress and handling errors during processing.
 
 VectorStore Class:
 
-  - The `VectorStore` class is initialized with a `Vectoriser` object and a CSV knowledgebase.
-  - Additional columns in the CSV may be specified as metadata to be included in the vector database.
-  - Upon creation, the `VectorStore` is saved in parquet format for efficient, and quick
-    reloading via the `VectorStore`'s `.from_filespace()` method.
-  - A new piece of text data (or label) can be queried against the `VectorStore` in the following ways:
-    - `.search()`: to find the most semantically similar pieces of text in the vector database.
-    - `.reverse_search()`: to find all examples in the knowledgebase that have a given label.
-    - `.embed()`: to generate a vector embedding for a given piece of text data.
-  - 'Hook' methods may be specified to perform pre-processing on input data before embedding,
-    and post-processing on the output of the search methods.
+  - The `VectorStore` class is initialised with a `Vectoriser` object and a CSV
+        knowledgebase.
+  - Additional columns in the CSV may be specified as metadata to be included
+        in the vector database.
+  - Upon creation, the `VectorStore` is saved in parquet format for efficient,
+        and quick reloading via the `VectorStore`'s `.from_filespace()` method.
+  - A new piece of text data (or label) can be queried against the
+        `VectorStore` in the following ways:
+    - `.search()`: to find the most semantically similar pieces of text in the
+        vector database.
+    - `.reverse_search()`: to find all examples in the knowledgebase that have
+            a given label.
+    - `.embed()`: to generate a vector embedding for a given piece of text
+        data using the vectoriser.
+  - 'Hook' methods may be specified to perform pre-processing on input data
+        before embedding, and post-processing on the output of the search
+        methods.
 """
 
 import json
 import logging
 import os
-import shutil
 import time
 import uuid
 from typing import Literal
 
+import fsspec
 import numpy as np
 import polars as pl
 from tqdm.autonotebook import tqdm
 
+from classifai._optional import OptionalDependencyError, check_deps
 from classifai.exceptions import (
     ClassifaiError,
     ConfigurationError,
@@ -59,28 +68,48 @@ from .dataclasses import (
     VectorStoreSearchOutput,
 )
 
-# Configure logging for your application
-logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
-logging.getLogger("httpcore").setLevel(logging.WARNING)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+_BATCH_SIZE = 128
 
 
 class VectorStore:
-    """A class to model and create `VectorStore` objects for building and searching vector databases from CSV text files.
+    """Models and creates vector databases from CSV text files.
+
+    Converts a knowledgebase (CSV file) to a DataFrame, embeds the text column
+    in batches, storing the resulting vectors for querying. Once built, the
+    store supports semantic search via .search(), label-based lookup via
+    .reverse_search(), and direct embedding via .embed(). The index can be
+    persisted to disk and reloaded later using .from_filespace().
 
     Attributes:
-        file_name (str | os.PathLike[str]): the data file contatining the knowledgebase to build the `VectorStore`
-        data_type (Literal["csv"]): the data type of the data file (curently only csv supported)
-        vectoriser (VectoriserBase): A `Vectoriser` object from the corresponding ClassifAI Package module
-        batch_size (int): the batch size to pass to the vectoriser when embedding
-        meta_data (dict): key-value pairs of metadata to extract from the input file and their correpsonding types
-        output_dir (str | os.PathLike[str]): the path to the output directory where the `VectorStore` will be saved
-        vectors (np.array): a numpy array of vectors for the vector database
-        vector_shape (int): the dimension of the vectors
-        num_vectors (int): the number of records saved in the `VectorStore`
-        vectoriser_class (str): the type of `Vectoriser` used to create embeddings
-        hooks (dict): A dictionary of user-defined hooks for preprocessing and postprocessing.
+        file_name (str | os.PathLike[str]): Path to the input file used to build the `vectors`
+            dataframe.
+        data_type (Literal["csv"]): Format of the input file. Currently only "csv" is
+            supported.
+        vectoriser (VectoriserBase): Vectoriser instance used to convert text
+            into vector embeddings.
+        batch_size (int): The batch size to pass to the vectoriser when
+            embedding.
+        meta_data (dict | None): Mapping of extra CSV column names to extract
+            to their Python types (e.g. {"source": str}). Values are Python
+            types.
+        output_dir (str | os.PathLike[str] | None): Directory where vectors.parquet and
+            metadata.json are written. Defaults to the input file stem when
+            None is passed. Ignored when skip_save=True.
+        skip_save (bool): If False, saves the `VectorStore` to disk after
+            creation. If True, keeps it in memory only (for testing or
+            ephemeral use cases). Defaults to False.
+        vectors (pl.DataFrame | None): Polars DataFrame containing the full
+            knowledgebase table with columns: label, text, uuid, embeddings,
+            and any columns specified in meta_data. None until the index is
+            built.
+        vector_shape (int): Number of dimensions in the vector embeddings.
+        num_vectors (int): Total number of rows stored in the VectorStore.
+        vectoriser_class (str): The type of Vectoriser used to create
+            embeddings.
+        hooks (dict | None): A dictionary of user-defined hooks for preprocessing and
+            postprocessing.
+        quiet_mode (bool): Whether to minimise verbose output, such as progress
+            bars.
     """
 
     def __init__(  # noqa: C901, PLR0912, PLR0913, PLR0915
@@ -88,66 +117,125 @@ class VectorStore:
         file_name: str | os.PathLike[str],
         data_type: Literal["csv"],
         vectoriser: VectoriserBase,
-        batch_size: int = 8,
+        batch_size: int = _BATCH_SIZE,
         meta_data: dict | None = None,
         output_dir: str | os.PathLike[str] | None = None,
         overwrite: bool = False,
+        skip_save: bool = False,
         hooks: dict | None = None,
+        quiet_mode: bool = False,
     ):
-        """Initializes the `VectorStore` object by processing the input CSV file and generating
-        vector embeddings.
+        """Generates vector embeddings from the input csv to form a `VectorStore`.
 
         Args:
-            file_name (str | os.PathLike): The name of the input CSV file.
-            data_type (str): The type of input data (currently supports only "csv").
-            vectoriser (VectoriserBase): The `Vectoriser` object used to transform text into
-                                 vector embeddings.
-            batch_size (int): [optional] The batch size for processing the input file and batching to
-            vectoriser. Defaults to 8.
-            meta_data (dict): [optional] key,value pair metadata column names to extract from the input file and their types.
-                                Defaults to `None`.
-            output_dir (str): [optional] The directory where the `VectorStore` will be saved.
-                                Defaults to `None`, where input file name will be used.
-            overwrite (bool): [optional] If `True`, allows overwriting existing folders with the same name.
-                                Defaults to `False` to prevent accidental overwrites.
-            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to `None`.
-
+            file_name (str | os.PathLike[str]): Path to the input file used to build the `vectors`
+                dataframe.
+            data_type (Literal["csv"]): Format of the input file. Currently only "csv" is
+                supported.
+            vectoriser (VectoriserBase): Vectoriser instance used to convert
+                text into vector embeddings.
+            batch_size (int): The batch size to pass to the vectoriser when
+                embedding. Defaults to 128.
+            meta_data (dict | None): Mapping of extra CSV column names to
+                extract to their Python types (e.g. {"source": str}). Values
+                are Python types.
+            output_dir (str | os.PathLike[str] | None): Directory where vectors.parquet and
+                metadata.json are written. Defaults to the input file stem when
+                None is passed. Ignored when skip_save=True.
+            overwrite (bool): If True, allows overwriting existing folders with
+                the same name. Defaults to False to prevent accidental
+                overwrites. Ignored if skip_save=True.
+            skip_save (bool): If False, saves the `VectorStore` to disk after
+                creation. If True, keeps it in memory only (for testing or
+                ephemeral use cases). Defaults to False.
+            hooks (dict | None): A dictionary of user-defined hooks for preprocessing
+                and postprocessing.
+            quiet_mode (bool): Whether to minimise verbose output, such as
+                progress bars.
 
         Raises:
-            `ClassifaiError`: For any unexpected errors during initialization, with context for debugging.
-            `DataValidationError`: If input arguments are invalid or if there are issues with the input file.
-            `ConfigurationError`: If there are configuration issues, such as output directory problems.
-            `IndexBuildError`: If there are failures during index building or saving outputs.
+            ClassifaiError: For any unexpected errors during initialisation,
+                with context for debugging.
+            DataValidationError: If input arguments are invalid or if there are
+                issues with the input file.
+            ConfigurationError: If there are configuration issues, such as
+                output directory problems.
+            IndexBuildError: If there are failures during index building or
+                saving outputs.
+            OptionalDependencyError: If the user attempts to use a gs:// path
+                without having gcsfs installed.
         """
+        # ---- Set verbosity (based on quiet_mode argument)
+
+        self.quiet_mode = quiet_mode
+        if self.quiet_mode:
+            self.classifai_tqdm = lambda iterable, *args, **kwargs: iterable
+            logging.basicConfig(level=logging.WARNING, format="%(levelname)s - %(message)s", force=True)
+        else:
+            self.classifai_tqdm = tqdm
+            logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s", force=True)
+
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+
         # ---- Input validation (caller mistakes) -> DataValidationError / ConfigurationError
         if not isinstance(file_name, (str, os.PathLike)) or not os.fspath(file_name).strip():
             raise DataValidationError(
                 "file_name must be a non-empty string or os.PathLike.", context={"file_name": file_name}
             )
 
-        if not os.path.exists(file_name):
+        # use fsspec to get the filesystem and path for the input
+        try:
+            in_fs, in_path = fsspec.core.url_to_fs(file_name)
+        except Exception as e:
+            # check for cases where the user wants to use a gs:// path but doesn't have gcsfs installed, and raise a more helpful error message in this case
+            if isinstance(e, ImportError) and file_name.startswith("gs://"):
+                try:
+                    check_deps(["gcsfs"], extra="gcp")
+                except OptionalDependencyError as e:
+                    raise OptionalDependencyError(
+                        "Optional dependency 'gcsfs' is required to use gs:// files. Install with: pip install 'classifai[gcp]'.",
+                    ) from e
+            # for all other cases, raise a generic configuration error with context for debugging
+            raise ConfigurationError(
+                "Failed to read input directory with file loader.",
+                context={
+                    "file_name": file_name,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
+
+        # check if the file exists in the filesystem
+        if not in_fs.exists(in_path):
             raise DataValidationError("Input file does not exist.", context={"file_name": file_name})
 
+        # check that the user has specified the correct datatype
         if data_type not in ["csv"]:
             raise DataValidationError(
                 "Unsupported data_type. Choose from ['csv'].",
                 context={"data_type": data_type},
             )
 
+        # check that the vectoriser object is an instance of the VectoriserBase class and has a transform method
         if not isinstance(vectoriser, VectoriserBase):
             raise ConfigurationError(
                 "Vectoriser must be an instance of Vectoriser(Base) with a .transform() method.",
                 context={"vectoriser_type": type(vectoriser).__name__},
             )
 
+        # check that batch_size is a positive integer
         if not isinstance(batch_size, int) or batch_size < 1:
             raise DataValidationError("batch_size must be an integer >= 1.", context={"batch_size": batch_size})
 
+        # check that meta_data is a dict if provided
         if meta_data is not None and not isinstance(meta_data, dict):
             raise DataValidationError(
                 "meta_data must be a dict or None.", context={"meta_data_type": type(meta_data).__name__}
             )
 
+        # check that hooks is a dict if provided
         if hooks is not None and not isinstance(hooks, dict):
             raise DataValidationError("hooks must be a dict or None.", context={"hooks_type": type(hooks).__name__})
 
@@ -159,30 +247,84 @@ class VectorStore:
         self.batch_size = batch_size
         self.meta_data = meta_data if meta_data is not None else {}
         self.output_dir = output_dir
-        self.hooks = {} if hooks is None else hooks
         self.vectoriser_class = vectoriser.__class__.__name__
+        self.hooks = {} if hooks is None else hooks
+        self.skip_save = skip_save
 
-        # ---- Output directory handling (filesystem problems) -> ConfigurationError
-        try:
-            if self.output_dir is None:
-                logging.info("No output directory specified, attempting to use input file name as output folder name.")
-                normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
-                self.output_dir = os.path.join(normalized_file_name)
+        if self.output_dir is not None and self.skip_save:
+            logging.warning(
+                "VectorStore creation: output_dir is set to %s but skip_save is True, so the VectorStore will not be saved to disk. output_dir will be ignored.",
+                self.output_dir,
+            )
 
-            if os.path.isdir(self.output_dir):
-                if overwrite:
-                    shutil.rmtree(self.output_dir)
-                else:
-                    raise ConfigurationError(
-                        "Output directory already exists. Pass overwrite=True to overwrite the folder.",
-                        context={"output_dir": self.output_dir},
+        if self.output_dir is not None and not isinstance(self.output_dir, str):
+            raise DataValidationError(
+                "output_dir must be a string or None.", context={"output_dir_type": type(self.output_dir).__name__}
+            )
+
+        if not self.skip_save:
+            # ---- Output directory handling (filesystem problems) -> ConfigurationError
+            try:
+                if self.output_dir is None:
+                    logging.info(
+                        "No output directory specified, attempting to use input file name as output folder name."
                     )
-            os.makedirs(self.output_dir, exist_ok=True)
-        except Exception as e:
-            raise ConfigurationError(
-                "Failed to prepare output directory.",
-                context={"output_dir": self.output_dir},
-            ) from e
+                    normalized_file_name = os.path.basename(os.path.splitext(self.file_name)[0])
+                    self.output_dir = os.path.join(normalized_file_name)
+            except Exception as e:
+                raise ConfigurationError(
+                    "Failed to determine output directory from input file name.",
+                    context={
+                        "file_name": self.file_name,
+                        "cause": str(e),
+                        "cause_type": type(e).__name__,
+                    },
+                ) from e
+
+            # use fsspec to get the filesystem and path for the output
+            try:
+                out_fs, out_path = fsspec.core.url_to_fs(self.output_dir)
+            except Exception as e:
+                # check for cases where the user wants to use a gs:// path but doesn't have gcsfs installed, and raise a more helpful error message in this case
+                if isinstance(e, ImportError) and self.output_dir.startswith("gs://"):
+                    try:
+                        check_deps(["gcsfs"], extra="gcp")
+                    except OptionalDependencyError as e:
+                        raise OptionalDependencyError(
+                            "Optional dependency 'gcsfs' is required to use gs:// files. Install with: pip install 'classifai[gcp]'.",
+                        ) from e
+                # for all other cases, raise a generic configuration error with context for debugging
+                raise ConfigurationError(
+                    "Failed to read output directory with file loader.",
+                    context={
+                        "output_dir": self.output_dir,
+                        "cause": str(e),
+                        "cause_type": type(e).__name__,
+                    },
+                ) from e
+
+            try:
+                # check if the output directory already exists, and handle according to overwrite flag
+                if out_fs.exists(out_path):
+                    if overwrite:
+                        out_fs.rm(out_path, recursive=True)
+                    else:
+                        raise ConfigurationError(
+                            "Output directory already exists. Pass overwrite=True to overwrite the folder.",
+                            context={"output_dir": self.output_dir},
+                        )
+                out_fs.makedirs(out_path, exist_ok=True)
+            except Exception as e:
+                raise ConfigurationError(
+                    "Failed to prepare output directory.",
+                    context={
+                        "output_dir": self.output_dir,
+                        "cause": str(e),
+                        "cause_type": type(e).__name__,
+                    },
+                ) from e
+        else:
+            logging.debug("skip_save is set to True, the VectorStore will not be saved to disk after creation.")
 
         # ---- Build index (wrap every unexpected failure) -> IndexBuildError
         try:
@@ -203,39 +345,50 @@ class VectorStore:
             ) from e
 
         # ---- Save + derived metadata (IO/format problems) -> IndexBuildError
-        try:
-            logging.info("Gathering metadata and saving vector store / metadata...")
+        self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
+        self.num_vectors = len(self.vectors)
 
-            self.vector_shape = self.vectors["embeddings"].to_numpy().shape[1]
-            self.num_vectors = len(self.vectors)
+        if not self.skip_save:
+            try:
+                logging.info("Gathering metadata and saving vector store / metadata...")
+                vectors_out_path = os.path.join(self.output_dir, "vectors.parquet")
+                self.vectors.write_parquet(
+                    vectors_out_path
+                )  # polars handles fsspec filesystems natively, so this will work with local and remote filesystems supported by fsspec
 
-            self.vectors.write_parquet(os.path.join(self.output_dir, "vectors.parquet"))
-            self._save_metadata(os.path.join(self.output_dir, "metadata.json"))
+                metadata_out_path = os.path.join(self.output_dir, "metadata.json")
+                self._save_metadata(metadata_out_path)
 
-            logging.info("Vector Store created - files saved to %s", self.output_dir)
-        except ClassifaiError:
-            raise
-        except Exception as e:
-            raise IndexBuildError(
-                "Vector store was created but saving outputs failed.",
-                context={"cause_type": type(e).__name__, "cause_message": str(e)},
-            ) from e
+                logging.info("Vector Store created - files saved to %s", self.output_dir)
+            except ClassifaiError:
+                raise
+            except Exception as e:
+                raise IndexBuildError(
+                    "Vector store was created but saving outputs failed.",
+                    context={"cause_type": type(e).__name__, "cause_message": str(e)},
+                ) from e
+        else:
+            logging.debug("skip_save is True, skipping saving VectorStore to disk.")
 
     def _save_metadata(self, path: str):
         """Saves metadata about the `VectorStore` to a JSON file.
 
         Args:
-            path (str): The file path where the metadata JSON file will be saved.
+            path (str): The file path where the metadata JSON file will be
+                saved.
 
         Raises:
-            `DataValidationError`:` If the path argument is invalid.
-            `IndexBuildError`: If there are failures during serialization or file writing.
+            DataValidationError: If the path argument is invalid.
+            ClassifaiError: If there are package-specific errors during
+                serialisation or file writing.
+            IndexBuildError: If there are failures during serialisation or file
+                writing.
         """
         if not isinstance(path, str) or not path.strip():
             raise DataValidationError("path must be a non-empty string.", context={"path": path})
 
         try:
-            # Convert meta_data types to strings for JSON serialization
+            # Convert meta_data types to strings for JSON serialisation
             serializable_column_meta_data = {
                 key: value.__name__ if isinstance(value, type) else value
                 for key, value in (self.meta_data or {}).items()
@@ -245,11 +398,14 @@ class VectorStore:
                 "vectoriser_class": self.vectoriser_class,
                 "vector_shape": self.vector_shape,
                 "num_vectors": self.num_vectors,
+                "batch_size": self.batch_size,
                 "created_at": time.time(),
                 "meta_data": serializable_column_meta_data,
             }
 
-            with open(path, "w", encoding="utf-8") as f:
+            # inside separate function use fsspec again to write the metadata file to support different filesystems
+            out_fs, out_path = fsspec.core.url_to_fs(path)
+            with out_fs.open(out_path, "w", encoding="utf-8") as f:
                 json.dump(metadata, f, indent=4)
 
         except ClassifaiError:
@@ -261,26 +417,34 @@ class VectorStore:
                 context={"path": path, "metadata": metadata, "cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
-    def _create_vector_store_index(self, file_name: str):  # noqa: C901
-        """Processes text strings in batches, generates vector embeddings, and creates the
-        `VectorStore`.
-        Called from the constructor once other metadata has been set.
-        Iterates over data in batches, stores batch data and generated embeddings.
-        Creates a Polars DataFrame with the captured data and embeddings, and saves it as
-        a Parquet file in the output_dir attribute, and stores in the vectors attribute.
+    def _create_vector_store_index(self):  # noqa: C901
+        """Reads the input file, embeds text in batches, and populates self.vectors.
+
+        Reads the configured input file (currently CSV only) into self.vectors
+        with polars, selecting the label, text, and any specified metadata
+        columns. A UUID is assigned to each row and the text column is embedded
+        in batches of self.batch_size using self.vectoriser.transform(). The
+        resulting embeddings are appended to self.vectors as an embeddings
+        column.
 
         Args:
             file_name (str): The filename of csv to read in
 
         Raises:
-            `DataValidationError`: If there are issues reading or validating the input file.
-            `IndexBuildError`: If there are failures during embedding or building the vectors table.
+            DataValidationError: If the text column contains no documents, or
+                if an unsupported data_type is encountered.
+            ClassifaiError: If there are any package-specific errors during
+                the vector store index creation.
+            IndexBuildError: If the input file cannot be read, if the
+                vectoriser returns an incorrect number of embeddings for a
+                given batch, or if any other failure occurs while building the
+                embeddings table.
         """
         # ---- Reading source data (validation/format issues) -> DataValidationError / IndexBuildError
         try:
             if self.data_type == "csv":
-                self.vectors = pl.read_csv(
-                    file_name,
+                self.vectors = pl.read_csv(  # polars handles fsspec filesystems natively
+                    self.file_name,
                     columns=["label", "text", *self.meta_data.keys()],
                     schema_overrides=self.meta_data | {"label": str, "text": str},
                 )
@@ -312,7 +476,7 @@ class VectorStore:
                 )
 
             embeddings: list[np.ndarray] = []
-            for batch_id in tqdm(range(0, len(documents), self.batch_size)):
+            for batch_id in self.classifai_tqdm(range(0, len(documents), self.batch_size)):
                 batch = documents[batch_id : (batch_id + self.batch_size)]
                 try:
                     batch_embeddings = self.vectoriser.transform(batch)
@@ -359,20 +523,29 @@ class VectorStore:
                 },
             ) from e
 
-    def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:  #  noqa: C901
-        """Converts text (provided via a `VectorStoreEmbedInput` object) into vector embeddings using the `Vectoriser`.
+    def embed(self, query: VectorStoreEmbedInput) -> VectorStoreEmbedOutput:  # noqa: C901
+        """Generates vector embeddings from a `VectorStoreEmbedInput` object.
+
+        Accepts a VectorStoreEmbedInput object and generates vector embeddings
+        for its text content using the vectoriser attribute. Any preprocessing
+        hooks set on the instance are applied to the input before embedding,
+        and any postprocessing hooks are applied to the output before it is
+        returned.
 
         Args:
-            query (VectorStoreEmbedInput): The `VectorStoreEmbedInput` object containing the strings to be embedded and their ids.
+            query (VectorStoreEmbedInput): Input object containing the text to
+                be embedded and their corresponding ids.
 
         Returns:
-            (VectorStoreEmbedOutput): The `VectorStoreEmbedOutput` object containing the embeddings along with their corresponding
-                ids and texts.
+            VectorStoreEmbedOutput: Output object containing the generated
+                embeddings together with their corresponding ids and original
+                texts.
 
         Raises:
-            `DataValidationError`: Raised if invalid arguments are passed.
-            `HookError`: Raised if user-defined hooks fail.
-            `ClassifaiError`: Raised if embedding operation fails.
+            DataValidationError: If invalid arguments are passed.
+            HookError: If a preprocessing or postprocessing hook raises an
+                exception.
+            ClassifaiError: If the embedding operation fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
         if not isinstance(query, VectorStoreEmbedInput):
@@ -442,25 +615,41 @@ class VectorStore:
     def reverse_search(  # noqa: C901, PLR0912
         self, query: VectorStoreReverseSearchInput, max_n_results: int = 100, partial_match: bool = False
     ) -> VectorStoreReverseSearchOutput:
-        """Reverse searches the `VectorStore` using a `VectorStoreReverseSearchInput` object.
-        If using partial matching, matches if document label starts with query label.
+        """Looks up documents in `vectors` by label.
+
+        Performs a label-based (non-semantic) lookup against the stored
+        documents using a `VectorStoreReverseSearchInput`. For each query
+        entry, matching documents are found by comparing the query's doc_label
+        against the label column of self.vectors. When partial_match is
+        enabled, a document is considered a match if its label starts with the
+        query label.
+
+        Any preprocessing hooks set on the instance are applied to the input
+        before searching, and any postprocessing hooks are applied to the output
+        before it is returned.
 
         Args:
-            query (VectorStoreReverseSearchInput): A `VectorStoreReverseSearchInput` object containing the `doc_labels` to
-                look up in the `VectorStore` and their corresponding ids.
-            max_n_results (int): [optional] Number of top results to return for each query, set to -1 to return all results.
-                Defaults to 100.
-            partial_match (bool): [optional] If `True`, the search behaviour is set to return results where the `doc_label`
-                is a prefixed of any vectorstore entries labels. Defaults to `False`.
+            query (VectorStoreReverseSearchInput): Input object containing the
+                doc labels to look up in self.vectors and their corresponding
+                ids.
+            max_n_results (int): Maximum number of matching documents to return
+                per query entry. Pass -1 to return all matches. Defaults to
+                100.
+            partial_match (bool): If True, matches documents whose label starts
+                with the query label (prefix matching). If False, only exact
+                label matches are returned. Defaults to False.
 
         Returns:
-            (VectorStoreReverseSearchOutput): A `VectorStoreReverseSearchOutput` object containing reverse search
-                results with columns for `id`, `searched_doc_label`, retrieved `doc_label`, `doc_text` and any associated metadata columns.
+            VectorStoreReverseSearchOutput: Output object containing the
+                matched documents, with columns for id, searched_doc_label,
+                doc_label, doc_text, and any metadata columns configured on the
+                `VectorStore`.
 
         Raises:
-            `DataValidationError`: Raised if invalid arguments are passed.
-            `HookError`: Raised if user-defined hooks fail.
-            `ClassifaiError`: Raised if reverse search operation fails.
+            DataValidationError: Raised if invalid arguments are passed.
+            HookError: Raised if a preprocessing or postprocessing hook raises
+                an exception.
+            ClassifaiError: Raised if the reverse search operation fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
         if not isinstance(query, VectorStoreReverseSearchInput):
@@ -567,25 +756,39 @@ class VectorStore:
 
         return result_df
 
-    def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=8) -> VectorStoreSearchOutput:  # noqa: C901, PLR0912, PLR0915
-        """Searches the `VectorStore` using queries from a `VectorStoreSearchInput` object.
-        Outputs ranked results in `VectorStoreSearchOutput` object. In batches, converts users text queries into vector embeddings,
-        computes cosine similarity with stored document vectors, and retrieves the top results.
+    def search(self, query: VectorStoreSearchInput, n_results=10, batch_size=None) -> VectorStoreSearchOutput:  # noqa: C901, PLR0912, PLR0915
+        """Queries the `vectors` attribute for the most similar documents.
+
+        Queries are processed in batches of batch_size, with each batch
+        embedded using vectoriser.transform() and scored against all stored
+        document embeddings via dot-product similarity (equivalent to cosine
+        similarity when embeddings are L2-normalised). The top n_results
+        documents are returned for each query, ordered by descending score.
+
+        Any preprocessing hooks set on the instance are applied to the input
+        before searching, and any postprocessing hooks are applied to the
+        output before it is returned.
 
         Args:
-            query (VectorStoreSearchInput): A `VectorStoreSearchInput` object containing the text query or list of queries to search for with ids.
-            n_results (int): [optional] Number of top results to return for each query. Default 10.
-            batch_size (int): [optional] The batch size for processing queries. Default 8.
+            query (VectorStoreSearchInput): The input object containing the
+                text query or list of queries to search for, with ids.
+            n_results (int): Number of top results to return for each query.
+                Defaults to 10.
+            batch_size (int): The batch size for processing queries. Defaults
+                to the batch_size set during initialisation.
 
         Returns:
-            (VectorStoreSearchOutput): A `VectorStoreSearchOutput` object containing search results with columns for `query_id`, `query_text`,
-                `doc_label`, `doc_text`, `rank`, `score`, and any associated metadata columns.
+            VectorStoreSearchOutput: The output object containing search
+                results with columns for query_id, query_text, doc_label,
+                doc_text, rank, score, and any associated metadata columns.
 
         Raises:
-            `DataValidationError`: Raised if invalid arguments are passed.
-            `ConfigurationError`: Raised if the vector store is not initialized.
-            `HookError`: Raised if user-defined hooks fail.
-            `VectorisationError`: Raised if embedding queries fails.
+            DataValidationError: Raised if invalid arguments are passed.
+            ConfigurationError: Raised if the `VectorStore` is not initialised.
+            HookError: Raised if user-defined hooks fail.
+            ClassifaiError: Raised if there is a package-specific error during
+                the search operation.
+            VectorisationError: Raised if query embedding fails.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError
         if not isinstance(query, VectorStoreSearchInput):
@@ -597,11 +800,13 @@ class VectorStore:
         if not isinstance(n_results, int) or n_results < 1:
             raise DataValidationError("n_results must be an integer >= 1.", context={"n_results": n_results})
 
-        if not isinstance(batch_size, int) or batch_size < 1:
-            raise DataValidationError("batch_size must be an integer >= 1.", context={"batch_size": batch_size})
+        query_batch_size = batch_size if batch_size is not None else self.batch_size
+
+        if not isinstance(query_batch_size, int) or query_batch_size < 1:
+            raise DataValidationError("batch_size must be an integer >= 1.", context={"batch_size": query_batch_size})
 
         if self.vectors is None:
-            raise ConfigurationError("Vector store is not initialized (vectors is None).")
+            raise ConfigurationError("Vector store is not initialised (vectors is None).")
 
         if len(query) == 0:
             raise DataValidationError("query is empty.", context={"n_queries": 0})
@@ -626,9 +831,9 @@ class VectorStore:
 
             all_results: list[pl.DataFrame] = []
 
-            for i in tqdm(range(0, len(query), batch_size), desc="Processing query batches"):
-                query_text_batch = query.query.to_list()[i : i + batch_size]
-                query_ids_batch = query.id.to_list()[i : i + batch_size]
+            for i in self.classifai_tqdm(range(0, len(query), query_batch_size), desc="Processing query batches"):
+                query_text_batch = query.query.to_list()[i : i + query_batch_size]
+                query_ids_batch = query.id.to_list()[i : i + query_batch_size]
 
                 if len(query_text_batch) == 0:
                     continue
@@ -720,7 +925,7 @@ class VectorStore:
                 code="search_failed",
                 context={
                     "n_queries": len(query),
-                    "batch_size": batch_size,
+                    "batch_size": query_batch_size,
                     "n_results": n_results,
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
@@ -744,35 +949,99 @@ class VectorStore:
         return result_df
 
     @classmethod
-    def from_filespace(cls, folder_path: str | os.PathLike[str], vectoriser: VectoriserBase, hooks: dict | None = None):  # noqa: C901, PLR0912, PLR0915
-        """Creates a `VectorStore` instance from stored metadata and Parquet files.
-        This method reads the metadata and vectors from the specified folder,
-        validates the contents, and initializes a `VectorStore` object with the
-        loaded data. It checks that the metadata contains the required keys,
-        that the Parquet file exists and is not empty, and that the vectoriser class
-        matches the one used to create the vectors. If any checks fail, it raises
-        a `ValueError` with an appropriate message.
-        This method is useful for loading previously created vector stores without
-        needing to reprocess the original text data.
+    def from_filespace(  # noqa: C901, PLR0912, PLR0915
+        cls,
+        folder_path: str | os.PathLike[str],
+        vectoriser,
+        batch_size: int | None = None,
+        hooks: dict | None = None,
+        quiet_mode: bool = False,
+    ):
+        """Creates a `VectorStore` instance from a saved filespace folder.
+
+        Reads metadata.json and vectors.parquet from folder_path using fsspec,
+        so both local and remote paths (e.g. gs://) are supported. The
+        vectoriser class name stored in metadata.json must match the class name
+        of the supplied vectoriser object. The instance is constructed via
+        object.__new__, so __init__ is never called and no embeddings are
+        generated.
+
+        Note: the returned instance does not have output_dir or skip_save
+        attributes set. vector_shape and num_vectors are read directly from
+        metadata.json without being cross-checked against the actual contents
+        of the parquet file.
+
+        :::{.callout-warning}
+        ## Known issue (v1.1.0, patched in v1.1.1)
+        Loading a `VectorStore` whose `metadata.json` was produced by v1.0.0 (which did not persist `batch_size`) will raise a `DataValidationError` because `batch_size` is listed as a required metadata key. Passing `batch_size` as an argument does **not** bypass this check.
+
+        **Fix:** upgrade to v1.1.1+, which resolves this issue.
+
+        **Workaround:** If you are unable to update from v1.1.0 to a later version, this issue may be circumvented by manually editing the `metadata.json` file to include a `batch_size` field (e.g., `"batch_size": 128`). **We advise against this approach**. Editing `metadata.json` directly is not recommended as a general practice and can lead to issues.
+        :::
 
         Args:
-            folder_path (str | os.PathLike): The folder path containing the metadata and Parquet files.
-            vectoriser (VectoriserBase): The `Vectoriser` object used to transform text into vector embeddings.
-            hooks (dict): [optional] A dictionary of user-defined hooks for preprocessing and postprocessing. Defaults to None.
+            folder_path (str | os.PathLike[str]): Path to the folder containing metadata.json and
+                vectors.parquet. Supports any fsspec-compatible path
+                (local, gs://, etc.).
+            batch_size (int | None): Overrides the batch_size stored in
+                metadata. Defaults to None, which uses the value from
+                metadata.json.
+            vectoriser (VectoriserBase): An object with a callable .transform(texts) method. Its
+                class name must match the vectoriser_class value stored in
+                metadata.json.
+            hooks (dict | None): A dictionary of user-defined hooks for preprocessing
+                and postprocessing. Defaults to None.
+            quiet_mode (bool): Whether to minimise verbose output, such as
+                progress bars. Defaults to False.
 
         Returns:
-            (VectorStore): An instance of the `VectorStore` class.
+            VectorStore: A `VectorStore` instance with vectors populated
+                from the parquet file. file_name, data_type, and
+                batch_size are all set to None.
 
         Raises:
-            `DataValidationError`: If input arguments are invalid or if there are issues with the metadata or Parquet files.
-            `ConfigurationError`: If there are configuration issues, such as `Vectoriser` mismatches.
-            `IndexBuildError`: If there are failures during loading or parsing the files.
+            DataValidationError: If folder_path is not a non-empty string,
+                does not point to an existing directory, if metadata.json
+                is missing or malformed, or if vectors.parquet is missing,
+                empty, or does not contain the required columns.
+            OptionalDependencyError: If the user attempts to use a gs:// path
+                without having gcsfs installed.
+            ConfigurationError: If vectoriser does not have a callable
+                .transform() method, if the fsspec path cannot be resolved,
+                or if the vectoriser class name does not match the one stored in
+                metadata.json.
+            IndexBuildError: If metadata.json or vectors.parquet cannot
+                be read or parsed, or if the instance cannot be constructed.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError / ConfigurationError
         if not isinstance(folder_path, (str, os.PathLike)) or not os.fspath(folder_path).strip():
             raise DataValidationError("folder_path must be a non-empty string.", context={"folder_path": folder_path})
 
-        if not os.path.isdir(folder_path):
+        # use fsspec to get the filesystem and path for the input
+        try:
+            in_fs, in_path = fsspec.core.url_to_fs(folder_path)
+        except Exception as e:
+            # check for cases where the user wants to use a gs:// path but doesn't have gcsfs installed, and raise a more helpful error message in this case
+            if isinstance(e, ImportError) and folder_path.startswith("gs://"):
+                try:
+                    check_deps(["gcsfs"], extra="gcp")
+                except OptionalDependencyError as e:
+                    raise OptionalDependencyError(
+                        "Optional dependency 'gcsfs' is required to use gs:// filespaces. Install with: pip install 'classifai[gcp]'.",
+                    ) from e
+            # for all other cases, raise a generic configuration error with context for debugging
+            raise ConfigurationError(
+                "Failed to read input directory with file loader.",
+                context={
+                    "folder_path": folder_path,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
+
+        # check if the folder exists in the filesystem
+        if not in_fs.isdir(in_path):
             raise DataValidationError(
                 "folder_path must be an existing directory.", context={"folder_path": folder_path}
             )
@@ -783,45 +1052,49 @@ class VectorStore:
                 context={"vectoriser_type": type(vectoriser).__name__},
             )
 
+        if batch_size is not None and (not isinstance(batch_size, int) or batch_size < 1):
+            raise DataValidationError("batch_size must be an integer >= 1 or None.", context={"batch_size": batch_size})
+
         if hooks is not None and not isinstance(hooks, dict):
             raise DataValidationError("hooks must be a dict or None.", context={"hooks_type": type(hooks).__name__})
 
         # ---- Load metadata -> IndexBuildError
-        metadata_path = os.path.join(folder_path, "metadata.json")
-        if not os.path.exists(metadata_path):
+        metadata_in_path = os.path.join(in_path, "metadata.json")
+        if not in_fs.exists(metadata_in_path):
             raise DataValidationError(
                 "Metadata file not found in folder_path.",
-                context={"folder_path": folder_path, "metadata_path": metadata_path},
+                context={"folder_path": folder_path, "metadata_path": metadata_in_path},
             )
 
         try:
-            with open(metadata_path, encoding="utf-8") as f:
+            with in_fs.open(metadata_in_path, encoding="utf-8") as f:
                 metadata = json.load(f)
         except Exception as e:
             raise IndexBuildError(
                 "Failed to read metadata.json.",
-                context={"metadata_path": metadata_path, "cause_type": type(e).__name__, "cause_message": str(e)},
+                context={"metadata_path": metadata_in_path, "cause_type": type(e).__name__, "cause_message": str(e)},
             ) from e
 
         # ---- Validate metadata content -> DataValidationError
         if not isinstance(metadata, dict):
             raise DataValidationError(
                 "metadata.json did not contain a JSON object.",
-                context={"metadata_path": metadata_path, "metadata_type": type(metadata).__name__},
+                context={"metadata_path": metadata_in_path, "metadata_type": type(metadata).__name__},
             )
 
+        # batch size is not required in metadata for backwards compatibility with v1.0.0
         required_keys = ["vectoriser_class", "vector_shape", "num_vectors", "created_at", "meta_data"]
         missing = [k for k in required_keys if k not in metadata]
         if missing:
             raise DataValidationError(
                 "Metadata file is missing required keys.",
-                context={"metadata_path": metadata_path, "missing_keys": missing},
+                context={"metadata_path": metadata_in_path, "missing_keys": missing},
             )
 
         if not isinstance(metadata["meta_data"], dict):
             raise DataValidationError(
                 "metadata.meta_data must be an object/dict.",
-                context={"metadata_path": metadata_path, "meta_data_type": type(metadata["meta_data"]).__name__},
+                context={"metadata_path": metadata_in_path, "meta_data_type": type(metadata["meta_data"]).__name__},
             )
 
         # ---- Deserialize meta_data types safely -> DataValidationError
@@ -835,30 +1108,42 @@ class VectorStore:
             raise DataValidationError(
                 "Unable to deserialize metadata column types from metadata in metadata file.",
                 context={
-                    "metadata_path": metadata_path,
+                    "metadata_path": metadata_in_path,
                     "meta_data": metadata["meta_data"],
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
                 },
             ) from e
 
+        if metadata.get("batch_size") is None:
+            if batch_size is not None:
+                logging.warning(
+                    "Metadata is outdated (pre v1.1.0) and does not contain a batch_size. Using provided batch_size=%d.",
+                    batch_size,
+                )
+            else:
+                logging.warning(
+                    "Metadata is outdated (pre v1.1.0) and does not contain a batch_size. Defaulting to %d.",
+                    _BATCH_SIZE,
+                )
+
         # ---- Load parquet -> IndexBuildError / DataValidationError
-        vectors_path = os.path.join(folder_path, "vectors.parquet")
-        if not os.path.exists(vectors_path):
+        vectors_in_path = os.path.join(folder_path, "vectors.parquet")
+        if not in_fs.exists(vectors_in_path):
             raise DataValidationError(
                 "Vectors Parquet file not found in folder_path.",
-                context={"folder_path": folder_path, "vectors_path": vectors_path},
+                context={"folder_path": folder_path, "vectors_path": vectors_in_path},
             )
 
         required_columns = ["label", "text", "embeddings", "uuid", *deserialized_column_meta_data.keys()]
 
         try:
-            df = pl.read_parquet(vectors_path, columns=required_columns)
+            df = pl.read_parquet(vectors_in_path, columns=required_columns)  # polars handles fsspec path natively
         except Exception as e:
             raise IndexBuildError(
                 "Failed to read vectors.parquet.",
                 context={
-                    "vectors_path": vectors_path,
+                    "vectors_path": vectors_in_path,
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
                 },
@@ -867,14 +1152,14 @@ class VectorStore:
         if df.is_empty():
             raise DataValidationError(
                 "Vectors Parquet file is empty.",
-                context={"vectors_path": vectors_path},
+                context={"vectors_path": vectors_in_path},
             )
 
         missing_cols = [c for c in required_columns if c not in df.columns]
         if missing_cols:
             raise DataValidationError(
                 "Vectors Parquet file is missing required columns.",
-                context={"vectors_path": vectors_path, "missing_columns": missing_cols},
+                context={"vectors_path": vectors_in_path, "missing_columns": missing_cols},
             )
 
         # ---- Validate vectoriser class match -> ConfigurationError
@@ -893,21 +1178,31 @@ class VectorStore:
             vector_store.file_name = None
             vector_store.data_type = None
             vector_store.vectoriser = vectoriser
-            vector_store.batch_size = None
+            vector_store.batch_size = batch_size or metadata.get("batch_size") or _BATCH_SIZE
             vector_store.meta_data = deserialized_column_meta_data
             vector_store.vectors = df
             vector_store.vector_shape = metadata["vector_shape"]
             vector_store.num_vectors = metadata["num_vectors"]
             vector_store.vectoriser_class = metadata["vectoriser_class"]
             vector_store.hooks = {} if hooks is None else hooks
+            vector_store.quiet_mode = quiet_mode
+            if vector_store.quiet_mode:
+                vector_store.classifai_tqdm = lambda iterable, *args, **kwargs: iterable
+                logging.basicConfig(level=logging.WARNING, format="%(levelname)s - %(message)s", force=True)
+            else:
+                vector_store.classifai_tqdm = tqdm
+                logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s", force=True)
+            logging.getLogger("httpcore").setLevel(logging.WARNING)
+            logging.getLogger("httpx").setLevel(logging.WARNING)
+            logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
         except Exception as e:
             raise IndexBuildError(
                 "Failed to initialise VectorStore instance from filespace.",
                 context={
                     "folder_path": folder_path,
-                    "metadata_path": metadata_path,
-                    "vectors_path": vectors_path,
+                    "metadata_path": metadata_in_path,
+                    "vectors_path": vectors_in_path,
                     "cause_type": type(e).__name__,
                     "cause_message": str(e),
                 },

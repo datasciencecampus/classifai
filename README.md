@@ -78,17 +78,17 @@ The current sets of optional dependencies are `[all, huggingface, ollama, gcp]`.
 
 ##### Pip
 ```bash
-pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 1.1.1>/classifai-<version e.g. 1.1.1>-py3-none-any.whl"
 ```
 
 ##### Astral UV
 One-off add to environment:
 ```bash
-uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+uv pip install "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 1.1.1>/classifai-<version e.g. 1.1.1>-py3-none-any.whl"
 ```
 Persist as an environment requirement:
 ```bash
-uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 0.2.1>/classifai-<version e.g. 0.2.1>-py3-none-any.whl"
+uv add "classifai[<dependency list(s)>] @ https://github.com/datasciencecampus/classifai/releases/download/v<version e.g. 1.1.1>/classifai-<version e.g. 1.1.1>-py3-none-any.whl"
 ```
 
 ## Example: Indexing and searching a knowledgebase
@@ -165,6 +165,8 @@ Further guides and tutorials can be found in the [DEMO folder](./DEMO/) of this 
 
 - [General workflow](./DEMO/general_workflow_demo.ipynb)
   - A general introduction to using the ClassifAI package.
+- [Evaluation Module](./DEMO/evaluation_workflow_demo.ipynb)
+  - Evaluate and compare VectorStore performance in a multi-class single-label setting using your own ground truth data.
 - [Custom vectorisers](./DEMO/custom_vectoriser.ipynb)
   - make your own custom vectoriser model that will interact with the core features of the package.
 - [Custom pre- and post-processing "hooks"](./DEMO/using_hooks.ipynb)

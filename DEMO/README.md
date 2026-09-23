@@ -66,6 +66,26 @@ It covers:
 
 * A showcase of the pre-made `RagHook` class and performing different RAG type tasks on `VectorStoreSearchOutput` results including classification, reranking and keyword identication, and how to customise the specific task using this class.
 
+### 5. Evaluating VectorStore Performance with Metrics : `evaluation_workflow_demo.ipynb`
+
+This notebook demonstrates how to use the Evaluation module to assess the performance of one or more VectorStore instances against ground-truth labelled data.
+
+It covers:
+
+* An introduction to the Evaluation module and its multi-class, single-label classification focus.
+
+* The available evaluation metrics
+
+* Creating multiple VectorStore instances with varying data coverage to showcase performance differences.
+
+* Instantiating an `Evaluation` object with ground truth data and selected metrics.
+
+* Running the `evaluate()` method to compute metrics across multiple VectorStores.
+
+* Memory-efficient evaluation using callable functions to load VectorStores on-demand, useful when evaluating many or large VectorStores.
+
+**Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
+
 ---
 
 ## Installation of classifai
@@ -98,17 +118,17 @@ Activate it (Windows):
 
 ##### Using pip
 
-`pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
+`pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.1.1/classifai-1.1.1-py3-none-any.whl"`
 
 ##### Using uv
 
 one-off:
 
-`uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
+`uv pip install "https://github.com/datasciencecampus/classifai/releases/download/v1.1.1/classifai-1.1.1-py3-none-any.whl"`
 
 add as project dependency:
 
-`uv add "https://github.com/datasciencecampus/classifai/releases/download/v0.2.1/classifai-0.2.1-py3-none-any.whl"`
+`uv add "https://github.com/datasciencecampus/classifai/releases/download/v1.1.1/classifai-1.1.1-py3-none-any.whl"`
 
 
 #### *2)* Install optional dependencies
@@ -118,6 +138,7 @@ add as project dependency:
 `pip install "classifai[<dependency>]"` 
 
 where `<dependency>` is one or more of `huggingface`,`gcp`,`ollama`, or `all` to install all of them.
+
 ##### Using uv
 
 one-off installation
@@ -129,10 +150,6 @@ add as project dependency
 `uv add "classifai[<dependency>]"`
 
 ---
-
-## Prerequisites
-
-You may wish to download each notebook individually and the demo dataset individually - each notebook contains specific installation instructions on how to set up an environemnt and download the package
 
 ## Running the Demo
 
