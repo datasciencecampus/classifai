@@ -86,6 +86,20 @@ It covers:
 
 **Note:** The Evaluation module is currently in development and its API is subject to change in future releases.
 
+### 6. Working with datasets in multiple languages with ClassifAI and Multilingual Vectoriser Models : `multilingual_datasets_and_vectorisers.ipynb`
+
+This notebook demonstrates how to work with datasets containing text in multiple languages using ClassifAI and multilingual Vectoriser models.
+
+It covers:
+
+* How multilingual Vectorisers can encode text from different languages into a shared embedding space, allowing semantically similar text to be represented similarly, regardless of language.
+
+* Building a `VectorStore` from a multilingual dataset and searching it using queries in different languages.
+
+* Visualising the multilingual embedding space to show how semantically similar text in different languages is positioned close together.
+
+* Performing searches in one language and retrieving relevant results in multiple languages, showcasing the multilingual capabilities of the VectorStore.
+
 ---
 
 ## Installation of classifai
