@@ -18,6 +18,11 @@ class FastEmbedVectoriser(VectoriserBase):
     supported models, you can run:
     `FastEmbedVectoriser.list_supported_models()`
 
+    To use a pre-downloaded model in an air-gapped environment, provide both
+    its official FastEmbed `model_name` and its local directory through
+    `specific_model_path`. FastEmbed uses `model_name` to identify the model
+    configuration and `specific_model_path` to locate its local ONNX files.
+
     Attributes:
         model_name (str): The official FastEmbed name of the embedding model.
         model (fastembed.TextEmbedding): The FastEmbed model instance.
@@ -35,9 +40,10 @@ class FastEmbedVectoriser(VectoriserBase):
         Args:
             model_name (str): The official name of the embedding model for FastEmbed
                 (e.g., "sentence-transformers/all-MiniLM-L6-v2").
-            specific_model_path (str): [optional] The local directory path
-                containing a pre-downloaded ONNX model. Used for offline
-                deployments. Defaults to None.
+            specific_model_path (str | None): The local directory containing
+                the pre-downloaded ONNX model. To run offline, provide this
+                value together with the model's official `model_name`.
+                Defaults to None.
             model_kwargs (dict): [optional] Additional keyword arguments to
                 pass to the model (e.g., `cache_dir`). Defaults to None.
 
