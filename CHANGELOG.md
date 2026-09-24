@@ -5,13 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added `FastEmbedVectoriser` as a lightweight local embedding backend for HuggingFace-compatible sentence embedding models.
+- Added a `fastembed` optional dependency group and documented the lighter install path.
+
 ## [v1.1.1] - 2026-07-08
 
 ### Fixed
 
 - Resolved bug in VectorStore.from_filespace when loading in a VectorStore created by classifai v1.0.0.
-    - v1.1.1 VectorStore.from_filespace now assigns the default batch_size if a pre v1.1.0 VectorStore is loaded.
-
+  - v1.1.1 VectorStore.from_filespace now assigns the default batch_size if a pre v1.1.0 VectorStore is loaded.
 
 ## [v1.1.0] - 2026-07-03
 
@@ -33,7 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolved reverse search Error when no matched Documents
 
-
 ## [v1.0.0] - 2026-03-27
 
 ### Added
@@ -41,8 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Agents - Hooks for using genai to perform tasks on VectorStore results.
 - Hooks Framework - new framework for hooks to support premade and custom hook development.
 - Server Class Features:
-    - new methods for instantiating the FastAPI application and/or routing.
-    - allows middleware to be used, or the routing to be attached to another FastAPI service.
+  - new methods for instantiating the FastAPI application and/or routing.
+  - allows middleware to be used, or the routing to be attached to another FastAPI service.
 - Documentation - new QuartoDocs documenting the ClassifAI package and new demo notebooks.
 - Partial String matching - reverse search VectorStore method now does optional partial matching.
 - Vectoriser Class - More options for instantiating HuggingFace models.
@@ -53,10 +58,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation - better docstrings and updated demo notebooks.
 - Dataclasses - updated for more intuitive dataframe column naming.
 - Server Class Refactor:
-    - expanded scope of features.
-    - renamed start_api method to run_server.
+  - expanded scope of features.
+  - renamed start_api method to run_server.
 
 ### Fixed
+
 - Server hook data - hook metadata now returned in FastAPI responses.
 - Reverse Search results - fixed issue where max_n_results defaulted to None causing errors.
 
@@ -84,8 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - REST API - FastAPI served with Uvicorn
 - Documentation and Demo - README and Jupyter Notebook minimal demo with fake dataset.
 
-
 <!-- Links to tags -->
+
 [v1.0.0]: https://github.com/datasciencecampus/classifai/compare/v0.2.1...v1.0.0
 [v0.2.1]: https://github.com/datasciencecampus/classifai/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/datasciencecampus/classifai/compare/v0.1.0...v0.2.0
