@@ -614,7 +614,7 @@ class TestVectorStoreInitSaveHandling:
             }
         )
 
-        vs = VectorStore(  # noqa: F841
+        vs = VectorStore(
             file_name="/path/to/test.csv",
             data_type="csv",
             vectoriser=mock_vectoriser,
@@ -649,7 +649,7 @@ class TestVectorStoreInitSaveHandling:
         )
 
         with patch("classifai.indexers.main.pl.DataFrame.write_parquet") as mock_write_parquet:
-            vs = VectorStore(  # noqa: F841
+            vs = VectorStore(
                 file_name="/path/to/test.csv",
                 data_type="csv",
                 vectoriser=mock_vectoriser,
