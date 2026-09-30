@@ -46,6 +46,9 @@ huggingface = [
     "transformers>=4.52.4",
     "torch>=2.7.1"
 ]
+fastembed = [
+    "fastembed>=0.8.0,<1.0.0"
+]
 ollama = [
     "ollama>=0.5.1"
 ]
@@ -54,7 +57,7 @@ gcp = [
     "gcsfs>=2026.4.0"
 ]
 all = [
-    "classifai[huggingface,gcp,ollama]"
+    "classifai[huggingface,fastembed,gcp,ollama]"
 ]
 
 [tool.ruff]
