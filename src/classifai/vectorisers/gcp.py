@@ -103,12 +103,13 @@ class GcpVectoriser(VectoriserBase):
                 context={"vectoriser": "gcp", "cause": str(e), "cause_type": type(e).__name__},
             ) from e
 
-    def transform(self, texts: str | list[str]) -> np.ndarray:
+    def transform(self, texts: str | list[str], **kwargs) -> np.ndarray:
         """Transforms input text(s) into embeddings using the GenAI API.
 
         Args:
             texts (str | list[str]): The input text(s) to embed. Can be a
                 single string or a list of strings.
+            **kwargs: Additional parameters to pass to the `embed_content` method.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row
@@ -119,15 +120,23 @@ class GcpVectoriser(VectoriserBase):
             `VectorisationError`: If the response format from the GenAI API is
                 unexpected.
         """
+        from google import genai  # type: ignore
+
         # If a single string is passed as arg to texts, convert to list
         if isinstance(texts, str):
             texts = [texts]
 
+        # Dynamically create the EmbedContentConfig, preserving the constructor's task_type
+        config = genai.types.EmbedContentConfig(
+            task_type=kwargs.pop(
+                "task_type", self.model_config.task_type
+            ),  # Use the constructor's task_type if not overridden
+            **kwargs,  # Pass any additional configuration options
+        )
+
         # The Vertex AI call to embed content
         try:
-            embeddings = self.vectoriser.models.embed_content(
-                model=self.model_name, contents=texts, config=self.model_config
-            )
+            embeddings = self.vectoriser.models.embed_content(model=self.model_name, contents=texts, config=config)
         except Exception as e:
             raise ExternalServiceError(
                 "GCP embedding request failed.",
