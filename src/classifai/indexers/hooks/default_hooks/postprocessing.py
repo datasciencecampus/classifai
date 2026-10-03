@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from classifai._optional import check_deps
-from classifai.exceptions import ConfigurationError, HookError
+from classifai.exceptions import ConfigurationError, ExternalServiceError, HookError
 from classifai.indexers.dataclasses import VectorStoreSearchOutput
 from classifai.indexers.hooks.hook_factory import HookBase
 
@@ -324,4 +324,166 @@ class RagHook(HookBase):
             containing the LLM-generated response for each row.
         """
         processed_output = self._call_llm(search_output)
+        return processed_output
+
+
+class CrossEncoderRerankerHook(HookBase):
+    """A post-processing hook to rerank search results using a cross-encoder model.
+
+    Designed to operate on a `VectorStoreSearchOutput`, i.e. the output of
+    the `VectorStore.search()` method. Takes the top retrieved results and
+    reranks them using a cross-encoder model that scores (query, document)
+    pairs jointly, often providing more accurate results than bi-encoder
+    similarity scores.
+
+    Attributes:
+        model_name (str): The name of the cross-encoder model to use from huggingface.
+        device (torch.device): [optional] The device to use for
+            computation. Defaults to GPU if available, otherwise CPU.
+        model_revision (str): [optional] The specific model revision to
+            use. Defaults to "main".
+        tokenizer_kwargs (dict): [optional] Additional keyword arguments to
+            pass to the tokenizer. Defaults to None.
+        model_kwargs (dict): [optional] Additional keyword arguments to
+            pass to the model. Defaults to None.
+
+    Raises:
+        `ExternalServiceError`: If the model or tokenizer cannot be loaded.
+        `ConfigurationError`: If the model cannot be initialised on the
+            specified device.
+    """
+
+    def __init__(
+        self,
+        model_name: str = "cross-encoder/ms-marco-MiniLM-L-12-v2",
+        device=None,
+        model_revision: str = "main",
+        tokenizer_kwargs: dict | None = None,
+        model_kwargs: dict | None = None,
+    ):
+        """Initialises the hook with the specified cross-encoder model.
+
+        Args:
+            model_name (str): The name of the cross-encoder model from
+                Hugging Face Hub. Defaults to "cross-encoder/ms-marco-MiniLM-L-12-v2",
+                a high-performance reranker suitable for local deployment.
+            device (torch.device): [optional] The device to use for
+                computation. Defaults to MPS if available (Apple Silicon),
+                else GPU if available, otherwise CPU.
+            model_revision (str): [optional] The specific model revision to
+                use. Defaults to "main".
+            tokenizer_kwargs (dict): [optional] Additional keyword arguments to
+                pass to the tokenizer. Defaults to None.
+            model_kwargs (dict): [optional] Additional keyword arguments to
+                pass to the model. Defaults to None.
+
+        Raises:
+            ExternalServiceError: If the model or tokenizer cannot be loaded.
+            ConfigurationError: If the model cannot be initialised on the
+                specified device.
+        """
+        check_deps(["transformers", "torch"], extra="huggingface")
+        import torch
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer  # type: ignore
+
+        self.model_name = model_name
+
+        tokenizer_kwargs = dict(tokenizer_kwargs or {})
+        model_kwargs = dict(model_kwargs or {})
+
+        # Ensure consistent behavior unless user overrides it
+        tokenizer_kwargs.setdefault("trust_remote_code", False)
+        model_kwargs.setdefault("trust_remote_code", False)
+
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision, **tokenizer_kwargs)  # nosec: B615
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                model_name, revision=model_revision, **model_kwargs
+            )  # nosec: B615
+        except Exception as e:
+            raise ExternalServiceError(
+                "Failed to load Hugging Face cross-encoder model/tokenizer.",
+                context={
+                    "hook": "CrossEncoderRerankerHook",
+                    "model": model_name,
+                    "revision": model_revision,
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
+
+        # Device selection / model placement is local configuration/runtime.
+        try:
+            if device is not None:
+                self.device = device
+            elif torch.backends.mps.is_available():
+                self.device = torch.device("mps")
+            else:
+                self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+            self.model.to(self.device)
+            self.model.eval()
+        except Exception as e:
+            raise ConfigurationError(
+                "Failed to initialise cross-encoder model on device.",
+                context={
+                    "hook": "CrossEncoderRerankerHook",
+                    "model": model_name,
+                    "device": str(device) if device else "auto",
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
+
+        super().__init__(hook_type="post_processing")
+
+    def __call__(self, data: VectorStoreSearchOutput) -> VectorStoreSearchOutput:
+        """Reranks search results using the cross-encoder model.
+
+        For each query in the search output, creates (query, document) pairs,
+        scores them with the cross-encoder model, sorts results by the new
+        scores, and reassigns ranks accordingly.
+
+        Args:
+            data (VectorStoreSearchOutput): The search output data to rerank.
+
+        Returns:
+            A new VectorStoreSearchOutput with results reranked by the
+            cross-encoder model scores and ranks reassigned.
+
+        Raises:
+            HookError: If cross-encoder inference fails.
+        """
+        import torch
+
+        df = data.copy()
+
+        try:
+            pairs = df[["query_text", "doc_text"]].values.tolist()
+
+            with torch.no_grad():
+                inputs = self.tokenizer(pairs, padding=True, truncation=True, return_tensors="pt", max_length=512).to(
+                    self.device
+                )
+                logits = self.model(**inputs).logits
+                new_scores = torch.sigmoid(logits).squeeze().cpu().numpy()
+
+        except Exception as e:
+            raise HookError(
+                "Cross-encoder reranking inference failed.",
+                context={
+                    "postprocessing": "CrossEncoderRerankerHook",
+                    "model": self.model_name,
+                    "device": str(self.device),
+                    "n_pairs": len(pairs),
+                    "cause": str(e),
+                    "cause_type": type(e).__name__,
+                },
+            ) from e
+
+        df["cross_encoder_score"] = new_scores
+        df = df.sort_values(by=["query_id", "cross_encoder_score"], ascending=[True, False]).reset_index(drop=True)
+        df["rank"] = df.groupby("query_id").cumcount() + 1
+
+        processed_output = data.__class__.validate(df)
         return processed_output
