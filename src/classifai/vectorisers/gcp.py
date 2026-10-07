@@ -40,6 +40,7 @@ class GcpVectoriser(VectoriserBase):
         vectoriser (genai.Client): The GenAI client instance for embedding
             text.
         task_type (str): The embedding task type (e.g., "CLASSIFICATION").
+        client_kwargs (dict): Keyword arguments passed to the GenAI client.
         transform_kwargs (dict): Additional keyword arguments for the embed_content method.
     """
 
@@ -100,10 +101,10 @@ class GcpVectoriser(VectoriserBase):
                 context={"vectoriser": "gcp"},
             )
 
+        self.client_kwargs = _client_kwargs
+
         try:
-            self.vectoriser = genai.Client(
-                **_client_kwargs,
-            )
+            self.vectoriser = genai.Client(**self.client_kwargs)
         except Exception as e:
             raise ConfigurationError(
                 "Failed to initialise GCP GenAI client.",
@@ -134,7 +135,8 @@ class GcpVectoriser(VectoriserBase):
             texts = [texts]
 
         # Merge stored transform_kwargs with runtime overrides
-        config_kwargs = {**self.transform_kwargs, **kwargs}
+        config_kwargs = {**self.transform_kwargs}
+        config_kwargs.update(kwargs)
         config_kwargs.setdefault("task_type", self.task_type)
 
         config = genai.types.EmbedContentConfig(**config_kwargs)
