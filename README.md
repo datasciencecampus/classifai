@@ -2,7 +2,7 @@
 
 ### A tool produced by the UK Office for National Statistics - Central Data Science & AI group
 
-# ClassifAI
+# ClassifAI&nbsp;&nbsp;[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/datasciencecampus/classifai_demo/main?urlpath=%2Fdoc%2Ftree%2Fdemo%2FDEMO.ipynb)
 
 ClassifAI is a free, open-source (MIT Licence) Python package that simplifies semantic search and Retrieval Augmented Generation (RAG) pipelines for classification tasks in the production of official statistics. It is designed to help data professionals build applications and pipelines to label new text samples to official statistical classifications, by leveraging (augmented) semantic search over a knowledgebase of previously coded examples.
 
@@ -122,10 +122,7 @@ You provide a knowledgebase of labelled examples (currently only allows data to 
 from classifai.indexers import VectorStore
 
 vector_store = VectorStore(
-    file_name="occupations_knowledgebase.csv",
-    vectoriser=vectoriser,
-    batch_size=8,
-    output_dir="vector_store"
+    file_name="occupations_knowledgebase.csv", vectoriser=vectoriser, batch_size=8, output_dir="vector_store"
 )
 ```
 
@@ -135,7 +132,7 @@ The query is provided as a dataframe-like object to the search method, and the r
 ```python
 from classifai.indexers.dataclasses import VectorStoreSearchInput
 
-input_data = VectorStoreSearchInput({'id': [1], 'query':["construction worker scaffolder"]})
+input_data = VectorStoreSearchInput({"id": [1], "query": ["construction worker scaffolder"]})
 
 results = vector_store.search(input_data, n_results=5)
 print(results)
