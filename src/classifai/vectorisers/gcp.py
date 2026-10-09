@@ -39,18 +39,20 @@ class GcpVectoriser(VectoriserBase):
         model_name (str): The name of the embedding model to use.
         vectoriser (genai.Client): The GenAI client instance for embedding
             text.
-        model_config (genai.types.EmbedContentConfig): Configuration for the
-            embedding task.
+        task_type (str): The embedding task type (e.g., "CLASSIFICATION").
+        client_kwargs (dict): Keyword arguments passed to the GenAI client.
+        transform_kwargs (dict): Additional keyword arguments for the embed_content method.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         project_id=None,
         api_key=None,
         location="europe-west2",
         model_name="text-embedding-004",
         task_type="CLASSIFICATION",
-        **client_kwargs,
+        client_kwargs=None,
+        transform_kwargs=None,
     ):
         """Initialises the GcpVectoriser with the specified project ID, location, and model name.
 
@@ -67,10 +69,12 @@ class GcpVectoriser(VectoriserBase):
                 "CLASSIFICATION". See
                 https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/task-types
                 for other options.
-            **client_kwargs: [optional] Additional keyword arguments to pass to
+            client_kwargs (dict): [optional] Additional keyword arguments to pass to
                 the GenAI client. To invoke via the Agent Platform API
                 (formerly VertexAI) API rather than the GenAI API, pass the
-                additional kwarg `vertexai=True`.
+                additional kwarg `vertexai=True`. Defaults to None.
+            transform_kwargs (dict): [optional] Additional keyword arguments to pass to
+                the embed_content method. Defaults to None.
 
         Raises:
             `ConfigurationError`: If the authentication arguments are invalid,
@@ -80,35 +84,41 @@ class GcpVectoriser(VectoriserBase):
         from google import genai  # type: ignore
 
         self.model_name = model_name
-        self.model_config = genai.types.EmbedContentConfig(task_type=task_type)
+        self.task_type = task_type
+        self.transform_kwargs = transform_kwargs or {}
+
+        # Build client kwargs
+        _client_kwargs = client_kwargs.copy() if client_kwargs else {}
 
         if project_id and not api_key:
-            client_kwargs.setdefault("project", project_id)
-            client_kwargs.setdefault("location", location)
+            _client_kwargs.setdefault("project", project_id)
+            _client_kwargs.setdefault("location", location)
         elif api_key and not project_id:
-            client_kwargs.setdefault("api_key", api_key)
+            _client_kwargs.setdefault("api_key", api_key)
         else:
             raise ConfigurationError(
                 "Provide either 'project_id' and 'location' together, or 'api_key' alone for GCP Vectoriser.",
                 context={"vectoriser": "gcp"},
             )
 
+        self.client_kwargs = _client_kwargs
+
         try:
-            self.vectoriser = genai.Client(
-                **client_kwargs,
-            )
+            self.vectoriser = genai.Client(**self.client_kwargs)
         except Exception as e:
             raise ConfigurationError(
                 "Failed to initialise GCP GenAI client.",
                 context={"vectoriser": "gcp", "cause": str(e), "cause_type": type(e).__name__},
             ) from e
 
-    def transform(self, texts: str | list[str]) -> np.ndarray:
+    def transform(self, texts: str | list[str], **kwargs) -> np.ndarray:
         """Transforms input text(s) into embeddings using the GenAI API.
 
         Args:
             texts (str | list[str]): The input text(s) to embed. Can be a
                 single string or a list of strings.
+            **kwargs: Additional parameters to override or supplement stored
+                transform_kwargs for the `embed_content` method.
 
         Returns:
             numpy.ndarray: A 2D array of embeddings, where each row
@@ -119,15 +129,20 @@ class GcpVectoriser(VectoriserBase):
             `VectorisationError`: If the response format from the GenAI API is
                 unexpected.
         """
-        # If a single string is passed as arg to texts, convert to list
+        from google import genai  # type: ignore
+
         if isinstance(texts, str):
             texts = [texts]
 
-        # The Vertex AI call to embed content
+        # Merge stored transform_kwargs with runtime overrides
+        config_kwargs = {**self.transform_kwargs}
+        config_kwargs.update(kwargs)
+        config_kwargs.setdefault("task_type", self.task_type)
+
+        config = genai.types.EmbedContentConfig(**config_kwargs)
+
         try:
-            embeddings = self.vectoriser.models.embed_content(
-                model=self.model_name, contents=texts, config=self.model_config
-            )
+            embeddings = self.vectoriser.models.embed_content(model=self.model_name, contents=texts, config=config)
         except Exception as e:
             raise ExternalServiceError(
                 "GCP embedding request failed.",
@@ -140,7 +155,6 @@ class GcpVectoriser(VectoriserBase):
                 },
             ) from e
 
-        # Extract embeddings from the response object
         try:
             result = np.array([res.values for res in embeddings.embeddings])
         except Exception as e:
