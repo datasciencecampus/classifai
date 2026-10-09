@@ -636,7 +636,7 @@ requires-dist = [
     { name = "ollama", marker = "extra == 'ollama'", specifier = ">=0.5.1" },
     { name = "pandas", specifier = ">=2.3.0" },
     { name = "pandera", extras = ["pandas"], specifier = ">=0.27.0" },
-    { name = "polars", specifier = ">=1.26.0" },
+    { name = "polars", specifier = ">=1.26.0,<2.0.0" },
     { name = "pydantic", specifier = ">=2.9.2" },
     { name = "torch", marker = "extra == 'huggingface'", specifier = ">=2.7.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
