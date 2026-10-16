@@ -58,6 +58,9 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Run unit tests
+        run: uv run --extra all pytest
+
       #- name: setup gitleaks
       #  run: make setup-gitleaks
 
