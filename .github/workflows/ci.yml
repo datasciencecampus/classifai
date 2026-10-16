@@ -58,6 +58,10 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Run unit tests
+        if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+        run: uv run pytest
+
       #- name: setup gitleaks
       #  run: make setup-gitleaks
 
