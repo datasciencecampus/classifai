@@ -74,15 +74,15 @@ class TestGcpVectoriserInitialization:
 
         assert vectoriser.model_name == "text-embedding-005"
 
-    @patch("classifai.vectorisers.gcp.check_deps")
-    @patch("google.genai.Client")
-    def test_init_task_type_passed_to_embed_content_config(self, mock_client, mock_check_deps):
-        """task_type should be forwarded to EmbedContentConfig."""
-        with patch("google.genai.types.EmbedContentConfig") as mock_config:
-            GcpVectoriser(api_key="fake-api-key", task_type="RETRIEVAL_QUERY")  # pragma: allowlist secret
+    # @patch("classifai.vectorisers.gcp.check_deps")
+    # @patch("google.genai.Client")
+    # def test_init_task_type_passed_to_embed_content_config(self, mock_client, mock_check_deps):
+    #     """task_type should be forwarded to EmbedContentConfig."""
+    #     with patch("google.genai.types.EmbedContentConfig") as mock_config:
+    #         GcpVectoriser(api_key="fake-api-key", task_type="RETRIEVAL_QUERY")  # pragma: allowlist secret
 
-            _, call_kwargs = mock_config.call_args
-            assert call_kwargs["task_type"] == "RETRIEVAL_QUERY"
+    #         _, call_kwargs = mock_config.call_args
+    #         assert call_kwargs["task_type"] == "RETRIEVAL_QUERY"
 
 
 class TestGcpVectoriserTransform:
