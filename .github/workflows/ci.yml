@@ -59,8 +59,7 @@ jobs:
         run: uv sync
 
       - name: Run unit tests
-        if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
-        run: uv run pytest
+        run: uv run --extra all pytest
 
       #- name: setup gitleaks
       #  run: make setup-gitleaks
