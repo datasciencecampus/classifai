@@ -41,6 +41,7 @@ import logging
 import os
 import time
 import uuid
+from typing import Literal
 
 import fsspec
 import numpy as np
@@ -80,9 +81,9 @@ class VectorStore:
     persisted to disk and reloaded later using .from_filespace().
 
     Attributes:
-        file_name (str): Path to the input file used to build the `vectors`
+        file_name (str | os.PathLike[str]): Path to the input file used to build the `vectors`
             dataframe.
-        data_type (str): Format of the input file. Currently only "csv" is
+        data_type (Literal["csv"]): Format of the input file. Currently only "csv" is
             supported.
         vectoriser (VectoriserBase): Vectoriser instance used to convert text
             into vector embeddings.
@@ -91,7 +92,7 @@ class VectorStore:
         meta_data (dict | None): Mapping of extra CSV column names to extract
             to their Python types (e.g. {"source": str}). Values are Python
             types.
-        output_dir (str | None): Directory where vectors.parquet and
+        output_dir (str | os.PathLike[str] | None): Directory where vectors.parquet and
             metadata.json are written. Defaults to the input file stem when
             None is passed. Ignored when skip_save=True.
         skip_save (bool): If False, saves the `VectorStore` to disk after
@@ -105,7 +106,7 @@ class VectorStore:
         num_vectors (int): Total number of rows stored in the VectorStore.
         vectoriser_class (str): The type of Vectoriser used to create
             embeddings.
-        hooks (dict): A dictionary of user-defined hooks for preprocessing and
+        hooks (dict | None): A dictionary of user-defined hooks for preprocessing and
             postprocessing.
         quiet_mode (bool): Whether to minimise verbose output, such as progress
             bars.
@@ -113,12 +114,12 @@ class VectorStore:
 
     def __init__(  # noqa: C901, PLR0912, PLR0913, PLR0915
         self,
-        file_name: str,
-        data_type: str,
+        file_name: str | os.PathLike[str],
+        data_type: Literal["csv"],
         vectoriser: VectoriserBase,
         batch_size: int = _BATCH_SIZE,
         meta_data: dict | None = None,
-        output_dir: str | None = None,
+        output_dir: str | os.PathLike[str] | None = None,
         overwrite: bool = False,
         skip_save: bool = False,
         hooks: dict | None = None,
@@ -127,9 +128,9 @@ class VectorStore:
         """Generates vector embeddings from the input csv to form a `VectorStore`.
 
         Args:
-            file_name (str): Path to the input file used to build the `vectors`
+            file_name (str | os.PathLike[str]): Path to the input file used to build the `vectors`
                 dataframe.
-            data_type (str): Format of the input file. Currently only "csv" is
+            data_type (Literal["csv"]): Format of the input file. Currently only "csv" is
                 supported.
             vectoriser (VectoriserBase): Vectoriser instance used to convert
                 text into vector embeddings.
@@ -138,7 +139,7 @@ class VectorStore:
             meta_data (dict | None): Mapping of extra CSV column names to
                 extract to their Python types (e.g. {"source": str}). Values
                 are Python types.
-            output_dir (str | None): Directory where vectors.parquet and
+            output_dir (str | os.PathLike[str] | None): Directory where vectors.parquet and
                 metadata.json are written. Defaults to the input file stem when
                 None is passed. Ignored when skip_save=True.
             overwrite (bool): If True, allows overwriting existing folders with
@@ -147,7 +148,7 @@ class VectorStore:
             skip_save (bool): If False, saves the `VectorStore` to disk after
                 creation. If True, keeps it in memory only (for testing or
                 ephemeral use cases). Defaults to False.
-            hooks (dict): A dictionary of user-defined hooks for preprocessing
+            hooks (dict | None): A dictionary of user-defined hooks for preprocessing
                 and postprocessing.
             quiet_mode (bool): Whether to minimise verbose output, such as
                 progress bars.
@@ -179,8 +180,10 @@ class VectorStore:
         logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
         # ---- Input validation (caller mistakes) -> DataValidationError / ConfigurationError
-        if not isinstance(file_name, str) or not file_name.strip():
-            raise DataValidationError("file_name must be a non-empty string.", context={"file_name": file_name})
+        if not isinstance(file_name, (str, os.PathLike)) or not os.fspath(file_name).strip():
+            raise DataValidationError(
+                "file_name must be a non-empty string or os.PathLike.", context={"file_name": file_name}
+            )
 
         # use fsspec to get the filesystem and path for the input
         try:
@@ -237,15 +240,13 @@ class VectorStore:
             raise DataValidationError("hooks must be a dict or None.", context={"hooks_type": type(hooks).__name__})
 
         # ---- Assign fields
+        ## all these fields are all initalised from inputs
         self.file_name = file_name
         self.data_type = data_type
         self.vectoriser = vectoriser
         self.batch_size = batch_size
         self.meta_data = meta_data if meta_data is not None else {}
         self.output_dir = output_dir
-        self.vectors = None
-        self.vector_shape = None
-        self.num_vectors = None
         self.vectoriser_class = vectoriser.__class__.__name__
         self.hooks = {} if hooks is None else hooks
         self.skip_save = skip_save
@@ -442,7 +443,7 @@ class VectorStore:
                 self.vectors = pl.read_csv(  # polars handles fsspec filesystems natively
                     self.file_name,
                     columns=["label", "text", *self.meta_data.keys()],
-                    dtypes=self.meta_data | {"label": str, "text": str},
+                    schema_overrides=self.meta_data | {"label": str, "text": str},
                 )
                 self.vectors = self.vectors.with_columns(
                     pl.Series("uuid", [str(uuid.uuid4()) for _ in range(self.vectors.height)])
@@ -946,7 +947,12 @@ class VectorStore:
 
     @classmethod
     def from_filespace(  # noqa: C901, PLR0912, PLR0915
-        cls, folder_path, vectoriser, batch_size: int | None = None, hooks: dict | None = None, quiet_mode: bool = False
+        cls,
+        folder_path: str | os.PathLike[str],
+        vectoriser: VectoriserBase,
+        batch_size: int | None = None,
+        hooks: dict | None = None,
+        quiet_mode: bool = False,
     ):
         """Creates a `VectorStore` instance from a saved filespace folder.
 
@@ -972,13 +978,13 @@ class VectorStore:
         :::
 
         Args:
-            folder_path (str): Path to the folder containing metadata.json and
+            folder_path (str | os.PathLike[str]): Path to the folder containing metadata.json and
                 vectors.parquet. Supports any fsspec-compatible path
                 (local, gs://, etc.).
             batch_size (int | None): Overrides the batch_size stored in
                 metadata. Defaults to None, which uses the value from
                 metadata.json.
-            vectoriser: An object with a callable .transform(texts) method. Its
+            vectoriser (VectoriserBase): An object with a callable .transform(texts) method. Its
                 class name must match the vectoriser_class value stored in
                 metadata.json.
             hooks (dict | None): A dictionary of user-defined hooks for preprocessing
@@ -1006,7 +1012,7 @@ class VectorStore:
                 be read or parsed, or if the instance cannot be constructed.
         """
         # ---- Validate arguments (caller mistakes) -> DataValidationError / ConfigurationError
-        if not isinstance(folder_path, str) or not folder_path.strip():
+        if not isinstance(folder_path, (str, os.PathLike)) or not os.fspath(folder_path).strip():
             raise DataValidationError("folder_path must be a non-empty string.", context={"folder_path": folder_path})
 
         # use fsspec to get the filesystem and path for the input
