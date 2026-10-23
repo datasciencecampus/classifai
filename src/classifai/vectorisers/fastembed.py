@@ -50,6 +50,9 @@ class FastEmbedVectoriser(VectoriserBase):
         Raises:
             `ExternalServiceError`: If the FastEmbed model cannot be loaded.
         """
+        raise NotImplementedError(
+            "Currently FastEmbed does not support pillow 13.0.0, and is disabled for security reasons."
+        )
         check_deps(["fastembed"], extra="fastembed")
         from fastembed import TextEmbedding  # type: ignore
 
