@@ -218,6 +218,17 @@ During development, you might want to run linters / code vulnerability scans; yo
 make check-python
 ```
 
+You may also want to run the Unit Tests for either the whole codebase, or for the module you're working on; you can do so via
+
+```bash
+make run-tests-all # all tests
+make run-tests-vectorisers # vectoriser module tests
+make run-tests-indexers # indexer module tests (WIP)
+make run-tests-servers # indexer module tests (Planned - not yet available)
+make run-tests-evaluation # evaluation module tests (Planned - not yet available)
+```
+
+
 
 ## Contact and Support
 

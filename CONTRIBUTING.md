@@ -80,7 +80,23 @@ We ensure a linear commit history by using squash merges for pull requests. This
 
 
 ### Testing
-We currently do not have a testing pipeline setup for this repository.
+We are developing a testing harness of `pytest` unit tests to ensure changes to one area to not silently cause problems in another.
+Developers can run these tests locally as they work to confirm their understanding of how their changes impact other areas of the codebase using the following commands;
+
+- `make run-tests-all` : run all unit tests
+- `make run-tests-vectorisers` : run unit tests associated with the vectorisers module
+- `make run-tests-all` : run unit tests associated with the indexers module (WIP)
+- `make run-tests-servers` : run unit tests associated with the indexers module (planned)
+- `make run-tests-evaluation` : run unit tests associated with the evaluation module (planned)
+
+When marking a PR as ready for review, developers are expected to ensure the unit tests are up-to-date and passing.
+If your PR introduces new features, targeted new tests should be written to ensure the behaviour is as-intended.
+If your PR introduces changes to existing code, or how aspects of ClassifAI interact with each other, the existing tests should be modified to accurately describe and test the desired behaviour.
+The CICD pipeline will run all unit tests on your PR as a check which must pass before it can be merged to `main`.
+
+We recommend opening a PR marked 'Draft' while you continue to work on it to give other developers sight of your progress without running the CICD pipeline.
+When you feel it is ready to be merged, you can mark it as ready for review which will trigger the CICD pipeline.
+We suggest locally running the tests before this stage to avoid surprises and/or reviewer burden, but we do not currently mandate this via pre-commit checking.
 
 
 ## Getting Help
