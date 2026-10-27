@@ -24,6 +24,18 @@ check-python-security: ## security checks only (no-fix)
 setup-gitleaks: ## Grab the docker image
 	docker pull zricethezav/gitleaks:latest
 
+run-tests-all: ## run all available unit tests
+	uv run --extra all pytest
+
+run-tests-vectorisers: ## run all available unit tests
+	uv run --extra all pytest tests/test_vectorisers
+
+# run-tests-indexers: ## run all available unit tests
+#	uv run pytest tests/test_indexers
+
+# run-tests-servers: ## run all available unit tests
+# 	uv run pytest --folder tests/test_servers
+
 run-gitleaks: ## run gitleaks with docker
 	docker run -v $(CURDIR):/path zricethezav/gitleaks:latest detect --source="/path" --verbose
 
