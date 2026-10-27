@@ -12,6 +12,7 @@ on:
     branches-ignore:
       - 'dependabot/**/**'
     types: [opened, synchronize, reopened, edited, ready_for_review]
+  workflow_dispatch:
 concurrency:
   group: "${{ github.head_ref || github.ref }}-${{ github.workflow }}"
   cancel-in-progress: true
