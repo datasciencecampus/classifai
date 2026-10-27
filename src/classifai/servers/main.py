@@ -12,7 +12,7 @@ API server.
 from __future__ import annotations
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Literal
 
 import pandera as pa
@@ -141,7 +141,7 @@ def get_server(vector_stores: list[VectorStore], endpoint_names: list[str]) -> F
     return app
 
 
-class LogLevel(str, Enum):
+class LogLevel(StrEnum):
     """Valid levels of logs."""
 
     DEBUG = "debug"
