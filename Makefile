@@ -30,11 +30,11 @@ run-tests-all: ## run all available unit tests
 run-tests-vectorisers: ## run all available unit tests
 	uv run --extra all pytest tests/test_vectorisers
 
-run-tests-indexers: ## run all available unit tests
-	uv run --extra all pytest tests/test_indexers
+# run-tests-indexers: ## run all available unit tests
+#	uv run pytest tests/test_indexers
 
 # run-tests-servers: ## run all available unit tests
-# 	uv run --extra all pytest --folder tests/test_servers
+# 	uv run pytest --folder tests/test_servers
 
 run-gitleaks: ## run gitleaks with docker
 	docker run -v $(CURDIR):/path zricethezav/gitleaks:latest detect --source="/path" --verbose

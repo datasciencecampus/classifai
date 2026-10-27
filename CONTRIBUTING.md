@@ -85,7 +85,7 @@ Developers can run these tests locally as they work to confirm their understandi
 
 - `make run-tests-all` : run all unit tests
 - `make run-tests-vectorisers` : run unit tests associated with the vectorisers module
-- `make run-tests-all` : run unit tests associated with the indexers module (WIP)
+- `make run-tests-indexers` : run unit tests associated with the indexers module (WIP)
 - `make run-tests-servers` : run unit tests associated with the indexers module (planned)
 - `make run-tests-evaluation` : run unit tests associated with the evaluation module (planned)
 
