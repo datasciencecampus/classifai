@@ -52,6 +52,15 @@ Whether you want to: suggest a fix to a known bug/issue; want to propose an enha
 4. Push your branch to your forked repository.
 5. Open a pull request to the main repository.
 
+#### Development Notes
+
+We have standardised on [`uv`](https://docs.astral.sh/uv/) as the package management and project orchestration tool for development on ClassifAI.
+Several tools and checks provided to support development on ClassifAI to enforce consistency and security (such as linting, secret scanning and running of unit tests) assume a working installation of `uv`. These tools are made available via `make` commands.
+We use `pre-commit` hooks to enforce style and security practices, which can be installed via `make setup-git-hooks` or `make setup-git-hooks-no-docker`.
+Using GPG-signed commits is not currently enforced, but is strongly encouraged.
+
+We have additional development patterns around unit testing, which are outlined in the Testing section below.
+
 #### Pull Request CI/CD Formatting
 We currently use _conventional commits_ in our GitHub workflows. This means that our CI/CD pipeline validates pull request (PR) titles to ensure they follow specific prefixes. These prefixes help optimize our release pipelines and automate labeling. Below is a table listing the prefixes you should use when opening a pull request from a forked repository:
 

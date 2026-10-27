@@ -185,7 +185,7 @@ If you are a developer working on ClassifAI, this section describes how to set u
 <b>NOTE</b>: This section is for developers who are making alterations and changes to the codebase of this repo itself, not for developers who are using the features of the package.
 
 
-To begin making changes to the codebase follow the following instructions on your development machine:
+To begin making changes to the codebase, you will need a working [`uv`](https://docs.astral.sh/uv/) installation, and to follow these instructions on your development machine:
 
 1. Clone the repo:
 ```bash
@@ -210,7 +210,7 @@ uv lock
 uv sync
 ```
 
-And that's you good to go!
+And that's you good to go! Please refer to `CONTRIBUTING.md` for additional details if you wish to contribute your changes to our codebase.
 
 During development, you might want to run linters / code vulnerability scans; you can do so at any point via
 
