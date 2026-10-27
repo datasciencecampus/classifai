@@ -53,12 +53,6 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
-      - name: Build uv lock file
-        run: uv lock
-
-      - name: Install dependencies
-        run: uv sync
-
       #- name: setup gitleaks
       #  run: make setup-gitleaks
 
@@ -89,12 +83,6 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Build uv lock file
-        run: uv lock
-
-      - name: Install dependencies
-        run: uv sync
 
       - name: Run unit tests
         run: make run-tests-all
