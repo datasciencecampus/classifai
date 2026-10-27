@@ -12,6 +12,7 @@ on:
     branches-ignore:
       - 'dependabot/**/**'
     types: [opened, synchronize, reopened, edited, ready_for_review]
+  workflow_dispatch:
 concurrency:
   group: "${{ github.head_ref || github.ref }}-${{ github.workflow }}"
   cancel-in-progress: true
@@ -52,12 +53,6 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
-      - name: Build uv lock file
-        run: uv lock
-
-      - name: Install dependencies
-        run: uv sync
-
       #- name: setup gitleaks
       #  run: make setup-gitleaks
 
@@ -66,6 +61,31 @@ jobs:
 
       - name: check code formatting & vulnerability detection
         run: make check-python-nofix
+
+      - name: Cleanup residue file
+        run: make clean
+
+
+  unit-tests:
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    name: Unit Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Install uv
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57  # v8.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run unit tests
+        run: make run-tests-all
 
       - name: Cleanup residue file
         run: make clean
