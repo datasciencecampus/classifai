@@ -90,7 +90,7 @@ We ensure a linear commit history by using squash merges for pull requests. This
 
 ### Testing
 We are developing a testing harness of `pytest` unit tests to ensure changes to one area to not silently cause problems in another.
-Developers can run these tests locally as they work to confirm their understanding of how their changes impact other areas of the codebase using the following commands;
+Developers can run these tests locally as they work to confirm their understanding of how their changes impact other areas of the codebase using the following commands:
 
 - `make run-tests-all` : run all unit tests
 - `make run-tests-vectorisers` : run unit tests associated with the vectorisers module
