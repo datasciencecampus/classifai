@@ -47,10 +47,10 @@ huggingface = [
     "torch>=2.7.1"
 ]
 
-# fastembed = [
-#     "fastembed>=0.8.0,<1.0.0",
-#     "pillow>=13.0.0"
-# ]
+fastembed = [
+    "fastembed>=0.8.0,<1.0.0",
+    "pillow>=13.0.0"
+]
 ollama = [
     "ollama>=0.5.1"
 ]
@@ -125,7 +125,6 @@ extend_exclude = ["DEMO"]
 
 [tool.deptry.ignore]
 DEP002 = ["gcsfs"]
-DEP001 = ["fastembed"]
 
 [dependency-groups]
 dev = [
