@@ -40,6 +40,7 @@ from .dataclasses import (
 )
 from .hooks import (
     CapitalisationStandardisingHook,
+    CrossEncoderRerankerHook,
     DeduplicationHook,
     HookBase,
 )
@@ -47,6 +48,7 @@ from .main import VectorStore
 
 __all__ = [
     "CapitalisationStandardisingHook",
+    "CrossEncoderRerankerHook",
     "DeduplicationHook",
     "HookBase",
     "VectorStore",
